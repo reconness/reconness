@@ -1,0 +1,102 @@
+<template>
+  <header>
+    <nav class='navbar navbar-expand-sm navbar-expand-md navbar-dark bg-dark border-bottom box-shadow mb-3'>
+      <div class="container">
+        <a class="navbar-brand" href='/'>ReconNess v1.0.0</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
+                aria-expanded="isExpanded" v-on:click="toggle">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+          <ul class="navbar-nav flex-grow">
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Targets
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <router-link class="dropdown-item" to="/targets/create">New Target</router-link>
+                <div class="dropdown-divider"></div>
+                <div v-for="t in targets" v-bind:key="t.id">
+                  <router-link class="dropdown-item" :to="{name: 'target', params: { targetName: t.name }}">{{ t.name }}</router-link>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Agents
+              </a>
+              <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <router-link class="dropdown-item" to="/agents/create">New Agent</router-link>
+                <router-link class="dropdown-item" to="/agents/debug">Debug Agent</router-link>
+                <div class="dropdown-divider"></div>
+                <div v-for="a in agents" v-bind:key="a.id">
+                  <router-link class="dropdown-item" :to="{name: 'agent', params: { agentName: a.name }}">{{ a.name }}</router-link>
+                </div>
+              </div>
+            </li>
+            <li class="nav-item" v-if="isAuth()">
+              <a class="nav-link" v-on:click="onLogout()">
+                Logout
+              </a>              
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+  </header>
+</template>
+
+<script>
+export default {
+  name: 'NavMenu',
+  data: () => {
+    return {
+      isExpanded: false,
+      targets: [],
+      agents: []
+    }
+  },
+  methods: {
+    collapse: function() {
+      this.isExpanded = false;
+    },
+    toggle: function() {
+      this.isExpanded = !this.isExpanded;
+    },
+    onLogout () {
+      localStorage.removeItem('user');
+      this.$router.push({ name: 'login' })
+    },
+    isAuth() {
+      const loggedIn = localStorage.getItem('user')
+      return loggedIn !== null
+    }
+  },
+  async mounted() {  
+    this.targets = (await this.$api.get('targets')).data
+    this.agents = (await this.$api.get('agents')).data
+  }
+};
+</script>
+
+<style scoped>
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+</style>

@@ -1,0 +1,42 @@
+version: '3'
+services:
+  web:
+    container_name: 'reconnet'
+    image: 'reconnet'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    depends_on:
+      - 'postgres'
+    networks:
+      - reconness-network
+    environment:
+      - ReconnessUserName=reconness               # login username
+      - ReconnessPassword=reconness               # login password
+      - PostgresUser=reconness                    # postgres userName
+      - PostgresPassword=reconness                # postgres password
+      - PostgresDb=reconness                      # postgres database
+      - SecurityKey=mysecuritykeypleasechangethis # securityKey for the JWT, minimum length is 16 characters
+
+  postgres:
+    ports:
+      - '5432:5432'
+    container_name: 'reconness-postgresql'
+    environment:
+        POSTGRES_USER: 'reconness'                # postgres username, needs to be the same defined above 
+        POSTGRES_PASSWORD: 'reconness'            # postgres password, needs to be the same defined above 
+        POSTGRES_DB: 'reconness'                  # postgres database, needs to be the same defined above 
+    volumes:
+      - 'reconness-postgresql-volume:/var/lib/postgresql'
+    image: 'postgres:latest'
+    networks:
+      - reconness-network
+
+volumes:
+    reconness-postgresql-volume:
+
+networks:
+    reconness-network:
+        driver: bridge
