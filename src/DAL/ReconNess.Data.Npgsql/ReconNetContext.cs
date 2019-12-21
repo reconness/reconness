@@ -45,7 +45,7 @@ namespace ReconNess.Data.Npgsql
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            
+
             modelBuilder.Entity<Agent>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();

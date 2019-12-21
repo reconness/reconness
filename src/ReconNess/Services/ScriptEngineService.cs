@@ -54,6 +54,9 @@ namespace ReconNess.Services
         }
     }
 
+    /// <summary>
+    /// Global Class
+    /// </summary>
     public class Globals
     {
         public string lineInput;

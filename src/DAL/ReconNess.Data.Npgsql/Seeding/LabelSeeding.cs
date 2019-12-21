@@ -1,6 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using ReconNess.Entities;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace ReconNess.Data.Npgsql.Seeding
 {
@@ -12,7 +10,7 @@ namespace ReconNess.Data.Npgsql.Seeding
         /// <param name="modelBuilder"></param>
         internal static void Run(ModelBuilder modelBuilder)
         {
-            
+
         }
     }
 }

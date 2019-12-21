@@ -1,14 +1,14 @@
 ﻿
 namespace ReconNess.Web
 {
+    using System;
+    using System.Text;
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
     using ReconNess.Web.Auth;
-    using System;
-    using System.Text;
 
     /// <summary>
     /// 
@@ -25,10 +25,10 @@ namespace ReconNess.Web
             // Get options from app settings
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             var secretKey = Configuration.GetValue<string>("SecurityKey");
-                       
+
             if (!"Development".Equals(env.EnvironmentName))
             {
-                secretKey = Environment.GetEnvironmentVariable("SecurityKey") ?? 
+                secretKey = Environment.GetEnvironmentVariable("SecurityKey") ??
                             Environment.GetEnvironmentVariable("SecurityKey", EnvironmentVariableTarget.User);
             }
 

@@ -30,13 +30,13 @@ namespace ReconNess.Web
 
             if (!"Development".Equals(Env.EnvironmentName))
             {
-                var pgDatabase = Environment.GetEnvironmentVariable("PostgresDb") ?? 
+                var pgDatabase = Environment.GetEnvironmentVariable("PostgresDb") ??
                                  Environment.GetEnvironmentVariable("PostgresDb", EnvironmentVariableTarget.User);
-                var pgUserName = Environment.GetEnvironmentVariable("PostgresUser") ?? 
+                var pgUserName = Environment.GetEnvironmentVariable("PostgresUser") ??
                                  Environment.GetEnvironmentVariable("PostgresUser", EnvironmentVariableTarget.User);
-                var pgpassword = Environment.GetEnvironmentVariable("PostgresPassword") ?? 
+                var pgpassword = Environment.GetEnvironmentVariable("PostgresPassword") ??
                                  Environment.GetEnvironmentVariable("PostgresPassword", EnvironmentVariableTarget.User);
-                
+
                 connectionString = connectionString.Replace("{{database}}", pgDatabase)
                                                    .Replace("{{username}}", pgUserName)
                                                    .Replace("{{password}}", pgpassword);
@@ -89,7 +89,8 @@ namespace ReconNess.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStatusCodePages(async context => {
+            app.UseStatusCodePages(async context =>
+            {
                 var request = context.HttpContext.Request;
                 var response = context.HttpContext.Response;
 
@@ -111,7 +112,7 @@ namespace ReconNess.Web
                 // To learn more about options for serving an Angular SPA from ASP.NET Core,
                 // see https://go.microsoft.com/fwlink/?linkid=864501
 
-                spa.Options.SourcePath = "ClientApp";                
+                spa.Options.SourcePath = "ClientApp";
 
                 if ("Development".Equals(Env.EnvironmentName))
                 {

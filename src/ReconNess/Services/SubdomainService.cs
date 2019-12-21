@@ -46,6 +46,9 @@ namespace ReconNess.Services
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
         }
 
+        /// <summary>
+        /// <see cref="ISubdomainService.DeleteSubdomains(ICollection{Subdomain}, CancellationToken)"/>
+        /// </summary>
         public void DeleteSubdomains(ICollection<Subdomain> subdomains, CancellationToken cancellationToken = default)
         {
             foreach (var subdomain in subdomains)
@@ -143,11 +146,11 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// 
+        /// Update the subdomain if is Alive
         /// </summary>
-        /// <param name="subdomain"></param>
-        /// <param name="scriptOutput"></param>
-        /// <returns></returns>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns>If the subdomain was updated</returns>
         private bool UpdateSubdomainIsAlive(Subdomain subdomain, ScriptOutput scriptOutput)
         {
             if (scriptOutput.IsAlive != null && subdomain.IsAlive != scriptOutput.IsAlive)

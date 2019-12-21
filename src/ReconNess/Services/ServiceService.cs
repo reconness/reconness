@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using ReconNess.Core;
 using ReconNess.Core.Services;
@@ -19,11 +20,11 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IServiceService.IsAssignedToSubdomainAsync(Subdomain, Service)"/>
+        /// <see cref="IServiceService.IsAssignedToSubdomainAsync(Subdomain, Service, CancellationToken)"/>
         /// </summary>
-        public async Task<bool> IsAssignedToSubdomainAsync(Subdomain subdomain, Service service)
+        public async Task<bool> IsAssignedToSubdomainAsync(Subdomain subdomain, Service service, CancellationToken cancellationToken = default)
         {
-            return await this.AnyAsync(s => s.Subdomain.Name == subdomain.Name && s.Name == service.Name && s.Port == service.Port);
+            return await this.AnyAsync(s => s.Subdomain.Name == subdomain.Name && s.Name == service.Name && s.Port == service.Port, cancellationToken);
         }
     }
 }

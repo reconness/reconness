@@ -93,7 +93,7 @@ namespace ReconNess.Services
                     if (needToBeAlive || needToSkip)
                     {
                         continue;
-                    }                    
+                    }
 
                     var command = this.GetCommand(target, sub, agent, arguments);
 

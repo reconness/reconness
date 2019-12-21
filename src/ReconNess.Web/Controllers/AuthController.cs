@@ -98,12 +98,12 @@ namespace ReconNess.Web.Controllers
         /// <returns></returns>
         private User SingInEnv(string userName, string password)
         {
-            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ?? 
+            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
                               Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
 
-            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ?? 
+            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
                               Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
-            
+
             if (userName.Equals(envUserName) && password.Equals(envPassword))
             {
                 return new User
@@ -112,7 +112,7 @@ namespace ReconNess.Web.Controllers
                 };
             }
 
-            return null;      
+            return null;
         }
     }
 }
