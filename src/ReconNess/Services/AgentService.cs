@@ -89,7 +89,7 @@ namespace ReconNess.Services
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var needToBeAlive = agent.OnlyIfIsAlive && (sub.IsAlive == null || !sub.IsAlive.Value);
-                    var needToSkip = agent.SkipIfRanBefore && (sub.FromAgents.Contains(agent.Name));
+                    var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(sub.FromAgents) && sub.FromAgents.Contains(agent.Name));
                     if (needToBeAlive || needToSkip)
                     {
                         continue;
