@@ -18,7 +18,13 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ICategoryService categoryService;
 
-        public CategoriesController(IMapper mapper,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mapper"></param>
+        /// <param name="categoryService"></param>
+        public CategoriesController(
+            IMapper mapper,
             ICategoryService categoryService)
         {
             this.mapper = mapper;

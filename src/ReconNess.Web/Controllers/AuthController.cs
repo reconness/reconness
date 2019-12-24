@@ -20,10 +20,11 @@ namespace ReconNess.Web.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userManager"></param>
         /// <param name="jwtFactory"></param>
         /// <param name="jwtOptions"></param>
-        public AuthController(IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> jwtOptions)
+        public AuthController(
+            IJwtFactory jwtFactory,
+            IOptions<JwtIssuerOptions> jwtOptions)
         {
             this.jwtFactory = jwtFactory;
             this.jwtOptions = jwtOptions.Value;

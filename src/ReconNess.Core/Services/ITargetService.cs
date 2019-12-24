@@ -21,7 +21,6 @@ namespace ReconNess.Core.Services
         /// <returns>A target with subdomains</returns>
         Task<Target> GetTargetWithSubdomainsAsync(Expression<Func<Target, bool>> criteria, CancellationToken cancellationToken = default);
 
-
         /// <summary>
         /// Save the output that the ScriptEnginer returned on database
         /// </summary>

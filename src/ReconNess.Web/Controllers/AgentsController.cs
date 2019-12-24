@@ -23,7 +23,16 @@ namespace ReconNess.Web.Controllers
         private readonly ICategoryService categoryService;
         private readonly ISubdomainService subdomainService;
 
-        public AgentsController(IMapper mapper,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mapper"></param>
+        /// <param name="agentService"></param>
+        /// <param name="targetService"></param>
+        /// <param name="categoryService"></param>
+        /// <param name="subdomainService"></param>
+        public AgentsController(
+            IMapper mapper,
             IAgentService agentService,
             ITargetService targetService,
             ICategoryService categoryService,

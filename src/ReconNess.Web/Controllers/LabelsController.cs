@@ -18,7 +18,13 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ILabelService labelService;
 
-        public LabelsController(IMapper mapper,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mapper"></param>
+        /// <param name="labelService"></param>
+        public LabelsController(
+            IMapper mapper,
             ILabelService labelService)
         {
             this.mapper = mapper;

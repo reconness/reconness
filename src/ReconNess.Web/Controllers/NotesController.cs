@@ -20,7 +20,15 @@ namespace ReconNess.Web.Controllers
         private readonly ITargetService targetService;
         private readonly ISubdomainService subdomainService;
 
-        public NotesController(IMapper mapper,
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mapper"></param>
+        /// <param name="notesService"></param>
+        /// <param name="targetService"></param>
+        /// <param name="subdomainService"></param>
+        public NotesController(
+            IMapper mapper,
             INotesService notesService,
             ITargetService targetService,
             ISubdomainService subdomainService)

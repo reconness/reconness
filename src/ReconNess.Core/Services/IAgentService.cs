@@ -16,8 +16,8 @@ namespace ReconNess.Core.Services
         /// <summary>
         /// Obtain all the Agents with categories
         /// </summary>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <param name="isBySubdomain">If I need to obtain only the agent that run by subdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>List of Agents with categories or null</returns>
         Task<List<Agent>> GetAllAgentsWithCategoryAsync(bool isBySubdomain, CancellationToken cancellationToken = default);
 

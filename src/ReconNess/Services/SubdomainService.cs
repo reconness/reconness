@@ -27,7 +27,7 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool)"/>
+        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
         /// </summary>
         public async Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool newSubdomain, CancellationToken cancellationToken = default)
         {
@@ -36,7 +36,7 @@ namespace ReconNess.Services
             var subdomainUpdated = false || this.UpdateSubdomainIpAddress(subdomain, scriptOutput);
             subdomainUpdated = subdomainUpdated || this.UpdateSubdomainIsAlive(subdomain, scriptOutput);
             subdomainUpdated = subdomainUpdated || this.UpdateSubdomainHasHttpOpenAsync(subdomain, scriptOutput);
-            subdomainUpdated = subdomainUpdated || await this.UpdateSubdomainServiceAsync(subdomain, scriptOutput);
+            subdomainUpdated = subdomainUpdated || await this.UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken);
 
             if (newSubdomain || subdomainUpdated)
             {
@@ -100,9 +100,12 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>If the subdomain was updated</returns>
-        private async Task<bool> UpdateSubdomainServiceAsync(Subdomain subdomain, ScriptOutput scriptOutput)
+        private async Task<bool> UpdateSubdomainServiceAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             if (string.IsNullOrWhiteSpace(scriptOutput.Service))
             {
                 return false;
@@ -114,7 +117,7 @@ namespace ReconNess.Services
                 Port = scriptOutput.Port.Value
             };
 
-            if (!(await this.serviceService.IsAssignedToSubdomainAsync(subdomain, service)))
+            if (!(await this.serviceService.IsAssignedToSubdomainAsync(subdomain, service, cancellationToken)))
             {
                 if (subdomain.Services == null)
                 {

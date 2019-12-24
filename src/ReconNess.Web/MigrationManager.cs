@@ -6,8 +6,16 @@ using ReconNess.Data.Npgsql;
 
 namespace ReconNess.Web
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public static class MigrationManager
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webHost"></param>
+        /// <returns></returns>
         public static IWebHost MigrateDatabase(this IWebHost webHost)
         {
             using (var scope = webHost.Services.CreateScope())

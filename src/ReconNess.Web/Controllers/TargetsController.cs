@@ -22,7 +22,14 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ITargetService targetService;
 
-        public TargetsController(IMapper mapper, ITargetService targetService)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mapper"></param>
+        /// <param name="targetService"></param>
+        public TargetsController(
+            IMapper mapper,
+            ITargetService targetService)
         {
             this.mapper = mapper;
             this.targetService = targetService;

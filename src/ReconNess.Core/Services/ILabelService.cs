@@ -17,6 +17,6 @@ namespace ReconNess.Core.Services
         /// <param name="newLabels">The list of string new labels</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of labels</returns>
-        Task<ICollection<SubdomainLabel>> GetLabelsAsync(ICollection<SubdomainLabel> myLabels, List<string> newLabels, CancellationToken cancellationToken);
+        Task<ICollection<SubdomainLabel>> GetLabelsAsync(ICollection<SubdomainLabel> myLabels, List<string> newLabels, CancellationToken cancellationToken = default);
     }
 }

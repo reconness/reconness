@@ -19,6 +19,7 @@ namespace ReconNess.Core.Services
         /// <param name="agent">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="newSubdomain">If is new subdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
         Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool newSubdomain, CancellationToken cancellationToken = default);
 
@@ -26,6 +27,7 @@ namespace ReconNess.Core.Services
         /// Delete all the subdomains with the services
         /// </summary>
         /// <param name="subdomains">The list subdomains to delete</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         void DeleteSubdomains(ICollection<Subdomain> subdomains, CancellationToken cancellationToken = default);
     }
 }

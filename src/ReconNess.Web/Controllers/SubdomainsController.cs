@@ -20,7 +20,16 @@ namespace ReconNess.Web.Controllers
         private readonly ISubdomainService subdomainService;
         private readonly ITargetService targetService;
         private readonly ILabelService labelService;
-        public SubdomainsController(IMapper mapper,
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mapper"></param>
+        /// <param name="subdomainService"></param>
+        /// <param name="targetService"></param>
+        /// <param name="labelService"></param>
+        public SubdomainsController(
+            IMapper mapper,
             ISubdomainService subdomainService,
             ITargetService targetService,
             ILabelService labelService)

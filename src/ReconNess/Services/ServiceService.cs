@@ -15,7 +15,8 @@ namespace ReconNess.Services
         /// Initializes a new instance of the <see cref="UserService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public ServiceService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public ServiceService(IUnitOfWork unitOfWork)
+            : base(unitOfWork)
         {
         }
 
@@ -24,6 +25,8 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<bool> IsAssignedToSubdomainAsync(Subdomain subdomain, Service service, CancellationToken cancellationToken = default)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             return await this.AnyAsync(s => s.Subdomain.Name == subdomain.Name && s.Name == service.Name && s.Port == service.Port, cancellationToken);
         }
     }

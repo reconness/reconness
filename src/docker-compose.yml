@@ -1,8 +1,8 @@
 version: '3'
 services:
   web:
-    container_name: 'reconnet'
-    image: 'reconnet'
+    container_name: 'reconness'
+    image: 'reconness'
     build:
       context: .
       dockerfile: Dockerfile
