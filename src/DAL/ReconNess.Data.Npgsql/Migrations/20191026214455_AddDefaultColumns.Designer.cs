@@ -9,7 +9,7 @@ using ReconNess.Data.Npgsql;
 
 namespace ReconNess.Data.Npgsql.Migrations
 {
-    [DbContext(typeof(ReconNetContext))]
+    [DbContext(typeof(ReconNessContext))]
     [Migration("20191026214455_AddDefaultColumns")]
     partial class AddDefaultColumns
     {

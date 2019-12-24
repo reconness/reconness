@@ -20,7 +20,7 @@ namespace ReconNess.Web
         {
             using (var scope = webHost.Services.CreateScope())
             {
-                using (var appContext = scope.ServiceProvider.GetRequiredService<ReconNetContext>())
+                using (var appContext = scope.ServiceProvider.GetRequiredService<ReconNessContext>())
                 {
                     try
                     {

@@ -10,15 +10,15 @@ namespace ReconNess.Web
     /// </summary>
     public class ConnectorService : IConnectorService
     {
-        private readonly IHubContext<ReconnetHub> reconnetHub;
+        private readonly IHubContext<ReconNessHub> reconnessHub;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ConnectorService" /> class
         /// </summary>
-        /// <param name="reconnetHub">The hub context</param>
-        public ConnectorService(IHubContext<ReconnetHub> reconnetHub)
+        /// <param name="reconnessHub">The hub context</param>
+        public ConnectorService(IHubContext<ReconNessHub> reconnessHub)
         {
-            this.reconnetHub = reconnetHub;
+            this.reconnessHub = reconnessHub;
         }
 
         /// <summary>
@@ -28,7 +28,7 @@ namespace ReconNess.Web
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            await this.reconnetHub.Clients.All.SendAsync(method, msg, cancellationToken);
+            await this.reconnessHub.Clients.All.SendAsync(method, msg, cancellationToken);
         }
     }
 }

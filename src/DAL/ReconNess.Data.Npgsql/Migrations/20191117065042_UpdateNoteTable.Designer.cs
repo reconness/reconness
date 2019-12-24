@@ -9,7 +9,7 @@ using ReconNess.Data.Npgsql;
 
 namespace ReconNess.Data.Npgsql.Migrations
 {
-    [DbContext(typeof(ReconNetContext))]
+    [DbContext(typeof(ReconNessContext))]
     [Migration("20191117065042_UpdateNoteTable")]
     partial class UpdateNoteTable
     {

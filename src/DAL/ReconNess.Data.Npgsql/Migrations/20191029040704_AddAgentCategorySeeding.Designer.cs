@@ -9,7 +9,7 @@ using ReconNess.Data.Npgsql;
 
 namespace ReconNess.Data.Npgsql.Migrations
 {
-    [DbContext(typeof(ReconNetContext))]
+    [DbContext(typeof(ReconNessContext))]
     [Migration("20191029040704_AddAgentCategorySeeding")]
     partial class AddAgentCategorySeeding
     {

@@ -41,7 +41,7 @@ namespace ReconNess.Web
                                                    .Replace("{{username}}", pgUserName)
                                                    .Replace("{{password}}", pgpassword);
             }
-            services.AddDbContext<ReconNetContext>
+            services.AddDbContext<ReconNessContext>
             (
                 options => options.UseNpgsql(connectionString)
             );
@@ -104,7 +104,7 @@ namespace ReconNess.Web
             {
                 // Mapping of endpoints goes here:
                 endpoints.MapControllers();
-                endpoints.MapHub<ReconnetHub>("/AgentRunLogsHub");
+                endpoints.MapHub<ReconNessHub>("/AgentRunLogsHub");
             });
 
             app.UseSpa(spa =>

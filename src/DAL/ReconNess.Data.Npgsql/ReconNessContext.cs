@@ -16,7 +16,7 @@ namespace ReconNess.Data.Npgsql
     /// <summary>
     /// This class implement the interface <see cref="IDbContext"/>
     /// </summary>
-    public class ReconNetContext : DbContext, IDbContext
+    public class ReconNessContext : DbContext, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -30,10 +30,10 @@ namespace ReconNess.Data.Npgsql
         private IDbContextTransaction transaction;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ReconNetContext" /> class
+        /// Initializes a new instance of the <see cref="ReconNessContext" /> class
         /// </summary>
         /// <param name="options">DB Context options</param>
-        public ReconNetContext(DbContextOptions options)
+        public ReconNessContext(DbContextOptions options)
         : base(options)
         {
         }

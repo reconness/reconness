@@ -6,7 +6,7 @@ namespace ReconNess.Web
     /// <summary>
     /// 
     /// </summary>
-    public class ReconnetHub : Hub
+    public class ReconNessHub : Hub
     {
         /// <summary>
         /// 
@@ -17,5 +17,5 @@ namespace ReconNess.Web
         {
             await Clients.All.SendAsync("AgentRunLogs", logs);
         }
-    }
+    }    
 }

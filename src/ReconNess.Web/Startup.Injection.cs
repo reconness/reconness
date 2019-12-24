@@ -13,16 +13,16 @@ namespace ReconNess.Web
     {
         private void AddDependencyInjection(IServiceCollection services)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ReconNetContext>();
+            var optionsBuilder = new DbContextOptionsBuilder<ReconNessContext>();
             optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
 
-            services.AddScoped<IDbContext>(d => new ReconNetContext(optionsBuilder.Options));
+            services.AddScoped<IDbContext>(d => new ReconNessContext(optionsBuilder.Options));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-            services.AddScoped<IDbContext, ReconNetContext>();
+            services.AddScoped<IDbContext, ReconNessContext>();
             services.AddScoped<ITargetService, TargetService>();
 
             services.AddScoped<IAgentService, AgentService>();
