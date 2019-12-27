@@ -13,7 +13,7 @@
       <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
     </div>
     <div class="form-group">
-      <label for="inputArguments">Arguments <router-link to="/learn/arguments">Learn more</router-link></label>
+      <label for="inputArguments">Arguments <a href="https://docs.reconness.com/agents/add-agent#add-new-agent">Learn more</a></label>
       <input name="arguments" formControlName="arguments" class="form-control" id="arguments" v-model="agent.arguments">
     </div>
     <div class="form-group form-check">
@@ -35,7 +35,7 @@
       </label>
     </div>
     <div class="form-group" v-if="!isNew">
-      <label for="inputArguments">Script <router-link to="/learn/script">Learn more</router-link></label>
+      <label for="inputArguments">Script <a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
       <editor v-model="content" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
     </div>
     <div class="form-group">

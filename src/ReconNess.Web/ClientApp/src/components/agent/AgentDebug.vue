@@ -8,7 +8,7 @@
           <input name="output" formControlName="output" class="form-control" id="output" v-model="output">
         </div>
         <div class="form-group">
-          <label for="inputArguments">Script <router-link to="/learn/script">Learn more</router-link></label>
+          <label for="script">Script <a to="https://docs.reconness.com/agents/debug-agent">Learn more</a></label>
           <editor v-model="content" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
         </div>
       </div>

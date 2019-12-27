@@ -3,7 +3,7 @@
     <div class="jumbotron">
       <h1 class="text-center">Welcome <strong>{{username}}</strong>!!</h1>
       <hr class="my-4">
-      <p>A Web App Tool to run and keep all your #recon in a same place and allow you to query your targets in an user friendly way.</p>
+      <p>A Web App Tool to run and keep all your #recon in the same place and allow you to query your targets in an user friendly way.</p>
       <p class="lead">
         <a class="btn btn-info btn-lg" href="https://docs.reconness.com" target="_blank">Learn more</a>
       </p>
