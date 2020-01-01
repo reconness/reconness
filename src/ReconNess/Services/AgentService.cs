@@ -84,6 +84,9 @@ namespace ReconNess.Services
             var channel = this.GetChannel(target, subdomain, agent);
             if (this.NeedToRunInEachSubdomain(subdomain, agent))
             {
+                // wait 1 sec to avoid broke the frontend modal
+                Thread.Sleep(1000);
+
                 foreach (var sub in target.Subdomains.ToList())
                 {
                     cancellationToken.ThrowIfCancellationRequested();

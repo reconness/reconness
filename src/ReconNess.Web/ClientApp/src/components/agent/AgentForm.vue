@@ -25,7 +25,7 @@
     <div class="form-group form-check">
       <input class="form-check-input" type="checkbox" id="onlyIfIsAlive" ref="onlyIfIsAlive" v-model="agent.onlyIfIsAlive" :disabled="disabledIsNotBySubdomain">
       <label class="form-check-label" for="onlyIfIsAlive">
-        Run Only if is Alive
+        Run Only if it is Alive
       </label>
     </div>
     <div class="form-group form-check">
@@ -106,8 +106,8 @@
 
         await this.$api.update('agents', this.agent.id, this.agent)
 
-        alert("The agent script code was saved")
-        this.$router.go()
+        alert("The agent script code was saved")        
+        this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
       },
       async onDelete() {
         if (confirm('Are you sure to delete this agent: ' + this.agent.name)) {          

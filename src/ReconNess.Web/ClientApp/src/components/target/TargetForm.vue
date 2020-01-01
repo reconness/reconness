@@ -60,12 +60,8 @@
       },
       async onUpdate() {
         await this.$api.update('targets', this.target.id, this.target)
-        if (this.$route.params.targetName !== this.target.name) {
-          this.$router.push({ name: 'home' })
-        }
-        else {
-          this.$router.go()
-        }
+       
+        this.$router.push({ name: 'target', params: { targetName: this.target.name } })
       },
       async onDelete() {
         if (confirm('Are you sure to delete this target with all the subdomains and services: ' + this.target.name)) {          
