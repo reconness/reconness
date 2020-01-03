@@ -100,7 +100,7 @@
         if (confirm('Are you sure to delete this reference?')) {
 
           await this.$api.delete('references', id)
-          this.references = this.references.filter(function (value, index, arr) {
+          this.references = this.references.filter(function (value) {
             return value.id !== id;
           });
         }
