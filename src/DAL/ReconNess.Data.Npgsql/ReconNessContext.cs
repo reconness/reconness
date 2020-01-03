@@ -50,6 +50,10 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<Reference>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<Category>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();

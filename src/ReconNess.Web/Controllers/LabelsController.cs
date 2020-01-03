@@ -19,10 +19,10 @@ namespace ReconNess.Web.Controllers
         private readonly ILabelService labelService;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="LabelsController" /> class
         /// </summary>
-        /// <param name="mapper"></param>
-        /// <param name="labelService"></param>
+        /// <param name="mapper"><see cref="IMapper"/></param>
+        /// <param name="labelService"><see cref="ILabelService"/></param>
         public LabelsController(
             IMapper mapper,
             ILabelService labelService)
