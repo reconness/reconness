@@ -23,10 +23,10 @@ namespace ReconNess.Web.Controllers
         private readonly ITargetService targetService;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="TargetsController" /> class
         /// </summary>
-        /// <param name="mapper"></param>
-        /// <param name="targetService"></param>
+        /// <param name="mapper"><see cref="IMapper"/></param>
+        /// <param name="targetService"><see cref="ITargetService"/></param>
         public TargetsController(
             IMapper mapper,
             ITargetService targetService)

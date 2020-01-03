@@ -22,12 +22,12 @@ namespace ReconNess.Web.Controllers
         private readonly ILabelService labelService;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="SubdomainsController" /> class
         /// </summary>
-        /// <param name="mapper"></param>
-        /// <param name="subdomainService"></param>
-        /// <param name="targetService"></param>
-        /// <param name="labelService"></param>
+        /// <param name="mapper"><see cref="IMapper"/></param>
+        /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
+        /// <param name="targetService"><see cref="ITargetService"/></param>
+        /// <param name="labelService"><see cref="ILabelService"/></param>
         public SubdomainsController(
             IMapper mapper,
             ISubdomainService subdomainService,

@@ -19,10 +19,10 @@ namespace ReconNess.Web.Controllers
         private readonly ICategoryService categoryService;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="CategoriesController" /> class
         /// </summary>
-        /// <param name="mapper"></param>
-        /// <param name="categoryService"></param>
+        /// <param name="mapper"><see cref="IMapper"/></param>
+        /// <param name="categoryService"><see cref="ICategoryService"/></param>
         public CategoriesController(
             IMapper mapper,
             ICategoryService categoryService)

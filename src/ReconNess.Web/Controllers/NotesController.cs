@@ -21,12 +21,12 @@ namespace ReconNess.Web.Controllers
         private readonly ISubdomainService subdomainService;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="NotesController" /> class
         /// </summary>
-        /// <param name="mapper"></param>
-        /// <param name="notesService"></param>
-        /// <param name="targetService"></param>
-        /// <param name="subdomainService"></param>
+        /// <param name="mapper"><see cref="IMapper"/></param>
+        /// <param name="notesService"><see cref="INotesService"/></param>
+        /// <param name="targetService"><see cref="ITargetService"/></param>
+        /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         public NotesController(
             IMapper mapper,
             INotesService notesService,

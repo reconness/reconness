@@ -18,10 +18,10 @@ namespace ReconNess.Web.Controllers
         private readonly JwtIssuerOptions jwtOptions;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="AuthController" /> class
         /// </summary>
-        /// <param name="jwtFactory"></param>
-        /// <param name="jwtOptions"></param>
+        /// <param name="jwtFactory"><see cref="IJwtFactory"/></param>
+        /// <param name="jwtOptions"><see cref="JwtIssuerOptions"/></param>
         public AuthController(
             IJwtFactory jwtFactory,
             IOptions<JwtIssuerOptions> jwtOptions)
