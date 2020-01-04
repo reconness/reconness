@@ -20,7 +20,10 @@ namespace ReconNess.Services
         /// Initializes a new instance of the <see cref="ISubdomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public SubdomainService(IUnitOfWork unitOfWork, IServiceService serviceService)
+        /// <param name="serviceService"><see cref="IServiceService"/></param>
+        public SubdomainService(
+            IUnitOfWork unitOfWork, 
+            IServiceService serviceService)
             : base(unitOfWork)
         {
             this.serviceService = serviceService;
