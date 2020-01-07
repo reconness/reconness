@@ -4,6 +4,8 @@
     {
         public string Subdomain { get; set; }
 
+        public string Takeover { get; set; }
+
         public string Ip { get; set; }
 
         public bool? IsAlive { get; set; }

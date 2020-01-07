@@ -13,6 +13,8 @@ namespace ReconNess.Entities
 
         public bool? IsMainPortal { get; set; }
 
+        public bool? Takeover { get; set; }
+
         public bool? IsAlive { get; set; }
 
         public string FromAgents { get; set; }
