@@ -8,7 +8,7 @@ namespace ReconNess.UnitTests
     public class ScriptEngineServiceTests
     {
         [TestMethod]
-        public void TestFierceTwoParseInputAsyncMethod()
+        public void TestFierceOneParseInputAsyncMethod()
         {
             // Arrange
             var agent = new Agent
@@ -37,7 +37,7 @@ namespace ReconNess.UnitTests
         }
 
         [TestMethod]
-        public void TestFierceThreeParseInputAsyncMethod()
+        public void TestFierceTwoParseInputAsyncMethod()
         {
             // Arrange
             var agent = new Agent

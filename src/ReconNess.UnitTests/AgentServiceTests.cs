@@ -6,11 +6,6 @@ namespace ReconNess.UnitTests
     public class AgentServiceTests
     {
         [TestMethod]
-        public void TestFierceOneParse()
-        {
-        }
-
-        [TestMethod]
         public void TestRunAsyncMethod()
         {
             // Arrange
