@@ -29,6 +29,9 @@
             <strong>Has HTTP Open: </strong>{{ subdomain.hasHttpOpen }}
           </div>
           <div class="form-group">
+            <strong>Subdomain Takeover: </strong>{{ subdomain.takeover }}
+          </div>
+          <div class="form-group">
             <strong>Agents: </strong>{{ subdomain.fromAgents }}
           </div>
           <div class="form-group">

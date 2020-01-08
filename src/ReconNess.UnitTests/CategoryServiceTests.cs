@@ -23,12 +23,12 @@ namespace ReconNess.UnitTests
 
             var categoryIdOnDb = Guid.NewGuid();
             var categoriesOnDb = new List<Category>
-            { 
-                new Category 
+            {
+                new Category
                 {
                     Id = categoryIdOnDb,
-                    Name = "Brute Force" 
-                }                
+                    Name = "Brute Force"
+                }
             };
 
             var myCategoriesOnDb = new List<AgentCategory>
@@ -52,7 +52,7 @@ namespace ReconNess.UnitTests
                     return Task.FromResult(categoriesOnDb.AsQueryable().FirstOrDefault(f));
                 });
 
-            var unitOfWorkMock = new Mock<IUnitOfWork>();            
+            var unitOfWorkMock = new Mock<IUnitOfWork>();
             unitOfWorkMock.Setup(c => c.CommitAsync(It.IsAny<CancellationToken>()))
                 .Callback(() =>
                 {
@@ -99,7 +99,7 @@ namespace ReconNess.UnitTests
                 }
             };
 
-            var myNewCategories = new List<string> ();
+            var myNewCategories = new List<string>();
 
             var repositoryMock = new Mock<IRepository<Category>>();
             repositoryMock.Setup(c => c.GetByCriteriaAsync(It.IsAny<Expression<Func<Category, bool>>>(), It.IsAny<CancellationToken>()))

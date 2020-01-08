@@ -17,5 +17,5 @@ namespace ReconNess.Web
         {
             await Clients.All.SendAsync("AgentRunLogs", logs);
         }
-    }    
+    }
 }

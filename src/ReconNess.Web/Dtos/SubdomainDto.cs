@@ -13,6 +13,8 @@ namespace ReconNess.Web.Dtos
 
         public string IpAddress { get; set; }
 
+        public bool? Takeover { get; set; }
+
         public bool? HasHttpOpen { get; set; }
 
         public bool? IsMainPortal { get; set; }

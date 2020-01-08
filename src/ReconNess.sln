@@ -23,7 +23,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Dockerfile = Dockerfile
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
-		..\TODO.md = ..\TODO.md
 	EndProjectSection
 EndProject
 Global

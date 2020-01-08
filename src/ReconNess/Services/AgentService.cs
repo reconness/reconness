@@ -95,6 +95,7 @@ namespace ReconNess.Services
                     var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(sub.FromAgents) && sub.FromAgents.Contains(agent.Name));
                     if (needToBeAlive || needToSkip)
                     {
+                        await this.connectorService.SendAsync("Logs_" + channel, $"Skip subdomain: {sub.Name}");
                         continue;
                     }
 

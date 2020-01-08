@@ -22,7 +22,7 @@ namespace ReconNess.Services
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="serviceService"><see cref="IServiceService"/></param>
         public SubdomainService(
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             IServiceService serviceService)
             : base(unitOfWork)
         {
@@ -38,7 +38,8 @@ namespace ReconNess.Services
 
             var subdomainUpdated = false || this.UpdateSubdomainIpAddress(subdomain, scriptOutput);
             subdomainUpdated = subdomainUpdated || this.UpdateSubdomainIsAlive(subdomain, scriptOutput);
-            subdomainUpdated = subdomainUpdated || this.UpdateSubdomainHasHttpOpenAsync(subdomain, scriptOutput);
+            subdomainUpdated = subdomainUpdated || this.UpdateSubdomainHasHttpOpen(subdomain, scriptOutput);
+            subdomainUpdated = subdomainUpdated || this.UpdateSubdomainTakeover(subdomain, scriptOutput);
             subdomainUpdated = subdomainUpdated || await this.UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken);
 
             if (newSubdomain || subdomainUpdated)
@@ -87,11 +88,28 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns>If the subdomain was updated</returns>
-        private bool UpdateSubdomainHasHttpOpenAsync(Subdomain subdomain, ScriptOutput scriptOutput)
+        private bool UpdateSubdomainHasHttpOpen(Subdomain subdomain, ScriptOutput scriptOutput)
         {
             if (scriptOutput.HasHttpOpen != null && subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Update the subdomain if it can be takeover
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns>If the subdomain was updated</returns>
+        private bool UpdateSubdomainTakeover(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (scriptOutput.Takeover != null && subdomain.Takeover != scriptOutput.Takeover.Value)
+            {
+                subdomain.Takeover = scriptOutput.Takeover.Value;
                 return true;
             }
 
