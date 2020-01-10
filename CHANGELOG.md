@@ -3,7 +3,7 @@
 ### Added
 
 - Add Takeover subdomain feature
-- Add UnitTes (categories and Labels)
+- Add UnitTest (categories and Labels)
 - Save Agent always after a run in each subdomain
 
 ## [1.0.0] - 2020-01-01

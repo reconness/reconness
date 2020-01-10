@@ -151,7 +151,6 @@ namespace ReconNess.Web.Controllers
             agent.Name = agentDto.Name;
             agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
             agent.Command = agentDto.Command;
-            agent.Arguments = agentDto.Arguments;
             agent.IsBySubdomain = agentDto.IsBySubdomain;
             agent.OnlyIfIsAlive = agentDto.OnlyIfIsAlive;
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
@@ -211,7 +210,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentService.RunAsync(target, subdomain, agent, agentRunDto.Arguments, cancellationToken);
+            await this.agentService.RunAsync(target, subdomain, agent, cancellationToken);
 
             return NoContent();
         }

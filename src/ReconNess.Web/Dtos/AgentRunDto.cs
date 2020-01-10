@@ -7,7 +7,5 @@
         public string Target { get; set; }
 
         public string Subdomain { get; set; }
-
-        public string Arguments { get; set; }
     }
 }

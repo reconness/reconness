@@ -16,9 +16,7 @@ namespace ReconNess.Entities
         public bool SkipIfRanBefore { get; set; }
 
         public string Command { get; set; }
-
-        public string Arguments { get; set; }
-
+        
         public string Script { get; set; }
 
         public DateTime LastRun { get; set; }

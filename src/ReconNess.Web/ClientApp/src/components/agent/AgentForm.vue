@@ -9,12 +9,8 @@
       <vue-tags-input v-model="tag" placeholder="Add Category" :tags="tags" :autocomplete-items="filteredItems" @tags-changed="newTags => tags = newTags" />
     </div>
     <div class="form-group">
-      <label for="inputCmd">Command</label>
+      <label for="inputCmd">Command <a href="https://docs.reconness.com/agents/add-agent#add-new-agent">Learn more</a></label>
       <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
-    </div>
-    <div class="form-group">
-      <label for="inputArguments">Arguments <a href="https://docs.reconness.com/agents/add-agent#add-new-agent">Learn more</a></label>
-      <input name="arguments" formControlName="arguments" class="form-control" id="arguments" v-model="agent.arguments">
     </div>
     <div class="form-group form-check">
       <input class="form-check-input" type="checkbox" id="isBySubdomain" v-model="agent.isBySubdomain" v-on:click="onBySubdomain()">
