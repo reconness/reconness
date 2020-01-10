@@ -90,12 +90,13 @@ namespace ReconNess.Services
                     var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(sub.FromAgents) && sub.FromAgents.Contains(agent.Name));
                     if (needToBeAlive || needToSkip)
                     {
-                        await this.connectorService.SendAsync("Logs_" + channel, $"Skip subdomain: {sub.Name}");
+                        await this.connectorService.SendAsync("logs_" + channel, $"Skip subdomain: {sub.Name}");
                         continue;
                     }
 
                     var command = this.GetCommand(target, sub, agent);
 
+                    await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
                     await this.RunBashAsync(target, sub, agent, command, channel, cancellationToken);
                 }
 
@@ -105,6 +106,7 @@ namespace ReconNess.Services
             {
                 var command = this.GetCommand(target, subdomain, agent);
 
+                await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
                 await this.RunBashAsync(target, subdomain, agent, command, channel, cancellationToken);
 
                 await this.connectorService.SendAsync(channel, "Agent done!");
@@ -167,14 +169,14 @@ namespace ReconNess.Services
                     var terminalLineOutput = process.StandardOutput.ReadLine();
                     var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Output #: {lineCount}");
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Output: {terminalLineOutput}");
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount}");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Output: {terminalLineOutput}");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
                     await this.targetService.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput, cancellationToken);
 
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Output #: {lineCount} processed");
-                    await this.connectorService.SendAsync("Logs_" + channel, "-----------------------------------------------------");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount} processed");
+                    await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
                 }
@@ -274,7 +276,7 @@ namespace ReconNess.Services
             catch (Exception) { }
 
             await this.connectorService.SendAsync(channel, ex.Message);
-            await this.connectorService.SendAsync("Logs_" + channel, $"Exception: {ex.StackTrace}");
+            await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
         }
     }
 }

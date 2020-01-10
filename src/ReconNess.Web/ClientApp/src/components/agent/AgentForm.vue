@@ -63,6 +63,7 @@
         tags: [],
         autocompleteItems: [],
         agent: {},
+        currentAgentName: '',
         isNew: true,
         content: null,
         disabledIsNotBySubdomain: true
@@ -79,11 +80,12 @@
       this.autocompleteItems = (await this.$api.get('categories')).data.map(category => {
         return { text: category.name };
       })
-      this.agent = this.parentAgent || {}
+      this.agent = this.parentAgent || {}      
       this.isNew = this.agent.name === undefined
       this.disabledIsNotBySubdomain = !this.agent.isBySubdomain
 
-      if (this.agent.name !== undefined) {
+      if (!this.isNew) {
+        this.currentAgentName = this.agent.name
         this.content = this.agent.script
         this.tags = this.agent.categories.map(c => {
           return { text: c };
@@ -103,7 +105,13 @@
         await this.$api.update('agents', this.agent.id, this.agent)
 
         alert("The agent script code was saved")        
-        this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
+
+        if (this.currentAgentName !== this.agent.name) {
+          this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
+        }
+        else {
+          this.$router.go()
+        }
       },
       async onDelete() {
         if (confirm('Are you sure to delete this agent: ' + this.agent.name)) {          
