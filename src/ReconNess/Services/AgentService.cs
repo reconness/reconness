@@ -176,7 +176,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("Logs_" + channel, $"Output: {terminalLineOutput}");
                     await this.connectorService.SendAsync("Logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
-                    await this.targetService.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput, subdomain == null, cancellationToken);
+                    await this.targetService.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput, cancellationToken);
 
                     await this.connectorService.SendAsync("Logs_" + channel, $"Output #: {lineCount} processed");
                     await this.connectorService.SendAsync("Logs_" + channel, "-----------------------------------------------------");

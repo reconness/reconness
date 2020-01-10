@@ -28,10 +28,9 @@ namespace ReconNess.Core.Services
         /// <param name="subdomain">the subdomain.async Can be null is the agent run only for the target</param>
         /// <param name="agent">The agent was ran</param>
         /// <param name="scriptOutput">The output that the ScriptEnginer returned</param>
-        /// <param name="newSubdomain">If is new subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        Task SaveScriptOutputAsync(Target target, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool newSubdomain, CancellationToken cancellationToken = default);
+        Task SaveScriptOutputAsync(Target target, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the target with all the subdomains and relations

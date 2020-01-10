@@ -32,21 +32,18 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool newSubdomain, CancellationToken cancellationToken = default)
+        public async Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var subdomainUpdated = false || this.UpdateSubdomainIpAddress(subdomain, scriptOutput);
-            subdomainUpdated = subdomainUpdated || this.UpdateSubdomainIsAlive(subdomain, scriptOutput);
-            subdomainUpdated = subdomainUpdated || this.UpdateSubdomainHasHttpOpen(subdomain, scriptOutput);
-            subdomainUpdated = subdomainUpdated || this.UpdateSubdomainTakeover(subdomain, scriptOutput);
-            subdomainUpdated = subdomainUpdated || await this.UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken);
-
-            if (newSubdomain || subdomainUpdated)
-            {
-                this.UpdateSubdomainAgent(subdomain, agent);
-            }
-
+            (await 
+                this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
+                    .UpdateSubdomainIsAlive(subdomain, scriptOutput)
+                    .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
+                    .UpdateSubdomainTakeover(subdomain, scriptOutput)
+                    .UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken)
+            ).UpdateSubdomainAgent(subdomain, agent);
+            
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
         }
 
@@ -69,17 +66,15 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <returns>If was assign to the subdomain the Ip address</returns>
-        private bool UpdateSubdomainIpAddress(Subdomain subdomain, ScriptOutput scriptOutput)
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainIpAddress(Subdomain subdomain, ScriptOutput scriptOutput)
         {
             if (scriptOutput.Ip != null && Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
             {
                 subdomain.IpAddress = scriptOutput.Ip;
-
-                return true;
             }
 
-            return false;
+            return this;
         }
 
         /// <summary>
@@ -87,16 +82,15 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <returns>If the subdomain was updated</returns>
-        private bool UpdateSubdomainHasHttpOpen(Subdomain subdomain, ScriptOutput scriptOutput)
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainHasHttpOpen(Subdomain subdomain, ScriptOutput scriptOutput)
         {
             if (scriptOutput.HasHttpOpen != null && subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
-                return true;
             }
 
-            return false;
+            return this;
         }
 
         /// <summary>
@@ -104,16 +98,15 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <returns>If the subdomain was updated</returns>
-        private bool UpdateSubdomainTakeover(Subdomain subdomain, ScriptOutput scriptOutput)
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainTakeover(Subdomain subdomain, ScriptOutput scriptOutput)
         {
             if (scriptOutput.Takeover != null && subdomain.Takeover != scriptOutput.Takeover.Value)
             {
                 subdomain.Takeover = scriptOutput.Takeover.Value;
-                return true;
             }
 
-            return false;
+            return this;
         }
 
         /// <summary>
@@ -122,14 +115,14 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken"></param>
-        /// <returns>If the subdomain was updated</returns>
-        private async Task<bool> UpdateSubdomainServiceAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private async Task<SubdomainService> UpdateSubdomainServiceAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             if (string.IsNullOrWhiteSpace(scriptOutput.Service))
             {
-                return false;
+                return this;
             }
 
             var service = new Service
@@ -146,10 +139,25 @@ namespace ReconNess.Services
                 }
 
                 subdomain.Services.Add(service);
-                return true;
             }
 
-            return false;
+            return this;
+        }
+
+        /// <summary>
+        /// Update the subdomain if is Alive
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainIsAlive(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (scriptOutput.IsAlive != null && subdomain.IsAlive != scriptOutput.IsAlive)
+            {
+                subdomain.IsAlive = scriptOutput.IsAlive.Value;
+            }
+
+            return this;
         }
 
         /// <summary>
@@ -167,24 +175,6 @@ namespace ReconNess.Services
             {
                 subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agent.Name);
             }
-        }
-
-        /// <summary>
-        /// Update the subdomain if is Alive
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <returns>If the subdomain was updated</returns>
-        private bool UpdateSubdomainIsAlive(Subdomain subdomain, ScriptOutput scriptOutput)
-        {
-            if (scriptOutput.IsAlive != null && subdomain.IsAlive != scriptOutput.IsAlive)
-            {
-                subdomain.IsAlive = scriptOutput.IsAlive.Value;
-
-                return true;
-            }
-
-            return false;
         }
     }
 }
