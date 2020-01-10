@@ -70,16 +70,11 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.RunAsync(Target, Subdomain, Agent, string, CancellationToken)"></see>
+        /// <see cref="IAgentService.RunAsync(Target, Subdomain, Agent, CancellationToken)"></see>
         /// </summary>
-        public async Task RunAsync(Target target, Subdomain subdomain, Agent agent, string arguments, CancellationToken cancellationToken = default)
+        public async Task RunAsync(Target target, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            if (string.IsNullOrWhiteSpace(arguments))
-            {
-                arguments = agent.Arguments;
-            }
 
             var channel = this.GetChannel(target, subdomain, agent);
             if (this.NeedToRunInEachSubdomain(subdomain, agent))
@@ -95,12 +90,13 @@ namespace ReconNess.Services
                     var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(sub.FromAgents) && sub.FromAgents.Contains(agent.Name));
                     if (needToBeAlive || needToSkip)
                     {
-                        await this.connectorService.SendAsync("Logs_" + channel, $"Skip subdomain: {sub.Name}");
+                        await this.connectorService.SendAsync("logs_" + channel, $"Skip subdomain: {sub.Name}");
                         continue;
                     }
 
-                    var command = this.GetCommand(target, sub, agent, arguments);
+                    var command = this.GetCommand(target, sub, agent);
 
+                    await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
                     await this.RunBashAsync(target, sub, agent, command, channel, cancellationToken);
                 }
 
@@ -108,8 +104,9 @@ namespace ReconNess.Services
             }
             else
             {
-                var command = this.GetCommand(target, subdomain, agent, arguments);
+                var command = this.GetCommand(target, subdomain, agent);
 
+                await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
                 await this.RunBashAsync(target, subdomain, agent, command, channel, cancellationToken);
 
                 await this.connectorService.SendAsync(channel, "Agent done!");
@@ -172,14 +169,14 @@ namespace ReconNess.Services
                     var terminalLineOutput = process.StandardOutput.ReadLine();
                     var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Output #: {lineCount}");
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Output: {terminalLineOutput}");
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount}");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Output: {terminalLineOutput}");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
                     await this.targetService.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput, cancellationToken);
 
-                    await this.connectorService.SendAsync("Logs_" + channel, $"Output #: {lineCount} processed");
-                    await this.connectorService.SendAsync("Logs_" + channel, "-----------------------------------------------------");
+                    await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount} processed");
+                    await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
                 }
@@ -256,9 +253,9 @@ namespace ReconNess.Services
         /// <param name="agent">The agent</param>
         /// <param name="arguments"></param>
         /// <returns>The command to run on bash</returns>
-        private string GetCommand(Target target, Subdomain subdomain, Agent agent, string arguments)
+        private string GetCommand(Target target, Subdomain subdomain, Agent agent)
         {
-            return $"{agent.Command} {arguments.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}".Replace("\"", "\\\""); ;
+            return $"{agent.Command.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}".Replace("\"", "\\\""); ;
         }
 
         /// <summary>
@@ -279,7 +276,7 @@ namespace ReconNess.Services
             catch (Exception) { }
 
             await this.connectorService.SendAsync(channel, ex.Message);
-            await this.connectorService.SendAsync("Logs_" + channel, $"Exception: {ex.StackTrace}");
+            await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
         }
     }
 }

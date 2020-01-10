@@ -9,12 +9,8 @@
       <vue-tags-input v-model="tag" placeholder="Add Category" :tags="tags" :autocomplete-items="filteredItems" @tags-changed="newTags => tags = newTags" />
     </div>
     <div class="form-group">
-      <label for="inputCmd">Command</label>
+      <label for="inputCmd">Command <a href="https://docs.reconness.com/agents/add-agent#add-new-agent">Learn more</a></label>
       <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
-    </div>
-    <div class="form-group">
-      <label for="inputArguments">Arguments <a href="https://docs.reconness.com/agents/add-agent#add-new-agent">Learn more</a></label>
-      <input name="arguments" formControlName="arguments" class="form-control" id="arguments" v-model="agent.arguments">
     </div>
     <div class="form-group form-check">
       <input class="form-check-input" type="checkbox" id="isBySubdomain" v-model="agent.isBySubdomain" v-on:click="onBySubdomain()">
@@ -67,6 +63,7 @@
         tags: [],
         autocompleteItems: [],
         agent: {},
+        currentAgentName: '',
         isNew: true,
         content: null,
         disabledIsNotBySubdomain: true
@@ -83,11 +80,12 @@
       this.autocompleteItems = (await this.$api.get('categories')).data.map(category => {
         return { text: category.name };
       })
-      this.agent = this.parentAgent || {}
+      this.agent = this.parentAgent || {}      
       this.isNew = this.agent.name === undefined
       this.disabledIsNotBySubdomain = !this.agent.isBySubdomain
 
-      if (this.agent.name !== undefined) {
+      if (!this.isNew) {
+        this.currentAgentName = this.agent.name
         this.content = this.agent.script
         this.tags = this.agent.categories.map(c => {
           return { text: c };
@@ -107,7 +105,13 @@
         await this.$api.update('agents', this.agent.id, this.agent)
 
         alert("The agent script code was saved")        
-        this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
+
+        if (this.currentAgentName !== this.agent.name) {
+          this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
+        }
+        else {
+          this.$router.go()
+        }
       },
       async onDelete() {
         if (confirm('Are you sure to delete this agent: ' + this.agent.name)) {          
