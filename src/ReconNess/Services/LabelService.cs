@@ -25,7 +25,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ILabelService.GetLabelsAsync(ICollection{SubdomainLabel}, List{string}, CancellationToken)"/>
         /// </summary>
-        public async Task<ICollection<SubdomainLabel>> GetLabelsAsync(ICollection<SubdomainLabel> myLabels, List<string> newLabels, CancellationToken cancellationToken)
+        public async Task<ICollection<SubdomainLabel>> GetLabelsAsync(ICollection<SubdomainLabel> myLabels, List<string> newLabels, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -36,6 +36,7 @@ namespace ReconNess.Services
                 {
                     continue;
                 }
+                myLabelsName.Add(newLabel); // avoid add new duplicate labels
 
                 var label = await GetNewOrExistLabel(newLabel, cancellationToken);
                 myLabels.Add(new SubdomainLabel

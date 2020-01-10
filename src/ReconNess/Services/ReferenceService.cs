@@ -11,7 +11,7 @@ namespace ReconNess.Services
 {
     public class ReferenceService : Service<Reference>, IReferenceService, IService<Reference>
     {
-        public ReferenceService(IUnitOfWork unitOfWork) 
+        public ReferenceService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
         }
@@ -28,7 +28,7 @@ namespace ReconNess.Services
                 .ForEach(categoriesWithComma => categoriesWithComma.Split(',')
                 .ToList()
                 .ForEach(category =>
-                { 
+                {
                     if (!categories.Contains(category))
                     {
                         categories.Add(category);

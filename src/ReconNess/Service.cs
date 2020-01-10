@@ -51,7 +51,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.FindByCriteriaAsync(predicate);
+            return this.repository.FindByCriteriaAsync(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetAllAsync();
+            return this.repository.GetAllAsync(cancellationToken);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.AnyAsync(predicate);
+            return this.repository.AnyAsync(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -81,7 +81,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetAllQueryable();
+            return this.repository.GetAllQueryable(cancellationToken);
         }
 
         /// <summary>
@@ -91,7 +91,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetAllByCriteriaAsync(predicate);
+            return this.repository.GetAllByCriteriaAsync(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -101,7 +101,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetAllQueryableByCriteria(predicate);
+            return this.repository.GetAllQueryableByCriteria(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -111,7 +111,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetByCriteriaAsync(predicate);
+            return this.repository.GetByCriteriaAsync(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -121,8 +121,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Add(entity);
-            this.UnitOfWork.Commit();
+            this.repository.Add(entity, cancellationToken);
+            this.UnitOfWork.Commit(cancellationToken);
 
             return entity;
         }
@@ -134,8 +134,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.AddRange(entities);
-            this.UnitOfWork.Commit();
+            this.repository.AddRange(entities, cancellationToken);
+            this.UnitOfWork.Commit(cancellationToken);
 
             return entities;
         }
@@ -147,8 +147,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Add(entity);
-            await this.UnitOfWork.CommitAsync();
+            this.repository.Add(entity, cancellationToken);
+            await this.UnitOfWork.CommitAsync(cancellationToken);
 
             return entity;
         }
@@ -160,8 +160,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.AddRange(entities);
-            await this.UnitOfWork.CommitAsync();
+            this.repository.AddRange(entities, cancellationToken);
+            await this.UnitOfWork.CommitAsync(cancellationToken);
 
             return entities;
         }
@@ -173,8 +173,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Update(entity);
-            this.UnitOfWork.Commit();
+            this.repository.Update(entity, cancellationToken);
+            this.UnitOfWork.Commit(cancellationToken);
 
             return entity;
         }
@@ -186,8 +186,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.UpdateRange(entities);
-            this.UnitOfWork.Commit();
+            this.repository.UpdateRange(entities, cancellationToken);
+            this.UnitOfWork.Commit(cancellationToken);
 
             return entities;
         }
@@ -199,8 +199,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Update(entity);
-            await this.UnitOfWork.CommitAsync();
+            this.repository.Update(entity, cancellationToken);
+            await this.UnitOfWork.CommitAsync(cancellationToken);
 
             return entity;
         }
@@ -212,8 +212,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.UpdateRange(entities);
-            await this.UnitOfWork.CommitAsync();
+            this.repository.UpdateRange(entities, cancellationToken);
+            await this.UnitOfWork.CommitAsync(cancellationToken);
 
             return entities;
         }
@@ -225,8 +225,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Delete(entity);
-            this.UnitOfWork.Commit();
+            this.repository.Delete(entity, cancellationToken);
+            this.UnitOfWork.Commit(cancellationToken);
         }
 
         /// <summary>
@@ -236,8 +236,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.DeleteRange(entities);
-            this.UnitOfWork.Commit();
+            this.repository.DeleteRange(entities, cancellationToken);
+            this.UnitOfWork.Commit(cancellationToken);
         }
 
         /// <summary>
@@ -247,8 +247,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Delete(entity);
-            await this.UnitOfWork.CommitAsync();
+            this.repository.Delete(entity, cancellationToken);
+            await this.UnitOfWork.CommitAsync(cancellationToken);
         }
 
         /// <summary>
@@ -258,8 +258,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.DeleteRange(entities);
-            await this.UnitOfWork.CommitAsync();
+            this.repository.DeleteRange(entities, cancellationToken);
+            await this.UnitOfWork.CommitAsync(cancellationToken);
         }
     }
 }

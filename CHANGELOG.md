@@ -1,3 +1,11 @@
+## [1.0.2] - 2020-01-09
+
+### Added
+
+- Add Takeover subdomain feature
+- Add UnitTes (categories and Labels)
+- Save Agent always after a run in each subdomain
+
 ## [1.0.0] - 2020-01-01
 
 ### Added

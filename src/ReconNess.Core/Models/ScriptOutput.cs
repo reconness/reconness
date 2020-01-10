@@ -6,6 +6,8 @@
 
         public string Ip { get; set; }
 
+        public bool? Takeover { get; set; }
+
         public bool? IsAlive { get; set; }
 
         public bool? HasHttpOpen { get; set; }

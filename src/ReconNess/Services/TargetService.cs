@@ -45,7 +45,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ITargetService.SaveScriptOutputAsync(Target, Subdomain, Agent, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveScriptOutputAsync(Target target, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool newSubdomain, CancellationToken cancellationToken = default)
+        public async Task SaveScriptOutputAsync(Target target, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -55,7 +55,7 @@ namespace ReconNess.Services
                 {
                     this.UnitOfWork.BeginTransaction();
 
-                    await this.subdomainService.UpdateSubdomainAsync(subdomain, agent, scriptOutput, newSubdomain, cancellationToken);
+                    await this.subdomainService.UpdateSubdomainAsync(subdomain, agent, scriptOutput, cancellationToken);
 
                     await this.UnitOfWork.CommitAsync();
                 }
@@ -159,7 +159,6 @@ namespace ReconNess.Services
                 return;
             }
 
-            var newSubdomain = false;
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(d => d.Name == scriptOutput.Subdomain && d.Target == target)
                                 .Include(s => s.Services)
                                 .FirstOrDefaultAsync();
@@ -173,10 +172,9 @@ namespace ReconNess.Services
                 };
 
                 subdomain = await this.subdomainService.AddAsync(subdomain);
-                newSubdomain = true;
             }
 
-            await this.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput, newSubdomain);
+            await this.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput);
         }
     }
 }
