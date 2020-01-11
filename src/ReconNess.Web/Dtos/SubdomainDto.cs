@@ -9,6 +9,8 @@ namespace ReconNess.Web.Dtos
 
         public string Name { get; set; }
 
+        public DateTime CreatedAt { get; set; }
+
         public string Target { get; set; }
 
         public string IpAddress { get; set; }
@@ -25,7 +27,7 @@ namespace ReconNess.Web.Dtos
 
         public NoteDto Notes { get; set; }
 
-        public List<ServiceDto> Services { get; set; }
+        public List<string> Services { get; set; }
 
         public List<string> Labels { get; set; }
     }

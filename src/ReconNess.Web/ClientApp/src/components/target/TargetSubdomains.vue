@@ -19,13 +19,36 @@
 
     <hr />
     <v-client-table :columns="columns" :data="subdomains" :options="options">
-      <a slot="name" slot-scope="props" v-if="props.row.isAlive === true" target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>
-      <div slot="name" slot-scope="props" v-else>{{props.row.name}}</div>
-      <div slot="isAlive" slot-scope="props">{{props.row.isAlive}}</div>
-      <div slot="hasHttpOpen" slot-scope="props">{{props.row.hasHttpOpen}}</div>
-      <div slot="actions" slot-scope="props">
-        <button class="btn btn-primary ml-2" v-on:click="onOpenSubdomain(props.row)">Open</button>
-        <button class="btn btn-danger ml-2" v-on:click="onDeleteSubdomain(props.row)">Delete</button>
+      <div slot="name" slot-scope="props" v-if="props.row.isAlive">
+        <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>
+        <span v-if="props.row.ipAddress"> ({{props.row.ipAddress}})</span>
+      </div>
+      <div slot="name" slot-scope="props" v-else>
+        {{props.row.name}}<span v-if="props.row.ipAddress"> ({{props.row.ipAddress}})</span>
+      </div>
+
+      <div class="subdomain-details" slot="details" slot-scope="props">
+        <font-awesome-icon v-if="props.row.isMainPortal" :icon="['fas', 'home']" fixed-width title="Main Portal"/>
+        <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive"/>
+        <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'running']" fixed-width title="HTTP Open"/>
+        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover"/>
+
+        <div v-if="props.row.fromAgents">Agents: {{ props.row.fromAgents }}</div>
+        <div v-if="props.row.labels.length > 0">Labels: {{props.row.labels | joinComma('name')}}</div>
+        <div v-if="props.row.services.length > 0">Services: {{props.row.services | joinComma('name')}}</div>
+        <div>Added: {{props.row.createdAt | formatDate('YYYY-MM-DD')}}</div>
+      </div>
+
+
+      <div class="subdomain-labels" slot="labels" slot-scope="props">
+        <a href="#" v-on:click="onAddLabel(props.row, 'Working')" title="Add Working Label"> <font-awesome-icon :icon="['fas', 'coffee']" fixed-width /></a>
+        <a href="#" v-on:click="onAddLabel(props.row, 'Vulnerable')" title="Add Vulnerable Label"> <font-awesome-icon :icon="['fas', 'bug']" fixed-width /></a>
+        <a href="#" v-on:click="onAddLabel(props.row, 'Interesting')" title="Add Interesting Label"> <font-awesome-icon :icon="['fas', 'exclamation']" fixed-width /></a>
+        <a href="#" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" fixed-width /></a>
+      </div>
+      <div class="subdomain-actions" slot="actions" slot-scope="props">
+        <a href="#" v-on:click="onOpenSubdomain(props.row)" title="Open"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></a>
+        <a href="#" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></a>
       </div>
     </v-client-table>   
   </div>
@@ -45,17 +68,16 @@
       return {
         subdomains: [],
         newSubdomain: null,
-        columns: ['name', 'ipAddress', 'isAlive', 'hasHttpOpen', 'actions'],
+        columns: ['name', 'details', 'labels', 'actions'],
         options: {
           headings: {
             name: 'Subdomain',
-            ipAddress: 'Ip Address',
-            isAlive: 'Is Alive',
-            hasHttpOpen: 'Has Http Open',
-            actions: 'Actions'
+            details: 'Details',
+            labels: 'Labels',
+            actions: 'Actions'            
           },
-          sortable: ['name', 'isAlive'],
-          filterable: ['name', 'isAlive']
+          sortable: ['name'],
+          filterable: ['name']
         }
       }
     },
@@ -77,6 +99,10 @@
           await this.$api.delete('targets/subdomain', this.$route.params.targetName)
           this.subdomains = []
         }
+      },
+      async onAddLabel(subdomain, label) {
+        await this.$api.update('subdomains/label', subdomain.id, { label: label })
+        subdomain.labels.push(label)
       },
       async onAddNewSubdomain() {
         const target = this.$route.params.targetName
@@ -101,5 +127,13 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
+  .subdomain-details {
+    width: 250px;
+}
+  .subdomain-actions {
+    width: 30px;
+}
+  .subdomain-labels {
+    width: 50px;
+}
 </style>
