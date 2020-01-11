@@ -20,22 +20,22 @@
     <hr />
     <v-client-table :columns="columns" :data="subdomains" :options="options">
       <div slot="name" slot-scope="props" v-if="props.row.isAlive">
-        <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>
-        <span v-if="props.row.ipAddress"> ({{props.row.ipAddress}})</span>
+        <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>        
       </div>
       <div slot="name" slot-scope="props" v-else>
-        {{props.row.name}}<span v-if="props.row.ipAddress"> ({{props.row.ipAddress}})</span>
+        {{props.row.name}}
       </div>
 
       <div class="subdomain-details" slot="details" slot-scope="props">
-        <font-awesome-icon v-if="props.row.isMainPortal" :icon="['fas', 'home']" fixed-width title="Main Portal"/>
-        <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive"/>
-        <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'running']" fixed-width title="HTTP Open"/>
-        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover"/>
+        <font-awesome-icon v-if="props.row.isMainPortal" :icon="['fas', 'home']" fixed-width title="Main Portal" />
+        <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive" />
+        <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'book-open']" fixed-width title="HTTP Open" />
+        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
 
-        <div v-if="props.row.fromAgents">Agents: {{ props.row.fromAgents }}</div>
-        <div v-if="props.row.labels.length > 0">Labels: {{props.row.labels | joinComma('name')}}</div>
-        <div v-if="props.row.services.length > 0">Services: {{props.row.services | joinComma('name')}}</div>
+        <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
+        <div v-if="props.row.labels.length > 0">Labels: <strong>{{props.row.labels | joinComma() }} </strong></div>
+        <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma() }} </strong></div>
+        <div v-if="props.row.ipAddress">IpAddress: <strong>{{props.row.ipAddress }} </strong></div>
         <div>Added: {{props.row.createdAt | formatDate('YYYY-MM-DD')}}</div>
       </div>
 
@@ -44,6 +44,7 @@
         <a href="#" v-on:click="onAddLabel(props.row, 'Working')" title="Add Working Label"> <font-awesome-icon :icon="['fas', 'coffee']" fixed-width /></a>
         <a href="#" v-on:click="onAddLabel(props.row, 'Vulnerable')" title="Add Vulnerable Label"> <font-awesome-icon :icon="['fas', 'bug']" fixed-width /></a>
         <a href="#" v-on:click="onAddLabel(props.row, 'Interesting')" title="Add Interesting Label"> <font-awesome-icon :icon="['fas', 'exclamation']" fixed-width /></a>
+        <a href="#" v-on:click="onAddLabel(props.row, 'Bounty')" title="Add Bounty Label"> <font-awesome-icon :icon="['fas', 'dollar-sign']" fixed-width /></a>
         <a href="#" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" fixed-width /></a>
       </div>
       <div class="subdomain-actions" slot="actions" slot-scope="props">

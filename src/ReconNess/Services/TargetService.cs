@@ -38,7 +38,10 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(t => t.Notes)
                 .Include(t => t.Subdomains)
-                .ThenInclude(t => t.Services)
+                    .ThenInclude(t => t.Services)
+                .Include(t => t.Subdomains)
+                    .ThenInclude(a => a.Labels)
+                        .ThenInclude(ac => ac.Label)
                 .FirstOrDefaultAsync();
         }
 
