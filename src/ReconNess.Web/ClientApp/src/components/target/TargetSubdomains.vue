@@ -33,23 +33,23 @@
         <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
 
         <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
-        <div v-if="props.row.labels.length > 0">Labels: <strong>{{props.row.labels | joinComma() }} </strong></div>
-        <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma() }} </strong></div>
+        <div v-if="props.row.labels.length > 0" >Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
+        <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma('name') }} </strong></div>
         <div v-if="props.row.ipAddress">IpAddress: <strong>{{props.row.ipAddress }} </strong></div>
         <div>Added: {{props.row.createdAt | formatDate('YYYY-MM-DD')}}</div>
       </div>
 
 
       <div class="subdomain-labels" slot="labels" slot-scope="props">
-        <a href="#" v-on:click="onAddLabel(props.row, 'Working')" title="Add Working Label"> <font-awesome-icon :icon="['fas', 'coffee']" fixed-width /></a>
-        <a href="#" v-on:click="onAddLabel(props.row, 'Vulnerable')" title="Add Vulnerable Label"> <font-awesome-icon :icon="['fas', 'bug']" fixed-width /></a>
-        <a href="#" v-on:click="onAddLabel(props.row, 'Interesting')" title="Add Interesting Label"> <font-awesome-icon :icon="['fas', 'exclamation']" fixed-width /></a>
-        <a href="#" v-on:click="onAddLabel(props.row, 'Bounty')" title="Add Bounty Label"> <font-awesome-icon :icon="['fas', 'dollar-sign']" fixed-width /></a>
-        <a href="#" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" fixed-width /></a>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Checking')" title="Add Checking Label"> <font-awesome-icon :icon="['fas', 'coffee']" /></button>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Vulnerable')" title="Add Vulnerable Label"> <font-awesome-icon :icon="['fas', 'bug']" /></button>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Interesting')" title="Add Interesting Label"> <font-awesome-icon :icon="['fas', 'exclamation']" /></button>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Bounty')" title="Add Bounty Label"> <font-awesome-icon :icon="['fas', 'dollar-sign']" /></button>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" /></button>
       </div>
       <div class="subdomain-actions" slot="actions" slot-scope="props">
-        <a href="#" v-on:click="onOpenSubdomain(props.row)" title="Open"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></a>
-        <a href="#" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></a>
+        <button type="button" class="btn btn-link" v-on:click="onOpenSubdomain(props.row)" title="Open"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></button>
+        <button type="button" class="btn btn-link" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></button>
       </div>
     </v-client-table>   
   </div>
@@ -103,7 +103,7 @@
       },
       async onAddLabel(subdomain, label) {
         await this.$api.update('subdomains/label', subdomain.id, { label: label })
-        subdomain.labels.push(label)
+        this.$router.go()
       },
       async onAddNewSubdomain() {
         const target = this.$route.params.targetName
@@ -132,9 +132,9 @@
     width: 250px;
 }
   .subdomain-actions {
-    width: 30px;
+    width: 50px;
 }
   .subdomain-labels {
-    width: 50px;
+    width: 120px;
 }
 </style>

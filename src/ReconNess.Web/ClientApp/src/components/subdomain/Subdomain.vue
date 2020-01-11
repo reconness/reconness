@@ -119,7 +119,7 @@
         this.agents = (await this.$api.get('agents/subdomain/' + this.$route.params.targetName + '/' + this.$route.params.subdomain)).data
 
         this.tags = this.subdomain.labels.map(label => {
-          return { text: label };
+          return { text: label.name };
         })
 
         this.notesReady = true
@@ -127,7 +127,10 @@
         this.agentsReady = true
       },
       async onUpdate() {
-        this.subdomain.labels = this.tags.map(tag => tag.text)
+        this.subdomain.labels = this.tags.map(tag => {
+          return { 'name': tag.text }
+        })
+
         await this.$api.update('subdomains', this.subdomain.id, this.subdomain)
         alert("The subdomain was updated")
       }

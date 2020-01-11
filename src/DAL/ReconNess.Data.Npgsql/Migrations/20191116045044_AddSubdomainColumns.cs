@@ -121,18 +121,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         principalTable: "Subdomains",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.InsertData(
-                table: "Label",
-                columns: new[] { "Id", "CreatedAt", "Deleted", "Name", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { new Guid("396adbc5-b2be-4fbf-ad71-1da0858c0cc3"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Ignore", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("433dd1c5-dfb7-4f64-bdaf-df9d41e54788"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "ToCheck", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("44803ec6-1444-4f94-bd90-ba0fc977bf4b"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Checking", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("27d1283c-dd62-46a8-b48c-7a7be67d7caa"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Bounty", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
-                });
+                });                       
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubdomainLabel_LabelId",

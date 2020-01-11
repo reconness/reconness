@@ -27,8 +27,8 @@ namespace ReconNess.Web.Dtos
 
         public NoteDto Notes { get; set; }
 
-        public List<string> Services { get; set; }
+        public List<ServiceDto> Services { get; set; }
 
-        public List<string> Labels { get; set; }
+        public List<LabelDto> Labels { get; set; }
     }
 }

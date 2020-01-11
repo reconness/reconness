@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -79,10 +80,13 @@ namespace ReconNess.Services
             var label = await this.GetByCriteriaAsync(c => c.Name == newLabel, cancellationToken);
             if (label == null)
             {
+                var random = new Random();
+
                 label = new Label
                 {
-                    Name = newLabel
-                };
+                    Name = newLabel,
+                    Color = string.Format("#{0:X6}", random.Next(0x1000000))
+                };            
 
                 label = await this.AddAsync(label, cancellationToken);
             }
