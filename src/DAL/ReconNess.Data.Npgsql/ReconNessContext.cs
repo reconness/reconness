@@ -114,7 +114,6 @@ namespace ReconNess.Data.Npgsql
         /// </summary>
         private void RunSeed(ModelBuilder modelBuilder)
         {
-            CategorySeeding.Run(modelBuilder);
             LabelSeeding.Run(modelBuilder);
         }
 

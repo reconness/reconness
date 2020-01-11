@@ -49,22 +49,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             migrationBuilder.DropIndex(
                 name: "IX_Agent_CategoryId",
-                table: "Agent");
-
-            migrationBuilder.DeleteData(
-                table: "AgentCategory",
-                keyColumn: "Id",
-                keyValue: new Guid("1ebd0113-d785-49e6-987f-101c1bb4a3b8"));
-
-            migrationBuilder.DeleteData(
-                table: "AgentCategory",
-                keyColumn: "Id",
-                keyValue: new Guid("795e3c29-6fb1-45e9-a462-04c511b78aba"));
-
-            migrationBuilder.DeleteData(
-                table: "AgentCategory",
-                keyColumn: "Id",
-                keyValue: new Guid("ef4de40a-4893-474e-a18d-1ee8eefe04f1"));
+                table: "Agent");           
 
             migrationBuilder.DropColumn(
                 name: "Id",
@@ -174,16 +159,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Categories",
-                columns: new[] { "Id", "CreatedAt", "Deleted", "Name", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { new Guid("0ddfce66-458c-4894-bb1e-16206de35371"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Enum Subdomain Active", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("47ddb6f9-2321-4c7c-b4f0-ae2b65d77fc1"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Enum Subdomain Passive", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("a2f7b386-6ae6-493e-b0e1-63410faa665d"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, "Enum Subdomain Brute Force", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
-                });
+            
 
             migrationBuilder.CreateIndex(
                 name: "IX_AgentCategory_CategoryId",
@@ -387,17 +363,7 @@ namespace ReconNess.Data.Npgsql.Migrations
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Agent",
                 table: "Agent",
-                column: "Id");
-
-            migrationBuilder.InsertData(
-                table: "AgentCategory",
-                columns: new[] { "Id", "Category", "CreatedAt", "Deleted", "UpdatedAt" },
-                values: new object[,]
-                {
-                    { new Guid("1ebd0113-d785-49e6-987f-101c1bb4a3b8"), "Enum Subdomain Active", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("ef4de40a-4893-474e-a18d-1ee8eefe04f1"), "Enum Subdomain Passive", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) },
-                    { new Guid("795e3c29-6fb1-45e9-a462-04c511b78aba"), "Enum Subdomain Brute Force", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), false, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified) }
-                });
+                column: "Id");                       
 
             migrationBuilder.CreateIndex(
                 name: "IX_Agent_CategoryId",

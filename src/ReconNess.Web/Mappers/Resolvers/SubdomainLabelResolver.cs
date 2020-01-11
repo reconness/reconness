@@ -20,7 +20,7 @@ namespace ReconNess.Web.Mappers.Resolvers
             var SubdomainLabels = new List<SubdomainLabel>();
             source.Labels.ForEach(label =>
             {
-                var labelDb = this.labelService.GetByCriteriaAsync(c => c.Name == label).Result;
+                var labelDb = this.labelService.GetByCriteriaAsync(c => c.Name == label.Name).Result;
 
                 if (labelDb != null)
                 {
@@ -35,7 +35,7 @@ namespace ReconNess.Web.Mappers.Resolvers
                     {
                         Label = new Label
                         {
-                            Name = label
+                            Name = label.Name
                         }
                     });
                 }

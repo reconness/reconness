@@ -1,3 +1,11 @@
+## [1.0.4] - 2020-01-11
+
+### Added
+
+- Improve Subdomain Grid inside the Target
+- Color for the Subdomain Labels
+- Default Labels (Checking, Vulnerable, Interesting, Bounty, Ignore)
+
 ## [1.0.3] - 2020-01-10
 
 ### Removed

@@ -7,7 +7,7 @@ namespace ReconNess.Entities
     {
         public Guid Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; }        
 
         public bool? HasHttpOpen { get; set; }
 

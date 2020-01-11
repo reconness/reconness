@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -117,13 +119,41 @@ namespace ReconNess.Web.Controllers
 
             subdomain.Name = editedSubdmain.Name;
             subdomain.IsMainPortal = editedSubdmain.IsMainPortal;
-            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, subdomainDto.Labels, cancellationToken);
+            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, subdomainDto.Labels.Select(l => l.Name).ToList(), cancellationToken);
 
             await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
 
             return NoContent();
         }
 
+        // PUT api/subdomains/label/{id}
+        [HttpPut("label/{id}")]
+        public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
+               .Include(a => a.Labels)
+                   .ThenInclude(ac => ac.Label)
+               .FirstOrDefaultAsync();
+
+            if (subdomain == null)
+            {
+                return NotFound();
+            }
+
+            var myLabels = subdomain.Labels.Select(l => l.Label.Name).ToList();
+            myLabels.Add(subdomainLabelDto.Label);
+
+            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
+
+            await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
+
+            return NoContent();
+        }
 
         // DELETE api/subdomains/{id}
         [HttpDelete("{id}")]

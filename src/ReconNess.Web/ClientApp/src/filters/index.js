@@ -8,5 +8,5 @@ Vue.filter('formatDate', function(value, format) {
 })
 
 Vue.filter('joinComma', function (value, property) {
-  return value.map((item) => item[property]).join(', ')
+    return value.map((item) => property === undefined ? item : item[property]).join(', ')
 });
