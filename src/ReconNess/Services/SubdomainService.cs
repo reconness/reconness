@@ -127,7 +127,7 @@ namespace ReconNess.Services
 
             var service = new Service
             {
-                Name = scriptOutput.Service,
+                Name = scriptOutput.Service.ToLower(),
                 Port = scriptOutput.Port.Value
             };
 
