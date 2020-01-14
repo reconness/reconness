@@ -91,7 +91,7 @@
       },
       async onDeleteSubdomain(subdomain) {
         if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {          
-          await this.$api.delete('subdomains', subdomain.id)
+          await this.$api.delete('subdomains/' + this.$route.params.targetName, subdomain.id)
           this.subdomains = this.subdomains.filter(sub => sub !== subdomain)
         }
       },

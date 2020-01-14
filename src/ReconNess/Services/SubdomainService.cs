@@ -59,6 +59,11 @@ namespace ReconNess.Services
             {
                 this.UnitOfWork.BeginTransaction(cancellationToken);
 
+                if (subdomain.Notes != null)
+                {
+                    this.UnitOfWork.Repository<Note>().Delete(subdomain.Notes, cancellationToken);
+                }
+
                 this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
                 this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
 
@@ -80,6 +85,11 @@ namespace ReconNess.Services
             foreach (var subdomain in subdomains)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (subdomain.Notes != null)
+                {
+                    this.UnitOfWork.Repository<Note>().Delete(subdomain.Notes, cancellationToken);
+                }
 
                 this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
                 this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);

@@ -40,6 +40,8 @@ namespace ReconNess.Services
                 .Include(t => t.Subdomains)
                     .ThenInclude(t => t.Services)
                 .Include(t => t.Subdomains)
+                    .ThenInclude(t => t.Notes)
+                .Include(t => t.Subdomains)
                     .ThenInclude(a => a.Labels)
                         .ThenInclude(ac => ac.Label)
                 .FirstOrDefaultAsync();
