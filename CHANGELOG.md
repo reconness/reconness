@@ -1,3 +1,10 @@
+## [1.0.5] - 2020-01-13
+
+### Added
+
+- Fix Delete subdomains
+- Fix mapping Services
+
 ## [1.0.4] - 2020-01-11
 
 ### Added
