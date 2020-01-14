@@ -23,6 +23,14 @@ namespace ReconNess.Core.Services
         Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Delete the subdomain with the services
+        /// </summary>
+        /// <param name="subdomain">Subdomain to delete</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A Task</returns>
+        Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Delete all the subdomains with the services
         /// </summary>
         /// <param name="subdomains">The list subdomains to delete</param>

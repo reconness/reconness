@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,30 @@ namespace ReconNess.Services
             ).UpdateSubdomainAgent(subdomain, agent);
             
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
+        /// </summary>
+        public async Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default)
+        {            
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                this.UnitOfWork.BeginTransaction(cancellationToken);
+
+                this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
+                this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
+
+                await this.UnitOfWork.CommitAsync(cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                this.UnitOfWork.Rollback(cancellationToken);
+                throw ex;
+            }
+
         }
 
         /// <summary>

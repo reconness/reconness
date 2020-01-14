@@ -165,7 +165,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.subdomainService.DeleteAsync(subdomain, cancellationToken);
+            await this.subdomainService.DeleteSubdomainAsync(subdomain, cancellationToken);
 
             return NoContent();
         }
