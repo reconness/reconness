@@ -74,7 +74,6 @@ namespace ReconNess.Services
                 this.UnitOfWork.Rollback(cancellationToken);
                 throw ex;
             }
-
         }
 
         /// <summary>

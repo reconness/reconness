@@ -156,7 +156,7 @@ namespace ReconNess.Web.Controllers
         }
 
         // DELETE api/subdomains/{target}/{id}
-        [HttpDelete("{target}/{id}")]
+        [HttpDelete("{targetName}/{id}")]
         public async Task<IActionResult> Delete(string targetName, Guid id, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
