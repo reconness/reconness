@@ -155,17 +155,27 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // DELETE api/subdomains/{id}
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        // DELETE api/subdomains/{target}/{id}
+        [HttpDelete("{targetName}/{id}")]
+        public async Task<IActionResult> Delete(string targetName, Guid id, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Id == id, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Target == target && s.Id == id, cancellationToken)
+                .Include(s => s.Notes)
+                .Include(s => s.Services)
+                .FirstOrDefaultAsync(cancellationToken);
+
             if (subdomain == null)
             {
                 return NotFound();
             }
 
-            await this.subdomainService.DeleteAsync(subdomain, cancellationToken);
+            await this.subdomainService.DeleteSubdomainAsync(subdomain, cancellationToken);
 
             return NoContent();
         }

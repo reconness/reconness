@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,6 +49,34 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
+        /// </summary>
+        public async Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default)
+        {            
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                this.UnitOfWork.BeginTransaction(cancellationToken);
+
+                if (subdomain.Notes != null)
+                {
+                    this.UnitOfWork.Repository<Note>().Delete(subdomain.Notes, cancellationToken);
+                }
+
+                this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
+                this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
+
+                await this.UnitOfWork.CommitAsync(cancellationToken);
+            }
+            catch(Exception ex)
+            {
+                this.UnitOfWork.Rollback(cancellationToken);
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// <see cref="ISubdomainService.DeleteSubdomains(ICollection{Subdomain}, CancellationToken)"/>
         /// </summary>
         public void DeleteSubdomains(ICollection<Subdomain> subdomains, CancellationToken cancellationToken = default)
@@ -55,6 +84,11 @@ namespace ReconNess.Services
             foreach (var subdomain in subdomains)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+
+                if (subdomain.Notes != null)
+                {
+                    this.UnitOfWork.Repository<Note>().Delete(subdomain.Notes, cancellationToken);
+                }
 
                 this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
                 this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
@@ -127,7 +161,7 @@ namespace ReconNess.Services
 
             var service = new Service
             {
-                Name = scriptOutput.Service,
+                Name = scriptOutput.Service.ToLower(),
                 Port = scriptOutput.Port.Value
             };
 

@@ -27,7 +27,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return await this.AnyAsync(s => s.Subdomain.Name == subdomain.Name && s.Name == service.Name && s.Port == service.Port, cancellationToken);
+            return await this.AnyAsync(s => s.Subdomain.Name == subdomain.Name && s.Name.ToLower() == service.Name.ToLower() && s.Port == service.Port, cancellationToken);
         }
     }
 }
