@@ -42,11 +42,12 @@ namespace ReconNess.Services
                     .UpdateSubdomainIsAlive(subdomain, scriptOutput)
                     .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
                     .UpdateSubdomainTakeover(subdomain, scriptOutput)
+                    .UpdateSubdomainHasScreenshot(subdomain, scriptOutput)
                     .UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken)
             ).UpdateSubdomainAgent(subdomain, agent);
             
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
-        }
+        }        
 
         /// <summary>
         /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
@@ -138,6 +139,22 @@ namespace ReconNess.Services
             if (scriptOutput.Takeover != null && subdomain.Takeover != scriptOutput.Takeover.Value)
             {
                 subdomain.Takeover = scriptOutput.Takeover.Value;
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Update the subdomain if it has screenshot
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainHasScreenshot(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (scriptOutput.HasScreenshot != null && subdomain.HasScreenshot != scriptOutput.HasScreenshot.Value)
+            {
+                subdomain.HasScreenshot = scriptOutput.HasScreenshot.Value;
             }
 
             return this;
