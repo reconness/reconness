@@ -23,6 +23,8 @@ namespace ReconNess.Web.Dtos
 
         public bool? IsAlive { get; set; }
 
+        public bool? HasScreenshot { get; set; }
+
         public string FromAgents { get; set; }
 
         public NoteDto Notes { get; set; }

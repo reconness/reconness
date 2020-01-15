@@ -12,6 +12,8 @@
 
         public bool? HasHttpOpen { get; set; }
 
+        public bool? HasScreenshot { get; set; }
+
         public int? Port { get; set; }
 
         public string Service { get; set; }

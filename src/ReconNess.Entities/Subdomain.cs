@@ -17,6 +17,8 @@ namespace ReconNess.Entities
 
         public bool? IsAlive { get; set; }
 
+        public bool? HasScreenshot { get; set; }
+
         public string FromAgents { get; set; }
 
         public virtual Target Target { get; set; }

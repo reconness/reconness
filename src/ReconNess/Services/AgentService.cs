@@ -181,6 +181,15 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
                 }
 
+                while (process != null && !process.StandardError.EndOfStream)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    var terminalLineErrorOutput = process.StandardOutput.ReadLine();
+
+                    await this.connectorService.SendAsync("logs_" + channel, $"Error: {terminalLineErrorOutput}");
+                }
+
                 process.WaitForExit();
             }
             catch (Exception ex)
@@ -251,11 +260,12 @@ namespace ReconNess.Services
         /// <param name="target">The target</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
-        /// <param name="arguments"></param>
         /// <returns>The command to run on bash</returns>
         private string GetCommand(Target target, Subdomain subdomain, Agent agent)
         {
-            return $"{agent.Command.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}".Replace("\"", "\\\""); ;
+            return $"{agent.Command.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}"
+                .Replace("{{targetName}}", target.Name)
+                .Replace("\"", "\\\"");
         }
 
         /// <summary>

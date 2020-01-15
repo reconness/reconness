@@ -33,10 +33,13 @@
         <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
 
         <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
-        <div v-if="props.row.labels.length > 0" >Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
+        <div v-if="props.row.labels.length > 0">Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
         <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma('name') }} </strong></div>
         <div v-if="props.row.ipAddress">IpAddress: <strong>{{props.row.ipAddress }} </strong></div>
         <div>Added: {{props.row.createdAt | formatDate('YYYY-MM-DD')}}</div>
+        <div v-if="props.row.hasScreenshot">
+          Screenshot: <a :href="'/screenshot/' + targetName + '/' + props.row.name + '.png'" target="_blank"><img :src="'/screenshot/' + targetName + '/' + props.row.name + '.png'" width="250px" height="250px" /></a>
+        </div>
       </div>
 
 
@@ -69,6 +72,7 @@
       return {
         subdomains: [],
         newSubdomain: null,
+        targetName: '',
         columns: ['name', 'details', 'labels', 'actions'],
         options: {
           headings: {
@@ -84,6 +88,7 @@
     },
     async mounted() {
       this.subdomains = this.parentSubdomains || []
+      this.targetName = this.$route.params.targetName
     },
     methods: {
       async onOpenSubdomain(subdomain) {
