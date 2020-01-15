@@ -1,3 +1,10 @@
+## [1.0.6] - 2020-01-15
+
+### Added
+
+- Add Screenshot feature
+- Add {{targetName}} in the Agent variables to replace in the command option
+
 ## [1.0.5] - 2020-01-13
 
 ### Added
