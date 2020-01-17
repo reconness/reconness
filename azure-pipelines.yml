@@ -32,3 +32,7 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+    testAssemblyVer2: | # Required when testSelector == TestAssemblies
+      **\*UnitTests*.dll
+      !**\*TestAdapter.dll
+      !**\obj\**
