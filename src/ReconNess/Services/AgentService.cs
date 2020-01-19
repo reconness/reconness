@@ -87,8 +87,9 @@ namespace ReconNess.Services
                     cancellationToken.ThrowIfCancellationRequested();
 
                     var needToBeAlive = agent.OnlyIfIsAlive && (sub.IsAlive == null || !sub.IsAlive.Value);
+                    var needTohasHttpOpen = agent.OnlyIfHasHttpOpen && (sub.HasHttpOpen == null || !sub.HasHttpOpen.Value);
                     var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(sub.FromAgents) && sub.FromAgents.Contains(agent.Name));
-                    if (needToBeAlive || needToSkip)
+                    if (needToBeAlive || needTohasHttpOpen || needToSkip)
                     {
                         await this.connectorService.SendAsync("logs_" + channel, $"Skip subdomain: {sub.Name}");
                         continue;
