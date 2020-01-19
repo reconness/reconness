@@ -25,8 +25,8 @@
       </label>
     </div>
     <div class="form-group form-check">
-      <input class="form-check-input" type="checkbox" id="onlyIfHasHttpOne" ref="onlyIfHasHttpOne" v-model="agent.onlyIfHasHttpOne" :disabled="disabledIsNotBySubdomain">
-      <label class="form-check-label" for="onlyIfHasHttpOne">
+      <input class="form-check-input" type="checkbox" id="onlyIfHasHttpOne" ref="onlyIfHasHttpOpen" v-model="agent.onlyIfHasHttpOpen" :disabled="disabledIsNotBySubdomain">
+      <label class="form-check-label" for="onlyIfHasHttpOpen">
         Run Only if has Http Open
       </label>
     </div>
@@ -136,7 +136,7 @@
       },
       onBySubdomain() {
         this.$refs["onlyIfIsAlive"].checked = false
-        this.$refs["onlyIfHasHttpOne"].checked = false
+        this.$refs["onlyIfHasHttpOpen"].checked = false
         this.$refs["skipIfRanBefore"].checked = false
         this.disabledIsNotBySubdomain = this.agent.isBySubdomain
       }
