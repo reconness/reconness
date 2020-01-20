@@ -153,6 +153,7 @@ namespace ReconNess.Web.Controllers
             agent.Command = agentDto.Command;
             agent.IsBySubdomain = agentDto.IsBySubdomain;
             agent.OnlyIfIsAlive = agentDto.OnlyIfIsAlive;
+            agent.OnlyIfHasHttpOpen = agentDto.OnlyIfHasHttpOpen;
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
             agent.Script = agentDto.Script;
 

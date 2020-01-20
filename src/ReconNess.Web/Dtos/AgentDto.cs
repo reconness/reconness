@@ -13,6 +13,8 @@ namespace ReconNess.Web.Dtos
 
         public bool OnlyIfIsAlive { get; set; }
 
+        public bool OnlyIfHasHttpOpen { get; set; }
+
         public bool SkipIfRanBefore { get; set; }
 
         public List<string> Categories { get; set; }

@@ -37,9 +37,6 @@
         <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma('name') }} </strong></div>
         <div v-if="props.row.ipAddress">IpAddress: <strong>{{props.row.ipAddress }} </strong></div>
         <div>Added: {{props.row.createdAt | formatDate('YYYY-MM-DD')}}</div>
-        <div v-if="props.row.hasScreenshot">
-          Screenshot: <a :href="'/screenshot/' + targetName + '/' + props.row.name + '.png'" target="_blank"><img :src="'/screenshot/' + targetName + '/' + props.row.name + '.png'" width="250px" height="250px" /></a>
-        </div>
       </div>
 
 

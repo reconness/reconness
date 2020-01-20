@@ -13,6 +13,8 @@ namespace ReconNess.Entities
 
         public bool OnlyIfIsAlive { get; set; }
 
+        public bool OnlyIfHasHttpOpen { get; set; }
+
         public bool SkipIfRanBefore { get; set; }
 
         public string Command { get; set; }
