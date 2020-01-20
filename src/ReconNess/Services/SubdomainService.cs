@@ -223,7 +223,8 @@ namespace ReconNess.Services
                 {
                     Directory = scriptOutput.HttpDirectory,
                     StatusCode = scriptOutput.HttpDirectoryStatusCode,
-                    Method = scriptOutput.HttpDirectoryMethod
+                    Method = scriptOutput.HttpDirectoryMethod,
+                    Size = scriptOutput.HttpDirectorySize
                 };
 
                 subdomain.ServiceHttp.Directories.Add(directory);

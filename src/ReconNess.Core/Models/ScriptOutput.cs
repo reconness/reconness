@@ -20,6 +20,8 @@
 
         public string HttpDirectoryStatusCode { get; set; }
 
+        public string HttpDirectorySize { get; set; }
+
         public bool? HasHttpOpen { get; set; }
 
         public int? Port { get; set; }

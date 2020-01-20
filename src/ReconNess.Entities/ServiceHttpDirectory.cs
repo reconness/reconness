@@ -10,6 +10,8 @@ namespace ReconNess.Entities
 
         public string StatusCode { get; set; }
 
+        public string Size { get; set; }
+
         /// <summary>
         /// GET, POST, PATCH, DELETE
         /// </summary>

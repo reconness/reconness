@@ -10,6 +10,7 @@
               <th scope="col">Directory</th>
               <th scope="col">Method</th>
               <th scope="col">Status Code</th>
+              <th scope="col">Size</th>
             </tr>
           </thead>
           <tbody>
@@ -17,6 +18,7 @@
               <th class="w-25" scope="row">{{ directory.directory }}</th>
               <th class="w-25" scope="row">{{ directory.method }}</th>
               <th class="w-25" scope="row">{{ directory.statusCode }}</th>
+              <th class="w-25" scope="row">{{ directory.size }}</th>
             </tr>
           </tbody>
         </table>
