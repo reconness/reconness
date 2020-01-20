@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ReconNess.Data.Npgsql.Migrations
 {
@@ -7,12 +6,12 @@ namespace ReconNess.Data.Npgsql.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            
+
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-           
+
         }
     }
 }

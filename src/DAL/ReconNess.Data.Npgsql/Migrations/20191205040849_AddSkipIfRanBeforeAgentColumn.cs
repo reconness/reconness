@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ReconNess.Data.Npgsql.Migrations
 {
     public partial class AddSkipIfRanBeforeAgentColumn : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
-        {          
+        {
             migrationBuilder.AddColumn<bool>(
                 name: "SkipIfRanBefore",
                 table: "Agents",
@@ -18,7 +17,7 @@ namespace ReconNess.Data.Npgsql.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "SkipIfRanBefore",
-                table: "Agents");           
+                table: "Agents");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,22 +38,24 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            (await 
+            (await
                 this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
                     .UpdateSubdomainIsAlive(subdomain, scriptOutput)
                     .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
                     .UpdateSubdomainTakeover(subdomain, scriptOutput)
+                    .UpdateSubdomainScreenshot(subdomain, scriptOutput)
+                    .UpdateSubdomainDirectory(subdomain, scriptOutput)
                     .UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken)
             ).UpdateSubdomainAgent(subdomain, agent);
-            
+
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
-        }        
+        }
 
         /// <summary>
         /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
         /// </summary>
         public async Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default)
-        {            
+        {
             cancellationToken.ThrowIfCancellationRequested();
 
             try
@@ -69,7 +72,7 @@ namespace ReconNess.Services
 
                 await this.UnitOfWork.CommitAsync(cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.UnitOfWork.Rollback(cancellationToken);
                 throw ex;
@@ -138,6 +141,92 @@ namespace ReconNess.Services
             if (scriptOutput.Takeover != null && subdomain.Takeover != scriptOutput.Takeover.Value)
             {
                 subdomain.Takeover = scriptOutput.Takeover.Value;
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Update the subdomain with screenshots
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+
+        private SubdomainService UpdateSubdomainScreenshot(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (string.IsNullOrEmpty(scriptOutput.HttpScreenshotFilePath))
+            {
+                try
+                {
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));
+                    if (subdomain.ServiceHttp == null)
+                    {
+                        subdomain.ServiceHttp = new ServiceHttp();
+                    }
+
+                    subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            if (string.IsNullOrEmpty(scriptOutput.HttpsScreenshotFilePath))
+            {
+                try
+                {
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpsScreenshotFilePath));
+                    if (subdomain.ServiceHttp == null)
+                    {
+                        subdomain.ServiceHttp = new ServiceHttp();
+                    }
+
+                    subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Update the subdomain with directory discovery
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainDirectory(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.HttpDirectory))
+            {
+                if (subdomain.ServiceHttp == null)
+                {
+                    subdomain.ServiceHttp = new ServiceHttp();
+                }
+
+                if (subdomain.ServiceHttp.Directories == null)
+                {
+                    subdomain.ServiceHttp.Directories = new List<ServiceHttpDirectory>();
+                }
+
+                if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == scriptOutput.HttpDirectory))
+                {
+                    return this;
+                }
+
+                var directory = new ServiceHttpDirectory()
+                {
+                    Directory = scriptOutput.HttpDirectory,
+                    StatusCode = scriptOutput.HttpDirectoryStatusCode,
+                    Method = scriptOutput.HttpDirectoryMethod
+                };
+
+                subdomain.ServiceHttp.Directories.Add(directory);
             }
 
             return this;

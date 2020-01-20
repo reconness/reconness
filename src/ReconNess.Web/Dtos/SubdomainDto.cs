@@ -22,10 +22,12 @@ namespace ReconNess.Web.Dtos
         public bool? IsMainPortal { get; set; }
 
         public bool? IsAlive { get; set; }
-        
+
         public string FromAgents { get; set; }
 
         public NoteDto Notes { get; set; }
+
+        public ServiceHttpDto ServiceHttp { get; set; }
 
         public List<ServiceDto> Services { get; set; }
 

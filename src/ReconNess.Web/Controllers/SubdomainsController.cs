@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -55,6 +54,8 @@ namespace ReconNess.Web.Controllers
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Target == target && s.Name == subdomainName, cancellationToken)
                 .Include(s => s.Notes)
                 .Include(s => s.Services)
+                .Include(s => s.ServiceHttp)
+                    .ThenInclude(s => s.Directories)
                 .Include(s => s.Labels)
                     .ThenInclude(s => s.Label)
                 .FirstOrDefaultAsync(cancellationToken);

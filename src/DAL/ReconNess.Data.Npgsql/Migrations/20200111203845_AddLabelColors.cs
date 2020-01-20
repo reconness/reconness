@@ -11,7 +11,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                 name: "Color",
                 table: "Label",
                 nullable: true);
-            
+
             migrationBuilder.InsertData(
                 table: "Label",
                 columns: new[] { "Id", "Color", "CreatedAt", "Deleted", "Name", "UpdatedAt" },

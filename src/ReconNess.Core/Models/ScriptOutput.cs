@@ -10,9 +10,17 @@
 
         public bool? IsAlive { get; set; }
 
-        public bool? HasHttpOpen { get; set; }
+        public string HttpScreenshotFilePath { get; set; }
 
-        public bool? HasScreenshot { get; set; }
+        public string HttpsScreenshotFilePath { get; set; }
+
+        public string HttpDirectory { get; set; }
+
+        public string HttpDirectoryMethod { get; set; }
+
+        public string HttpDirectoryStatusCode { get; set; }
+
+        public bool? HasHttpOpen { get; set; }
 
         public int? Port { get; set; }
 
