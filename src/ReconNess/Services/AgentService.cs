@@ -180,16 +180,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
-                }
-
-                while (process != null && !process.StandardError.EndOfStream)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var terminalLineErrorOutput = process.StandardOutput.ReadLine();
-
-                    await this.connectorService.SendAsync("logs_" + channel, $"Error: {terminalLineErrorOutput}");
-                }
+                }               
 
                 process.WaitForExit();
             }

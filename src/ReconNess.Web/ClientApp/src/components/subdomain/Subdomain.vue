@@ -34,9 +34,6 @@
           <div class="form-group">
             <strong>Agents: </strong>{{ subdomain.fromAgents }}
           </div>
-          <div class="form-group" v-if="subdomain.hasScreenshot">
-            <strong>Screenshot: </strong><img :src="'/screenshot/' + targetName + '/' + subdomain.name + '.png'" width="250px" height="250px"/>
-          </div>
           <div class="form-group">
             <label for="inputLabel"><strong>Labels:</strong></label>
             <vue-tags-input v-model="tag" placeholder="Add label" :tags="tags" :autocomplete-items="filteredItems" @tags-changed="newTags => tags = newTags" />
