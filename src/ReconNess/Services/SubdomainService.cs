@@ -16,39 +16,32 @@ namespace ReconNess.Services
     /// </summary>
     public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService
     {
-        private readonly IServiceService serviceService;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ISubdomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="serviceService"><see cref="IServiceService"/></param>
         public SubdomainService(
             IUnitOfWork unitOfWork,
             IServiceService serviceService)
             : base(unitOfWork)
         {
-            this.serviceService = serviceService;
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
+        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool)"/>
         /// </summary>
-        public async Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public void UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
+                .UpdateSubdomainIsAlive(subdomain, scriptOutput)
+                .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
+                .UpdateSubdomainTakeover(subdomain, scriptOutput)
+                .UpdateSubdomainScreenshot(subdomain, scriptOutput)
+                .UpdateSubdomainDirectory(subdomain, scriptOutput)
+                .UpdateSubdomainService(subdomain, scriptOutput)
+                .UpdateSubdomainAgent(subdomain, agent);
 
-            (await
-                this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
-                    .UpdateSubdomainIsAlive(subdomain, scriptOutput)
-                    .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
-                    .UpdateSubdomainTakeover(subdomain, scriptOutput)
-                    .UpdateSubdomainScreenshot(subdomain, scriptOutput)
-                    .UpdateSubdomainDirectory(subdomain, scriptOutput)
-                    .UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken)
-            ).UpdateSubdomainAgent(subdomain, agent);
-
-            this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
+            this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
         }
 
         /// <summary>
@@ -204,6 +197,7 @@ namespace ReconNess.Services
         {
             if (!string.IsNullOrEmpty(scriptOutput.HttpDirectory))
             {
+                var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
                 if (subdomain.ServiceHttp == null)
                 {
                     subdomain.ServiceHttp = new ServiceHttp();
@@ -214,14 +208,14 @@ namespace ReconNess.Services
                     subdomain.ServiceHttp.Directories = new List<ServiceHttpDirectory>();
                 }
 
-                if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == scriptOutput.HttpDirectory))
+                if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == httpDirectory))
                 {
                     return this;
                 }
 
                 var directory = new ServiceHttpDirectory()
                 {
-                    Directory = scriptOutput.HttpDirectory,
+                    Directory = httpDirectory,
                     StatusCode = scriptOutput.HttpDirectoryStatusCode,
                     Method = scriptOutput.HttpDirectoryMethod,
                     Size = scriptOutput.HttpDirectorySize
@@ -238,12 +232,9 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken"></param>
         /// <returns><see cref="ISubdomainService"/></returns>
-        private async Task<SubdomainService> UpdateSubdomainServiceAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        private SubdomainService UpdateSubdomainService(Subdomain subdomain, ScriptOutput scriptOutput)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             if (string.IsNullOrWhiteSpace(scriptOutput.Service))
             {
                 return this;
@@ -255,13 +246,13 @@ namespace ReconNess.Services
                 Port = scriptOutput.Port.Value
             };
 
-            if (!(await this.serviceService.IsAssignedToSubdomainAsync(subdomain, service, cancellationToken)))
+            if (subdomain.Services == null)
             {
-                if (subdomain.Services == null)
-                {
-                    subdomain.Services = new List<Service>();
-                }
+                subdomain.Services = new List<Service>();
+            }
 
+            if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
+            {
                 subdomain.Services.Add(service);
             }
 
