@@ -1,3 +1,10 @@
+## [1.0.7] - 2020-01-22
+
+### Added
+
+- Add directory discovery feature
+- Save screenshot in the database
+
 ## [1.0.6] - 2020-01-15
 
 ### Added
