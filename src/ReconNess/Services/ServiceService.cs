@@ -1,5 +1,3 @@
-using System.Threading;
-using System.Threading.Tasks;
 using ReconNess.Core;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -18,16 +16,6 @@ namespace ReconNess.Services
         public ServiceService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-        }
-
-        /// <summary>
-        /// <see cref="IServiceService.IsAssignedToSubdomainAsync(Subdomain, Service, CancellationToken)"/>
-        /// </summary>
-        public async Task<bool> IsAssignedToSubdomainAsync(Subdomain subdomain, Service service, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return await this.AnyAsync(s => s.Subdomain.Name == subdomain.Name && s.Name.ToLower() == service.Name.ToLower() && s.Port == service.Port, cancellationToken);
         }
     }
 }

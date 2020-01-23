@@ -49,7 +49,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             migrationBuilder.DropIndex(
                 name: "IX_Agent_CategoryId",
-                table: "Agent");           
+                table: "Agent");
 
             migrationBuilder.DropColumn(
                 name: "Id",
@@ -159,7 +159,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
                 });
-            
+
 
             migrationBuilder.CreateIndex(
                 name: "IX_AgentCategory_CategoryId",
@@ -363,7 +363,7 @@ namespace ReconNess.Data.Npgsql.Migrations
             migrationBuilder.AddPrimaryKey(
                 name: "PK_Agent",
                 table: "Agent",
-                column: "Id");                       
+                column: "Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Agent_CategoryId",

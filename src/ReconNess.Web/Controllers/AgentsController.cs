@@ -188,6 +188,9 @@ namespace ReconNess.Web.Controllers
 
             var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == agentRunDto.Target, cancellationToken)
                 .Include(t => t.Subdomains)
+                    .ThenInclude(s => s.ServiceHttp)
+                .Include(t => t.Subdomains)
+                    .ThenInclude(s => s.Services)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (target == null)

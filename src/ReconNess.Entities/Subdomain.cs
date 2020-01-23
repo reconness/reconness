@@ -7,7 +7,7 @@ namespace ReconNess.Entities
     {
         public Guid Id { get; set; }
 
-        public string Name { get; set; }        
+        public string Name { get; set; }
 
         public bool? HasHttpOpen { get; set; }
 
@@ -16,7 +16,7 @@ namespace ReconNess.Entities
         public bool? Takeover { get; set; }
 
         public bool? IsAlive { get; set; }
-        
+
         public string FromAgents { get; set; }
 
         public virtual Target Target { get; set; }
@@ -26,6 +26,8 @@ namespace ReconNess.Entities
         public virtual ICollection<SubdomainLabel> Labels { get; set; }
 
         public virtual Note Notes { get; set; }
+
+        public virtual ServiceHttp ServiceHttp { get; set; }
 
         public virtual ICollection<Service> Services { get; set; }
     }

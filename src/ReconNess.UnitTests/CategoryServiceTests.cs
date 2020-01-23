@@ -68,7 +68,7 @@ namespace ReconNess.UnitTests
                         Name = "Brute Force"
                     }
                 }
-            };   
+            };
 
             var categoryService = new CategoryService(this.unitOfWork);
 

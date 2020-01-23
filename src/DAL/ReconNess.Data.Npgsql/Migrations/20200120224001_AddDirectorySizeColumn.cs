@@ -2,22 +2,22 @@
 
 namespace ReconNess.Data.Npgsql.Migrations
 {
-    public partial class AddSkipIfRanBeforeAgentColumn : Migration
+    public partial class AddDirectorySizeColumn : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "SkipIfRanBefore",
-                table: "Agents",
-                nullable: false,
-                defaultValue: false);
+
+            migrationBuilder.AddColumn<string>(
+                name: "Size",
+                table: "ServiceHttpDirectory",
+                nullable: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "SkipIfRanBefore",
-                table: "Agents");
+                name: "Size",
+                table: "ServiceHttpDirectory");
         }
     }
 }

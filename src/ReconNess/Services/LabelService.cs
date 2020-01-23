@@ -86,7 +86,7 @@ namespace ReconNess.Services
                 {
                     Name = newLabel,
                     Color = string.Format("#{0:X6}", random.Next(0x1000000))
-                };            
+                };
 
                 label = await this.AddAsync(label, cancellationToken);
             }

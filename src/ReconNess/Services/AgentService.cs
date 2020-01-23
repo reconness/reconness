@@ -180,7 +180,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
-                }               
+                }
 
                 process.WaitForExit();
             }

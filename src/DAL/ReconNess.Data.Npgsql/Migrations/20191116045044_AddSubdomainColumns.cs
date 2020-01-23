@@ -121,7 +121,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         principalTable: "Subdomains",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });                       
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_SubdomainLabel_LabelId",

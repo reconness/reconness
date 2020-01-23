@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -9,9 +10,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20200120220234_AddDirectoriesAndScreenshotAgain")]
+    partial class AddDirectoriesAndScreenshotAgain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -138,7 +140,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7f447fac-d29a-46bb-98c0-8caf2613b68f"),
+                            Id = new Guid("c8d7eb9d-3832-4603-975a-92c3213dc5ee"),
                             Color = "#0000FF",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Deleted = false,
@@ -147,7 +149,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         },
                         new
                         {
-                            Id = new Guid("671f1614-f1ff-494a-a612-3ffe2449195d"),
+                            Id = new Guid("ba92f1ac-e262-4db6-8377-95476a80db3b"),
                             Color = "#FF0000",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Deleted = false,
@@ -156,7 +158,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         },
                         new
                         {
-                            Id = new Guid("c23b3c58-e8fc-4b8a-ac1a-949e4f482be3"),
+                            Id = new Guid("37992436-4cd6-4f96-868c-55db31e76a87"),
                             Color = "#FF8C00",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Deleted = false,
@@ -165,7 +167,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         },
                         new
                         {
-                            Id = new Guid("bc4b7abd-7967-4eaf-8135-b3c950136bc4"),
+                            Id = new Guid("b152ddab-e140-4068-a99f-f4f613004fa3"),
                             Color = "#008000",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Deleted = false,
@@ -174,7 +176,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         },
                         new
                         {
-                            Id = new Guid("fbce17fa-d463-43f2-989d-3e87e0c4f87e"),
+                            Id = new Guid("9fee9b8e-1320-4b7c-b0fa-7378d43e132e"),
                             Color = "#A9A9A9",
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Deleted = false,
@@ -321,9 +323,6 @@ namespace ReconNess.Data.Npgsql.Migrations
 
                     b.Property<Guid?>("ServiceHttpId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("Size")
-                        .HasColumnType("text");
 
                     b.Property<string>("StatusCode")
                         .HasColumnType("text");

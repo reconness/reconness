@@ -23,6 +23,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<Target> Targets { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
+        public DbSet<ServiceHttp> ServicesHttp { get; set; }
 
         /// <summary>
         /// A transaction Object
@@ -67,6 +68,14 @@ namespace ReconNess.Data.Npgsql
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Service>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<ServiceHttp>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<ServiceHttpDirectory>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,44 +16,39 @@ namespace ReconNess.Services
     /// </summary>
     public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService
     {
-        private readonly IServiceService serviceService;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ISubdomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="serviceService"><see cref="IServiceService"/></param>
         public SubdomainService(
             IUnitOfWork unitOfWork,
             IServiceService serviceService)
             : base(unitOfWork)
         {
-            this.serviceService = serviceService;
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
+        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool)"/>
         /// </summary>
-        public async Task UpdateSubdomainAsync(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public void UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
+                .UpdateSubdomainIsAlive(subdomain, scriptOutput)
+                .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
+                .UpdateSubdomainTakeover(subdomain, scriptOutput)
+                .UpdateSubdomainScreenshot(subdomain, scriptOutput)
+                .UpdateSubdomainDirectory(subdomain, scriptOutput)
+                .UpdateSubdomainService(subdomain, scriptOutput)
+                .UpdateSubdomainAgent(subdomain, agent);
 
-            (await 
-                this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
-                    .UpdateSubdomainIsAlive(subdomain, scriptOutput)
-                    .UpdateSubdomainHasHttpOpen(subdomain, scriptOutput)
-                    .UpdateSubdomainTakeover(subdomain, scriptOutput)
-                    .UpdateSubdomainServiceAsync(subdomain, scriptOutput, cancellationToken)
-            ).UpdateSubdomainAgent(subdomain, agent);
-            
-            this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
-        }        
+            this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
+        }
 
         /// <summary>
         /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
         /// </summary>
         public async Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default)
-        {            
+        {
             cancellationToken.ThrowIfCancellationRequested();
 
             try
@@ -69,7 +65,7 @@ namespace ReconNess.Services
 
                 await this.UnitOfWork.CommitAsync(cancellationToken);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this.UnitOfWork.Rollback(cancellationToken);
                 throw ex;
@@ -144,16 +140,101 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// Update the subdomain with screenshots
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+
+        private SubdomainService UpdateSubdomainScreenshot(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (string.IsNullOrEmpty(scriptOutput.HttpScreenshotFilePath))
+            {
+                try
+                {
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));
+                    if (subdomain.ServiceHttp == null)
+                    {
+                        subdomain.ServiceHttp = new ServiceHttp();
+                    }
+
+                    subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            if (string.IsNullOrEmpty(scriptOutput.HttpsScreenshotFilePath))
+            {
+                try
+                {
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpsScreenshotFilePath));
+                    if (subdomain.ServiceHttp == null)
+                    {
+                        subdomain.ServiceHttp = new ServiceHttp();
+                    }
+
+                    subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Update the subdomain with directory discovery
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateSubdomainDirectory(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.HttpDirectory))
+            {
+                var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
+                if (subdomain.ServiceHttp == null)
+                {
+                    subdomain.ServiceHttp = new ServiceHttp();
+                }
+
+                if (subdomain.ServiceHttp.Directories == null)
+                {
+                    subdomain.ServiceHttp.Directories = new List<ServiceHttpDirectory>();
+                }
+
+                if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == httpDirectory))
+                {
+                    return this;
+                }
+
+                var directory = new ServiceHttpDirectory()
+                {
+                    Directory = httpDirectory,
+                    StatusCode = scriptOutput.HttpDirectoryStatusCode,
+                    Method = scriptOutput.HttpDirectoryMethod,
+                    Size = scriptOutput.HttpDirectorySize
+                };
+
+                subdomain.ServiceHttp.Directories.Add(directory);
+            }
+
+            return this;
+        }
+
+        /// <summary>
         /// Update the subdomain if is a new service with open port
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken"></param>
         /// <returns><see cref="ISubdomainService"/></returns>
-        private async Task<SubdomainService> UpdateSubdomainServiceAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        private SubdomainService UpdateSubdomainService(Subdomain subdomain, ScriptOutput scriptOutput)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             if (string.IsNullOrWhiteSpace(scriptOutput.Service))
             {
                 return this;
@@ -165,13 +246,13 @@ namespace ReconNess.Services
                 Port = scriptOutput.Port.Value
             };
 
-            if (!(await this.serviceService.IsAssignedToSubdomainAsync(subdomain, service, cancellationToken)))
+            if (subdomain.Services == null)
             {
-                if (subdomain.Services == null)
-                {
-                    subdomain.Services = new List<Service>();
-                }
+                subdomain.Services = new List<Service>();
+            }
 
+            if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
+            {
                 subdomain.Services.Add(service);
             }
 
