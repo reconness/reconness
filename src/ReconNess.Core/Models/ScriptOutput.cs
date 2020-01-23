@@ -10,6 +10,12 @@
 
         public bool? IsAlive { get; set; }
 
+        public bool? HasHttpOpen { get; set; }
+
+        public int? Port { get; set; }
+
+        public string Service { get; set; }
+
         public string HttpScreenshotFilePath { get; set; }
 
         public string HttpsScreenshotFilePath { get; set; }
@@ -21,11 +27,5 @@
         public string HttpDirectoryStatusCode { get; set; }
 
         public string HttpDirectorySize { get; set; }
-
-        public bool? HasHttpOpen { get; set; }
-
-        public int? Port { get; set; }
-
-        public string Service { get; set; }
     }
 }

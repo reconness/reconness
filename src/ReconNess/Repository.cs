@@ -35,7 +35,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.ToListAsync<TEntity>();
+            return this.context.ToListAsync<TEntity>(cancellationToken);
         }
 
         /// <summary>
@@ -45,7 +45,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.ToQueryable<TEntity>();
+            return this.context.ToQueryable<TEntity>(cancellationToken);
         }
 
         /// <summary>
@@ -55,7 +55,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.ToListByCriteriaAsync<TEntity>(predicate);
+            return this.context.ToListByCriteriaAsync<TEntity>(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -65,7 +65,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.AnyAsync<TEntity>(predicate);
+            return this.context.AnyAsync<TEntity>(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.ToQueryableByCriteria<TEntity>(predicate);
+            return this.context.ToQueryableByCriteria<TEntity>(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -85,7 +85,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.FirstOrDefaultAsync<TEntity>(predicate);
+            return this.context.FirstOrDefaultAsync<TEntity>(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.FindByCriteriaAsync<TEntity>(predicate);
+            return this.context.FindByCriteriaAsync<TEntity>(predicate, cancellationToken);
         }
 
         /// <summary>
@@ -105,7 +105,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.FindAsync<TEntity>(id);
+            return this.context.FindAsync<TEntity>(id, cancellationToken);
         }
 
         /// <summary>
@@ -115,7 +115,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.SetAsAdded<TEntity>(entity);
+            this.context.SetAsAdded<TEntity>(entity, cancellationToken);
         }
 
         /// <summary>
@@ -125,7 +125,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.SetAsAdded<TEntity>(entities);
+            this.context.SetAsAdded<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
@@ -135,7 +135,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.SetAsModified<TEntity>(entity);
+            this.context.SetAsModified<TEntity>(entity, cancellationToken);
         }
 
         /// <summary>
@@ -145,7 +145,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.SetAsModified<TEntity>(entities);
+            this.context.SetAsModified<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
@@ -155,7 +155,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.SetAsDeleted<TEntity>(entity);
+            this.context.SetAsDeleted<TEntity>(entity, cancellationToken);
         }
 
         /// <summary>
@@ -165,7 +165,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.SetAsDeleted<TEntity>(entities);
+            this.context.SetAsDeleted<TEntity>(entities, cancellationToken);
         }
     }
 }
