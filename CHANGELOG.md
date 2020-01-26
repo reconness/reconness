@@ -1,3 +1,9 @@
+## [1.0.8] - 2020-01-26
+
+### Added
+
+- Improve subdomains grid filter 
+
 ## [1.0.7] - 2020-01-22
 
 ### Added
