@@ -18,9 +18,19 @@
     </div>
 
     <hr />
+
+    <div class="mb-2 form-row align-items-center">
+      <div class="col-6">
+        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" />
+      </div>
+      <div class="col-6">
+        <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>
+      </div>
+    </div>
+
     <v-client-table :columns="columns" :data="subdomains" :options="options">
       <div slot="name" slot-scope="props" v-if="props.row.isAlive">
-        <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>        
+        <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>
       </div>
       <div slot="name" slot-scope="props" v-else>
         {{props.row.name}}
@@ -51,11 +61,13 @@
         <button type="button" class="btn btn-link" v-on:click="onOpenSubdomain(props.row)" title="Open"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></button>
         <button type="button" class="btn btn-link" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></button>
       </div>
-    </v-client-table>   
+    </v-client-table>
   </div>
 </template>
 
 <script>
+
+  import { Event } from 'vue-tables-2';
 
   export default {
     name: 'TargetSubdomains',
@@ -68,6 +80,7 @@
     data: () => {
       return {
         subdomains: [],
+        filter: '',
         newSubdomain: null,
         targetName: '',
         columns: ['name', 'details', 'labels', 'actions'],
@@ -79,7 +92,19 @@
             actions: 'Actions'            
           },
           sortable: ['name'],
-          filterable: ['name']
+          filterable: false,
+          customFilters: [{
+            name: 'search',
+            callback: function (row, query) {
+              const nameFilter = row.name.indexOf(query) > -1
+              const labelFilter = row.labels.length > 0 && row.labels.some(l => l.name.indexOf(query) > -1)
+              const serviceFilter = row.services.length > 0 && row.services.some(s => s.name.indexOf(query) > -1)
+              const ipAddressFilter = row.ipAddress !== undefined && row.ipAddress !== null && row.ipAddress.indexOf(query) > -1
+              const agentsFilter = row.fromAgents !== undefined && row.fromAgents !== null && row.fromAgents.indexOf(query) > -1
+
+              return nameFilter || labelFilter || serviceFilter || ipAddressFilter || agentsFilter;
+            }
+          }]
         }
       }
     },
@@ -123,6 +148,9 @@
         await this.$api.upload('targets/subdomain', this.$route.params.targetName, formData)
         
         alert("subdomains were uploaded")
+      },
+      filterGrid() {
+        Event.$emit('vue-tables.filter::search', this.filter);
       }
     }
   }

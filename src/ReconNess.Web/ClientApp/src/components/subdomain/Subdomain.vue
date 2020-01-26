@@ -35,7 +35,7 @@
           <div class="form-group">
             <strong>Agents: </strong>{{ subdomain.fromAgents }}
           </div>
-          <div class="form-group" v-if="subdomain.serviceHttp !== null && (subdomain.serviceHttp.ScreenshotHttpPNGBase64 !== null || subdomain.serviceHttp.ScreenshotHttpsPNGBase64 !== null)">
+          <div class="form-group" v-if="subdomain.serviceHttp !== undefined && subdomain.serviceHttp !== null && (subdomain.serviceHttp.ScreenshotHttpPNGBase64 !== null || subdomain.serviceHttp.ScreenshotHttpsPNGBase64 !== null)">
             <strong>Screenshots: </strong>
             <p>HTTP</p>
             <img :src="'data:image/png;base64, '+ subdomain.serviceHttp.ScreenshotHttpPNGBase64" />
@@ -66,7 +66,7 @@
         <subdomain-services v-if="servicesReady" v-bind:parentServices="subdomain.services"></subdomain-services>
       </div>
       <div class="tab-pane fade" id="nav-directories" role="tabpanel" aria-labelledby="nav-directories-tab">
-        <div class="pt-2" v-if="subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
+        <div class="pt-2" v-if="subdomain.serviceHttp === undefined || subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
         <subdomain-directories v-if="directoriesReady && subdomain.serviceHttp" v-bind:parentDirectories="subdomain.serviceHttp.directories"></subdomain-directories>
       </div>
       <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
