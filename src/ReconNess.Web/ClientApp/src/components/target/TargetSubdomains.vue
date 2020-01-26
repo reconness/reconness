@@ -94,7 +94,7 @@
           sortable: ['name'],
           filterable: false,
           customFilters: [{
-            name: 'alphabet',
+            name: 'search',
             callback: function (row, query) {
               const nameFilter = row.name.indexOf(query) > -1
               const labelFilter = row.labels.length > 0 && row.labels.some(l => l.name.indexOf(query) > -1)
@@ -150,7 +150,7 @@
         alert("subdomains were uploaded")
       },
       filterGrid() {
-        Event.$emit('vue-tables.filter::alphabet', this.filter);
+        Event.$emit('vue-tables.filter::search', this.filter);
       }
     }
   }
