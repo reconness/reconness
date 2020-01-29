@@ -1,17 +1,17 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import HomePage from '@/components/HomePage';
+import HomePage from '@/components/home/HomePage';
 import LoginPage from '@/components/login/LoginPage'
 
-import TargetCreate from '@/components/target/TargetCreate';
-import Target from '@/components/target/Target';
+import TargetPage from '@/components/target/TargetPage';
+import TargetCreatePage from '@/components/target/TargetCreatePage';
 
-import AgentCreate from '@/components/agent/AgentCreate';
-import AgentDebug from '@/components/agent/AgentDebug';
-import Agent from '@/components/agent/Agent';
+import AgentCreatePage from '@/components/agent/AgentCreatePage';
+import AgentEditPage from '@/components/agent/AgentEditPage';
+import AgentDebugPage from '@/components/agent/AgentDebugPage';
 
-import Subdomain from '@/components/subdomain/Subdomain';
+import SubdomainPage from '@/components/subdomain/SubdomainPage';
 
 Vue.use(Router);
 
@@ -21,14 +21,14 @@ const router = new Router({
 
         { path: '/login', name: 'login', component: LoginPage },
 
-        { path: '/targets/create', name: 'targetCreate', component: TargetCreate },
-        { path: '/targets/:targetName', name: 'target', component: Target },
+        { path: '/targets/create', name: 'targetCreate', component: TargetCreatePage },
+        { path: '/targets/:targetName', name: 'target', component: TargetPage },
 
-        { path: '/agents/create', name: 'agentCreate', component: AgentCreate },
-        { path: '/agents/debug', name: 'agentDebug', component: AgentDebug },
-        { path: '/agents/:agentName', name: 'agent', component: Agent },    
+        { path: '/agents/create', name: 'agentCreate', component: AgentCreatePage },
+        { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },   
+        { path: '/agents/:agentName', name: 'agentEdit', component: AgentEditPage },                
 
-        { path: '/subdomains/:targetName/:subdomain', name: 'subdomain', component: Subdomain },
+        { path: '/subdomains/:targetName/:subdomain', name: 'subdomain', component: SubdomainPage },
 
         { path: '*', redirect: { name: 'home' } },
   ],
@@ -38,7 +38,7 @@ router.beforeEach((to, from, next) => {
     // redirect to login page if not logged in and trying to access a restricted page
     const publicPages = ['/login'];
     const authRequired = !publicPages.includes(to.path);
-    const loggedIn = localStorage.getItem('user');
+    const loggedIn = localStorage.getItem('user'); // TODO: I need to verify if the token is valid too
 
     if (authRequired && !loggedIn) {
         return next('/login');

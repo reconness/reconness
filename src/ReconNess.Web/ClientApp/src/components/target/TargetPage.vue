@@ -12,13 +12,13 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-          <target-subdomains v-if="subdomainsReady" v-bind:parentSubdomains="target.subdomains"></target-subdomains>
+          <target-tag-subdomains v-if="subdomainsReady" v-bind:parentSubdomains="target.subdomains"></target-tag-subdomains>
         </div>
         <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-          <target-agents v-if="agentsReady" v-bind:parentAgents="agents"></target-agents>
+          <target-tag-agents v-if="agentsReady" v-bind:parentAgents="agents"></target-tag-agents>
         </div>
         <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-          <target-notes v-if="notesReady" v-bind:parentNotes="target.notes"></target-notes>
+          <target-tag-notes v-if="notesReady" v-bind:parentNotes="target.notes"></target-tag-notes>
         </div>
         <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
           <div class="row">
@@ -39,18 +39,19 @@
 
 <script>
 
-  import TargetForm from './TargetForm'
-  import TargetNotes from './TargetNotes'
-  import TargetSubdomains from './TargetSubdomains'
-  import TargetAgents from './TargetAgents'
+  
+  import TargetTagSubdomains from './ui/TargetTagSubdomains'
+  import TargetTagAgents from './ui/TargetTagAgents'
+  import TargetTagNotes from './ui/TargetTagNotes'
+  import TargetForm from './ui/TargetForm'  
 
   export default {
-    name: 'Target',
+    name: 'TargetPage',
     components: {
-      TargetForm,
-      TargetNotes,
-      TargetSubdomains,
-      TargetAgents
+      TargetTagSubdomains,
+      TargetTagAgents,
+      TargetTagNotes,
+      TargetForm    
     },
     data() {
       return { 

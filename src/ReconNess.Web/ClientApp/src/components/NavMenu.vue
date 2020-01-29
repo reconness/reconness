@@ -31,7 +31,7 @@
                 <router-link class="dropdown-item" to="/agents/debug">Debug Agent</router-link>
                 <div class="dropdown-divider"></div>
                 <div v-for="a in agents" v-bind:key="a.id">
-                  <router-link class="dropdown-item" :to="{name: 'agent', params: { agentName: a.name }}">{{ a.name }}</router-link>
+                  <router-link class="dropdown-item" :to="{name: 'agentEdit', params: { agentName: a.name }}">{{ a.name }}</router-link>
                 </div>
               </div>
             </li>

@@ -6,10 +6,10 @@
 </template>
 
 <script>
-  import AgentForm from './AgentForm'
+  import AgentForm from './ui/AgentForm'
 
   export default {
-    name: 'AgentCreate',
+    name: 'AgentCreatePage',
     components: {
       AgentForm
     },    

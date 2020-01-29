@@ -60,17 +60,17 @@
 
       </div>
       <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-        <subdomain-agents v-if="agentsReady" v-bind:parentAgents="agents" v-bind:subdomain="subdomain"></subdomain-agents>
+        <subdomain-tag-agents v-if="agentsReady" v-bind:parentAgents="agents" v-bind:subdomain="subdomain"></subdomain-tag-agents>
       </div>
       <div class="tab-pane fade" id="nav-services" role="tabpanel" aria-labelledby="nav-services-tab">
-        <subdomain-services v-if="servicesReady" v-bind:parentServices="subdomain.services"></subdomain-services>
+        <subdomain-tag-services v-if="servicesReady" v-bind:parentServices="subdomain.services"></subdomain-tag-services>
       </div>
       <div class="tab-pane fade" id="nav-directories" role="tabpanel" aria-labelledby="nav-directories-tab">
         <div class="pt-2" v-if="subdomain.serviceHttp === undefined || subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
-        <subdomain-directories v-if="directoriesReady && subdomain.serviceHttp" v-bind:parentDirectories="subdomain.serviceHttp.directories"></subdomain-directories>
+        <subdomain-tag-directories v-if="directoriesReady && subdomain.serviceHttp" v-bind:parentDirectories="subdomain.serviceHttp.directories"></subdomain-tag-directories>
       </div>
       <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-        <subdomain-notes v-if="notesReady" v-bind:parentNotes="subdomain.notes"></subdomain-notes>
+        <subdomain-tag-notes v-if="notesReady" v-bind:parentNotes="subdomain.notes"></subdomain-tag-notes>
       </div>
     </div>
     <hr />
@@ -80,18 +80,19 @@
 
 <script>
   import VueTagsInput from '@johmun/vue-tags-input';
-  import SubdomainNotes from './SubdomainNotes'
-  import SubdomainServices from './SubdomainServices'
-  import SubdomainAgents from './SubdomainAgents'
-  import SubdomainDirectories from './SubdomainDirectories'
+
+  import SubdomainTagNotes from './ui/SubdomainTagNotes'
+  import SubdomainTagServices from './ui/SubdomainTagServices'
+  import SubdomainTagAgents from './ui/SubdomainTagAgents'
+  import SubdomainTagDirectories from './ui/SubdomainTagDirectories'
 
   export default {
-    name: 'Subdomain',
+    name: 'SubdomainPage',
     components: {
-      SubdomainNotes,
-      SubdomainServices,
-      SubdomainAgents,
-      SubdomainDirectories,
+      SubdomainTagNotes,
+      SubdomainTagServices,
+      SubdomainTagAgents,
+      SubdomainTagDirectories,
       VueTagsInput
     },
     data() {

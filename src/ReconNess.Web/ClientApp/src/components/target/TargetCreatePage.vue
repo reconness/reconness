@@ -6,10 +6,10 @@
 </template>
 
 <script>
-  import TargetForm from './TargetForm'
+  import TargetForm from './ui/TargetForm'
 
   export default {
-    name: 'TargetCreate',
+    name: 'TargetCreatePage',
     components: {
       TargetForm
     },
