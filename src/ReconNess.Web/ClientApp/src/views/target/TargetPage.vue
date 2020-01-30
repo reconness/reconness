@@ -12,24 +12,19 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-          <target-tag-subdomains v-if="subdomainsReady" v-bind:parentSubdomains="target.subdomains"></target-tag-subdomains>
+          <target-tag-subdomains v-if="isReady" v-bind:subdomains="target.subdomains"></target-tag-subdomains>
         </div>
         <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-          <target-tag-agents v-if="agentsReady" v-bind:parentAgents="agents"></target-tag-agents>
+          <target-tag-agents v-if="isReady" v-bind:agents="agents"></target-tag-agents>
         </div>
         <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-          <target-tag-notes v-if="notesReady" v-bind:parentNotes="target.notes"></target-tag-notes>
+          <target-tag-notes v-if="isReady" v-bind:notes="target.notes"></target-tag-notes>
         </div>
         <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-          <div class="row">
-            <div class="pl-4 col-12"><strong>Target: </strong>{{ target.name }}</div>
-            <div class="pl-4 col-12"><strong>Root Domain: </strong>{{ target.rootDomain }}</div>
-            <div class="pl-4 col-12"><strong>Subdomains: </strong>{{ target.subdomains.length }}</div>
-            <div class="pl-4 col-12"><strong>Agents: </strong>{{ agents.length }}</div>
-          </div>
+          <target-tag-general v-if="isReady" v-bind:target="target" v-bind:agents="agents"></target-tag-general>
         </div>
         <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
-          <target-form v-if="targetReady" v-bind:parentTarget="target"></target-form>
+          <target-form v-if="isReady" v-bind:target="target"></target-form>
         </div>
       </div>
       <hr/>       
@@ -40,10 +35,11 @@
 <script>
 
   
-  import TargetTagSubdomains from './ui/TargetTagSubdomains'
-  import TargetTagAgents from './ui/TargetTagAgents'
-  import TargetTagNotes from './ui/TargetTagNotes'
-  import TargetForm from './ui/TargetForm'  
+  import TargetTagSubdomains from '../../components/target/TargetTagSubdomains'
+  import TargetTagAgents from '../../components/target/TargetTagAgents'
+  import TargetTagNotes from '../../components/target/TargetTagNotes'
+  import TargetTagGeneral from '../../components/target/TargetTagGeneral'
+  import TargetForm from '../../components/target/TargetForm'  
 
   export default {
     name: 'TargetPage',
@@ -51,6 +47,7 @@
       TargetTagSubdomains,
       TargetTagAgents,
       TargetTagNotes,
+      TargetTagGeneral,
       TargetForm    
     },
     data() {
@@ -61,10 +58,7 @@
         },
         agents: [],
 
-        targetReady: false,
-        agentsReady: false,
-        notesReady: false,
-        subdomainsReady: false,
+        isReady: false
       }
     },
     async mounted () {
@@ -75,18 +69,14 @@
     },
     methods: {  
       async initService() {
-        this.targetReady = false
-        this.notesReady = false
-        this.subdomainsReady = false
-        this.agentsReady = false
+        this.isReady = false
 
         this.target = (await this.$api.getById('targets', this.$route.params.targetName)).data 
         this.agents = (await this.$api.get('agents/target/' + this.$route.params.targetName)).data
 
-        this.targetReady = true
-        this.notesReady = true
-        this.subdomainsReady = true
-        this.agentsReady = true
+        this.target.notes = this.target.notes || {}
+
+        this.isReady = true
       }
     }
   }

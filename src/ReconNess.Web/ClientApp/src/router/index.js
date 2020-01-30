@@ -1,17 +1,17 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import HomePage from '@/components/home/HomePage';
-import LoginPage from '@/components/login/LoginPage'
+import HomePage from '@/views/home/HomePage';
+import LoginPage from '@/views/login/LoginPage'
 
-import TargetPage from '@/components/target/TargetPage';
-import TargetCreatePage from '@/components/target/TargetCreatePage';
+import TargetPage from '@/views/target/TargetPage';
+import TargetCreatePage from '@/views/target/TargetCreatePage';
 
-import AgentCreatePage from '@/components/agent/AgentCreatePage';
-import AgentEditPage from '@/components/agent/AgentEditPage';
-import AgentDebugPage from '@/components/agent/AgentDebugPage';
+import AgentCreatePage from '@/views/agent/AgentCreatePage';
+import AgentEditPage from '@/views/agent/AgentEditPage';
+import AgentDebugPage from '@/views/agent/AgentDebugPage';
 
-import SubdomainPage from '@/components/subdomain/SubdomainPage';
+import SubdomainPage from '@/views/subdomain/SubdomainPage';
 
 Vue.use(Router);
 

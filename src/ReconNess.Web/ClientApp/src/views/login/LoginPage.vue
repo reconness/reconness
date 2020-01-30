@@ -7,10 +7,10 @@
       </div>
       <div class="form-group">
         <label htmlFor="password">Password</label>
-        <input type="password" v-model="password" name="password" class="form-control"  />
+        <input type="password" v-model="password" name="password" class="form-control" v-on:keyup.enter="handleSubmit" />
       </div>
       <div class="form-group">
-        <button class="btn btn-primary" v-on:click="handleSubmit()">Login</button>
+        <button class="btn btn-primary" v-on:click="handleSubmit">Login</button>
       </div>
   </div>
 </template>
@@ -25,20 +25,20 @@ export default {
       password: ''
     }
   },
-    methods: {
-      async handleSubmit() {
-        try {
-          const user = (await this.$api.login(this.username, this.password)).data
-          if (user !== null) {
-            localStorage.setItem('user', JSON.stringify(user))
-            this.$router.push({ name: 'home' })
-          }
-        }
-        catch (ex) {
-          alert(ex)
+  methods: {
+    async handleSubmit() {
+      try {
+        const user = (await this.$api.login(this.username, this.password)).data
+        if (user !== null) {
+          localStorage.setItem('user', JSON.stringify(user))
+          this.$router.push({ name: 'home' })
         }
       }
-    }  
+      catch (ex) {
+        alert(ex)
+      }
+    }
+  }  
 }
 </script>
 

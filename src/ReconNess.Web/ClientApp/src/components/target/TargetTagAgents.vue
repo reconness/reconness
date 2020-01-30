@@ -18,7 +18,7 @@
             <td class="w-25">{{ agent.categories.join(', ') }}</td>
             <td class="w-25">{{ agent.lastRun | formatDate('YYYY-MM-DD') }}</td>
             <td class="w-25">
-              <button class="btn btn-primary ml-2" v-on:click="onRunAgent(agent)" v-if="!agent.isRunning" :disabled="disabledCanRun(agent)">Run</button>
+              <button class="btn btn-primary ml-2" v-on:click="onRunAgent(agent)" v-if="!agent.isRunning" :disabled="agentRunning != null && agentRunning.name != agent.name">Run</button>
               <button class="btn btn-danger ml-2" v-on:click="onStopAgent(agent)" v-if="agent.isRunning">Stop</button>
               <button class="btn btn-dark ml-2" v-on:click="showTerminalModal = !showTerminalModal" v-if="agent.isRunning">Terminal</button>
               <button class="btn btn-dark ml-2" v-on:click="showLogModal = !showLogModal" v-if="agent.isRunning">Logs</button>
@@ -75,20 +75,15 @@
   import { Terminal } from 'xterm'
 
   export default {
-    name: 'SubdomainAgents', 
+    name: 'TargetTagAgents', 
     props: {
-      parentAgents: {
+      agents: {
         type: Array,
-        required: true
-      },
-      subdomain: {
-        type: Object,
         required: true
       }
     },
     data() {
       return { 
-        agents: [],
         showTerminalModal: false,
         showLogModal: false,
         term: null,
@@ -96,30 +91,28 @@
         agentRunning: null
       }    
     },    
-    async mounted() {
-      this.agents = this.parentAgents || []
-      
-      this.agents.map(agent => {
-        const channel = `${this.$route.params.targetName}_${this.$route.params.subdomain}_${agent.name}`
-        this.$connection.on(channel, (message) => {
-          if (message === "Agent stopped!" || message === "Agent done!")
-          {
-            agent.isRunning = false;
-            this.agentRunning = null
-          }
+    async mounted() {  
+      if (this.agents.length > 0) {
+        this.agents.map(agent => {
+          const channel = `${this.$route.params.targetName}_${agent.name}`
+          this.$connection.on(channel, (message) => {
+            if (message === "Agent stopped!" || message === "Agent done!") {
+              agent.isRunning = false;
+              this.agentRunning = null
+            }
 
-          if (this.term !== null) {
-            this.term.writeln(message)
-          }
-        });
-
-        this.$connection.on("logs_" + channel, (message) => {
-          
-          if (this.termLog !== null) {
-            this.termLog.writeln(message)
-          }
-        });
-      })   
+            if (this.term !== null) {
+              this.term.writeln(message)
+            }
+          });
+        
+          this.$connection.on("logs_" + channel, (message) => {          
+            if (this.termLog !== null) {
+              this.termLog.writeln(message)
+            }
+          });
+        })  
+      }
     },    
     methods: {  
       async onRunAgent(agent) {
@@ -132,13 +125,11 @@
         this.agentRunning = agent
 
         const target = this.$route.params.targetName
-        const subdomainName = this.$route.params.subdomain
         const agentName = agent.name      
 
         await this.$api.create('agents/run', {
           agent: agentName,
-          target: target,
-          subdomain: subdomainName
+          target: target
         })      
       },
       async onStopAgent(agent) { 
@@ -149,20 +140,12 @@
         this.agentRunning = null
 
         const target = this.$route.params.targetName
-        const subdomainName = this.$route.params.subdomain
         const agentName = agent.name
 
         await this.$api.create('agents/stop', {
           agent: agentName,
-          target: target,
-          subdomain: subdomainName
+          target: target
         })      
-      },
-      disabledCanRun(agent) {
-        const anotherAgentIsRunning = this.agentRunning != null && this.agentRunning.name !== agent.name
-        const needToBeAlive = agent.onlyIfIsAlive === true && this.subdomain.isAlive !== true
-
-        return needToBeAlive || anotherAgentIsRunning
       },
       startTransitionModal() {      
         this.$refs.backdrop.classList.toggle("d-block");
@@ -174,7 +157,7 @@
           })
           this.term.open(document.getElementById('terminal'))
         }       
-      },      
+      },
       endTransitionModal() {
         this.$refs.backdrop.classList.toggle("show");
         if (this.$refs.modal !== undefined) {

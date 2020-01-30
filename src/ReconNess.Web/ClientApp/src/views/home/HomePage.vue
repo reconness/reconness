@@ -22,7 +22,7 @@
 </template>
 
 <script>
-  import ReferenceAndResource from './ui/ReferenceAndResource';
+  import ReferenceAndResource from '../../components/home/ReferenceAndResource';
 
   export default {
     name: 'HomePage',
@@ -31,13 +31,13 @@
     },
     data: () => {
       return {
-        targets: [],
-        username: ''
+        username: '',
+        targets: []        
       }
     },
     async mounted() {
-      this.targets = (await this.$api.get('targets')).data
       this.username = JSON.parse(localStorage.getItem('user')).userName;
+      this.targets = (await this.$api.get('targets')).data      
     }
   }
 </script>

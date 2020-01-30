@@ -29,20 +29,12 @@
 
 <script>
   export default {
-    name: 'SubdomainDirectories',
+    name: 'SubdomainTagDirectories',
     props: {
-      parentDirectories: {
+      directories: {
         type: Array,
         required: true
       }
-    },
-    data: () => {
-      return {
-        directories: []
-      }
-    },
-    async mounted() {
-      this.directories = this.parentDirectories || []
     }
   }
 </script>

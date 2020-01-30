@@ -1,23 +1,18 @@
 <template>
   <div>
     <h3>New Target</h3>
-    <target-form v-bind:parentTarget="newTarget"></target-form> 
+    <target-form ></target-form> 
   </div>
 </template>
 
 <script>
-  import TargetForm from './ui/TargetForm'
+  import TargetForm from '../../components/target/TargetForm'
 
   export default {
     name: 'TargetCreatePage',
     components: {
       TargetForm
-    },
-    data: () => {
-      return {
-        newTarget: {}
-      }
-    }    
+    }  
   }
 </script>
 
