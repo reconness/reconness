@@ -1,3 +1,10 @@
+## [1.0.9] - 2020-01-31
+
+### Added
+
+- Frontend refactor
+- Override Agent Command before start running the Agent
+
 ## [1.0.8] - 2020-01-26
 
 ### Added
