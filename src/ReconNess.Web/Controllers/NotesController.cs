@@ -77,7 +77,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Target == target && s.Name == subdomainName, cancellationToken);
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Target == target && s.Name == subdomainName, cancellationToken)
+               .Include(s => s.Notes).FirstOrDefaultAsync(cancellationToken);
+
             if (subdomain == null)
             {
                 return NotFound();

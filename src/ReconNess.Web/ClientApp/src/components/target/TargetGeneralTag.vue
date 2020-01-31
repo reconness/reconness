@@ -10,7 +10,7 @@
 <script>
 
   export default {
-    name: 'TargetTagGeneral', 
+    name: 'TargetGeneralTag', 
     props: {
       target: {
         type: Object,

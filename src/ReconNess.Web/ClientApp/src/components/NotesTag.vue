@@ -10,18 +10,24 @@
   </div>
 </template>
 
-<script>
+<script>  
+
   export default {
-    name: 'TargetTagNotes',
+    name: 'NotesTag',
     props: {
       notes: {
         type: Object,
-        required: false
+        required: true
       }
     },
     methods: {
       async onSave() {
-        this.notes = (await this.$api.create('notes/target/' + this.$route.params.targetName, this.notes)).data
+        if (this.$route.params.subdomain) {
+          await this.$api.create('notes/subdomain/' + this.$route.params.targetName + '/' + this.$route.params.subdomain, this.notes)
+        }
+        else {
+          await this.$api.create('notes/target/' + this.$route.params.targetName, this.notes)
+        }
         alert("The notes was saved")
       }
     }

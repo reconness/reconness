@@ -70,7 +70,7 @@
   import { Event } from 'vue-tables-2';
 
   export default {
-    name: 'TargetTagSubdomains',
+    name: 'TargetSubdomainsTag',
     props: {
       subdomains: {
         type: Array,

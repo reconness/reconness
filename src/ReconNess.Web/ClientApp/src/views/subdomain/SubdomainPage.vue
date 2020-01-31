@@ -13,20 +13,20 @@
     </nav>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
-        <subdomain-tag-dashboard v-if="isReady" v-bind:subdomain="subdomain"></subdomain-tag-dashboard>
+        <subdomain-dashboard-tag v-if="isReady" v-bind:subdomain="subdomain"></subdomain-dashboard-tag>
       </div>
       <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-        <subdomain-tag-agents v-if="isReady" v-bind:agents="agents" v-bind:subdomain="subdomain"></subdomain-tag-agents>
+        <agent-tag v-if="isReady" v-bind:agents="agents" v-bind:subdomain="subdomain"></agent-tag>
       </div>
       <div class="tab-pane fade" id="nav-services" role="tabpanel" aria-labelledby="nav-services-tab">
-        <subdomain-tag-services v-if="isReady" v-bind:services="subdomain.services"></subdomain-tag-services>
+        <subdomain-services-tag v-if="isReady" v-bind:services="subdomain.services"></subdomain-services-tag>
       </div>
       <div class="tab-pane fade" id="nav-directories" role="tabpanel" aria-labelledby="nav-directories-tab">
         <div class="pt-2" v-if="subdomain.serviceHttp === undefined || subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
-        <subdomain-tag-directories v-if="isReady && subdomain.serviceHttp" v-bind:directories="subdomain.serviceHttp.directories"></subdomain-tag-directories>
+        <subdomain-directories-tag v-if="isReady && subdomain.serviceHttp" v-bind:directories="subdomain.serviceHttp.directories"></subdomain-directories-tag>
       </div>
       <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-        <subdomain-tag-notes v-if="isReady" v-bind:notes="subdomain.notes"></subdomain-tag-notes>
+        <notes-tag v-if="isReady" v-bind:notes="subdomain.notes"></notes-tag>
       </div>
     </div>
     <hr />
@@ -36,20 +36,21 @@
 
 <script>
 
-  import SubdomainTagDashboard from '../../components/subdomain/SubdomainTagDashboard'
-  import SubdomainTagNotes from '../../components/subdomain/SubdomainTagNotes'
-  import SubdomainTagServices from '../../components/subdomain/SubdomainTagServices'
-  import SubdomainTagAgents from '../../components/subdomain/SubdomainTagAgents'
-  import SubdomainTagDirectories from '../../components/subdomain/SubdomainTagDirectories'
+  import SubdomainDashboardTag from '../../components/subdomain/SubdomainDashboardTag'
+  import SubdomainDirectoriesTag from '../../components/subdomain/SubdomainDirectoriesTag'
+  import SubdomainServicesTag from '../../components/subdomain/SubdomainServicesTag'
+
+  import NotesTag from '../../components/NotesTag'
+  import AgentTag from '../../components/agent/AgentTag'  
 
   export default {
     name: 'SubdomainPage',
     components: {
-      SubdomainTagDashboard,      
-      SubdomainTagServices,
-      SubdomainTagAgents,
-      SubdomainTagDirectories,
-      SubdomainTagNotes
+      SubdomainDashboardTag,      
+      SubdomainServicesTag,
+      AgentTag,
+      SubdomainDirectoriesTag,
+      NotesTag
     },
     data() {
       return { 

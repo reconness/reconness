@@ -70,9 +70,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.RunAsync(Target, Subdomain, Agent, CancellationToken)"></see>
+        /// <see cref="IAgentService.RunAsync(Target, Subdomain, Agent, string, CancellationToken)"></see>
         /// </summary>
-        public async Task RunAsync(Target target, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
+        public async Task RunAsync(Target target, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -95,20 +95,20 @@ namespace ReconNess.Services
                         continue;
                     }
 
-                    var command = this.GetCommand(target, sub, agent);
+                    var commandToRun = this.GetCommand(target, sub, agent, command);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                    await this.RunBashAsync(target, sub, agent, command, channel, cancellationToken);
+                    await this.RunBashAsync(target, sub, agent, commandToRun, channel, cancellationToken);
                 }
 
                 await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
             }
             else
             {
-                var command = this.GetCommand(target, subdomain, agent);
+                var commandToRun = this.GetCommand(target, subdomain, agent, command);
 
                 await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                await this.RunBashAsync(target, subdomain, agent, command, channel, cancellationToken);
+                await this.RunBashAsync(target, subdomain, agent, commandToRun, channel, cancellationToken);
 
                 await this.connectorService.SendAsync(channel, "Agent done!");
             }
@@ -253,9 +253,14 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
         /// <returns>The command to run on bash</returns>
-        private string GetCommand(Target target, Subdomain subdomain, Agent agent)
+        private string GetCommand(Target target, Subdomain subdomain, Agent agent, string command)
         {
-            return $"{agent.Command.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}"
+            if (string.IsNullOrWhiteSpace(command))
+            {
+                command = agent.Command;
+            }
+
+            return $"{command.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}"
                 .Replace("{{targetName}}", target.Name)
                 .Replace("\"", "\\\"");
         }

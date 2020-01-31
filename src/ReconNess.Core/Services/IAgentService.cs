@@ -35,9 +35,10 @@ namespace ReconNess.Core.Services
         /// <param name="target">The target</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
+        /// <param name="command">The command to run</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task RunAsync(Target target, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default);
+        Task RunAsync(Target target, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stop the agent if it is running

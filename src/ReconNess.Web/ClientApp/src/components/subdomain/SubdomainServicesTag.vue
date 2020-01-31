@@ -25,7 +25,7 @@
 
 <script>
   export default {
-    name: 'SubdomainTagServices',
+    name: 'SubdomainServicesTag',
     props: {
       services: {
         type: Array,

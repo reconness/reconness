@@ -21,12 +21,16 @@
     <div class="form-group">
       <strong>Agents: </strong>{{ subdomain.fromAgents }}
     </div>
-    <div class="form-group" v-if="subdomain.serviceHttp !== undefined && subdomain.serviceHttp !== null && (subdomain.serviceHttp.ScreenshotHttpPNGBase64 !== null || subdomain.serviceHttp.ScreenshotHttpsPNGBase64 !== null)">
+    <div class="form-group" v-if="hasScreenshots()">
       <strong>Screenshots: </strong>
-      <p>HTTP</p>
-      <img :src="'data:image/png;base64, '+ subdomain.serviceHttp.ScreenshotHttpPNGBase64" />
-      <p>HTTPS</p>
-      <img :src="'data:image/png;base64, '+ subdomain.serviceHttp.ScreenshotHttpsPNGBase64" />
+      <div v-if="subdomain.serviceHttp.screenshotHttpPNGBase64">
+        <p>HTTP</p>
+        <img :src="'data:image/png;base64, '+ subdomain.serviceHttp.screenshotHttpPNGBase64" />
+      </div>
+      <div v-if="subdomain.serviceHttp.screenshotHttpsPNGBase64">
+        <p>HTTPS</p>
+        <img :src="'data:image/png;base64, '+ subdomain.serviceHttp.screenshotHttpsPNGBase64" />
+      </div>
     </div>
 
     <div class="form-group">
@@ -41,6 +45,7 @@
     </div>
     <div class="form-group">
       <button class="mt-2 btn btn-primary" v-on:click="onUpdate()">Update</button>
+      <button class="mt-2 ml-2 btn btn-danger" v-on:click="onDelete()">Delete</button>
     </div>
   </div>
 </template>
@@ -50,7 +55,7 @@
   import VueTagsInput from '@johmun/vue-tags-input';
 
   export default {
-    name: 'SubdomainTagDashboard', 
+    name: 'SubdomainDashboardTag', 
     components: {
       VueTagsInput
     },
@@ -91,6 +96,15 @@
 
         await this.$api.update('subdomains', this.subdomain.id, this.subdomain)
         alert("The subdomain was updated")
+      },
+      async onDelete() {
+        if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) {          
+          await this.$api.delete('subdomains/' + this.$route.params.targetName, this.subdomain.id)
+          this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName} })
+        }
+      },
+      hasScreenshots() {
+        return this.subdomain.serviceHttp && (this.subdomain.serviceHttp.screenshotHttpPNGBase64 || this.subdomain.serviceHttp.screenshotHttpsPNGBase64)
       }
     }
   }

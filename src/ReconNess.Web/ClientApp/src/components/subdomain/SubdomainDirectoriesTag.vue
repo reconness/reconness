@@ -29,7 +29,7 @@
 
 <script>
   export default {
-    name: 'SubdomainTagDirectories',
+    name: 'SubdomainDirectoriesTag',
     props: {
       directories: {
         type: Array,

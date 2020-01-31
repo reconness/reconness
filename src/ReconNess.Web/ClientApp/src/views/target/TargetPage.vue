@@ -12,19 +12,19 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-          <target-tag-subdomains v-if="isReady" v-bind:subdomains="target.subdomains"></target-tag-subdomains>
+          <target-subdomains-tag v-if="isReady" v-bind:subdomains="target.subdomains"></target-subdomains-tag>
         </div>
         <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-          <target-tag-agents v-if="isReady" v-bind:agents="agents"></target-tag-agents>
+          <agent-tag v-if="isReady" v-bind:agents="agents"></agent-tag>
         </div>
         <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-          <target-tag-notes v-if="isReady" v-bind:notes="target.notes"></target-tag-notes>
+          <notes-tag v-if="isReady" v-bind:notes="target.notes"></notes-tag>
         </div>
         <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-          <target-tag-general v-if="isReady" v-bind:target="target" v-bind:agents="agents"></target-tag-general>
+          <target-general-tag v-if="isReady" v-bind:target="target" v-bind:agents="agents"></target-general-tag>
         </div>
         <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
-          <target-form v-if="isReady" v-bind:target="target"></target-form>
+          <target-form v-if="isReady" v-bind:target="target" v-on:update="onUpdate" v-on:delete="onDelete"></target-form>
         </div>
       </div>
       <hr/>       
@@ -35,19 +35,20 @@
 <script>
 
   
-  import TargetTagSubdomains from '../../components/target/TargetTagSubdomains'
-  import TargetTagAgents from '../../components/target/TargetTagAgents'
-  import TargetTagNotes from '../../components/target/TargetTagNotes'
-  import TargetTagGeneral from '../../components/target/TargetTagGeneral'
+  import TargetSubdomainsTag from '../../components/target/TargetSubdomainsTag'  
+  import TargetGeneralTag from '../../components/target/TargetGeneralTag'
   import TargetForm from '../../components/target/TargetForm'  
+
+  import NotesTag from '../../components/NotesTag'
+  import AgentTag from '../../components/agent/AgentTag'
 
   export default {
     name: 'TargetPage',
     components: {
-      TargetTagSubdomains,
-      TargetTagAgents,
-      TargetTagNotes,
-      TargetTagGeneral,
+      TargetSubdomainsTag,
+      AgentTag,
+      NotesTag,
+      TargetGeneralTag,
       TargetForm    
     },
     data() {
@@ -77,7 +78,24 @@
         this.target.notes = this.target.notes || {}
 
         this.isReady = true
-      }
+      },
+      async onUpdate() {
+        await this.$api.update('targets', this.target.id, this.target)
+
+        alert("The target was updated")  
+
+        if (this.$route.params.targetName !== this.target.name) {
+          this.$router.push({ name: 'target', params: { targetName: this.target.name } })
+          // TODO: refresh the menu
+        }
+      },
+      async onDelete() {
+        if (confirm('Are you sure to delete this target with all the subdomains and services: ' + this.target.name)) {          
+          await this.$api.delete('targets', this.target.name)
+          this.$router.push({ name: 'home' })
+          // TODO: refresh the menu
+        }
+      },
     }
   }
 </script>

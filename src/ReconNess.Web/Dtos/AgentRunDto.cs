@@ -4,6 +4,8 @@
     {
         public string Agent { get; set; }
 
+        public string Command { get; set; }
+
         public string Target { get; set; }
 
         public string Subdomain { get; set; }

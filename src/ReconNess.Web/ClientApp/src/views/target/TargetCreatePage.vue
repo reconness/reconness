@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>New Target</h3>
-    <target-form ></target-form> 
+    <target-form v-on:save="onSave"></target-form> 
   </div>
 </template>
 
@@ -12,7 +12,13 @@
     name: 'TargetCreatePage',
     components: {
       TargetForm
-    }  
+    },
+    methods: {
+      async onSave(target) {
+        await this.$api.create('targets', target)
+        this.$router.push({ name: 'target', params: { targetName: target.name } })
+      }
+    }
   }
 </script>
 
