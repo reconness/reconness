@@ -25,20 +25,12 @@
 
 <script>
   export default {
-    name: 'SubdomainServices',
+    name: 'SubdomainServicesTag',
     props: {
-      parentServices: {
+      services: {
         type: Array,
         required: true
       }
-    },
-    data: () => {
-      return {
-        services: []        
-      }
-    },
-    async mounted() {
-      this.services = this.parentServices || []
     }
   }
 </script>

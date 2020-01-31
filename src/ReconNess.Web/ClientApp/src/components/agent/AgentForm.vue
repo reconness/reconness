@@ -41,7 +41,7 @@
       <editor v-model="content" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
     </div>
     <div class="form-group">
-      <button class="btn btn-primary" v-if="isNew" v-on:click="onSave()" :disabled='!isValid()'>Add</button>
+      <button class="btn btn-primary" v-if="isNew" v-on:click="onSave" :disabled='!isValid()'>Add</button>
       <button class="mt-2 btn btn-primary" v-if="!isNew" v-on:click="onUpdate()">Update</button>
       <button class="mt-2 ml-2 btn btn-danger" v-if="!isNew" v-on:click="onDelete()">Delete</button>
     </div>
@@ -59,8 +59,7 @@
     },
     props: {
       parentAgent: {
-        type: Object,
-        required: true
+        type: Object
       }
     },
     data: () => {
@@ -69,9 +68,8 @@
         tags: [],
         autocompleteItems: [],
         agent: {},
-        currentAgentName: '',
-        isNew: true,
         content: null,
+        isNew: true,        
         disabledIsNotBySubdomain: true
       }
     },
@@ -86,12 +84,12 @@
       this.autocompleteItems = (await this.$api.get('categories')).data.map(category => {
         return { text: category.name };
       })
-      this.agent = this.parentAgent || {}      
-      this.isNew = this.agent.name === undefined
+
+      this.agent = this.parentAgent || {}  
       this.disabledIsNotBySubdomain = !this.agent.isBySubdomain
 
+      this.isNew = this.agent.name === undefined
       if (!this.isNew) {
-        this.currentAgentName = this.agent.name
         this.content = this.agent.script
         this.tags = this.agent.categories.map(c => {
           return { text: c };
@@ -99,31 +97,19 @@
       }
     },
     methods: {
-      async onSave() {
+      async onSave() {   
         this.agent.categories = this.tags.map(tag => tag.text)
-        await this.$api.create('agents', this.agent)
-        this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
+
+        this.$emit('save', this.agent)
       },
       async onUpdate() {
         this.agent.categories = this.tags.map(tag => tag.text)
         this.agent.script = this.content
 
-        await this.$api.update('agents', this.agent.id, this.agent)
-
-        alert("The agent script code was saved")        
-
-        if (this.currentAgentName !== this.agent.name) {
-          this.$router.push({ name: 'agent', params: { agentName: this.agent.name } })
-        }
-        else {
-          this.$router.go()
-        }
+        this.$emit('update')
       },
       async onDelete() {
-        if (confirm('Are you sure to delete this agent: ' + this.agent.name)) {          
-          await this.$api.delete('agents', this.agent.name)
-          this.$router.go()
-        }
+        this.$emit('delete')
       },
       editorInit: function () {
         require('brace/ext/language_tools')     

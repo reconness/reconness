@@ -27,9 +27,9 @@
       <textarea class="form-control" id="outOfScopeFormControl" rows="10" v-model="target.outOfScope"></textarea>
     </div>
     <div class="form-group">
-      <button class="btn btn-primary" v-if="isNew" v-on:click="onSave()" :disabled='!isValid()'>Add</button>
-      <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="onUpdate()">Update</button>
-      <button class="mt-2 btn btn-danger" v-if="!isNew" v-on:click="onDelete()">Delete</button>
+      <button class="btn btn-primary" v-if="isNew" v-on:click="$emit('save', target)" :disabled='!isValid()'>Add</button>
+      <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="$emit('update')">Update</button>
+      <button class="mt-2 btn btn-danger" v-if="!isNew" v-on:click="$emit('delete')">Delete</button>
     </div>    
   </div>
 </template>
@@ -38,38 +38,22 @@
   export default {
     name: 'TargetFrom',
     props: {
-      parentTarget: {
-        type: Object,
-        required: true
+      target: {
+        type: Object
       }
     },
     data: () => {
       return {
-        target: {},
         isNew: true
       }
     },
     async mounted() {
-      this.target = this.parentTarget || {}
-      this.isNew = this.target.name === undefined
+      this.isNew = this.target === null || this.target === undefined
+      if (this.isNew) {
+        this.target = {}
+      }
     },
     methods: {
-      async onSave() {
-        await this.$api.create('targets', this.target)
-        this.$router.push({ name: 'target', params: { targetName: this.target.name } })
-      },
-      async onUpdate() {
-        await this.$api.update('targets', this.target.id, this.target)
-       
-        this.$router.push({ name: 'target', params: { targetName: this.target.name } })
-      },
-      async onDelete() {
-        if (confirm('Are you sure to delete this target with all the subdomains and services: ' + this.target.name)) {          
-          await this.$api.delete('targets', this.target.name)
-          this.$router.push({ name: 'home' })
-          this.$router.go()
-        }
-      },
       isValid() {
         return this.target.name && this.target.rootDomain
       }

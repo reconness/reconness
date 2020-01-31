@@ -18,7 +18,7 @@
             <td class="w-25">{{ agent.categories.join(', ') }}</td>
             <td class="w-25">{{ agent.lastRun | formatDate('YYYY-MM-DD') }}</td>
             <td class="w-25">
-              <button class="btn btn-primary ml-2" v-on:click="onRunAgent(agent)" v-if="!agent.isRunning" :disabled="disabledCanRun(agent)">Run</button>
+              <button class="btn btn-primary ml-2" v-on:click="onConfirmCommand(agent)" v-if="!agent.isRunning" :disabled="disabledCanRun(agent)">Run</button>
               <button class="btn btn-danger ml-2" v-on:click="onStopAgent(agent)" v-if="agent.isRunning">Stop</button>
               <button class="btn btn-dark ml-2" v-on:click="showTerminalModal = !showTerminalModal" v-if="agent.isRunning">Terminal</button>
               <button class="btn btn-dark ml-2" v-on:click="showLogModal = !showLogModal" v-if="agent.isRunning">Logs</button>
@@ -28,10 +28,36 @@
       </table>
     </div>
 
+    <div class="commandModal">
+      <!-- Modal-->
+      <transition @enter="startTransitionCommandModal" @after-enter="endTransitionCommandModal" @before-leave="endTransitionCommandModal" @after-leave="startTransitionCommandModal">
+        <div class="modal fade" v-if="showCommandModal" ref="commandModal">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Confirm Command</h5>
+                <button class="close" type="button" v-on:click="showCommandModal = !showCommandModal"><span aria-hidden="true">x</span></button>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label for="command">Command</label>
+                  <input class="form-control" id="command" v-model="currentAgent.command" />
+                </div>
+                <div class="form-group">
+                  <button class="btn btn-primary ml-2" v-on:click="onRunAgent(currentAgent)">Run</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </transition>
+      <div class="modal-backdrop fade d-none" ref="commandBackdrop"></div>
+    </div>
+
     <div class="terminalModal">
       <!-- Modal-->
       <transition @enter="startTransitionModal" @after-enter="endTransitionModal" @before-leave="endTransitionModal" @after-leave="startTransitionModal">
-        <div class="modal fade" v-if="showTerminalModal" ref="modal">
+        <div class="modal fade" v-if="showTerminalModal" ref="terminalModal">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -45,13 +71,13 @@
           </div>
         </div>
       </transition>
-      <div class="modal-backdrop fade d-none" ref="backdrop"></div>
+      <div class="modal-backdrop fade d-none" ref="terminalBackdrop"></div>
     </div>
 
     <div class="logModal">
       <!-- Modal-->
       <transition @enter="startTransitionLogModal" @after-enter="endTransitionLogModal" @before-leave="endTransitionLogModal" @after-leave="startTransitionLogModal">
-        <div class="modal fade" v-if="showLogModal" ref="modal">
+        <div class="modal fade" v-if="showLogModal" ref="logsModal">
           <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
               <div class="modal-header">
@@ -65,7 +91,7 @@
           </div>
         </div>
       </transition>
-      <div class="modal-backdrop fade d-none" ref="backdrop"></div>
+      <div class="modal-backdrop fade d-none" ref="logsBackdrop"></div>
     </div>
 
   </div>
@@ -75,68 +101,79 @@
   import { Terminal } from 'xterm'
 
   export default {
-    name: 'SubdomainAgents', 
+    name: 'AgentTag', 
     props: {
-      parentAgents: {
+      agents: {
         type: Array,
         required: true
       },
       subdomain: {
-        type: Object,
-        required: true
+        type: Object
       }
     },
     data() {
       return { 
-        agents: [],
+        showCommandModal: false,
         showTerminalModal: false,
         showLogModal: false,
         term: null,
-        termLog: null,
-        agentRunning: null
+        termLog: null,       
+        currentAgent: null
       }    
     },    
     async mounted() {
-      this.agents = this.parentAgents || []
-      
-      this.agents.map(agent => {
-        const channel = `${this.$route.params.targetName}_${this.$route.params.subdomain}_${agent.name}`
-        this.$connection.on(channel, (message) => {
-          if (message === "Agent stopped!" || message === "Agent done!")
-          {
-            agent.isRunning = false;
-            this.agentRunning = null
-          }
+      if (this.agents.length > 0) {
+        this.agents.map(agent => {
+                    
+          const channel = this.subdomain !== undefined ?
+            `${this.$route.params.targetName}_${this.$route.params.subdomain}_${agent.name}` :
+            `${this.$route.params.targetName}_${agent.name}`
 
-          if (this.term !== null) {
-            this.term.writeln(message)
-          }
-        });
+          this.$connection.on(channel, (message) => {
+            if (message === "Agent stopped!" || message === "Agent done!") {
+              agent.isRunning = false;
+              this.currentAgent = null
+            }
 
-        this.$connection.on("logs_" + channel, (message) => {
-          
-          if (this.termLog !== null) {
-            this.termLog.writeln(message)
-          }
-        });
-      })   
+            if (this.term !== null) {
+              this.term.writeln(message)
+            }
+          });
+
+          this.$connection.on("logs_" + channel, (message) => {
+
+            if (this.termLog !== null) {
+              this.termLog.writeln(message)
+            }
+          });
+        })
+      }
     },    
     methods: {  
+      async onConfirmCommand(agent) {
+        if (agent.isRunning) {
+          return
+        }
+
+        this.showCommandModal = true
+        this.currentAgent = agent
+      },
       async onRunAgent(agent) {
         if (agent.isRunning) {
           return
         }
 
         agent.isRunning = true
+        this.showCommandModal = false
         this.showTerminalModal = true
-        this.agentRunning = agent
 
         const target = this.$route.params.targetName
-        const subdomainName = this.$route.params.subdomain
+        const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name      
 
         await this.$api.create('agents/run', {
           agent: agentName,
+          command: agent.command,
           target: target,
           subdomain: subdomainName
         })      
@@ -146,10 +183,10 @@
           return
         }
 
-        this.agentRunning = null
+        this.currentAgent = null
 
         const target = this.$route.params.targetName
-        const subdomainName = this.$route.params.subdomain
+        const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name
 
         await this.$api.create('agents/stop', {
@@ -159,15 +196,27 @@
         })      
       },
       disabledCanRun(agent) {
-        const anotherAgentIsRunning = this.agentRunning != null && this.agentRunning.name !== agent.name
-        const needToBeAlive = agent.onlyIfIsAlive === true && this.subdomain.isAlive !== true
+        const anotherAgentIsRunning = this.currentAgent != null && this.currentAgent.name !== agent.name
+        const needToBeAlive = this.subdomain !== undefined ? agent.onlyIfIsAlive === true && this.subdomain.isAlive !== true : false
 
         return needToBeAlive || anotherAgentIsRunning
       },
+      startTransitionCommandModal() {      
+        this.$refs.commandBackdrop.classList.toggle("d-block");
+        if (this.$refs.commandModal !== undefined) {
+          this.$refs.commandModal.classList.toggle("d-block");
+        }       
+      },
+      endTransitionCommandModal() {
+        this.$refs.commandBackdrop.classList.toggle("show");
+        if (this.$refs.commandModal !== undefined) {
+          this.$refs.commandModal.classList.toggle("show");
+        }
+      },
       startTransitionModal() {      
-        this.$refs.backdrop.classList.toggle("d-block");
-        if (this.$refs.modal !== undefined) {
-          this.$refs.modal.classList.toggle("d-block");
+        this.$refs.terminalBackdrop.classList.toggle("d-block");
+        if (this.$refs.terminalModal !== undefined) {
+          this.$refs.terminalModal.classList.toggle("d-block");
 
           this.term = new Terminal({
             disableStdin: true
@@ -176,15 +225,15 @@
         }       
       },      
       endTransitionModal() {
-        this.$refs.backdrop.classList.toggle("show");
-        if (this.$refs.modal !== undefined) {
-          this.$refs.modal.classList.toggle("show");
+        this.$refs.terminalBackdrop.classList.toggle("show");
+        if (this.$refs.terminalModal !== undefined) {
+          this.$refs.terminalModal.classList.toggle("show");
         }
       },
       startTransitionLogModal() {      
-        this.$refs.backdrop.classList.toggle("d-block");
-        if (this.$refs.modal !== undefined) {
-          this.$refs.modal.classList.toggle("d-block");
+        this.$refs.logsBackdrop.classList.toggle("d-block");
+        if (this.$refs.logsModal !== undefined) {
+          this.$refs.logsModal.classList.toggle("d-block");
 
           this.termLog = new Terminal({
             disableStdin: true
@@ -193,11 +242,11 @@
         }       
       },
       endTransitionLogModal() {
-        this.$refs.backdrop.classList.toggle("show");
-        if (this.$refs.modal !== undefined) {
-          this.$refs.modal.classList.toggle("show");
+        this.$refs.logsBackdrop.classList.toggle("show");
+        if (this.$refs.logsModal !== undefined) {
+          this.$refs.logsModal.classList.toggle("show");
         }
-      }
+      }      
     }
   }
 </script>

@@ -12,24 +12,19 @@
       </nav>
       <div class="tab-content" id="nav-tabContent">
         <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-          <target-subdomains v-if="subdomainsReady" v-bind:parentSubdomains="target.subdomains"></target-subdomains>
+          <target-subdomains-tag v-if="isReady" v-bind:subdomains="target.subdomains"></target-subdomains-tag>
         </div>
         <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-          <target-agents v-if="agentsReady" v-bind:parentAgents="agents"></target-agents>
+          <agent-tag v-if="isReady" v-bind:agents="agents"></agent-tag>
         </div>
         <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-          <target-notes v-if="notesReady" v-bind:parentNotes="target.notes"></target-notes>
+          <notes-tag v-if="isReady" v-bind:notes="target.notes"></notes-tag>
         </div>
         <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-          <div class="row">
-            <div class="pl-4 col-12"><strong>Target: </strong>{{ target.name }}</div>
-            <div class="pl-4 col-12"><strong>Root Domain: </strong>{{ target.rootDomain }}</div>
-            <div class="pl-4 col-12"><strong>Subdomains: </strong>{{ target.subdomains.length }}</div>
-            <div class="pl-4 col-12"><strong>Agents: </strong>{{ agents.length }}</div>
-          </div>
+          <target-general-tag v-if="isReady" v-bind:target="target" v-bind:agents="agents"></target-general-tag>
         </div>
         <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
-          <target-form v-if="targetReady" v-bind:parentTarget="target"></target-form>
+          <target-form v-if="isReady" v-bind:target="target" v-on:update="onUpdate" v-on:delete="onDelete"></target-form>
         </div>
       </div>
       <hr/>       
@@ -39,18 +34,22 @@
 
 <script>
 
-  import TargetForm from './TargetForm'
-  import TargetNotes from './TargetNotes'
-  import TargetSubdomains from './TargetSubdomains'
-  import TargetAgents from './TargetAgents'
+  
+  import TargetSubdomainsTag from '../../components/target/TargetSubdomainsTag'  
+  import TargetGeneralTag from '../../components/target/TargetGeneralTag'
+  import TargetForm from '../../components/target/TargetForm'  
+
+  import NotesTag from '../../components/NotesTag'
+  import AgentTag from '../../components/agent/AgentTag'
 
   export default {
-    name: 'Target',
+    name: 'TargetPage',
     components: {
-      TargetForm,
-      TargetNotes,
-      TargetSubdomains,
-      TargetAgents
+      TargetSubdomainsTag,
+      AgentTag,
+      NotesTag,
+      TargetGeneralTag,
+      TargetForm    
     },
     data() {
       return { 
@@ -60,10 +59,7 @@
         },
         agents: [],
 
-        targetReady: false,
-        agentsReady: false,
-        notesReady: false,
-        subdomainsReady: false,
+        isReady: false
       }
     },
     async mounted () {
@@ -74,19 +70,32 @@
     },
     methods: {  
       async initService() {
-        this.targetReady = false
-        this.notesReady = false
-        this.subdomainsReady = false
-        this.agentsReady = false
+        this.isReady = false
 
         this.target = (await this.$api.getById('targets', this.$route.params.targetName)).data 
         this.agents = (await this.$api.get('agents/target/' + this.$route.params.targetName)).data
 
-        this.targetReady = true
-        this.notesReady = true
-        this.subdomainsReady = true
-        this.agentsReady = true
-      }
+        this.target.notes = this.target.notes || {}
+
+        this.isReady = true
+      },
+      async onUpdate() {
+        await this.$api.update('targets', this.target.id, this.target)
+
+        alert("The target was updated")  
+
+        if (this.$route.params.targetName !== this.target.name) {
+          this.$router.push({ name: 'target', params: { targetName: this.target.name } })
+          // TODO: refresh the menu
+        }
+      },
+      async onDelete() {
+        if (confirm('Are you sure to delete this target with all the subdomains and services: ' + this.target.name)) {          
+          await this.$api.delete('targets', this.target.name)
+          this.$router.push({ name: 'home' })
+          // TODO: refresh the menu
+        }
+      },
     }
   }
 </script>

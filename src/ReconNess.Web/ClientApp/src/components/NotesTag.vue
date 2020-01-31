@@ -13,24 +13,21 @@
 <script>  
 
   export default {
-    name: 'SubdomainNotes',
+    name: 'NotesTag',
     props: {
-      parentNotes: {
+      notes: {
         type: Object,
-        required: false
+        required: true
       }
-    },
-    data: () => {
-      return {
-        notes: {}
-      }
-    },
-    async mounted() {
-      this.notes = this.parentNotes || {}
     },
     methods: {
       async onSave() {
-        this.notes = (await this.$api.create('notes/subdomain/' + this.$route.params.targetName + '/' + this.$route.params.subdomain, this.notes)).data
+        if (this.$route.params.subdomain) {
+          await this.$api.create('notes/subdomain/' + this.$route.params.targetName + '/' + this.$route.params.subdomain, this.notes)
+        }
+        else {
+          await this.$api.create('notes/target/' + this.$route.params.targetName, this.notes)
+        }
         alert("The notes was saved")
       }
     }

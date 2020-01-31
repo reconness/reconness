@@ -21,7 +21,7 @@
 
     <div class="mb-2 form-row align-items-center">
       <div class="col-6">
-        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" />
+        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid"/>
       </div>
       <div class="col-6">
         <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>
@@ -70,16 +70,15 @@
   import { Event } from 'vue-tables-2';
 
   export default {
-    name: 'TargetSubdomains',
+    name: 'TargetSubdomainsTag',
     props: {
-      parentSubdomains: {
+      subdomains: {
         type: Array,
         required: true
       }
     },
     data: () => {
       return {
-        subdomains: [],
         filter: '',
         newSubdomain: null,
         targetName: '',
@@ -109,7 +108,6 @@
       }
     },
     async mounted() {
-      this.subdomains = this.parentSubdomains || []
       this.targetName = this.$route.params.targetName
     },
     methods: {

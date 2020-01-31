@@ -25,7 +25,7 @@
 <script>
 
   export default {
-    name: 'AgentDebug',  
+    name: 'AgentDebugPage',  
     components: {
       editor: require('vue2-ace-editor')
     },

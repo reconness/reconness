@@ -10,8 +10,12 @@ import connection from './api/signalR'
 import { ClientTable } from 'vue-tables-2';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faArrowAltCircleRight, faTrashAlt, faExclamation, faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt, faDollarSign } from '@fortawesome/free-solid-svg-icons'
-//import { faArrowAltCircleRight } from '@fortawesome/free-regular-svg-icons'
+import {
+    faArrowAltCircleRight, faTrashAlt, faExclamation,
+    faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen,
+    faFireAlt, faDollarSign
+} from '@fortawesome/free-solid-svg-icons'
+
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import 'bootstrap'; 
@@ -20,7 +24,9 @@ import 'xterm/css/xterm.css';
 
 import './filters';                                     
 
-library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt, faDollarSign)
+library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug,
+    faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt,
+    faDollarSign)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

@@ -213,8 +213,8 @@ namespace ReconNess.Web.Controllers
             {
                 return BadRequest();
             }
-
-            await this.agentService.RunAsync(target, subdomain, agent, cancellationToken);
+            
+            await this.agentService.RunAsync(target, subdomain, agent, agentRunDto.Command, cancellationToken);
 
             return NoContent();
         }
