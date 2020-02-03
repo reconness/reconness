@@ -22,7 +22,7 @@
     "vue": "2.6.10",
     "vue-axios": "2.1.5",
     "vue-router": "3.1.3",
-    "vue-tables-2": "1.5.46",
+    "vue-tables-2": "1.6.25",
     "xterm": "4.2.0-vscode1"
   },
   "devDependencies": {
