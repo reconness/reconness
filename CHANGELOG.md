@@ -2,8 +2,10 @@
 
 ### Added
 
-- Add Label inside SricptModel
-- 
+- Add Label inside ScriptModel
+- Improve grid navigation
+- Fix save directories duplicate
+
 ## [1.0.9] - 2020-01-31
 
 ### Added
