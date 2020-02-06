@@ -58,7 +58,7 @@
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" /></button>
       </div>
       <div class="subdomain-actions" slot="actions" slot-scope="props">
-        <button type="button" class="btn btn-link" v-on:click="onOpenSubdomain(props.row)" title="Open"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></button>
+        <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
         <button type="button" class="btn btn-link" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></button>
       </div>
     </v-client-table>
@@ -111,9 +111,6 @@
       this.targetName = this.$route.params.targetName
     },
     methods: {
-      async onOpenSubdomain(subdomain) {
-        this.$router.push({name: 'subdomain', params: { targetName: this.$route.params.targetName, subdomain: subdomain.name }})
-      },
       async onDeleteSubdomain(subdomain) {
         if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {          
           await this.$api.delete('subdomains/' + this.$route.params.targetName, subdomain.id)
