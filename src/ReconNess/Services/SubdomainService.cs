@@ -21,8 +21,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         public SubdomainService(
-            IUnitOfWork unitOfWork,
-            IServiceService serviceService)
+            IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
         }
@@ -39,6 +38,7 @@ namespace ReconNess.Services
                 .UpdateSubdomainScreenshot(subdomain, scriptOutput)
                 .UpdateSubdomainDirectory(subdomain, scriptOutput)
                 .UpdateSubdomainService(subdomain, scriptOutput)
+                .UpdateLabelService(subdomain, scriptOutput)
                 .UpdateSubdomainAgent(subdomain, agent);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
@@ -254,6 +254,32 @@ namespace ReconNess.Services
             if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
             {
                 subdomain.Services.Add(service);
+            }
+
+            return this;
+        }
+
+        /// <summary>
+        /// Update the subdomain label
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <returns><see cref="ISubdomainService"/></returns>
+        private SubdomainService UpdateLabelService(Subdomain subdomain, ScriptOutput scriptOutput)
+        {            
+            if (!string.IsNullOrWhiteSpace(scriptOutput.Label) && 
+                !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                var random = new Random();
+                subdomain.Labels.Add(new SubdomainLabel
+                {
+                    Label = new Label
+                    {
+                        Name = scriptOutput.Label,
+                        Color = string.Format("#{0:X6}", random.Next(0x1000000))
+                    },
+                    SubdomainId = subdomain.Id
+                });
             }
 
             return this;

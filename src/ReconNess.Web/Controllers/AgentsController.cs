@@ -201,7 +201,14 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = null;
             if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Target == target && s.Name == agentRunDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Target == target && s.Name == agentRunDto.Subdomain, cancellationToken)
+                    .Include(s => s.Services)
+                    .Include(s => s.ServiceHttp)
+                        .ThenInclude(s => s.Directories)
+                    .Include(s => s.Labels)
+                        .ThenInclude(l => l.Label)
+                    .FirstOrDefaultAsync(cancellationToken);
+
                 if (subdomain == null)
                 {
                     return NotFound();
