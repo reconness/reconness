@@ -66,6 +66,11 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
+            if (await this.targetService.AnyAsync(t => t.Name == targetDto.Name))
+            {
+                return BadRequest("There is a Target with that name in the DB");
+            }
+
             var target = this.mapper.Map<TargetDto, Target>(targetDto);
 
             var newtarget = await this.targetService.AddAsync(target, cancellationToken);
@@ -88,14 +93,17 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var editedtarget = this.mapper.Map<TargetDto, Target>(targetDto);
-
-            target.Name = editedtarget.Name;
-            target.RootDomain = editedtarget.RootDomain;
-            target.BugBountyProgramUrl = editedtarget.BugBountyProgramUrl;
-            target.IsPrivate = editedtarget.IsPrivate;
-            target.InScope = editedtarget.InScope;
-            target.OutOfScope = editedtarget.OutOfScope;
+            if (target.Name != targetDto.Name && await this.targetService.AnyAsync(t => t.Name == targetDto.Name))
+            {
+                return BadRequest("There is a Target with that name in the DB");
+            }
+            
+            target.Name = targetDto.Name;
+            target.RootDomain = targetDto.RootDomain;
+            target.BugBountyProgramUrl = targetDto.BugBountyProgramUrl;
+            target.IsPrivate = targetDto.IsPrivate;
+            target.InScope = targetDto.InScope;
+            target.OutOfScope = targetDto.OutOfScope;
 
             await this.targetService.UpdateAsync(target, cancellationToken);
 

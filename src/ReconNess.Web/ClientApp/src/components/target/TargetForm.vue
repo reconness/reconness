@@ -39,20 +39,16 @@
     name: 'TargetFrom',
     props: {
       target: {
-        type: Object
+        type: Object,
+        default: function () {
+          return {}
+        }
+      },
+      isNew: {
+        type: Boolean,
+        default: false
       }
-    },
-    data: () => {
-      return {
-        isNew: true
-      }
-    },
-    async mounted() {
-      this.isNew = this.target === null || this.target === undefined
-      if (this.isNew) {
-        this.target = {}
-      }
-    },
+    },    
     methods: {
       isValid() {
         return this.target.name && this.target.rootDomain

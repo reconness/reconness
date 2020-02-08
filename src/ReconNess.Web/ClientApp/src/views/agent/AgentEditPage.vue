@@ -32,20 +32,37 @@
         this.agentReady = true
       },
       async onUpdate() {
-        await this.$api.update('agents', this.agent.id, this.agent)
+        this.$store.dispatch('updateAgent', { api: this.$api, agent: this.agent })
+          .then(() => {    
+            alert("The agent script code was saved") 
 
-        alert("The agent script code was saved")        
-
-        if (this.$route.params.agentName !== this.agent.name) {
-          this.$router.push({ name: 'agentEdit', params: { agentName: this.agent.name } })
-          // TODO: refresh menu
-        }
+            if (this.$route.params.agentName !== this.agent.name) {
+              this.$router.push({ name: 'agentEdit', params: { agentName: this.agent.name } })
+            }
+          })
+          .catch(error => {
+            if (error) {
+              alert(error)
+            }
+            else {
+              alert("The Agent cannot be updated. Try again, please!")
+            }
+          });        
       },
       async onDelete() {
-        if (confirm('Are you sure to delete this agent: ' + this.agent.name)) {          
-          await this.$api.delete('agents', this.agent.name)
-          this.$router.push({ name: 'home' })
-          // TODO: refresh menu
+        if (confirm('Are you sure to delete this Agent: ' + this.agent.name)) {  
+          this.$store.dispatch('deleteAgent', { api: this.$api, agent: this.agent })
+          .then(() => {             
+            this.$router.push({ name: 'home' })
+          })
+          .catch(error => {
+            if (error) {
+              alert(error)
+            }
+            else {
+              alert("The Agent cannot be deleted. Try again, please!")
+            }
+          });
         }
       }
     }

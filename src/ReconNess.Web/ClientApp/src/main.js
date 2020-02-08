@@ -2,6 +2,8 @@ import Vue from 'vue'
 import axios from 'axios';
 import VueAxios from 'vue-axios';
 
+import store from './store'
+
 import App from './App.vue'
 import router from './router';
 import api from './api'
@@ -52,6 +54,7 @@ Object.defineProperty(Vue.prototype, '$connection', {
 })
 
 new Vue({
-  router,
-  render: h => h(App),
+    router,
+    store,
+    render: h => h(App),
 }).$mount('#app')

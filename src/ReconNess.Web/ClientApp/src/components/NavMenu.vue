@@ -52,9 +52,15 @@ export default {
   name: 'NavMenu',
   data: () => {
     return {
-      isExpanded: false,
-      targets: [],
-      agents: []
+      isExpanded: false
+    }
+  },
+  computed: {
+    targets () {
+      return this.$store.state.targets
+    },
+    agents () {
+      return this.$store.state.agents
     }
   },
   methods: {
@@ -74,8 +80,8 @@ export default {
     }
   },
   async mounted() {  
-    this.targets = (await this.$api.get('targets')).data
-    this.agents = (await this.$api.get('agents')).data
+    this.$store.dispatch('targets', this.$api)
+    this.$store.dispatch('agents', this.$api)
   }
 };
 </script>
@@ -99,5 +105,4 @@ html {
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
-
 </style>

@@ -8,7 +8,7 @@
         <a class="btn btn-info btn-lg" href="https://docs.reconness.com" target="_blank">Learn more</a>
       </p>
     </div>
-
+    
     <h3>List of Targets</h3>
     <ul>
       <li v-for="t in targets" v-bind:key="t.id">
@@ -29,15 +29,13 @@
     components: {
       ReferenceAndResource,
     },
-    data: () => {
-      return {
-        username: '',
-        targets: []        
+    computed: {
+      targets () {
+        return this.$store.state.targets
+      },
+      username() {
+        return JSON.parse(localStorage.getItem('user')).userName
       }
-    },
-    async mounted() {
-      this.username = JSON.parse(localStorage.getItem('user')).userName;
-      this.targets = (await this.$api.get('targets')).data      
     }
   }
 </script>

@@ -125,6 +125,11 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
+            if (await this.agentService.AnyAsync(t => t.Name == agentDto.Name))
+            {
+                return BadRequest("There is an Agent with that name in the DB");
+            }
+
             var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
             agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
 
@@ -146,6 +151,11 @@ namespace ReconNess.Web.Controllers
             if (agent == null)
             {
                 return NotFound();
+            }
+
+            if (agent.Name != agentDto.Name && await this.targetService.AnyAsync(t => t.Name == agentDto.Name))
+            {
+                return BadRequest("There is an Agent with that name in the DB");
             }
 
             agent.Name = agentDto.Name;

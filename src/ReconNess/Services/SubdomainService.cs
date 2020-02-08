@@ -16,14 +16,18 @@ namespace ReconNess.Services
     /// </summary>
     public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService
     {
+        private readonly ILabelService labelService;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ISubdomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         public SubdomainService(
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ILabelService labelService)
             : base(unitOfWork)
         {
+            this.labelService = labelService;
         }
 
         /// <summary>
@@ -38,7 +42,7 @@ namespace ReconNess.Services
                 .UpdateSubdomainScreenshot(subdomain, scriptOutput)
                 .UpdateSubdomainDirectory(subdomain, scriptOutput)
                 .UpdateSubdomainService(subdomain, scriptOutput)
-                .UpdateLabelService(subdomain, scriptOutput)
+                .UpdateSubdomainLabel(subdomain, scriptOutput)
                 .UpdateSubdomainAgent(subdomain, agent);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
@@ -265,19 +269,25 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns><see cref="ISubdomainService"/></returns>
-        private SubdomainService UpdateLabelService(Subdomain subdomain, ScriptOutput scriptOutput)
+        private SubdomainService UpdateSubdomainLabel(Subdomain subdomain, ScriptOutput scriptOutput)
         {            
             if (!string.IsNullOrWhiteSpace(scriptOutput.Label) && 
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                var random = new Random();
-                subdomain.Labels.Add(new SubdomainLabel
+                var label = this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower()).Result;
+                if (label == null)
                 {
-                    Label = new Label
+                    var random = new Random();
+                    label = new Label
                     {
                         Name = scriptOutput.Label,
                         Color = string.Format("#{0:X6}", random.Next(0x1000000))
-                    },
+                    };
+                }
+                
+                subdomain.Labels.Add(new SubdomainLabel
+                {
+                    Label = label,
                     SubdomainId = subdomain.Id
                 });
             }

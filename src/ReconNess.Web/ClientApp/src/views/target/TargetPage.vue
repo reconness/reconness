@@ -80,22 +80,39 @@
         this.isReady = true
       },
       async onUpdate() {
-        await this.$api.update('targets', this.target.id, this.target)
-
-        alert("The target was updated")  
-
-        if (this.$route.params.targetName !== this.target.name) {
-          this.$router.push({ name: 'target', params: { targetName: this.target.name } })
-          // TODO: refresh the menu
-        }
+        this.$store.dispatch('updateTarget', { api: this.$api, target: this.target })
+          .then(() => {             
+            if (this.$route.params.targetName !== this.target.name) {
+              this.$router.push({ name: 'target', params: { targetName: this.target.name } })
+            } else {
+              alert("The target was updated")
+            }
+          })
+          .catch(error => {
+            if (error) {
+              alert(error)
+            }
+            else {
+              alert("The Target cannot be updated. Try again, please!")
+            }
+          });        
       },
       async onDelete() {
-        if (confirm('Are you sure to delete this target with all the subdomains and services: ' + this.target.name)) {          
-          await this.$api.delete('targets', this.target.name)
-          this.$router.push({ name: 'home' })
-          // TODO: refresh the menu
+        if (confirm('Are you sure to delete this Target with all the subdomains and services: ' + this.target.name)) { 
+          this.$store.dispatch('deleteTarget', { api: this.$api, target: this.target })
+          .then(() => {             
+            this.$router.push({ name: 'home' })
+          })
+          .catch(error => {
+            if (error) {
+              alert(error)
+            }
+            else {
+              alert("The Target cannot be deleted. Try again, please!")
+            }
+          });
         }
-      },
+      }
     }
   }
 </script>

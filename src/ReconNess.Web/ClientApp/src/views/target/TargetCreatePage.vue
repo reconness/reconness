@@ -1,7 +1,7 @@
 <template>
   <div>
     <h3>New Target</h3>
-    <target-form v-on:save="onSave"></target-form> 
+    <target-form v-on:save="onSave" v-bind:isNew="true"></target-form> 
   </div>
 </template>
 
@@ -15,8 +15,18 @@
     },
     methods: {
       async onSave(target) {
-        await this.$api.create('targets', target)
-        this.$router.push({ name: 'target', params: { targetName: target.name } })
+        this.$store.dispatch('createTarget', { api: this.$api, target: target })
+          .then(() => {
+            this.$router.push({ name: 'target', params: { targetName: target.name } })
+          })
+          .catch(error => {
+            if (error) {
+              alert(error)
+            }
+            else {
+              alert("The Target cannot be added. Try again, please!")
+            }
+          });
       }
     }
   }
