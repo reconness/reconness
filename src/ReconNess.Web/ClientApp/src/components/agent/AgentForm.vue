@@ -51,6 +51,8 @@
 <script>
   import VueTagsInput from '@johmun/vue-tags-input';
 
+  import helpers from '../../helpers'
+
   export default {
     name: 'AgentForm',
     components: {
@@ -58,8 +60,11 @@
       VueTagsInput,
     },
     props: {
-      parentAgent: {
-        type: Object
+      agent: {
+        type: Object,
+        default: function () {
+          return {}
+        }
       }
     },
     data: () => {
@@ -67,7 +72,6 @@
         tag: '',
         tags: [],
         autocompleteItems: [],
-        agent: {},
         content: null,
         isNew: true,        
         disabledIsNotBySubdomain: true
@@ -80,12 +84,7 @@
         });
       },
      },
-    async mounted() {
-      this.autocompleteItems = (await this.$api.get('categories')).data.map(category => {
-        return { text: category.name };
-      })
-
-      this.agent = this.parentAgent || {}  
+    async mounted() {   
       this.disabledIsNotBySubdomain = !this.agent.isBySubdomain
 
       this.isNew = this.agent.name === undefined
@@ -95,27 +94,37 @@
           return { text: c };
         })
       }
+
+      try {
+        const categories = await this.$store.dispatch('agents/categories')
+        this.autocompleteItems = categories.map(category => {
+          return { text: category.name };
+        })
+      }
+      catch (error) {
+        helpers.errorHandle(error)
+      }
     },
     methods: {
-      async onSave() {   
+      onSave() {   
         this.agent.categories = this.tags.map(tag => tag.text)
 
         this.$emit('save', this.agent)
       },
-      async onUpdate() {
+      onUpdate() {
         this.agent.categories = this.tags.map(tag => tag.text)
         this.agent.script = this.content
 
         this.$emit('update')
       },
-      async onDelete() {
+      onDelete() {
         this.$emit('delete')
       },
       editorInit: function () {
         require('brace/ext/language_tools')     
         require('brace/mode/csharp') 
         require('brace/theme/dracula')
-        require('brace/snippets/csharp') //snippet
+        require('brace/snippets/csharp')
       },      
       isValid() {
         return this.agent.name && this.agent.command

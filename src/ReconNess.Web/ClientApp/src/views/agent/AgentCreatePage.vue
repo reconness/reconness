@@ -8,24 +8,22 @@
 <script>
   import AgentForm from '../../components/agent/AgentForm'
 
+  import helpers from '../../helpers'
+
   export default {
     name: 'AgentCreatePage',
     components: {
       AgentForm
-    }, 
+    },
     methods: {
       async onSave(agent) {
-        this.$store.dispatch('createAgent', { api: this.$api, agent: agent })
-          .then(() => {
-            this.$router.push({ name: 'agentEdit', params: { agentName: agent.name } })
-          })
-          .catch(error => {
-            if (error) {
-              alert(error)
-            } else {
-              alert("The Agent cannot be added. Try again, please!")
-            }
-          })
+        try {
+          await this.$store.dispatch('agents/createAgent', agent)
+          this.$router.push({ name: 'agentEdit', params: { agentName: agent.name } })
+        }
+        catch(error) {
+          helpers.errorHandle(error)
+        }
       }
     }
   }

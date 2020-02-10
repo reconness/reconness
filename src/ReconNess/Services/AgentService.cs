@@ -44,6 +44,17 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="IAgentService.GetAllAgentsWithCategoryAsync(CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryable(cancellationToken)
+                .Include(a => a.AgentCategories)
+                .ThenInclude(c => c.Category)
+                .ToListAsync();
+        }
+
+        /// <summary>
         /// <see cref="IAgentService.GetAgentWithCategoryAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
         public async Task<Agent> GetAgentWithCategoryAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
@@ -52,21 +63,6 @@ namespace ReconNess.Services
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .FirstOrDefaultAsync();
-        }
-
-        /// <summary>
-        /// <see cref="IAgentService.GetAllAgentsWithCategoryAsync(bool,CancellationToken)"/>
-        /// </summary>
-        public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(bool isBySubdomain, CancellationToken cancellationToken = default)
-        {
-            var query = isBySubdomain ?
-                this.GetAllQueryableByCriteria(a => a.IsBySubdomain, cancellationToken) :
-                this.GetAllQueryable(cancellationToken);
-
-            return await query
-                .Include(a => a.AgentCategories)
-                .ThenInclude(c => c.Category)
-                .ToListAsync();
         }
 
         /// <summary>

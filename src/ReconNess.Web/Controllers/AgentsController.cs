@@ -49,7 +49,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAllAsync(cancellationToken);
+            var agents = await this.agentService.GetAllAgentsWithCategoryAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
             return Ok(agentsDto);
@@ -67,55 +67,7 @@ namespace ReconNess.Web.Controllers
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agent));
         }
-
-        // GET api/agents/target/{targetName}
-        [HttpGet("target/{targetName}")]
-        public async Task<IActionResult> GetByTarget(string targetName, CancellationToken cancellationToken)
-        {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return BadRequest();
-            }
-
-            var agents = await this.agentService.GetAllAgentsWithCategoryAsync(isBySubdomain: false, cancellationToken);
-            if (agents == null || agents.Count == 0)
-            {
-                return Ok(new List<AgentDto>());
-            }
-
-            var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
-
-            return Ok(agentsDto);
-        }
-
-        // GET api/agents/subdomain/{targetName}/{subdomainName}
-        [HttpGet("subdomain/{targetName}/{subdomainName}")]
-        public async Task<IActionResult> GetBySubdomain(string targetName, string subdomainName, CancellationToken cancellationToken)
-        {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return BadRequest();
-            }
-
-            var subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Target == target && s.Name == subdomainName, cancellationToken);
-            if (subdomain == null)
-            {
-                return NotFound();
-            }
-
-            var agents = await this.agentService.GetAllAgentsWithCategoryAsync(isBySubdomain: true, cancellationToken);
-            if (agents == null || agents.Count == 0)
-            {
-                return Ok(new List<AgentDto>());
-            }
-
-            var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
-
-            return Ok(agentsDto);
-        }
-
+        
         // POST api/agents
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)

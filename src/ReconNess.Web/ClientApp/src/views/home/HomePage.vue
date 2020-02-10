@@ -22,6 +22,7 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   import ReferenceAndResource from '../../components/home/ReferenceAndResource';
 
   export default {
@@ -30,9 +31,9 @@
       ReferenceAndResource,
     },
     computed: {
-      targets () {
-        return this.$store.state.targets
-      },
+      ...mapState({
+        targets: state => state.targets.targets
+      }),      
       username() {
         return JSON.parse(localStorage.getItem('user')).userName
       }

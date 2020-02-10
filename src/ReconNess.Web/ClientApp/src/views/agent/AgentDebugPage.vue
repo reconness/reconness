@@ -24,6 +24,8 @@
 
 <script>
 
+  import helpers from '../../helpers'
+
   export default {
     name: 'AgentDebugPage',  
     components: {
@@ -44,7 +46,12 @@
         require('brace/snippets/csharp') //snippet
       },
       async onRun() {
-        this.result = (await this.$api.create('agents/debug', { terminalOutput: this.output, script: this.content})).data
+        try {
+          this.result = await this.$store.dispatch('agents/debug', { terminalOutput: this.output, script: this.content})
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       isValid() {
         return this.output && this.content

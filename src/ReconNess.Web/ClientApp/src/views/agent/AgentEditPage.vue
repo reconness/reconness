@@ -1,12 +1,14 @@
 <template>
   <div>
     <h3>Update Agent</h3>
-    <agent-form v-if="agentReady" v-bind:parentAgent="agent" v-on:update="onUpdate" v-on:delete="onDelete"></agent-form>
+    <agent-form v-if="agentReady" v-bind:agent="agent" v-on:update="onUpdate" v-on:delete="onDelete"></agent-form>
   </div>
 </template>
 
 <script>
   import AgentForm from '../../components/agent/AgentForm'
+
+  import helpers from '../../helpers'
 
   export default {
     name: 'AgentEditPage',
@@ -14,55 +16,50 @@
       AgentForm
     },
     data() {
-      return { 
+      return {
         agent: {},
         agentReady: false
       }
     },
-    async mounted() {
-      this.initService()
+    async mounted () {
+     await this.initService()
     },
     watch: {
-      $route: 'initService'
-    },    
-    methods: {  
+      $route: 'initService' // to watch the url change
+    },
+    methods: {
       async initService() {
-       this.agentReady = false
-        this.agent = (await this.$api.getById('agents', this.$route.params.agentName)).data
-        this.agentReady = true
+        this.agentReady = false
+        try {
+          this.agent = await this.$store.dispatch('agents/agent', this.$route.params.agentName)
+          this.agentReady = true
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       async onUpdate() {
-        this.$store.dispatch('updateAgent', { api: this.$api, agent: this.agent })
-          .then(() => {    
-            alert("The agent script code was saved") 
+        try {
+          await this.$store.dispatch('agents/updateAgent', this.agent)
+          alert("The agent script code was saved")
 
-            if (this.$route.params.agentName !== this.agent.name) {
-              this.$router.push({ name: 'agentEdit', params: { agentName: this.agent.name } })
-            }
-          })
-          .catch(error => {
-            if (error) {
-              alert(error)
-            }
-            else {
-              alert("The Agent cannot be updated. Try again, please!")
-            }
-          });        
+          if (this.$route.params.agentName !== this.agent.name) {
+            this.$router.push({ name: 'agentEdit', params: { agentName: this.agent.name } })
+          }
+        }
+        catch(error) {
+          helpers.errorHandle(error)
+        }
       },
       async onDelete() {
-        if (confirm('Are you sure to delete this Agent: ' + this.agent.name)) {  
-          this.$store.dispatch('deleteAgent', { api: this.$api, agent: this.agent })
-          .then(() => {             
+        if (confirm('Are you sure to delete this Agent: ' + this.agent.name)) {
+          try {
+            await this.$store.dispatch('agents/deleteAgent', this.agent)
             this.$router.push({ name: 'home' })
-          })
-          .catch(error => {
-            if (error) {
-              alert(error)
-            }
-            else {
-              alert("The Agent cannot be deleted. Try again, please!")
-            }
-          });
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }
         }
       }
     }
@@ -71,4 +68,5 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+
 </style>

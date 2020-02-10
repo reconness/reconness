@@ -33,7 +33,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool)"/>
         /// </summary>
-        public void UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput)
+        public async Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput)
         {
             this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
                 .UpdateSubdomainIsAlive(subdomain, scriptOutput)
@@ -42,8 +42,9 @@ namespace ReconNess.Services
                 .UpdateSubdomainScreenshot(subdomain, scriptOutput)
                 .UpdateSubdomainDirectory(subdomain, scriptOutput)
                 .UpdateSubdomainService(subdomain, scriptOutput)
-                .UpdateSubdomainLabel(subdomain, scriptOutput)
                 .UpdateSubdomainAgent(subdomain, agent);
+
+            await UpdateSubdomainLabel(subdomain, scriptOutput);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
         }
@@ -269,12 +270,12 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns><see cref="ISubdomainService"/></returns>
-        private SubdomainService UpdateSubdomainLabel(Subdomain subdomain, ScriptOutput scriptOutput)
+        private async Task UpdateSubdomainLabel(Subdomain subdomain, ScriptOutput scriptOutput)
         {            
             if (!string.IsNullOrWhiteSpace(scriptOutput.Label) && 
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                var label = this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower()).Result;
+                var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower());
                 if (label == null)
                 {
                     var random = new Random();
@@ -291,8 +292,6 @@ namespace ReconNess.Services
                     SubdomainId = subdomain.Id
                 });
             }
-
-            return this;
         }
 
         /// <summary>
@@ -316,7 +315,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
-        private void UpdateSubdomainAgent(Subdomain subdomain, Agent agent)
+        private SubdomainService UpdateSubdomainAgent(Subdomain subdomain, Agent agent)
         {
             if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
             {
@@ -326,6 +325,8 @@ namespace ReconNess.Services
             {
                 subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agent.Name);
             }
+
+            return this;
         }
     }
 }

@@ -36,6 +36,10 @@
 
 <script>
 
+  import { mapGetters } from 'vuex'
+
+  import helpers from '../../helpers'
+
   import SubdomainDashboardTag from '../../components/subdomain/SubdomainDashboardTag'
   import SubdomainDirectoriesTag from '../../components/subdomain/SubdomainDirectoriesTag'
   import SubdomainServicesTag from '../../components/subdomain/SubdomainServicesTag'
@@ -59,6 +63,12 @@
         isReady: false,        
       }
     },    
+    computed: {
+    // mix the getters into computed with object spread operator
+      ...mapGetters({
+        agents: 'agents/subdomainAgents'
+      })
+    },
     async mounted() {
       this.initService()
     },
@@ -70,12 +80,15 @@
 
         this.isReady = false
 
-        this.subdomain = (await this.$api.get('subdomains/' + this.targetName + '/' + this.$route.params.subdomain)).data 
-        this.agents = (await this.$api.get('agents/subdomain/' + this.targetName + '/' + this.$route.params.subdomain)).data
+        try {
+          this.subdomain = await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, subdomain: this.$route.params.subdomain })
+          this.subdomain.notes = this.subdomain.notes || {}
 
-        this.subdomain.notes = this.subdomain.notes || {}
-
-        this.isReady = true
+          this.isReady = true
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       }      
     }
   }

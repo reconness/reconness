@@ -16,30 +16,31 @@
 </template>
 
 <script>
+  import helpers from '../../helpers'
 
-export default {
-  name: 'LoginPage',
-  data() {
-    return { 
-      username: '',
-      password: ''
-    }
-  },
-  methods: {
-    async handleSubmit() {
-      try {
-        const user = (await this.$api.login(this.username, this.password)).data
-        if (user !== null) {
-          localStorage.setItem('user', JSON.stringify(user))
-          this.$router.push({ name: 'home' })
+  export default {
+    name: 'LoginPage',
+    data() {
+      return { 
+        username: '',
+        password: ''
+      }
+    },
+    methods: {
+      async handleSubmit() {
+        try {
+          const user = await this.$store.dispatch('login/login', {username: this.username, password: this.password })
+          if (user !== null) {
+            localStorage.setItem('user', JSON.stringify(user))
+            this.$router.push({ name: 'home' })
+          }
+        }
+        catch (error) {
+          helpers.errorHandle(error)
         }
       }
-      catch (ex) {
-        alert(ex)
-      }
-    }
-  }  
-}
+    }  
+  }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

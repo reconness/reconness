@@ -48,42 +48,40 @@
 </template>
 
 <script>
-export default {
-  name: 'NavMenu',
-  data: () => {
-    return {
-      isExpanded: false
+  import { mapState } from 'vuex'
+
+  export default {
+    name: 'NavMenu',
+    data: () => {
+      return {
+        isExpanded: false
+      }
+    },
+    computed: mapState({
+      targets: state => state.targets.targets,
+      agents: state => state.agents.agents
+    }),  
+    methods: {
+      collapse: function() {
+        this.isExpanded = false;
+      },
+      toggle: function() {
+        this.isExpanded = !this.isExpanded;
+      },
+      onLogout () {
+        localStorage.removeItem('user');
+        this.$router.push({ name: 'login' })
+      },
+      isAuth() {
+        const loggedIn = localStorage.getItem('user')
+        return loggedIn !== null
+      }
+    },
+    async mounted() {  
+      this.$store.dispatch('targets/targets')
+      this.$store.dispatch('agents/agents')
     }
-  },
-  computed: {
-    targets () {
-      return this.$store.state.targets
-    },
-    agents () {
-      return this.$store.state.agents
-    }
-  },
-  methods: {
-    collapse: function() {
-      this.isExpanded = false;
-    },
-    toggle: function() {
-      this.isExpanded = !this.isExpanded;
-    },
-    onLogout () {
-      localStorage.removeItem('user');
-      this.$router.push({ name: 'login' })
-    },
-    isAuth() {
-      const loggedIn = localStorage.getItem('user')
-      return loggedIn !== null
-    }
-  },
-  async mounted() {  
-    this.$store.dispatch('targets', this.$api)
-    this.$store.dispatch('agents', this.$api)
   }
-};
 </script>
 
 <style scoped>
