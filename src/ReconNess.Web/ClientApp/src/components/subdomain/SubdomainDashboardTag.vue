@@ -53,6 +53,7 @@
 <script>
 
   import VueTagsInput from '@johmun/vue-tags-input';
+  import helpers from '../../helpers'
 
   export default {
     name: 'SubdomainDashboardTag', 
@@ -73,13 +74,14 @@
       }    
     },    
     async mounted() {
-      this.autocompleteItems = (await this.$api.get('labels')).data.map(label => {
-          return { text: label.name };
+      const labels = await this.$store.dispatch('subdomains/labels')
+      this.autocompleteItems = labels.map(label => {
+        return { text: label.name };
       })
 
       this.tags = this.subdomain.labels.map(label => {
-          return { text: label.name };
-        })
+        return { text: label.name };
+      })
     },
     computed: {
       filteredItems() {
@@ -93,14 +95,23 @@
         this.subdomain.labels = this.tags.map(tag => {
           return { 'name': tag.text }
         })
-
-        await this.$api.update('subdomains', this.subdomain.id, this.subdomain)
-        alert("The subdomain was updated")
+        try {
+          await this.$store.dispatch('subdomains/updateSubdomain', this.subdomain)
+          alert("The subdomain was updated")
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       async onDelete() {
-        if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) {          
-          await this.$api.delete('subdomains/' + this.$route.params.targetName, this.subdomain.id)
-          this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName} })
+        if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) { 
+          try {
+            await this.$store.dispatch('subdomains/deleteSubdomain', this.subdomain)
+            this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName } })
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }
         }
       },
       hasScreenshots() {

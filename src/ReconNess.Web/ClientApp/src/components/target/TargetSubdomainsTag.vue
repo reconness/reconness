@@ -119,7 +119,7 @@
       },
       async onDeleteAllSubdomains() {
         if (confirm('Are you sure to delete all the subdomains')) {          
-          await this.$api.delete('targets/subdomain', this.$route.params.targetName)
+          await this.$api.delete('targets', this.$route.params.targetName + '/subdomains')
           this.subdomains = []
         }
       },
@@ -140,7 +140,7 @@
       async handleFileUpload() {
         const formData = new FormData();
         formData.append('file', this.$refs.file.files[0]);
-        await this.$api.upload('targets/subdomain', this.$route.params.targetName, formData)
+        await this.$api.upload('targets', this.$route.params.targetName + '/subdomains', formData)
         
         alert("subdomains were uploaded")
       },

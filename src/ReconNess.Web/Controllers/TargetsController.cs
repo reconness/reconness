@@ -66,7 +66,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            if (await this.targetService.AnyAsync(t => t.Name == targetDto.Name))
+            if (await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower()))
             {
                 return BadRequest("There is a Target with that name in the DB");
             }
@@ -125,8 +125,8 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // DELETE api/targets/subdomain/{targetName}
-        [HttpDelete("subdomain/{targetName}")]
+        // DELETE api/targets/{targetName}/subdomains
+        [HttpDelete("{targetName}/subdomains")]
         public async Task<IActionResult> DeleteAllSubdomains(string targetName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetTargetWithSubdomainsAsync(t => t.Name == targetName, cancellationToken);
@@ -140,8 +140,8 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // POST api/targets/subdomain/{targetName}
-        [HttpPost("subdomain/{targetName}")]
+        // POST api/targets/{targetName}/subdomains
+        [HttpPost("{targetName}/subdomains")]
         public async Task<IActionResult> UploadSubdomains(string targetName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)

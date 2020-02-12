@@ -14,6 +14,50 @@ const actions = {
                 reject()
             }
         })
+    },
+    updateSubdomain(context, subdomain) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.update('subdomains', subdomain.id, subdomain)
+                    .then(() => {
+                        // context.commit('updateSubdomain', subdomain)
+                        resolve()
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    },
+    deleteSubdomain(context, { targetName, subdomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.delete('subdomains/' + targetName, subdomain.id)
+                    .then(() => {
+                        //context.commit('deleteSubdomain', subdomain)
+                        resolve()
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    },
+    labels(context) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('labels')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
     }
 }
 

@@ -38,8 +38,10 @@
 
 <script>
 
-  import { mapState } from 'vuex'
   import VueTagsInput from '@johmun/vue-tags-input';
+  import helpers from '../../helpers'
+
+  import { mapState } from 'vuex'  
 
   export default {
     name: 'ReferenceAndResource',
@@ -65,48 +67,36 @@
       },
     },
     async mounted() {
-      this.$store.dispatch('references/categories')
-        .then((categories) => {
-          this.autocompleteItems = categories.map(category => {
-            return { text: category };
-          })
-        })
+      const categories = await this.$store.dispatch('references/categories')
+      this.autocompleteItems = categories.map(category => {
+        return { text: category };
+      })        
 
       this.$store.dispatch('references/references')
     },
     methods: {
       async onSave() {
         this.newReference.categories = this.tags.map(tag => tag.text).join(', ')
+        try {
+          await this.$store.dispatch('references/createReference', this.newReference)
+          this.newReference = {}
+          this.tags = []
 
-        this.$store.dispatch('references/createReference', this.newReference)
-          .then(() => {
-            this.newReference = {}
-            this.tags = []
-
-            alert("The reference was updated")
-          })
-          .catch(error => {
-            if (error) {
-              alert(JSON.stringify(error))
-            } else {
-              alert("The Reference cannot be added. Try again, please!")
-            }
-          })
+          alert("The reference was updated")
+        }
+        catch(error) {
+          helpers.errorHandle(error)
+        }
       },
       async onDelete(reference) {
         if (confirm('Are you sure to delete this reference?')) {
-          this.$store.dispatch('references/deleteReference', reference)
-            .then(() => {
-              alert("The Reference was deleted")
-            })
-            .catch(error => {
-              if (error) {
-                alert(JSON.stringify(error))
-              }
-              else {
-                alert("The Reference cannot be deleted. Try again, please!")
-              }
-            })
+          try {
+            await this.$store.dispatch('references/deleteReference', reference)
+            alert("The Reference was deleted")
+          }
+          catch(error) {
+            helpers.errorHandle(error)
+          }
         }
       },
       isValid() {
