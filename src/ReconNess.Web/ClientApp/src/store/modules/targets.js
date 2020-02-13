@@ -67,6 +67,36 @@ const actions = {
                 reject()
             }
         })
+    },
+    deleteAllSubdomains(context, { targetName }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.delete('targets', targetName + '/subdomains')
+                    .then(() => {
+                        //context.commit('deleteAllSubdomains', targetName)
+                        resolve()
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    },
+    uploadTargets(context, { targetName, formData }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.upload('targets', targetName + '/subdomains', formData)
+                    .then((res) => {
+                        //context.commit('uploadTargets', targetName)
+                        resolve(res.data)
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
     }
 }
 

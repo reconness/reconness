@@ -106,7 +106,7 @@
       async onDelete() {
         if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) { 
           try {
-            await this.$store.dispatch('subdomains/deleteSubdomain', this.subdomain)
+            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: this.subdomain })
             this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName } })
           }
           catch (error) {

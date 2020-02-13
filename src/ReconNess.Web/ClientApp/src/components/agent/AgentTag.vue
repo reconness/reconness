@@ -98,6 +98,8 @@
 </template>
 
 <script>
+
+  import helpers from '../../helpers'
   import { Terminal } from 'xterm'
 
   export default {
@@ -171,12 +173,17 @@
         const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name      
 
-        await this.$api.create('agents/run', {
-          agent: agentName,
-          command: agent.command,
-          target: target,
-          subdomain: subdomainName
-        })      
+        try {
+          await this.$store.dispatch('agents/run', {
+            agent: agentName,
+            command: agent.command,
+            target: target,
+            subdomain: subdomainName
+          })
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       async onStopAgent(agent) { 
         if (!agent.isRunning) {
@@ -188,12 +195,16 @@
         const target = this.$route.params.targetName
         const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name
-
-        await this.$api.create('agents/stop', {
-          agent: agentName,
-          target: target,
-          subdomain: subdomainName
-        })      
+        try {
+          await this.$store.dispatch('agents/stop', {
+            agent: agentName,
+            target: target,
+            subdomain: subdomainName
+          }) 
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       disabledCanRun(agent) {
         const anotherAgentIsRunning = this.currentAgent != null && this.currentAgent.name !== agent.name

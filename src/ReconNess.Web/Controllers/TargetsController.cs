@@ -132,6 +132,7 @@ namespace ReconNess.Web.Controllers
             var target = await this.targetService.GetTargetWithSubdomainsAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
+
                 return NotFound();
             }
 

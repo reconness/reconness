@@ -67,6 +67,7 @@
 
 <script>
 
+  import helpers from '../../helpers'
   import { Event } from 'vue-tables-2';
 
   export default {
@@ -112,37 +113,56 @@
     },
     methods: {
       async onDeleteSubdomain(subdomain) {
-        if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {          
-          await this.$api.delete('subdomains/' + this.$route.params.targetName, subdomain.id)
-          this.subdomains = this.subdomains.filter(sub => sub !== subdomain)
+        if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {   
+          try {
+            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: subdomain })
+            this.subdomains = this.subdomains.filter(sub => sub.id !== subdomain.id)
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }          
         }
       },
       async onDeleteAllSubdomains() {
-        if (confirm('Are you sure to delete all the subdomains')) {          
-          await this.$api.delete('targets', this.$route.params.targetName + '/subdomains')
-          this.subdomains = []
+        if (confirm('Are you sure to delete all the subdomains')) {     
+          try {
+            await this.$store.dispatch('targets/deleteAllSubdomains', { targetName: this.$route.params.targetName })
+            this.subdomains = []
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }              
         }
       },
       async onAddLabel(subdomain, label) {
-        await this.$api.update('subdomains/label', subdomain.id, { label: label })
-        this.$router.go()
+        try {
+          await this.$store.dispatch('subdomains/updateLabel', { subdomain, label })
+          this.$router.go()
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        } 
       },
       async onAddNewSubdomain() {
         const target = this.$route.params.targetName
         try {
-          var response = await this.$api.create('subdomains', { target: target, name: this.newSubdomain })
-          this.subdomains.push(response.data)
+          const subdomain = await this.$store.dispatch('subdomains/createSubdomain', { target: target, subdomain: this.newSubdomain })
+          this.subdomains.push(subdomain)
         }
-        catch (e) {
-          alert(e.response.data.title)
+        catch (error) {
+          helpers.errorHandle(error)
         }
       },
       async handleFileUpload() {
         const formData = new FormData();
         formData.append('file', this.$refs.file.files[0]);
-        await this.$api.upload('targets', this.$route.params.targetName + '/subdomains', formData)
-        
-        alert("subdomains were uploaded")
+        try {
+          await this.$store.dispatch('targets/uploadTargets', { targetName: this.$route.params.targetName, formData })
+          alert("subdomains were uploaded")
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       filterGrid() {
         Event.$emit('vue-tables.filter::search', this.filter);

@@ -15,6 +15,21 @@ const actions = {
             }
         })
     },
+    createSubdomain(context, { target, subdomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('subdomains', { target: target, name: subdomain })
+                    .then((res) => {
+                        //context.commit('createSubdomain', subdomain)
+                        resolve(res.data)
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    },
     updateSubdomain(context, subdomain) {
         return new Promise((resolve, reject) => {
             try {
@@ -45,10 +60,24 @@ const actions = {
             }
         })
     },
-    labels(context) {
+    labels() {
         return new Promise((resolve, reject) => {
             try {
                 api.get('labels')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    },
+    updateLabel(context, { subdomain, label}) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.update('subdomains/label', subdomain.id, { label: label })
                     .then((res) => {
                         resolve(res.data)
                     })

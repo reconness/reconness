@@ -103,6 +103,34 @@ const actions = {
             }
         })
     },
+    run(context, { agent, command, target, subdomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('agents/run', {agent, command, target, subdomain }) 
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    },
+    stop(context, { agent, target, subdomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('agents/stop', { agent, target, subdomain })
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(error => reject(error))
+            }
+            catch {
+                reject()
+            }
+        })
+    }
 }
 
 const mutations = {

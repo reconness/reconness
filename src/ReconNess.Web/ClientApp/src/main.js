@@ -6,7 +6,6 @@ import store from './store'
 
 import App from './App.vue'
 import router from './router';
-import api from './api'
 import connection from './api/signalR'
 
 import { ClientTable } from 'vue-tables-2';
@@ -37,14 +36,6 @@ Vue.use(VueAxios, axios);
 Vue.use(ClientTable);
 
 Vue.config.productionTip = false
-
-Vue.$api = api
-
-Object.defineProperty(Vue.prototype, '$api', {
-  get () {
-    return api
-  }
-})
 
 Vue.$connection = connection
 Object.defineProperty(Vue.prototype, '$connection', {
