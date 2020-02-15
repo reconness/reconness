@@ -12,19 +12,19 @@
     </nav>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-        <target-subdomains-tag v-if="isReady" v-bind:subdomains="target.subdomains"></target-subdomains-tag>
+        <target-subdomains-tag></target-subdomains-tag>
       </div>
       <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-        <agent-tag v-if="isReady" v-bind:agents="agents"></agent-tag>
+        <agent-tag v-bind:isTarget="true"></agent-tag>
       </div>
       <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-        <notes-tag v-if="isReady" v-bind:notes="target.notes"></notes-tag>
+        <notes-tag v-bind:isTarget="true"></notes-tag>
       </div>
       <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-        <target-general-tag v-if="isReady" v-bind:target="target" v-bind:agents="agents"></target-general-tag>
+        <target-general-tag></target-general-tag>
       </div>
       <div class="tab-pane fade" id="nav-settings" role="tabpanel" aria-labelledby="nav-settings-tab">
-        <target-form v-if="isReady" v-bind:target="target" v-on:update="onUpdate" v-on:delete="onDelete"></target-form>
+        <target-form v-on:update="onUpdate" v-on:delete="onDelete"></target-form>
       </div>
     </div>
     <hr />
@@ -53,17 +53,9 @@
       TargetGeneralTag,
       TargetForm
     },
-    data() {
-      return {
-        target: {
-          subdomains: [],
-          notes: {}
-        },
-        isReady: false
-      }
-    },
     computed: mapState({
-      agents: state => state.agents.agents
+      agents: state => state.agents.agents,
+      target: state => state.targets.currentTarget
     }),  
     async mounted () {
      await this.initService()
@@ -73,12 +65,8 @@
     },
     methods: {   
       async initService() {
-        this.isReady = false
         try {
-          this.target = await this.$store.dispatch('targets/target', this.$route.params.targetName)
-
-          this.target.notes = this.target.notes || {}
-          this.isReady = true
+          await this.$store.dispatch('targets/target', this.$route.params.targetName)
         }
         catch(error) {
           helpers.errorHandle(error)
@@ -86,7 +74,8 @@
       },
       async onUpdate() {
         try {
-          await this.$store.dispatch('targets/updateTarget', this.target)
+          await this.$store.dispatch('targets/updateTarget')
+
           alert("The target was updated")
 
           if (this.$route.params.targetName !== this.target.name) {
@@ -100,7 +89,7 @@
       async onDelete() {
         if (confirm('Are you sure to delete this Target with all the subdomains and services: ' + this.target.name)) {
           try {
-            await this.$store.dispatch('targets/deleteTarget', this.target)
+            await this.$store.dispatch('targets/deleteTarget')
             this.$router.push({ name: 'home' })
           }
           catch (error) {

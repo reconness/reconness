@@ -57,9 +57,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var notes = await this.notesService.SaveTargetNotesAsync(target, noteDto.Notes, cancellationToken);
+            await this.notesService.SaveTargetNotesAsync(target, noteDto.Notes, cancellationToken);
 
-            return Ok(this.mapper.Map<Note, NoteDto>(notes));
+            return NoContent();
         }
 
         // GET api/notes/subdomain/{target}/{subdomain}
@@ -85,9 +85,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var notes = await this.notesService.SaveSubdomainNotesAsync(subdomain, noteDto.Notes, cancellationToken);
+            await this.notesService.SaveSubdomainNotesAsync(subdomain, noteDto.Notes, cancellationToken);
 
-            return Ok(this.mapper.Map<Note, NoteDto>(notes));
+            return NoContent();
         }
     }
 }

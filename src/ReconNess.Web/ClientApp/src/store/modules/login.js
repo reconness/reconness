@@ -8,10 +8,10 @@ const actions = {
                     .then((res) => {
                         resolve(res.data)
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     }

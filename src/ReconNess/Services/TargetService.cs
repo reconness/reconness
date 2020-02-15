@@ -124,30 +124,35 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ITargetService.UploadSubdomainsAsync(Target, IEnumerable<UploadSubdomain>, CancellationToken)"/>
         /// </summary>
-        public async Task UploadSubdomainsAsync(Target target, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> UploadSubdomainsAsync(Target target, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
         {
             if (target.Subdomains == null)
             {
                 target.Subdomains = new List<Subdomain>();
             }
 
-            var hasNewSubdomain = false;
+            var newSubdomains = new List<Subdomain>();
             foreach (var subdomain in uploadSubdomains)
             {
                 if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !target.Subdomains.Any(s => s.Name == subdomain))
                 {
-                    target.Subdomains.Add(new Subdomain
+                    newSubdomains.Add(new Subdomain
                     {
                         Name = subdomain
                     });
-
-                    hasNewSubdomain = true;
                 }
             }
-            if (hasNewSubdomain)
+            if (newSubdomains.Count > 0)
             {
+                foreach (var subdomain in newSubdomains)
+                {
+                    target.Subdomains.Add(subdomain);
+                }
+
                 await this.UpdateAsync(target);
             }
+
+            return newSubdomains;
         }
 
         /// <summary>

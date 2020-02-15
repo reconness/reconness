@@ -67,17 +67,12 @@
 
 <script>
 
+  import { mapState } from 'vuex'
   import helpers from '../../helpers'
   import { Event } from 'vue-tables-2';
 
   export default {
-    name: 'TargetSubdomainsTag',
-    props: {
-      subdomains: {
-        type: Array,
-        required: true
-      }
-    },
+    name: 'TargetSubdomainsTag',    
     data: () => {
       return {
         filter: '',
@@ -108,15 +103,17 @@
         }
       }
     },
-    async mounted() {
+    computed: mapState({
+      subdomains: state => state.targets.currentTarget.subdomains
+    }), 
+    async mounted() {      
       this.targetName = this.$route.params.targetName
     },
     methods: {
       async onDeleteSubdomain(subdomain) {
         if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {   
           try {
-            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: subdomain })
-            this.subdomains = this.subdomains.filter(sub => sub.id !== subdomain.id)
+            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.targetName, subdomain: subdomain })
           }
           catch (error) {
             helpers.errorHandle(error)
@@ -126,8 +123,7 @@
       async onDeleteAllSubdomains() {
         if (confirm('Are you sure to delete all the subdomains')) {     
           try {
-            await this.$store.dispatch('targets/deleteAllSubdomains', { targetName: this.$route.params.targetName })
-            this.subdomains = []
+            await this.$store.dispatch('targets/deleteAllSubdomains')
           }
           catch (error) {
             helpers.errorHandle(error)
@@ -137,17 +133,17 @@
       async onAddLabel(subdomain, label) {
         try {
           await this.$store.dispatch('subdomains/updateLabel', { subdomain, label })
-          this.$router.go()
+          alert("The Label was added")
         }
-        catch (error) {
+        catch (error) {          
           helpers.errorHandle(error)
         } 
       },
       async onAddNewSubdomain() {
         const target = this.$route.params.targetName
         try {
-          const subdomain = await this.$store.dispatch('subdomains/createSubdomain', { target: target, subdomain: this.newSubdomain })
-          this.subdomains.push(subdomain)
+          await this.$store.dispatch('subdomains/createSubdomain', { target: target, subdomain: this.newSubdomain })
+          alert("The new Subdomain was added")
         }
         catch (error) {
           helpers.errorHandle(error)
@@ -157,7 +153,7 @@
         const formData = new FormData();
         formData.append('file', this.$refs.file.files[0]);
         try {
-          await this.$store.dispatch('targets/uploadTargets', { targetName: this.$route.params.targetName, formData })
+          await this.$store.dispatch('targets/uploadTargets', { formData })
           alert("subdomains were uploaded")
         }
         catch (error) {

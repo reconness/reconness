@@ -21,6 +21,6 @@ namespace ReconNess.Web.Dtos
 
         public List<SubdomainDto> Subdomains { get; set; }
 
-        public NoteDto Notes { get; set; }
+        public string Notes { get; set; }
     }
 }

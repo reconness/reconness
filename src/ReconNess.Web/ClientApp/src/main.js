@@ -1,29 +1,27 @@
 import Vue from 'vue'
-import axios from 'axios';
+
 import VueAxios from 'vue-axios';
+import axios from 'axios';
 
-import store from './store'
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'xterm/css/xterm.css';
 
+import './filters';
 import App from './App.vue'
+import store from './store'
 import router from './router';
 import connection from './api/signalR'
 
 import { ClientTable } from 'vue-tables-2';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import {
-    faArrowAltCircleRight, faTrashAlt, faExclamation,
+import { faArrowAltCircleRight, faTrashAlt, faExclamation,
     faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen,
     faFireAlt, faDollarSign
 } from '@fortawesome/free-solid-svg-icons'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-import 'bootstrap'; 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'xterm/css/xterm.css';
-
-import './filters';                                     
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'                                     
 
 library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug,
     faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt,

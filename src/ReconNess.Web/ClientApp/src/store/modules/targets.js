@@ -1,7 +1,10 @@
 ﻿import api from '../../api'
 
 const state = {
-    targets: []
+    targets: [],
+    currentTarget: {
+        subdomains: []
+    }
 }
 
 const actions = {
@@ -10,18 +13,30 @@ const actions = {
             try {
                 api.getById('targets', targetName)
                     .then((res) => {
+                        context.commit('target', res.data)
                         resolve(res.data)
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
     async targets(context) {
-        const targets = (await api.get('targets')).data
-        context.commit('targets', targets)
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('targets')
+                    .then((res) => {
+                        context.commit('targets', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
     },
     createTarget(context,  target) {
         return new Promise((resolve, reject) => {
@@ -31,100 +46,109 @@ const actions = {
                         context.commit('createTarget', target)
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
-    updateTarget(context, target) {
+    updateTarget({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
-                api.update('targets', target.id, target)
+                api.update('targets', state.currentTarget.id, state.currentTarget)
                     .then(() => {
-                        context.commit('updateTarget', target)
+                        commit('updateTarget')
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
-    deleteTarget(context, target) {
+    deleteTarget({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
-                api.delete('targets', target.name)
+                api.delete('targets', state.currentTarget.name)
                     .then(() => {
-                        context.commit('deleteTarget', target)
+                        commit('deleteTarget')
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
-    deleteAllSubdomains(context, { targetName }) {
+    deleteAllSubdomains({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
-                api.delete('targets', targetName + '/subdomains')
+                api.delete('targets', state.currentTarget.name + '/subdomains')
                     .then(() => {
-                        //context.commit('deleteAllSubdomains', targetName)
+                        commit('deleteAllSubdomains')
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
-    uploadTargets(context, { targetName, formData }) {
+    uploadTargets({ commit, state }, { formData }) {
         return new Promise((resolve, reject) => {
             try {
-                api.upload('targets', targetName + '/subdomains', formData)
+                api.upload('targets', state.currentTarget.name + '/subdomains', formData)
                     .then((res) => {
-                        //context.commit('uploadTargets', targetName)
-                        resolve(res.data)
+                        commit('uploadTargets', res.data)
+                        resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     }
 }
 
 const mutations = {
+    target(state, target) {
+        state.currentTarget = target
+    },
     targets(state, targets) {
         state.targets = targets
     },
     createTarget(state, target) {
         state.targets.push(target)
     },
-    updateTarget(state, target) {
+    updateTarget(state) {
         state.targets.forEach((t, i) => {
-            if (t.id === target.id) {
-                state.targets[i].name = target.name
-                state.targets[i].rootDomain = target.rootDomain
-                state.targets[i].rootDomain = target.rootDomain
-                state.targets[i].bugBountyProgramUrl = target.bugBountyProgramUrl
-                state.targets[i].isPrivate = target.isPrivate
-                state.targets[i].inScope = target.inScope
-                state.targets[i].outOfScope = target.outOfScope
+            if (t.id === state.currentTarget.id) {
+                state.targets[i].name = state.currentTarget.name
+                state.targets[i].rootDomain = state.currentTarget.rootDomain
+                state.targets[i].rootDomain = state.currentTarget.rootDomain
+                state.targets[i].bugBountyProgramUrl = state.currentTarget.bugBountyProgramUrl
+                state.targets[i].isPrivate = state.currentTarget.isPrivate
+                state.targets[i].inScope = state.currentTarget.inScope
+                state.targets[i].outOfScope = state.currentTarget.outOfScope
             }
         });
     },
-    deleteTarget(state, target) {
+    deleteTarget(state) {
         state.targets = state.targets.filter((t) => {
-            return t.name !== target.name;
+            return t.name !== state.currentTarget.name;
         })
-    }        
+    },
+    deleteAllSubdomains(state) {
+        state.currentTarget.subdomains = []
+    },
+    uploadTargets(state, subdomains) {
+        subdomains.map(sub => state.currentTarget.subdomains.push(sub))        
+    }
 }
 
 export default {

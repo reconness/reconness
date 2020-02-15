@@ -7,16 +7,33 @@ const state = {
 const actions = {
     async categories() {
         return new Promise((resolve, reject) => {
-            api.get('references/categories')
-                .then((res) => {
-                    resolve(res.data)
-                })
-                .catch(error => reject(error))
+            try {
+                api.get('references/categories')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
         })
     },
     async references(context) {
-        const references = (await api.get('references')).data
-        context.commit('references', references)
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('references')
+                    .then((res) => {
+                        context.commit('references', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
     },
     createReference(context, reference) {
         return new Promise((resolve, reject) => {
@@ -26,10 +43,10 @@ const actions = {
                         context.commit('createReference', reference)
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },    
@@ -41,10 +58,10 @@ const actions = {
                         context.commit('deleteReference', reference)
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },

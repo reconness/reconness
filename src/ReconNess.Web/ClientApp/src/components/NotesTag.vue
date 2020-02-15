@@ -2,7 +2,7 @@
   <div class="pt-2">
     <div class="form-group">
       <label for="noteFormControl">Notes</label>
-      <textarea class="form-control" id="noteFormControl" rows="23" v-model="notes.notes"></textarea>
+      <textarea class="form-control" id="noteFormControl" ref="input" rows="23">{{notes}}</textarea>
     </div>
     <div class="form-group">
       <button class="btn btn-primary" v-on:click="onSave()">Save</button>
@@ -12,23 +12,57 @@
 
 <script>  
 
+  import helpers from '../helpers'
+
   export default {
     name: 'NotesTag',
-    props: {
-      notes: {
-        type: Object,
-        required: true
+    props: {      
+      isTarget: {
+        type: Boolean,
+        default: false
       }
+    }, 
+    data: () => {
+      return {
+        targetName: '',
+        subdomain: ''
+      }
+    },   
+    computed: {
+      notes() {
+        if (this.isTarget) {
+          return this.$store.state.targets.currentTarget.notes
+        }
+
+        return this.$store.state.subdomains.currentSubdomain.notes
+      }
+    },
+    mounted() {      
+      this.targetName = this.$route.params.targetName
+      this.subdomain = this.$route.params.subdomain      
     },
     methods: {
       async onSave() {
-        if (this.$route.params.subdomain) {
-          await this.$api.create('notes/subdomain/' + this.$route.params.targetName + '/' + this.$route.params.subdomain, this.notes)
+        try {          
+          if (this.isTarget) {
+            await this.$store.dispatch('notes/saveTargetNote', {
+              targetName: this.targetName,
+              notes: this.$refs.input.value
+            })
+          }
+          else {
+            await this.$store.dispatch('notes/saveSubdomainNote', {
+              targetName: this.targetName,
+              subdomain: this.subdomain,
+              notes: this.$refs.input.value
+            })
+          }
+
+          alert("The notes was saved")
         }
-        else {
-          await this.$api.create('notes/target/' + this.$route.params.targetName, this.notes)
+        catch (error) {
+          helpers.errorHandle(error)
         }
-        alert("The notes was saved")
       }
     }
   }

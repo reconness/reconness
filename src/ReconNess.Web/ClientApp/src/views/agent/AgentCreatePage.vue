@@ -1,7 +1,7 @@
 ﻿<template>
   <div>
     <h3>New Agent</h3>
-    <agent-form v-on:save="onSave"></agent-form>
+    <agent-form  v-bind:isNew="true" v-on:save="onSave"></agent-form>
   </div>
 </template>
 

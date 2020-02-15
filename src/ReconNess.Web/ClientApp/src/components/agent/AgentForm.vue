@@ -38,7 +38,7 @@
     </div>
     <div class="form-group" v-if="!isNew">
       <label for="inputArguments">Script <a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
-      <editor v-model="content" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
+      <editor v-model="agent.script" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
     </div>
     <div class="form-group">
       <button class="btn btn-primary" v-if="isNew" v-on:click="onSave" :disabled='!isValid()'>Add</button>
@@ -51,6 +51,7 @@
 <script>
   import VueTagsInput from '@johmun/vue-tags-input';
 
+  import { mapState } from 'vuex'
   import helpers from '../../helpers'
 
   export default {
@@ -58,48 +59,45 @@
     components: {
       editor: require('vue2-ace-editor'),
       VueTagsInput,
-    },
-    props: {
-      agent: {
-        type: Object,
-        default: function () {
-          return {}
-        }
+    },   
+    props: {      
+      isNew: {
+        type: Boolean,
+        default: false
       }
-    },
+    }, 
     data: () => {
       return {
         tag: '',
         tags: [],
-        autocompleteItems: [],
-        content: null,
-        isNew: true,        
-        disabledIsNotBySubdomain: true
+        autocompleteItems: []
       }
     },
     computed: {
       filteredItems() {
         return this.autocompleteItems.filter(i => {
           return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
-        });
-      },
-     },
-    async mounted() {   
-      this.disabledIsNotBySubdomain = !this.agent.isBySubdomain
-
-      this.isNew = this.agent.name === undefined
-      if (!this.isNew) {
-        this.content = this.agent.script
-        this.tags = this.agent.categories.map(c => {
-          return { text: c };
         })
-      }
-
-      try {
+      },
+      disabledIsNotBySubdomain() {
+        return !this.agent.isBySubdomain
+      },
+      ...mapState({
+          agent: state => state.agents.currentAgent
+      })
+     },
+    async mounted() {         
+      try {        
         const categories = await this.$store.dispatch('agents/categories')
         this.autocompleteItems = categories.map(category => {
           return { text: category.name };
         })
+
+        if (!this.isNew && this.agent.categories !== undefined) {
+          this.tags = this.agent.categories.map(c => {
+            return { text: c };
+          })
+        }
       }
       catch (error) {
         helpers.errorHandle(error)
@@ -113,7 +111,6 @@
       },
       onUpdate() {
         this.agent.categories = this.tags.map(tag => tag.text)
-        this.agent.script = this.content
 
         this.$emit('update')
       },
@@ -133,7 +130,6 @@
         this.$refs["onlyIfIsAlive"].checked = false
         this.$refs["onlyIfHasHttpOpen"].checked = false
         this.$refs["skipIfRanBefore"].checked = false
-        this.disabledIsNotBySubdomain = this.agent.isBySubdomain
       }
     }
   }

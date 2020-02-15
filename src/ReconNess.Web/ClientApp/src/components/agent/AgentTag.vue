@@ -105,12 +105,9 @@
   export default {
     name: 'AgentTag', 
     props: {
-      agents: {
-        type: Array,
-        required: true
-      },
-      subdomain: {
-        type: Object
+      isTarget: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -120,16 +117,30 @@
         showLogModal: false,
         term: null,
         termLog: null,       
-        currentAgent: null
+        currentAgent: null,
+        targetName: '',
+        subdomain: ''
       }    
     },    
+    computed: {
+      agents() {
+        if (this.isTarget) {
+          return this.$store.state.agents.agents
+        }
+
+        return this.$store.getters.subdomainAgents
+      }
+    },
     async mounted() {
+      this.targetName = this.$route.params.targetName
+      this.subdomain = this.$route.params.subdomain 
+
       if (this.agents.length > 0) {
         this.agents.map(agent => {
                     
-          const channel = this.subdomain !== undefined ?
-            `${this.$route.params.targetName}_${this.$route.params.subdomain}_${agent.name}` :
-            `${this.$route.params.targetName}_${agent.name}`
+          const channel = this.isTarget  ?
+            `${this.targetName}_${agent.name}` :
+            `${this.targetName}_${this.subdomain}_${agent.name}`
 
           this.$connection.on(channel, (message) => {
             if (message === "Agent stopped!" || message === "Agent done!") {
@@ -169,16 +180,14 @@
         this.showCommandModal = false
         this.showTerminalModal = true
 
-        const target = this.$route.params.targetName
-        const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name      
 
         try {
           await this.$store.dispatch('agents/run', {
             agent: agentName,
             command: agent.command,
-            target: target,
-            subdomain: subdomainName
+            target: this.targetName,
+            subdomain: this.subdomain
           })
         }
         catch (error) {
@@ -192,14 +201,12 @@
 
         this.currentAgent = null
 
-        const target = this.$route.params.targetName
-        const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name
         try {
           await this.$store.dispatch('agents/stop', {
             agent: agentName,
-            target: target,
-            subdomain: subdomainName
+            target: this.targetName,
+            subdomain: this.subdomain
           }) 
         }
         catch (error) {

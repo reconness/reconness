@@ -165,14 +165,14 @@ namespace ReconNess.Web.Controllers
                 }
 
                 var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                await this.targetService.UploadSubdomainsAsync(target, subdomains);
+                var subdomainsAdded = await this.targetService.UploadSubdomainsAsync(target, subdomains);
+
+                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
-            return NoContent();
         }
     }
 }

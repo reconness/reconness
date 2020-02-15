@@ -1,12 +1,12 @@
 ﻿import api from '../../api'
 
 const state = {
-    agents: []
+    agents: [],
+    currentAgent: {}
 }
 
 const getters = {
     subdomainAgents: state => {
-        console.log(state.agents)
         return state.agents.filter(agent => agent.isBySubdomain)
     }
 }
@@ -17,18 +17,30 @@ const actions = {
             try {
                 api.getById('agents', agentName)
                     .then((res) => {
-                        resolve(res.data)
+                        context.commit('agent', res.data)
+                        resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },    
-    async agents(context) {
-        const agents = (await api.get('agents')).data
-        context.commit('agents', agents)
+    agents(context) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('agents')
+                    .then((res) => {
+                        context.commit('agents', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
     },
     createAgent(context, agent) {
         return new Promise((resolve, reject) => {
@@ -38,40 +50,40 @@ const actions = {
                         context.commit('createAgent', agent)
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
-            }
-        })
-    },
-    updateAgent(context, agent ) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.update('agents', agent.id, agent)
-                    .then(() => {
-                        context.commit('updateAgent', agent)
-                        resolve()
-                    })
-                    .catch(error => reject(error))
-            }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
-    deleteAgent(context, agent) {
+    updateAgent({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
-                api.delete('agents', agent.name)
+                api.update('agents', state.currentAgent.id, state.currentAgent)
                     .then(() => {
-                        context.commit('deleteAgent', agent)
+                        commit('updateAgent', state.currentAgent)
                         resolve()
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    deleteAgent({ commit, state }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.delete('agents', state.currentAgent.name)
+                    .then(() => {
+                        commit('deleteAgent', state.currentAgent)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
             }
         })
     },
@@ -82,10 +94,10 @@ const actions = {
                     .then((res) => {
                         resolve(res.data)
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
@@ -96,10 +108,10 @@ const actions = {
                     .then((res) => {
                         resolve(res.data)
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
@@ -110,10 +122,10 @@ const actions = {
                     .then((res) => {
                         resolve(res.data)
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     },
@@ -124,16 +136,19 @@ const actions = {
                     .then((res) => {
                         resolve(res.data)
                     })
-                    .catch(error => reject(error))
+                    .catch(err => reject(err))
             }
-            catch {
-                reject()
+            catch (err) {
+                reject(err)
             }
         })
     }
 }
 
 const mutations = {
+    agent(state, agent) {
+        state.currentAgent = agent
+    },
     agents(state, agents) {
         state.agents = agents
     },
@@ -155,7 +170,6 @@ const mutations = {
         });
     },
     deleteAgent(state, agent) {
-        console.log(agent)
         state.agents = state.agents.filter((a) => {
             return a.name !== agent.name;
         })

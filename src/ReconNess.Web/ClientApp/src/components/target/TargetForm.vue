@@ -35,20 +35,20 @@
 </template>
 
 <script>
+
+  import { mapState } from 'vuex'
+
   export default {
     name: 'TargetFrom',
-    props: {
-      target: {
-        type: Object,
-        default: function () {
-          return {}
-        }
-      },
+    props: {      
       isNew: {
         type: Boolean,
         default: false
       }
     },    
+    computed: mapState({
+      target: state => state.targets.currentTarget
+    }), 
     methods: {
       isValid() {
         return this.target.name && this.target.rootDomain

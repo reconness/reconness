@@ -151,9 +151,10 @@ namespace ReconNess.Web.Controllers
 
             subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
 
-            await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
+            subdomain = await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
+            var newLabel = subdomain.Labels.First(l => l.Label.Name == subdomainLabelDto.Label).Label;
 
-            return NoContent();
+            return Ok(mapper.Map<Label, LabelDto>(newLabel));
         }
 
         // DELETE api/subdomains/{target}/{id}
