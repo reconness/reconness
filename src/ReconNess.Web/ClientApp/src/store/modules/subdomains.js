@@ -50,7 +50,7 @@ const actions = {
             }
         })
     },
-    deleteSubdomain({ commit, state }, { targetName, subdomain }) {
+    deleteSubdomain({ commit }, { targetName, subdomain }) {
         return new Promise((resolve, reject) => {
             try {
                 api.delete('subdomains/' + targetName, subdomain.id)

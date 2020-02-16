@@ -4,7 +4,6 @@ const actions = {
     saveTargetNote(context, { targetName, notes}) {
         return new Promise((resolve, reject) => {
             try {                
-                console.log(notes)
                 api.create('notes/target/' + targetName, { notes: notes })
                     .then(() => {
                         resolve()

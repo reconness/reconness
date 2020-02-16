@@ -2,7 +2,7 @@
   <div class="pt-2">
     <div class="form-group">
       <label for="noteFormControl">Notes</label>
-      <textarea class="form-control" id="noteFormControl" ref="input" rows="23">{{notes}}</textarea>
+      <textarea class="form-control" id="noteFormControl" ref="input" rows="23" v-model="notes"></textarea>
     </div>
     <div class="form-group">
       <button class="btn btn-primary" v-on:click="onSave()">Save</button>
@@ -29,12 +29,17 @@
       }
     },   
     computed: {
-      notes() {
-        if (this.isTarget) {
-          return this.$store.state.targets.currentTarget.notes
-        }
+      notes: {
+        get: function () {
+          if (this.isTarget) {
+            return this.$store.state.targets.currentTarget.notes
+          }
 
-        return this.$store.state.subdomains.currentSubdomain.notes
+          return this.$store.state.subdomains.currentSubdomain.notes
+        },
+        set: function (newValue) {
+
+        }
       }
     },
     mounted() {      
