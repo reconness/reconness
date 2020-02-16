@@ -11,7 +11,7 @@ const actions = {
                 api.get('subdomains/' + targetName + '/' + subdomain)
                     .then((res) => {
                         context.commit('subdomain', res.data)
-                        resolve(res.data)
+                        resolve()
                     })
                     .catch(err => reject(err))
             }
@@ -26,21 +26,6 @@ const actions = {
                 api.create('subdomains', { target: target, name: subdomain })
                     .then((res) => {
                         context.commit('createSubdomain', res.data)
-                        resolve(res.data)
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
-    updateSubdomain(context, subdomain) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.update('subdomains', subdomain.id, subdomain)
-                    .then(() => {
-                        //context.commit('updateSubdomain', subdomain)
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -50,12 +35,27 @@ const actions = {
             }
         })
     },
-    deleteSubdomain(context, { targetName, subdomain }) {
+    updateSubdomain({ commit, state }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.update('subdomains', state.currentSubdomain.id, state.currentSubdomain)
+                    .then(() => {
+                        commit('updateSubdomain')
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    deleteSubdomain({ commit, state }, { targetName, subdomain }) {
         return new Promise((resolve, reject) => {
             try {
                 api.delete('subdomains/' + targetName, subdomain.id)
                     .then(() => {
-                        context.commit('deleteSubdomain', subdomain)
+                        commit('deleteSubdomain', subdomain)
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -109,9 +109,9 @@ const mutations = {
     createSubdomain(state, subdomain) {
         this.state.targets.currentTarget.subdomains.push(subdomain)
     },   
-    deleteSubdomain(state, subdomina) {
+    deleteSubdomain(state, subdomain) {
         this.state.targets.currentTarget.subdomains = this.state.targets.currentTarget.subdomains.filter((s) => {
-            return s.name !== subdomina.name;
+            return s.name !== subdomain.name;
         })
     }    
 }

@@ -15,6 +15,7 @@ namespace ReconNess.Web.Mappers
                 .ForMember(dest => dest.Target, opt => opt.Ignore());
 
             CreateMap<Subdomain, SubdomainDto>()
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes.Notes))
                 .ForMember(dest => dest.Target, opt => opt.MapFrom(src => src.Target.Name))
                 .ForMember(dest => dest.Labels, opt => opt.MapFrom(src => src.Labels.Select(l => l.Label))); ;
         }

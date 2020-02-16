@@ -15,6 +15,9 @@
     components: {
       AgentForm
     },
+    mounted() {
+      this.$store.state.agents.currentAgent = {}
+    },
     methods: {
       async onSave(agent) {
         try {

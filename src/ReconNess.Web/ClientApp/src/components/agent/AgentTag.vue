@@ -128,7 +128,7 @@
           return this.$store.state.agents.agents
         }
 
-        return this.$store.getters.subdomainAgents
+        return this.$store.getters['agents/subdomainAgents']
       }
     },
     async mounted() {

@@ -53,50 +53,60 @@
 <script>
 
   import VueTagsInput from '@johmun/vue-tags-input';
+  import { mapState } from 'vuex'
   import helpers from '../../helpers'
 
   export default {
     name: 'SubdomainDashboardTag', 
     components: {
       VueTagsInput
-    },
-    props: {
-      subdomain: {
-        type: Object,
-        required: true
-      }
-    },
+    },    
     data() {
       return { 
         tag: '',
-        tags: [],
+        tmpTags: [],
         autocompleteItems: [],
       }    
-    },    
+    },   
+    computed: {
+      filteredItems() {
+        return this.autocompleteItems.filter(i => {
+          return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
+        })
+      },
+      tags: {
+        get: function () {
+          if (this.subdomain.labels !== undefined) {
+            return this.subdomain.labels.map(label => {
+              return { text: label.name };
+            })
+          }
+
+          return []        
+        },
+        set: function (newValue) {
+          this.tmpTags = newValue
+        }
+      },
+      ...mapState({
+        subdomain: state => state.subdomains.currentSubdomain
+      })
+     },
     async mounted() {
       const labels = await this.$store.dispatch('subdomains/labels')
       this.autocompleteItems = labels.map(label => {
         return { text: label.name };
       })
 
-      this.tags = this.subdomain.labels.map(label => {
-        return { text: label.name };
-      })
-    },
-    computed: {
-      filteredItems() {
-        return this.autocompleteItems.filter(i => {
-          return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
-        });
-      },
-     },
+      this.tmpTags = this.tags
+    },    
     methods: {
       async onUpdate() {
-        this.subdomain.labels = this.tags.map(tag => {
+        this.subdomain.labels = this.tmpTags.map(tag => {
           return { 'name': tag.text }
         })
         try {
-          await this.$store.dispatch('subdomains/updateSubdomain', this.subdomain)
+          await this.$store.dispatch('subdomains/updateSubdomain')
           alert("The subdomain was updated")
         }
         catch (error) {

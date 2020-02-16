@@ -25,7 +25,7 @@ namespace ReconNess.Web.Dtos
 
         public string FromAgents { get; set; }
 
-        public NoteDto Notes { get; set; }
+        public string Notes { get; set; }
 
         public ServiceHttpDto ServiceHttp { get; set; }
 

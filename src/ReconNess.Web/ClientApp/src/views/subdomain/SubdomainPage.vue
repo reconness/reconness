@@ -13,20 +13,20 @@
     </nav>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-details" role="tabpanel" aria-labelledby="nav-details-tab">
-        <subdomain-dashboard-tag v-if="isReady" v-bind:subdomain="subdomain"></subdomain-dashboard-tag>
+        <subdomain-dashboard-tag></subdomain-dashboard-tag>
       </div>
       <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
-        <agent-tag v-if="isReady" v-bind:agents="agents" v-bind:subdomain="subdomain"></agent-tag>
+        <agent-tag></agent-tag>
       </div>
       <div class="tab-pane fade" id="nav-services" role="tabpanel" aria-labelledby="nav-services-tab">
-        <subdomain-services-tag v-if="isReady" v-bind:services="subdomain.services"></subdomain-services-tag>
+        <subdomain-services-tag></subdomain-services-tag>
       </div>
       <div class="tab-pane fade" id="nav-directories" role="tabpanel" aria-labelledby="nav-directories-tab">
         <div class="pt-2" v-if="subdomain.serviceHttp === undefined || subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
-        <subdomain-directories-tag v-if="isReady && subdomain.serviceHttp" v-bind:directories="subdomain.serviceHttp.directories"></subdomain-directories-tag>
+        <subdomain-directories-tag></subdomain-directories-tag>
       </div>
       <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-        <notes-tag v-if="isReady" v-bind:notes="subdomain.notes"></notes-tag>
+        <notes-tag></notes-tag>
       </div>
     </div>
     <hr />
@@ -36,7 +36,7 @@
 
 <script>
 
-  import { mapGetters } from 'vuex'
+  import { mapGetters, mapState } from 'vuex'
 
   import helpers from '../../helpers'
 
@@ -56,17 +56,16 @@
       SubdomainDirectoriesTag,
       NotesTag
     },
-    data() {
-      return { 
-        targetName: this.$route.params.targetName,
-        subdomain: {},
-        isReady: false,        
-      }
-    },    
     computed: {
+      targetName() {
+        return this.$route.params.targetName
+      },
     // mix the getters into computed with object spread operator
       ...mapGetters({
         agents: 'agents/subdomainAgents'
+      }),
+      ...mapState({
+        subdomain: state => state.subdomains.currentSubdomain
       })
     },
     async mounted() {
@@ -76,15 +75,9 @@
       $route: 'initService'
     },  
     methods: {  
-      async initService() {        
-
-        this.isReady = false
-
+      async initService() { 
         try {
-          this.subdomain = await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, subdomain: this.$route.params.subdomain })
-          this.subdomain.notes = this.subdomain.notes || {}
-
-          this.isReady = true
+          await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, subdomain: this.$route.params.subdomain })          
         }
         catch (error) {
           helpers.errorHandle(error)

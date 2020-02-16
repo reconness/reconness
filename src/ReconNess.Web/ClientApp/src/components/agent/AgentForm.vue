@@ -69,7 +69,7 @@
     data: () => {
       return {
         tag: '',
-        tags: [],
+        tmpTags: [],
         autocompleteItems: []
       }
     },
@@ -82,6 +82,20 @@
       disabledIsNotBySubdomain() {
         return !this.agent.isBySubdomain
       },
+      tags: {
+        get: function () {
+          if (!this.isNew && this.agent.categories !== undefined) {
+            return this.agent.categories.map(c => {
+              return { text: c };
+            })
+          }
+
+          return []        
+        },
+        set: function (newValue) {
+          this.tmpTags = newValue
+        }
+      },
       ...mapState({
           agent: state => state.agents.currentAgent
       })
@@ -91,13 +105,9 @@
         const categories = await this.$store.dispatch('agents/categories')
         this.autocompleteItems = categories.map(category => {
           return { text: category.name };
-        })
+        })        
 
-        if (!this.isNew && this.agent.categories !== undefined) {
-          this.tags = this.agent.categories.map(c => {
-            return { text: c };
-          })
-        }
+        this.tmpTags = this.tags
       }
       catch (error) {
         helpers.errorHandle(error)
@@ -105,12 +115,12 @@
     },
     methods: {
       onSave() {   
-        this.agent.categories = this.tags.map(tag => tag.text)
+        this.agent.categories = this.tmpTags.map(tag => tag.text)
 
         this.$emit('save', this.agent)
       },
       onUpdate() {
-        this.agent.categories = this.tags.map(tag => tag.text)
+        this.agent.categories = this.tmpTags.map(tag => tag.text)
 
         this.$emit('update')
       },
@@ -127,9 +137,9 @@
         return this.agent.name && this.agent.command
       },
       onBySubdomain() {
-        this.$refs["onlyIfIsAlive"].checked = false
-        this.$refs["onlyIfHasHttpOpen"].checked = false
-        this.$refs["skipIfRanBefore"].checked = false
+        this.agent.onlyIfIsAlive = false
+        this.agent.onlyIfHasHttpOpen = false
+        this.agent.skipIfRanBefore = false
       }
     }
   }
