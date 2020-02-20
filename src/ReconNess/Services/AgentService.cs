@@ -22,8 +22,7 @@ namespace ReconNess.Services
         private readonly ITargetService targetService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
-
-        private static Process process;
+        private readonly IRunnerProcess runnerProcess;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class
@@ -35,12 +34,14 @@ namespace ReconNess.Services
         public AgentService(IUnitOfWork unitOfWork,
             ITargetService targetService,
             IConnectorService connectorService,
-            IScriptEngineService scriptEngineService)
+            IScriptEngineService scriptEngineService,
+            IRunnerProcess runnerProcess)
             : base(unitOfWork)
         {
             this.targetService = targetService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
+            this.runnerProcess = runnerProcess;
         }
 
         /// <summary>
@@ -120,14 +121,12 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (process != null)
+            if (this.runnerProcess.IsRunning())
             {
                 var channel = subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
                 try
                 {
-                    process.Kill();
-                    process.WaitForExit();
-                    process = null;
+                    this.runnerProcess.KillProcess();
                 }
                 catch (Exception ex)
                 {
@@ -156,14 +155,15 @@ namespace ReconNess.Services
         {
             try
             {
-                this.StartProcess(agent, command);
+                this.runnerProcess.StartProcess(command);
+                this.scriptEngineService.InintializeAgent(agent);
 
                 int lineCount = 1;
-                while (process != null && !process.StandardOutput.EndOfStream)
+                while (this.runnerProcess.IsRunning())
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var terminalLineOutput = process.StandardOutput.ReadLine();
+                    var terminalLineOutput = this.runnerProcess.TerminalLineOutput();
                     var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount}");
@@ -176,9 +176,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
-                }
-
-                process.WaitForExit();
+                }                
             }
             catch (Exception ex)
             {
@@ -186,38 +184,10 @@ namespace ReconNess.Services
             }
             finally
             {
-                process = null;
+                this.runnerProcess.KillProcess();
             }
         }
-
-        /// <summary>
-        /// Star the process
-        /// </summary>
-        /// <param name="agent">The agent</param>
-        /// <param name="command">The command</param>
-        private void StartProcess(Agent agent, string command)
-        {
-            process = new Process()
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{command}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                }
-            };
-
-            // wait 1 sec to avoid broke the frontend modal
-            Thread.Sleep(1000);
-
-            process.Start();
-
-            this.scriptEngineService.InintializeAgent(agent);
-        }
-
+        
         /// <summary>
         /// Obtain the channel to send the menssage
         /// </summary>
@@ -269,15 +239,6 @@ namespace ReconNess.Services
         /// <returns>Send a log message</returns>
         private async Task SendLogException(string channel, Exception ex)
         {
-            try
-            {
-                if (process != null)
-                {
-                    process.WaitForExit();
-                }
-            }
-            catch (Exception) { }
-
             await this.connectorService.SendAsync(channel, ex.Message);
             await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
         }

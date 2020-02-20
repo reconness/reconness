@@ -17,6 +17,7 @@ namespace ReconNess.Web
             optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
+            services.AddSingleton<IRunnerProcess, RunnerProcess>();
 
             services.AddScoped<IDbContext>(d => new ReconNessContext(optionsBuilder.Options));
             services.AddScoped<IUnitOfWork, UnitOfWork>();

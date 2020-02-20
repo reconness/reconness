@@ -37,8 +37,7 @@
 
           return this.$store.state.subdomains.currentSubdomain.notes
         },
-        set: function (newValue) {
-
+        set: function () {
         }
       }
     },
