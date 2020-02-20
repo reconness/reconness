@@ -2,6 +2,7 @@
 {
     public interface IRunnerProcess
     {
+        bool Stopped { get; set; }
         bool IsRunning();
         void KillProcess();
         void StartProcess(string command);

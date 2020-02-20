@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ReconNess.Web.Dtos
+﻿namespace ReconNess.Web.Dtos
 {
     public class NoteDto
     {

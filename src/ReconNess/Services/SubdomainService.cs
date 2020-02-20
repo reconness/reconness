@@ -271,8 +271,8 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns><see cref="ISubdomainService"/></returns>
         private async Task UpdateSubdomainLabel(Subdomain subdomain, ScriptOutput scriptOutput)
-        {            
-            if (!string.IsNullOrWhiteSpace(scriptOutput.Label) && 
+        {
+            if (!string.IsNullOrWhiteSpace(scriptOutput.Label) &&
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower());
@@ -285,7 +285,7 @@ namespace ReconNess.Services
                         Color = string.Format("#{0:X6}", random.Next(0x1000000))
                     };
                 }
-                
+
                 subdomain.Labels.Add(new SubdomainLabel
                 {
                     Label = label,

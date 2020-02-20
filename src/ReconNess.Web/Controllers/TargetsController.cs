@@ -97,7 +97,7 @@ namespace ReconNess.Web.Controllers
             {
                 return BadRequest("There is a Target with that name in the DB");
             }
-            
+
             target.Name = targetDto.Name;
             target.RootDomain = targetDto.RootDomain;
             target.BugBountyProgramUrl = targetDto.BugBountyProgramUrl;

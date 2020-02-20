@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -74,6 +73,9 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var channel = this.GetChannel(target, subdomain, agent);
+
+            this.runnerProcess.Stopped = false;
+
             if (this.NeedToRunInEachSubdomain(subdomain, agent))
             {
                 // wait 1 sec to avoid broke the frontend modal
@@ -81,7 +83,18 @@ namespace ReconNess.Services
 
                 foreach (var sub in target.Subdomains.ToList())
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        this.runnerProcess.Stopped = true;
+                        this.runnerProcess.KillProcess();
+
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    if (this.runnerProcess.Stopped)
+                    {
+                        break;
+                    }
 
                     var needToBeAlive = agent.OnlyIfIsAlive && (sub.IsAlive == null || !sub.IsAlive.Value);
                     var needTohasHttpOpen = agent.OnlyIfHasHttpOpen && (sub.HasHttpOpen == null || !sub.HasHttpOpen.Value);
@@ -120,10 +133,11 @@ namespace ReconNess.Services
         public async Task StopAsync(Target target, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var channel = subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
 
             if (this.runnerProcess.IsRunning())
             {
-                var channel = subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
+
                 try
                 {
                     this.runnerProcess.KillProcess();
@@ -132,9 +146,10 @@ namespace ReconNess.Services
                 {
                     await this.connectorService.SendAsync(channel, ex.Message, cancellationToken);
                 }
-
-                await this.connectorService.SendAsync(channel, "Agent stopped!", cancellationToken);
             }
+
+            this.runnerProcess.Stopped = true;
+            await this.connectorService.SendAsync(channel, "Agent stopped!", cancellationToken);
         }
 
         /// <summary>
@@ -176,7 +191,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
-                }                
+                }
             }
             catch (Exception ex)
             {
@@ -187,7 +202,7 @@ namespace ReconNess.Services
                 this.runnerProcess.KillProcess();
             }
         }
-        
+
         /// <summary>
         /// Obtain the channel to send the menssage
         /// </summary>

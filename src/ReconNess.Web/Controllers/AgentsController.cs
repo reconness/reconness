@@ -67,7 +67,7 @@ namespace ReconNess.Web.Controllers
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agent));
         }
-        
+
         // POST api/agents
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
@@ -182,7 +182,7 @@ namespace ReconNess.Web.Controllers
             {
                 return BadRequest();
             }
-            
+
             await this.agentService.RunAsync(target, subdomain, agent, agentRunDto.Command, cancellationToken);
 
             return NoContent();

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
-using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 
 namespace ReconNess.Web.Controllers

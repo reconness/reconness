@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using ReconNess.Core.Services;
 
@@ -7,6 +8,8 @@ namespace ReconNess.Services
     public class RunnerProcess : IRunnerProcess
     {
         private Process process;
+
+        public bool Stopped { get; set; }
 
         public void StartProcess(string command)
         {
@@ -35,7 +38,15 @@ namespace ReconNess.Services
 
         public bool IsRunning()
         {
-            return !(process == null || process.HasExited || process.StandardOutput.EndOfStream);
+            try
+            {
+                return !(process == null || process.HasExited || process.StandardOutput.EndOfStream);
+            }
+            catch (Exception)
+            {
+                process = null;
+                return false;
+            }
         }
 
         public void KillProcess()
