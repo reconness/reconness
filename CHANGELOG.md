@@ -1,3 +1,10 @@
+## [1.1.0] - 2020-02-20
+
+### Added
+
+- Vuex to management the states
+- Fix Run/Stop Agents in the backend
+- 
 ## [1.0.10] - 2020-02-06
 
 ### Added
