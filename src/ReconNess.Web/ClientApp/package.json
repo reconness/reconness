@@ -33,7 +33,7 @@
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.0.3",
     "eslint": "6.8.0",
-    "eslint-plugin-vue": "6.1.2",
+    "eslint-plugin-vue": "6.2.1",
     "vue-template-compiler": "2.6.11",
     "vue2-ace-editor": "0.0.15"
   }
