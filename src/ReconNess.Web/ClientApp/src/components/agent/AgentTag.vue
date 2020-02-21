@@ -127,7 +127,10 @@
       this.targetName = this.$route.params.targetName
       this.subdomain = this.$route.params.subdomain 
 
-      await this.$store.dispatch('agents/agents')  
+      if (this.$store.state.agents.agents.length === 0) {
+        await this.$store.dispatch('agents/agents')  
+      }
+      
       if (this.isTarget) {
         this.agents = this.$store.state.agents.agents
       }

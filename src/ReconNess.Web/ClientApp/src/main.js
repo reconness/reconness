@@ -18,14 +18,14 @@ import { ClientTable } from 'vue-tables-2';
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { faArrowAltCircleRight, faTrashAlt, faExclamation,
     faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen,
-    faFireAlt, faDollarSign
+    faFireAlt, faDollarSign, faMicroscope
 } from '@fortawesome/free-solid-svg-icons'
 
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'                                     
 
 library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug,
     faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt,
-    faDollarSign)
+    faDollarSign, faMicroscope)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 

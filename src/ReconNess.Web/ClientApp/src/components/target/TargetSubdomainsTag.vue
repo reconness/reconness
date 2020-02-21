@@ -56,6 +56,7 @@
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Interesting')" title="Add Interesting Label"> <font-awesome-icon :icon="['fas', 'exclamation']" /></button>
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Bounty')" title="Add Bounty Label"> <font-awesome-icon :icon="['fas', 'dollar-sign']" /></button>
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" /></button>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Scope')" title="Add Scope Label"> <font-awesome-icon :icon="['fas', 'microscope']" /></button>
       </div>
       <div class="subdomain-actions" slot="actions" slot-scope="props">
         <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
