@@ -21,11 +21,18 @@
 
     <div class="mb-2 form-row align-items-center">
       <div class="col-6">
-        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid"/>
+        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid" />
       </div>
       <div class="col-6">
         <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>
       </div>
+    </div>
+
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" v-on:click="filterOnlyScopeGrid()">
+      <label class="form-check-label">
+        Show only <strong class="text-primary">Scope</strong> subdomains
+      </label>
     </div>
 
     <v-client-table :columns="columns" :data="subdomains" :options="options">
@@ -37,10 +44,10 @@
       </div>
 
       <div class="subdomain-details" slot="details" slot-scope="props">
+        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
         <font-awesome-icon v-if="props.row.isMainPortal" :icon="['fas', 'home']" fixed-width title="Main Portal" />
         <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive" />
         <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'book-open']" fixed-width title="HTTP Open" />
-        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
 
         <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
         <div v-if="props.row.labels.length > 0">Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
@@ -77,6 +84,7 @@
     data: () => {
       return {
         filter: '',
+        filterOnlyScope: false,
         newSubdomain: null,
         targetName: '',
         columns: ['name', 'details', 'labels', 'actions'],
@@ -163,6 +171,12 @@
       },
       filterGrid() {
         Event.$emit('vue-tables.filter::search', this.filter);
+      },
+      filterOnlyScopeGrid() {
+        this.filterOnlyScope = !this.filterOnlyScope
+        this.filter = this.filterOnlyScope ? "Scope" : ""        
+
+        this.filterGrid();
       }
     }
   }
