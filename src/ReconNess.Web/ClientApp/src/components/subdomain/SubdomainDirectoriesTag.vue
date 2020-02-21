@@ -28,14 +28,19 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+
   export default {
     name: 'SubdomainDirectoriesTag',
-    props: {
-      directories: {
-        type: Array,
-        required: true
+    computed: mapState({
+      directories: state => {
+        if (state.subdomains.currentSubdomain.serviceHttp !== null && state.subdomains.currentSubdomain.serviceHttp !== undefined) {
+          return state.subdomains.currentSubdomain.serviceHttp.directories || []
+        }
+
+        return []
       }
-    }
+    })
   }
 </script>
 

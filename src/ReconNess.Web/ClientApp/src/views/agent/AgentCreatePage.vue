@@ -1,24 +1,33 @@
 ﻿<template>
   <div>
     <h3>New Agent</h3>
-    <agent-form v-on:save="onSave"></agent-form>
+    <agent-form  v-bind:isNew="true" v-on:save="onSave"></agent-form>
   </div>
 </template>
 
 <script>
   import AgentForm from '../../components/agent/AgentForm'
 
+  import helpers from '../../helpers'
+
   export default {
     name: 'AgentCreatePage',
     components: {
       AgentForm
-    }, 
+    },
+    mounted() {
+      this.$store.state.agents.currentAgent = {}
+    },
     methods: {
       async onSave(agent) {
-        await this.$api.create('agents', agent)
-        this.$router.push({ name: 'agentEdit', params: { agentName: agent.name } })
-        // TODO: refresh menu
-      },
+        try {
+          await this.$store.dispatch('agents/createAgent', agent)
+          this.$router.push({ name: 'agentEdit', params: { agentName: agent.name } })
+        }
+        catch(error) {
+          helpers.errorHandle(error)
+        }
+      }
     }
   }
 </script>

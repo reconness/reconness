@@ -98,17 +98,16 @@
 </template>
 
 <script>
+
+  import helpers from '../../helpers'
   import { Terminal } from 'xterm'
 
   export default {
     name: 'AgentTag', 
     props: {
-      agents: {
-        type: Array,
-        required: true
-      },
-      subdomain: {
-        type: Object
+      isTarget: {
+        type: Boolean,
+        default: false
       }
     },
     data() {
@@ -117,17 +116,34 @@
         showTerminalModal: false,
         showLogModal: false,
         term: null,
-        termLog: null,       
-        currentAgent: null
+        termLog: null,  
+        agents: [],
+        currentAgent: null,
+        targetName: '',
+        subdomain: ''
       }    
     },    
     async mounted() {
+      this.targetName = this.$route.params.targetName
+      this.subdomain = this.$route.params.subdomain 
+
+      if (this.$store.state.agents.agents.length === 0) {
+        await this.$store.dispatch('agents/agents')  
+      }
+      
+      if (this.isTarget) {
+        this.agents = this.$store.state.agents.agents
+      }
+      else {
+        this.agents =  this.$store.getters['agents/subdomainAgents']
+      }
+
       if (this.agents.length > 0) {
         this.agents.map(agent => {
                     
-          const channel = this.subdomain !== undefined ?
-            `${this.$route.params.targetName}_${this.$route.params.subdomain}_${agent.name}` :
-            `${this.$route.params.targetName}_${agent.name}`
+          const channel = this.isTarget  ?
+            `${this.targetName}_${agent.name}` :
+            `${this.targetName}_${this.subdomain}_${agent.name}`
 
           this.$connection.on(channel, (message) => {
             if (message === "Agent stopped!" || message === "Agent done!") {
@@ -167,16 +183,19 @@
         this.showCommandModal = false
         this.showTerminalModal = true
 
-        const target = this.$route.params.targetName
-        const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name      
 
-        await this.$api.create('agents/run', {
-          agent: agentName,
-          command: agent.command,
-          target: target,
-          subdomain: subdomainName
-        })      
+        try {
+          await this.$store.dispatch('agents/run', {
+            agent: agentName,
+            command: agent.command,
+            target: this.targetName,
+            subdomain: this.subdomain
+          })
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       async onStopAgent(agent) { 
         if (!agent.isRunning) {
@@ -185,19 +204,22 @@
 
         this.currentAgent = null
 
-        const target = this.$route.params.targetName
-        const subdomainName = this.subdomain !== undefined ? this.subdomain.name : ''
         const agentName = agent.name
-
-        await this.$api.create('agents/stop', {
-          agent: agentName,
-          target: target,
-          subdomain: subdomainName
-        })      
+        try {
+          await this.$store.dispatch('agents/stop', {
+            agent: agentName,
+            target: this.targetName,
+            subdomain: this.subdomain
+          }) 
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       disabledCanRun(agent) {
         const anotherAgentIsRunning = this.currentAgent != null && this.currentAgent.name !== agent.name
-        const needToBeAlive = this.subdomain !== undefined ? agent.onlyIfIsAlive === true && this.subdomain.isAlive !== true : false
+        const currentSubdomain = this.$store.state.subdomains.currentSubdomain
+        const needToBeAlive = currentSubdomain !== undefined ? agent.onlyIfIsAlive === true && currentSubdomain.isAlive !== true : false
 
         return needToBeAlive || anotherAgentIsRunning
       },

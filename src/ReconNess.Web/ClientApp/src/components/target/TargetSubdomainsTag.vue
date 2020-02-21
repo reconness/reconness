@@ -21,11 +21,18 @@
 
     <div class="mb-2 form-row align-items-center">
       <div class="col-6">
-        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid"/>
+        <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid" />
       </div>
       <div class="col-6">
         <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>
       </div>
+    </div>
+
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" v-on:click="filterOnlyScopeGrid()">
+      <label class="form-check-label">
+        Show only <strong class="text-primary">Scope</strong> subdomains
+      </label>
     </div>
 
     <v-client-table :columns="columns" :data="subdomains" :options="options">
@@ -37,10 +44,10 @@
       </div>
 
       <div class="subdomain-details" slot="details" slot-scope="props">
+        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
         <font-awesome-icon v-if="props.row.isMainPortal" :icon="['fas', 'home']" fixed-width title="Main Portal" />
         <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive" />
         <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'book-open']" fixed-width title="HTTP Open" />
-        <font-awesome-icon v-if="props.row.takeover" :icon="['fas', 'fire-alt']" fixed-width title="Takeover" />
 
         <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
         <div v-if="props.row.labels.length > 0">Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
@@ -56,6 +63,7 @@
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Interesting')" title="Add Interesting Label"> <font-awesome-icon :icon="['fas', 'exclamation']" /></button>
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Bounty')" title="Add Bounty Label"> <font-awesome-icon :icon="['fas', 'dollar-sign']" /></button>
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Ignore')" title="Add Ignore Label"> <font-awesome-icon :icon="['fas', 'guitar']" /></button>
+        <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Scope')" title="Add Scope Label"> <font-awesome-icon :icon="['fas', 'microscope']" /></button>
       </div>
       <div class="subdomain-actions" slot="actions" slot-scope="props">
         <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
@@ -67,19 +75,16 @@
 
 <script>
 
+  import { mapState } from 'vuex'
+  import helpers from '../../helpers'
   import { Event } from 'vue-tables-2';
 
   export default {
-    name: 'TargetSubdomainsTag',
-    props: {
-      subdomains: {
-        type: Array,
-        required: true
-      }
-    },
+    name: 'TargetSubdomainsTag',    
     data: () => {
       return {
         filter: '',
+        filterOnlyScope: false,
         newSubdomain: null,
         targetName: '',
         columns: ['name', 'details', 'labels', 'actions'],
@@ -107,45 +112,71 @@
         }
       }
     },
-    async mounted() {
+    computed: mapState({
+      subdomains: state => state.targets.currentTarget.subdomains
+    }), 
+    async mounted() {      
       this.targetName = this.$route.params.targetName
     },
     methods: {
       async onDeleteSubdomain(subdomain) {
-        if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {          
-          await this.$api.delete('subdomains/' + this.$route.params.targetName, subdomain.id)
-          this.subdomains = this.subdomains.filter(sub => sub !== subdomain)
+        if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {   
+          try {
+            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.targetName, subdomain: subdomain })
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }          
         }
       },
       async onDeleteAllSubdomains() {
-        if (confirm('Are you sure to delete all the subdomains')) {          
-          await this.$api.delete('targets/subdomain', this.$route.params.targetName)
-          this.subdomains = []
+        if (confirm('Are you sure to delete all the subdomains')) {     
+          try {
+            await this.$store.dispatch('targets/deleteAllSubdomains')
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }              
         }
       },
       async onAddLabel(subdomain, label) {
-        await this.$api.update('subdomains/label', subdomain.id, { label: label })
-        this.$router.go()
+        try {
+          await this.$store.dispatch('subdomains/updateLabel', { subdomain, label })
+          alert("The Label was added")
+        }
+        catch (error) {          
+          helpers.errorHandle(error)
+        } 
       },
       async onAddNewSubdomain() {
         const target = this.$route.params.targetName
         try {
-          var response = await this.$api.create('subdomains', { target: target, name: this.newSubdomain })
-          this.subdomains.push(response.data)
+          await this.$store.dispatch('subdomains/createSubdomain', { target: target, subdomain: this.newSubdomain })
+          alert("The new Subdomain was added")
         }
-        catch (e) {
-          alert(e.response.data.title)
+        catch (error) {
+          helpers.errorHandle(error)
         }
       },
       async handleFileUpload() {
         const formData = new FormData();
         formData.append('file', this.$refs.file.files[0]);
-        await this.$api.upload('targets/subdomain', this.$route.params.targetName, formData)
-        
-        alert("subdomains were uploaded")
+        try {
+          await this.$store.dispatch('targets/uploadTargets', { formData })
+          alert("subdomains were uploaded")
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       filterGrid() {
         Event.$emit('vue-tables.filter::search', this.filter);
+      },
+      filterOnlyScopeGrid() {
+        this.filterOnlyScope = !this.filterOnlyScope
+        this.filter = this.filterOnlyScope ? "Scope" : ""        
+
+        this.filterGrid();
       }
     }
   }

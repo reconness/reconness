@@ -35,24 +35,20 @@
 </template>
 
 <script>
+
+  import { mapState } from 'vuex'
+
   export default {
     name: 'TargetFrom',
-    props: {
-      target: {
-        type: Object
+    props: {      
+      isNew: {
+        type: Boolean,
+        default: false
       }
-    },
-    data: () => {
-      return {
-        isNew: true
-      }
-    },
-    async mounted() {
-      this.isNew = this.target === null || this.target === undefined
-      if (this.isNew) {
-        this.target = {}
-      }
-    },
+    },    
+    computed: mapState({
+      target: state => state.targets.currentTarget
+    }), 
     methods: {
       isValid() {
         return this.target.name && this.target.rootDomain

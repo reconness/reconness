@@ -53,54 +53,75 @@
 <script>
 
   import VueTagsInput from '@johmun/vue-tags-input';
+  import { mapState } from 'vuex'
+  import helpers from '../../helpers'
 
   export default {
     name: 'SubdomainDashboardTag', 
     components: {
       VueTagsInput
-    },
-    props: {
-      subdomain: {
-        type: Object,
-        required: true
-      }
-    },
+    },    
     data() {
       return { 
         tag: '',
-        tags: [],
+        tmpTags: [],
         autocompleteItems: [],
       }    
-    },    
-    async mounted() {
-      this.autocompleteItems = (await this.$api.get('labels')).data.map(label => {
-          return { text: label.name };
-      })
-
-      this.tags = this.subdomain.labels.map(label => {
-          return { text: label.name };
-        })
-    },
+    },   
     computed: {
       filteredItems() {
         return this.autocompleteItems.filter(i => {
           return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
-        });
+        })
       },
+      tags: {
+        get: function () {
+          if (this.subdomain.labels !== undefined) {
+            return this.subdomain.labels.map(label => {
+              return { text: label.name };
+            })
+          }
+
+          return []        
+        },
+        set: function (newValue) {
+          this.tmpTags = newValue
+        }
+      },
+      ...mapState({
+        subdomain: state => state.subdomains.currentSubdomain
+      })
      },
+    async mounted() {
+      const labels = await this.$store.dispatch('subdomains/labels')
+      this.autocompleteItems = labels.map(label => {
+        return { text: label.name };
+      })
+
+      this.tmpTags = this.tags
+    },    
     methods: {
       async onUpdate() {
-        this.subdomain.labels = this.tags.map(tag => {
+        this.subdomain.labels = this.tmpTags.map(tag => {
           return { 'name': tag.text }
         })
-
-        await this.$api.update('subdomains', this.subdomain.id, this.subdomain)
-        alert("The subdomain was updated")
+        try {
+          await this.$store.dispatch('subdomains/updateSubdomain')
+          alert("The subdomain was updated")
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
       },
       async onDelete() {
-        if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) {          
-          await this.$api.delete('subdomains/' + this.$route.params.targetName, this.subdomain.id)
-          this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName} })
+        if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) { 
+          try {
+            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: this.subdomain })
+            this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName } })
+          }
+          catch (error) {
+            helpers.errorHandle(error)
+          }
         }
       },
       hasScreenshots() {

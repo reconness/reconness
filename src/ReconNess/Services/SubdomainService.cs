@@ -16,20 +16,24 @@ namespace ReconNess.Services
     /// </summary>
     public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService
     {
+        private readonly ILabelService labelService;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ISubdomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         public SubdomainService(
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ILabelService labelService)
             : base(unitOfWork)
         {
+            this.labelService = labelService;
         }
 
         /// <summary>
         /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool)"/>
         /// </summary>
-        public void UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput)
+        public async Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput)
         {
             this.UpdateSubdomainIpAddress(subdomain, scriptOutput)
                 .UpdateSubdomainIsAlive(subdomain, scriptOutput)
@@ -38,8 +42,9 @@ namespace ReconNess.Services
                 .UpdateSubdomainScreenshot(subdomain, scriptOutput)
                 .UpdateSubdomainDirectory(subdomain, scriptOutput)
                 .UpdateSubdomainService(subdomain, scriptOutput)
-                .UpdateLabelService(subdomain, scriptOutput)
                 .UpdateSubdomainAgent(subdomain, agent);
+
+            await UpdateSubdomainLabel(subdomain, scriptOutput);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
         }
@@ -265,24 +270,28 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns><see cref="ISubdomainService"/></returns>
-        private SubdomainService UpdateLabelService(Subdomain subdomain, ScriptOutput scriptOutput)
-        {            
-            if (!string.IsNullOrWhiteSpace(scriptOutput.Label) && 
+        private async Task UpdateSubdomainLabel(Subdomain subdomain, ScriptOutput scriptOutput)
+        {
+            if (!string.IsNullOrWhiteSpace(scriptOutput.Label) &&
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                var random = new Random();
-                subdomain.Labels.Add(new SubdomainLabel
+                var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower());
+                if (label == null)
                 {
-                    Label = new Label
+                    var random = new Random();
+                    label = new Label
                     {
                         Name = scriptOutput.Label,
                         Color = string.Format("#{0:X6}", random.Next(0x1000000))
-                    },
+                    };
+                }
+
+                subdomain.Labels.Add(new SubdomainLabel
+                {
+                    Label = label,
                     SubdomainId = subdomain.Id
                 });
             }
-
-            return this;
         }
 
         /// <summary>
@@ -306,7 +315,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
-        private void UpdateSubdomainAgent(Subdomain subdomain, Agent agent)
+        private SubdomainService UpdateSubdomainAgent(Subdomain subdomain, Agent agent)
         {
             if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
             {
@@ -316,6 +325,8 @@ namespace ReconNess.Services
             {
                 subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agent.Name);
             }
+
+            return this;
         }
     }
 }

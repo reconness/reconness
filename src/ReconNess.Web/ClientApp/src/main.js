@@ -1,32 +1,31 @@
 import Vue from 'vue'
-import axios from 'axios';
-import VueAxios from 'vue-axios';
 
+import VueAxios from 'vue-axios';
+import axios from 'axios';
+
+import 'bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'xterm/css/xterm.css';
+
+import './filters';
 import App from './App.vue'
+import store from './store'
 import router from './router';
-import api from './api'
 import connection from './api/signalR'
 
 import { ClientTable } from 'vue-tables-2';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import {
-    faArrowAltCircleRight, faTrashAlt, faExclamation,
+import { faArrowAltCircleRight, faTrashAlt, faExclamation,
     faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen,
-    faFireAlt, faDollarSign
+    faFireAlt, faDollarSign, faMicroscope
 } from '@fortawesome/free-solid-svg-icons'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-
-import 'bootstrap'; 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'xterm/css/xterm.css';
-
-import './filters';                                     
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'                                     
 
 library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug,
     faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt,
-    faDollarSign)
+    faDollarSign, faMicroscope)
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
@@ -36,14 +35,6 @@ Vue.use(ClientTable);
 
 Vue.config.productionTip = false
 
-Vue.$api = api
-
-Object.defineProperty(Vue.prototype, '$api', {
-  get () {
-    return api
-  }
-})
-
 Vue.$connection = connection
 Object.defineProperty(Vue.prototype, '$connection', {
   get () {
@@ -52,6 +43,7 @@ Object.defineProperty(Vue.prototype, '$connection', {
 })
 
 new Vue({
-  router,
-  render: h => h(App),
+    router,
+    store,
+    render: h => h(App),
 }).$mount('#app')

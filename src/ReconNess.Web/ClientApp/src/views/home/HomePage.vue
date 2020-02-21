@@ -8,7 +8,7 @@
         <a class="btn btn-info btn-lg" href="https://docs.reconness.com" target="_blank">Learn more</a>
       </p>
     </div>
-
+    
     <h3>List of Targets</h3>
     <ul>
       <li v-for="t in targets" v-bind:key="t.id">
@@ -22,6 +22,7 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
   import ReferenceAndResource from '../../components/home/ReferenceAndResource';
 
   export default {
@@ -29,15 +30,13 @@
     components: {
       ReferenceAndResource,
     },
-    data: () => {
-      return {
-        username: '',
-        targets: []        
+    computed: {
+      ...mapState({
+        targets: state => state.targets.targets
+      }),      
+      username() {
+        return JSON.parse(localStorage.getItem('user')).userName
       }
-    },
-    async mounted() {
-      this.username = JSON.parse(localStorage.getItem('user')).userName;
-      this.targets = (await this.$api.get('targets')).data      
     }
   }
 </script>

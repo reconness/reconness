@@ -3,7 +3,7 @@
     <nav class='navbar navbar-expand-sm navbar-expand-md navbar-dark bg-dark border-bottom box-shadow mb-3'>
       <div class="container">
         <img src="../assets/logo.png" width="50" height="50" />
-        <a class="navbar-brand" href='/'>ReconNess v1.0.10</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
+        <a class="navbar-brand" href='/'>ReconNess v1.1.0</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
                 aria-expanded="isExpanded" v-on:click="toggle">
           <span class="navbar-toggler-icon"></span>
@@ -48,36 +48,40 @@
 </template>
 
 <script>
-export default {
-  name: 'NavMenu',
-  data: () => {
-    return {
-      isExpanded: false,
-      targets: [],
-      agents: []
+  import { mapState } from 'vuex'
+
+  export default {
+    name: 'NavMenu',
+    data: () => {
+      return {
+        isExpanded: false
+      }
+    },
+    computed: mapState({
+      targets: state => state.targets.targets,
+      agents: state => state.agents.agents
+    }),  
+    methods: {
+      collapse: function() {
+        this.isExpanded = false;
+      },
+      toggle: function() {
+        this.isExpanded = !this.isExpanded;
+      },
+      onLogout () {
+        localStorage.removeItem('user');
+        this.$router.push({ name: 'login' })
+      },
+      isAuth() {
+        const loggedIn = localStorage.getItem('user')
+        return loggedIn !== null
+      }
+    },
+    async mounted() {  
+      this.$store.dispatch('targets/targets')
+      this.$store.dispatch('agents/agents')
     }
-  },
-  methods: {
-    collapse: function() {
-      this.isExpanded = false;
-    },
-    toggle: function() {
-      this.isExpanded = !this.isExpanded;
-    },
-    onLogout () {
-      localStorage.removeItem('user');
-      this.$router.push({ name: 'login' })
-    },
-    isAuth() {
-      const loggedIn = localStorage.getItem('user')
-      return loggedIn !== null
-    }
-  },
-  async mounted() {  
-    this.targets = (await this.$api.get('targets')).data
-    this.agents = (await this.$api.get('agents')).data
   }
-};
 </script>
 
 <style scoped>
@@ -99,5 +103,4 @@ html {
 .box-shadow {
   box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
 }
-
 </style>

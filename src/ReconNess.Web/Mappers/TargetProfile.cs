@@ -8,7 +8,8 @@ namespace ReconNess.Web.Mappers
     {
         public TargetProfile()
         {
-            CreateMap<Target, TargetDto>();
+            CreateMap<Target, TargetDto>()
+               .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes.Notes));
             CreateMap<TargetDto, Target>()
                 .ForMember(dest => dest.Subdomains, opt => opt.Ignore());
         }

@@ -20,7 +20,7 @@ namespace ReconNess.Core.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        void UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput);
+        Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput);
 
         /// <summary>
         /// Delete the subdomain with the services

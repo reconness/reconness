@@ -24,14 +24,13 @@
 </template>
 
 <script>
+  import { mapState } from 'vuex'
+
   export default {
     name: 'SubdomainServicesTag',
-    props: {
-      services: {
-        type: Array,
-        required: true
-      }
-    }
+    computed: mapState({
+      services: state => state.subdomains.currentSubdomain.services
+    })
   }
 </script>
 

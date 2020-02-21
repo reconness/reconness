@@ -23,7 +23,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="INotesService.SaveTargetNotesAsync(Target, string, CancellationToken)"/>
         /// </summary>
-        public async Task<Note> SaveTargetNotesAsync(Target target, string notesContent, CancellationToken cancellationToken = default)
+        public async Task SaveTargetNotesAsync(Target target, string notesContent, CancellationToken cancellationToken = default)
         {
             var notes = target.Notes;
             if (notes == null)
@@ -42,14 +42,12 @@ namespace ReconNess.Services
 
                 await this.UpdateAsync(notes, cancellationToken);
             }
-
-            return notes;
         }
 
         /// <summary>
         /// <see cref="INotesService.SaveSubdomainNotesAsync(Subdomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task<Note> SaveSubdomainNotesAsync(Subdomain subdomain, string notesContent, CancellationToken cancellationToken = default)
+        public async Task SaveSubdomainNotesAsync(Subdomain subdomain, string notesContent, CancellationToken cancellationToken = default)
         {
             var notes = subdomain.Notes;
             if (notes == null)
@@ -68,8 +66,6 @@ namespace ReconNess.Services
 
                 await this.UpdateAsync(notes, cancellationToken);
             }
-
-            return notes;
         }
     }
 }

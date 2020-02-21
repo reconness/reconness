@@ -1,10 +1,9 @@
-<template>  
+<template>
   <div>
     <h3>References and Resources</h3>
     <q>A smart person is not one that knows the answers, but one who knows where to find them...</q>
-    <br />
-    <br />
-    <form >
+
+    <form>
       <div class="form-row align-items-center">
         <div class="col-auto w-50">
           <label class="sr-only" for="inlineFormInputGroup">Url</label>
@@ -30,15 +29,20 @@
           {{r.categories}}
         </div>
         <div class="col-2 text-secondary">
-          <button type="button" class="btn btn-link" v-on:click="onDelete(r.id)">Delete</button>
+          <button type="button" class="btn btn-link" v-on:click="onDelete(r)">Delete</button>
         </div>
       </li>
     </ul>
-    </div>
+  </div>
 </template>
 
 <script>
+
   import VueTagsInput from '@johmun/vue-tags-input';
+  import helpers from '../../helpers'
+
+  import { mapState } from 'vuex'  
+
   export default {
     name: 'ReferenceAndResource',
     components: {
@@ -46,46 +50,56 @@
     },
     data: () => {
       return {
+        newReference: {},
         tag: '',
         tags: [],
-        autocompleteItems: [],
-        references: [],
-        newReference: {}
+        autocompleteItems: []
       }
     },
     computed: {
+      ...mapState({
+        references: state => state.references.references
+      }),
       filteredItems() {
         return this.autocompleteItems.filter(i => {
           return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
         });
       },
     },
-    async mounted() {  
-      this.autocompleteItems = (await this.$api.get('references/categories')).data.map(category => {
+    async mounted() {
+      const categories = await this.$store.dispatch('references/categories')
+      this.autocompleteItems = categories.map(category => {
         return { text: category };
-      })
+      })        
 
-      this.references = (await this.$api.get('references')).data
+      this.$store.dispatch('references/references')
     },
     methods: {
       async onSave() {
         this.newReference.categories = this.tags.map(tag => tag.text).join(', ')
-        await this.$api.create('references', this.newReference)
-        this.references.push(this.newReference)
+        try {
+          await this.$store.dispatch('references/createReference', this.newReference)
+          this.newReference = {}
+          this.tags = []
 
-        this.newReference = {}
-        this.tags = []
-      },
-      async onDelete(id) {          
-        if (confirm('Are you sure to delete this reference?')) {
-
-          await this.$api.delete('references', id)
-          this.references = this.references.filter(function (value) {
-            return value.id !== id;
-          });
+          alert("The reference was updated")
+        }
+        catch(error) {
+          helpers.errorHandle(error)
         }
       },
-       isValid() {
+      async onDelete(reference) {
+        if (confirm('Are you sure to delete this reference?')) {
+          try {
+            await this.$store.dispatch('references/deleteReference', reference)
+            alert("The Reference was deleted")
+          }
+          catch(error) {
+            helpers.errorHandle(error)
+          }
+        }
+      },
+      isValid() {
         return this.newReference.url && this.tags.length > 0
       }
     }

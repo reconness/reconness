@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -22,8 +21,7 @@ namespace ReconNess.Services
         private readonly ITargetService targetService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
-
-        private static Process process;
+        private readonly IRunnerProcess runnerProcess;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class
@@ -35,12 +33,25 @@ namespace ReconNess.Services
         public AgentService(IUnitOfWork unitOfWork,
             ITargetService targetService,
             IConnectorService connectorService,
-            IScriptEngineService scriptEngineService)
+            IScriptEngineService scriptEngineService,
+            IRunnerProcess runnerProcess)
             : base(unitOfWork)
         {
             this.targetService = targetService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
+            this.runnerProcess = runnerProcess;
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.GetAllAgentsWithCategoryAsync(CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryable(cancellationToken)
+                .Include(a => a.AgentCategories)
+                .ThenInclude(c => c.Category)
+                .ToListAsync();
         }
 
         /// <summary>
@@ -55,21 +66,6 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAllAgentsWithCategoryAsync(bool,CancellationToken)"/>
-        /// </summary>
-        public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(bool isBySubdomain, CancellationToken cancellationToken = default)
-        {
-            var query = isBySubdomain ?
-                this.GetAllQueryableByCriteria(a => a.IsBySubdomain, cancellationToken) :
-                this.GetAllQueryable(cancellationToken);
-
-            return await query
-                .Include(a => a.AgentCategories)
-                .ThenInclude(c => c.Category)
-                .ToListAsync();
-        }
-
-        /// <summary>
         /// <see cref="IAgentService.RunAsync(Target, Subdomain, Agent, string, CancellationToken)"></see>
         /// </summary>
         public async Task RunAsync(Target target, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
@@ -77,6 +73,9 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var channel = this.GetChannel(target, subdomain, agent);
+
+            this.runnerProcess.Stopped = false;
+
             if (this.NeedToRunInEachSubdomain(subdomain, agent))
             {
                 // wait 1 sec to avoid broke the frontend modal
@@ -84,7 +83,18 @@ namespace ReconNess.Services
 
                 foreach (var sub in target.Subdomains.ToList())
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        this.runnerProcess.Stopped = true;
+                        this.runnerProcess.KillProcess();
+
+                        cancellationToken.ThrowIfCancellationRequested();
+                    }
+
+                    if (this.runnerProcess.Stopped)
+                    {
+                        break;
+                    }
 
                     var needToBeAlive = agent.OnlyIfIsAlive && (sub.IsAlive == null || !sub.IsAlive.Value);
                     var needTohasHttpOpen = agent.OnlyIfHasHttpOpen && (sub.HasHttpOpen == null || !sub.HasHttpOpen.Value);
@@ -123,23 +133,23 @@ namespace ReconNess.Services
         public async Task StopAsync(Target target, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var channel = subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
 
-            if (process != null)
+            if (this.runnerProcess.IsRunning())
             {
-                var channel = subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
+
                 try
                 {
-                    process.Kill();
-                    process.WaitForExit();
-                    process = null;
+                    this.runnerProcess.KillProcess();
                 }
                 catch (Exception ex)
                 {
                     await this.connectorService.SendAsync(channel, ex.Message, cancellationToken);
                 }
-
-                await this.connectorService.SendAsync(channel, "Agent stopped!", cancellationToken);
             }
+
+            this.runnerProcess.Stopped = true;
+            await this.connectorService.SendAsync(channel, "Agent stopped!", cancellationToken);
         }
 
         /// <summary>
@@ -160,14 +170,15 @@ namespace ReconNess.Services
         {
             try
             {
-                this.StartProcess(agent, command);
+                this.runnerProcess.StartProcess(command);
+                this.scriptEngineService.InintializeAgent(agent);
 
                 int lineCount = 1;
-                while (process != null && !process.StandardOutput.EndOfStream)
+                while (this.runnerProcess.IsRunning() && !this.runnerProcess.EndOfStream)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 
-                    var terminalLineOutput = process.StandardOutput.ReadLine();
+                    var terminalLineOutput = this.runnerProcess.TerminalLineOutput();
                     var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount}");
@@ -181,8 +192,6 @@ namespace ReconNess.Services
 
                     await this.connectorService.SendAsync(channel, terminalLineOutput, cancellationToken);
                 }
-
-                process.WaitForExit();
             }
             catch (Exception ex)
             {
@@ -190,36 +199,8 @@ namespace ReconNess.Services
             }
             finally
             {
-                process = null;
+                this.runnerProcess.KillProcess();
             }
-        }
-
-        /// <summary>
-        /// Star the process
-        /// </summary>
-        /// <param name="agent">The agent</param>
-        /// <param name="command">The command</param>
-        private void StartProcess(Agent agent, string command)
-        {
-            process = new Process()
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = "/bin/bash",
-                    Arguments = $"-c \"{command}\"",
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                }
-            };
-
-            // wait 1 sec to avoid broke the frontend modal
-            Thread.Sleep(1000);
-
-            process.Start();
-
-            this.scriptEngineService.InintializeAgent(agent);
         }
 
         /// <summary>
@@ -273,15 +254,6 @@ namespace ReconNess.Services
         /// <returns>Send a log message</returns>
         private async Task SendLogException(string channel, Exception ex)
         {
-            try
-            {
-                if (process != null)
-                {
-                    process.WaitForExit();
-                }
-            }
-            catch (Exception) { }
-
             await this.connectorService.SendAsync(channel, ex.Message);
             await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
         }
