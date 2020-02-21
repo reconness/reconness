@@ -116,24 +116,24 @@
         showTerminalModal: false,
         showLogModal: false,
         term: null,
-        termLog: null,       
+        termLog: null,  
+        agents: [],
         currentAgent: null,
         targetName: '',
         subdomain: ''
       }    
     },    
-    computed: {
-      agents() {
-        if (this.isTarget) {
-          return this.$store.state.agents.agents
-        }
-
-        return this.$store.getters['agents/subdomainAgents']
-      }
-    },
     async mounted() {
       this.targetName = this.$route.params.targetName
       this.subdomain = this.$route.params.subdomain 
+
+      await this.$store.dispatch('agents/agents')  
+      if (this.isTarget) {
+        this.agents = this.$store.state.agents.agents
+      }
+      else {
+        this.agents =  this.$store.getters['agents/subdomainAgents']
+      }
 
       if (this.agents.length > 0) {
         this.agents.map(agent => {

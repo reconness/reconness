@@ -174,7 +174,7 @@ namespace ReconNess.Services
                 this.scriptEngineService.InintializeAgent(agent);
 
                 int lineCount = 1;
-                while (this.runnerProcess.IsRunning())
+                while (this.runnerProcess.IsRunning() && !this.runnerProcess.EndOfStream)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
 

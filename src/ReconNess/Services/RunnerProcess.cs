@@ -11,6 +11,18 @@ namespace ReconNess.Services
 
         public bool Stopped { get; set; }
 
+        public bool EndOfStream { 
+            get 
+            {
+                if (this.process == null)
+                {
+                    return true;
+                }
+
+                return this.process.StandardOutput.EndOfStream;
+            }
+        }
+
         public void StartProcess(string command)
         {
             if (this.IsRunning())
@@ -40,11 +52,11 @@ namespace ReconNess.Services
         {
             try
             {
-                return !(process == null || process.HasExited || process.StandardOutput.EndOfStream);
+                return process != null && !process.HasExited;
             }
             catch (Exception)
             {
-                process = null;
+                this.KillProcess();
                 return false;
             }
         }
