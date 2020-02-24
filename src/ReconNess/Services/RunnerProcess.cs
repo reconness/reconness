@@ -52,7 +52,7 @@ namespace ReconNess.Services
         {
             try
             {
-                return process != null && !process.HasExited;
+                return process != null;
             }
             catch (Exception)
             {
