@@ -219,7 +219,8 @@
       disabledCanRun(agent) {
         const anotherAgentIsRunning = this.currentAgent != null && this.currentAgent.name !== agent.name
         const currentSubdomain = this.$store.state.subdomains.currentSubdomain
-        const needToBeAlive = currentSubdomain !== undefined ? agent.onlyIfIsAlive === true && currentSubdomain.isAlive !== true : false
+        const needToBeAlive = this.subdomain !== undefined ? agent.onlyIfIsAlive === true && currentSubdomain.isAlive !== true : false
+
 
         return needToBeAlive || anotherAgentIsRunning
       },
