@@ -42,6 +42,20 @@ const actions = {
             }
         })
     },
+    agentsDefault(context) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('agents/defaultToInstall')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     createAgent(context, agent) {
         return new Promise((resolve, reject) => {
             try {

@@ -6,13 +6,14 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 
 namespace ReconNess.Web.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AgentsController : ControllerBase
@@ -66,6 +67,17 @@ namespace ReconNess.Web.Controllers
             }
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agent));
+        }
+
+        // GET api/agents/defaultToInstall
+        [HttpGet("defaultToInstall")]
+        public async Task<IActionResult> GetDefaultToInstall(CancellationToken cancellationToken)
+        {
+            var agentDefaults = await this.agentService.GetDefaultAgentsToInstallAsync(cancellationToken);
+
+            var agentsDto = this.mapper.Map<List<AgentDefault>, List<AgentDefaultDto>>(agentDefaults);
+
+            return Ok(agentsDto);
         }
 
         // POST api/agents

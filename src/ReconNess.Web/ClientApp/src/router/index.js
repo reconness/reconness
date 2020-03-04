@@ -10,6 +10,7 @@ import TargetCreatePage from '@/views/target/TargetCreatePage';
 import AgentCreatePage from '@/views/agent/AgentCreatePage';
 import AgentEditPage from '@/views/agent/AgentEditPage';
 import AgentDebugPage from '@/views/agent/AgentDebugPage';
+import AgentInstallPage from '@/views/agent/AgentInstallPage';
 
 import SubdomainPage from '@/views/subdomain/SubdomainPage';
 
@@ -25,7 +26,8 @@ const router = new Router({
         { path: '/targets/:targetName', name: 'target', component: TargetPage },
 
         { path: '/agents/create', name: 'agentCreate', component: AgentCreatePage },
-        { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },   
+        { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },  
+        { path: '/agents/install', name: 'installDebug', component: AgentInstallPage }, 
         { path: '/agents/:agentName', name: 'agentEdit', component: AgentEditPage },                
 
         { path: '/subdomains/:targetName/:subdomain', name: 'subdomain', component: SubdomainPage },

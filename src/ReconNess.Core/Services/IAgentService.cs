@@ -30,6 +30,13 @@ namespace ReconNess.Core.Services
         Task<Agent> GetAgentWithCategoryAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Obtain default Agents to install
+        /// </summary>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>List of default Agents</returns>
+        Task<List<AgentDefault>> GetDefaultAgentsToInstallAsync( CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Run the agent
         /// </summary>
         /// <param name="target">The target</param>

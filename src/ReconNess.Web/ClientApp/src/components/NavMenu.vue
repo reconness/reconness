@@ -29,6 +29,7 @@
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <router-link class="dropdown-item" to="/agents/create">New Agent</router-link>
                 <router-link class="dropdown-item" to="/agents/debug">Debug Agent</router-link>
+                <router-link class="dropdown-item" to="/agents/install">Install Agents</router-link>
                 <div class="dropdown-divider"></div>
                 <div v-for="a in agents" v-bind:key="a.id">
                   <router-link class="dropdown-item" :to="{name: 'agentEdit', params: { agentName: a.name }}">{{ a.name }}</router-link>
