@@ -65,5 +65,13 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A ScriptOutput class or Exception</returns>
         Task<ScriptOutput> DebugAsync(string terminalOutput, string script, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain the Agent Script using the URL
+        /// </summary>
+        /// <param name="scriptUrl">The URL where we have the script</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The Agent Script using the URL</returns>
+        Task<string> GetAgentScript(string scriptUrl, CancellationToken cancellationToken);
     }
 }

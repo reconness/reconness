@@ -66,6 +66,9 @@ namespace ReconNess.Services
                 .FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// <see cref="IAgentService.GetDefaultAgentsToInstallAsync(CancellationToken)"/>
+        /// </summary>
         public async Task<List<AgentDefault>> GetDefaultAgentsToInstallAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
@@ -75,6 +78,19 @@ namespace ReconNess.Services
             var defaultAgents = JsonConvert.DeserializeObject<AgentDefaultList>(response.Content);
 
             return defaultAgents.Agents;
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.GetAgentScript(string, CancellationToken)"/>
+        /// </summary>
+        public async Task<string> GetAgentScript(string scriptUrl, CancellationToken cancellationToken)
+        {
+            var client = new RestClient(scriptUrl);
+            var request = new RestRequest();
+
+            var response = await client.ExecuteGetAsync(request, cancellationToken);
+
+            return response.Content;
         }
 
         /// <summary>
@@ -268,6 +284,6 @@ namespace ReconNess.Services
         {
             await this.connectorService.SendAsync(channel, ex.Message);
             await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
-        }
+        }        
     }
 }

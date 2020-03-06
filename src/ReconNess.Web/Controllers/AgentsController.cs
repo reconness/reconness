@@ -151,6 +151,29 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
+        // POST api/agents/install
+        [HttpPost("install")]
+        public async Task<IActionResult> Install([FromBody] AgentDefaultDto agentDefaultDto, CancellationToken cancellationToken)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            if (await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name))
+            {
+                return BadRequest("There is an Agent with that name in the DB");
+            }
+
+            var agent = this.mapper.Map<AgentDefaultDto, Agent>(agentDefaultDto);
+
+            agent.Script = await this.agentService.GetAgentScript(agentDefaultDto.ScriptUrl, cancellationToken);
+
+            var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
+
+            return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
+        }
+
         // POST api/agents/run
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunDto agentRunDto, CancellationToken cancellationToken)

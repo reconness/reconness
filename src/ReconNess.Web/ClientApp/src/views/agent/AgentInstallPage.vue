@@ -15,7 +15,10 @@
             <th class="w-25" scope="row">{{ agent.name }}</th>
             <td class="w-25">{{ agent.category}}</td>
             <td class="w-25">
-              <button class="btn btn-primary ml-2">Install</button>
+              <button class="btn btn-primary ml-2" :disabled="installed(agent)" v-on:click="install(agent)">
+                <span v-if="installed(agent)">Installed</span>
+                <span v-else>Install</span>
+              </button>
             </td>
           </tr>
         </tbody>
@@ -43,9 +46,18 @@
         helpers.errorHandle(error)
       }
     },
-    methods: {  
-      isValid() {
-        return this.output && this.content
+    methods: {
+      async install(agent) {
+        try { 
+          await this.$store.dispatch('agents/install', agent)
+          alert("The agent was installed")
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }
+      },
+      installed(agent) {
+        return this.$store.getters['agents/installed'](agent)
       }
     }
   }

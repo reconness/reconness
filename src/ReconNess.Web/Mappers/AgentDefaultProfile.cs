@@ -12,6 +12,9 @@ namespace ReconNess.Web.Mappers
         public AgentDefaultProfile()
         {
             CreateMap<AgentDefault, AgentDefaultDto>();
+
+            CreateMap<AgentDefaultDto, Agent>()
+                .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentDefaultCategoryResolver>());
         }
     }
 }
