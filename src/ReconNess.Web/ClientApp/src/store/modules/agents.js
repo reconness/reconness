@@ -45,7 +45,7 @@ const actions = {
             }
         })
     },
-    agentsDefault(context) {
+    agentsDefault() {
         return new Promise((resolve, reject) => {
             try {
                 api.get('agents/defaultToInstall')
