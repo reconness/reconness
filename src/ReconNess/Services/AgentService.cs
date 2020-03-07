@@ -284,6 +284,6 @@ namespace ReconNess.Services
         {
             await this.connectorService.SendAsync(channel, ex.Message);
             await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
-        }        
+        }
     }
 }

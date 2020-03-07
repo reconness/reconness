@@ -63,8 +63,8 @@ const actions = {
         return new Promise((resolve, reject) => {
             try {
                 api.create('agents/install', agentDefault)
-                    .then((agent) => {
-                        context.commit('createAgent', agent)
+                    .then((res) => {
+                        context.commit('createAgent', res.data)
                         resolve()
                     })
                     .catch(err => reject(err))

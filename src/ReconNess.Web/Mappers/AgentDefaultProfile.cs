@@ -1,4 +1,3 @@
-using System.Linq;
 using AutoMapper;
 using ReconNess.Core.Models;
 using ReconNess.Entities;

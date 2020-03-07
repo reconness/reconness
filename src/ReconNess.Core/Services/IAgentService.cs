@@ -34,7 +34,7 @@ namespace ReconNess.Core.Services
         /// </summary>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>List of default Agents</returns>
-        Task<List<AgentDefault>> GetDefaultAgentsToInstallAsync( CancellationToken cancellationToken = default);
+        Task<List<AgentDefault>> GetDefaultAgentsToInstallAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Run the agent

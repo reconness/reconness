@@ -18,7 +18,7 @@ namespace ReconNess.Web.Mappers.Resolvers
         public ICollection<AgentCategory> Resolve(AgentDefaultDto source, Agent destination, ICollection<AgentCategory> member, ResolutionContext context)
         {
             var agentCategories = new List<AgentCategory>();
-            
+
             var categoryDb = this.categoryService.GetByCriteriaAsync(c => c.Name == source.Category).Result;
 
             if (categoryDb != null)
