@@ -8,6 +8,9 @@ const state = {
 const getters = {
     subdomainAgents: state => {
         return state.agents.filter(agent => agent.isBySubdomain)
+    },
+    installed: state => (agent) => {
+        return state.agents.some(a => a.name === agent.name)
     }
 }
 
@@ -40,6 +43,35 @@ const actions = {
             catch (err) {
                 reject(err)
             }
+        })
+    },
+    agentsDefault() {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('agents/defaultToInstall')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    install(context, agentDefault) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('agents/install', agentDefault)
+                    .then((res) => {
+                        context.commit('createAgent', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }           
         })
     },
     createAgent(context, agent) {

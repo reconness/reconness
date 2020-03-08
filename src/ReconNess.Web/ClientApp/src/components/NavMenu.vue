@@ -3,7 +3,7 @@
     <nav class='navbar navbar-expand-sm navbar-expand-md navbar-dark bg-dark border-bottom box-shadow mb-3'>
       <div class="container">
         <img src="../assets/logo.png" width="50" height="50" />
-        <a class="navbar-brand" href='/'>ReconNess v1.1.0</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
+        <a class="navbar-brand" href='/'>ReconNess v1.1.1</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
                 aria-expanded="isExpanded" v-on:click="toggle">
           <span class="navbar-toggler-icon"></span>
@@ -29,6 +29,7 @@
               <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                 <router-link class="dropdown-item" to="/agents/create">New Agent</router-link>
                 <router-link class="dropdown-item" to="/agents/debug">Debug Agent</router-link>
+                <router-link class="dropdown-item" to="/agents/install">Install Agents</router-link>
                 <div class="dropdown-divider"></div>
                 <div v-for="a in agents" v-bind:key="a.id">
                   <router-link class="dropdown-item" :to="{name: 'agentEdit', params: { agentName: a.name }}">{{ a.name }}</router-link>

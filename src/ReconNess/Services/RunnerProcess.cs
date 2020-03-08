@@ -11,8 +11,9 @@ namespace ReconNess.Services
 
         public bool Stopped { get; set; }
 
-        public bool EndOfStream { 
-            get 
+        public bool EndOfStream
+        {
+            get
             {
                 if (this.process == null)
                 {

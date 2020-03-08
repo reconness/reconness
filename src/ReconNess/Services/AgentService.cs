@@ -10,6 +10,7 @@ using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using RestSharp;
 
 namespace ReconNess.Services
 {
@@ -63,6 +64,33 @@ namespace ReconNess.Services
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .FirstOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.GetDefaultAgentsToInstallAsync(CancellationToken)"/>
+        /// </summary>
+        public async Task<List<AgentDefault>> GetDefaultAgentsToInstallAsync(CancellationToken cancellationToken = default)
+        {
+            var client = new RestClient("https://raw.githubusercontent.com/");
+            var request = new RestRequest("/reconness/reconness-agents/master/default-agents.json");
+
+            var response = await client.ExecuteGetAsync(request, cancellationToken);
+            var defaultAgents = JsonConvert.DeserializeObject<AgentDefaultList>(response.Content);
+
+            return defaultAgents.Agents;
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.GetAgentScript(string, CancellationToken)"/>
+        /// </summary>
+        public async Task<string> GetAgentScript(string scriptUrl, CancellationToken cancellationToken)
+        {
+            var client = new RestClient(scriptUrl);
+            var request = new RestRequest();
+
+            var response = await client.ExecuteGetAsync(request, cancellationToken);
+
+            return response.Content;
         }
 
         /// <summary>
