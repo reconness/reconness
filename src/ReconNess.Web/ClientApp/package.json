@@ -16,7 +16,7 @@
     "axios": "0.19.2",
     "bootstrap": "4.4.1",
     "core-js": "2.6.11",
-    "jquery": "3.4.1",
+    "jquery": "3.5.0",
     "moment": "2.24.0",
     "popper.js": "1.16.1",
     "vue": "2.6.11",
