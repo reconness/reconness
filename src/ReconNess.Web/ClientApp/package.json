@@ -24,7 +24,7 @@
     "vue-router": "3.1.6",
     "vue-tables-2": "1.5.46",
     "vuex": "3.2.0",
-    "xterm": "4.4.0"
+    "xterm": "4.5.0"
   },
   "devDependencies": {
     "@aspnet/signalr": "1.1.4",
