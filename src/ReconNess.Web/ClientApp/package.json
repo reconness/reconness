@@ -17,7 +17,7 @@
     "bootstrap": "4.4.1",
     "core-js": "2.6.11",
     "jquery": "3.5.0",
-    "moment": "2.24.0",
+    "moment": "2.26.0",
     "popper.js": "1.16.1",
     "vue": "2.6.11",
     "vue-axios": "2.1.5",
