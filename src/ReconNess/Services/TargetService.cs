@@ -60,7 +60,7 @@ namespace ReconNess.Services
                 {
                     this.UnitOfWork.BeginTransaction();
 
-                    this.subdomainService.UpdateSubdomain(subdomain, agent, scriptOutput);
+                    await this.subdomainService.UpdateSubdomain(subdomain, agent, scriptOutput);
 
                     await this.UnitOfWork.CommitAsync();
                 }
