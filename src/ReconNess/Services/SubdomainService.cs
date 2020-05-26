@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -28,6 +29,20 @@ namespace ReconNess.Services
             : base(unitOfWork)
         {
             this.labelService = labelService;
+        }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.GetSubdomainsByTargetAsync(Target, CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Subdomain>> GetSubdomainsByTargetAsync(Target target, CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryableByCriteria(s => s.Target == target, cancellationToken)
+                .Include(t => t.Services)
+                .Include(t => t.Notes)
+                .Include(t => t.Labels)
+                    .ThenInclude(ac => ac.Label)
+                .OrderByDescending(s => s.CreatedAt)
+                .ToListAsync(cancellationToken);
         }
 
         /// <summary>
