@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -89,7 +90,7 @@ namespace ReconNess.Web
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseStatusCodePages(async context =>
+            app.UseStatusCodePages(context =>
             {
                 var request = context.HttpContext.Request;
                 var response = context.HttpContext.Response;
@@ -98,6 +99,8 @@ namespace ReconNess.Web
                 {
                     response.Redirect("/Auth/login");
                 }
+
+                return Task.CompletedTask;
             });
 
             app.UseEndpoints(endpoints =>

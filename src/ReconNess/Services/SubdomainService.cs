@@ -165,7 +165,7 @@ namespace ReconNess.Services
 
                     subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
                 }
-                catch (Exception ex)
+                catch
                 {
 
                 }
@@ -183,7 +183,7 @@ namespace ReconNess.Services
 
                     subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
                 }
-                catch (Exception ex)
+                catch
                 {
 
                 }
