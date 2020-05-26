@@ -35,16 +35,15 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<Target> GetTargetWithSubdomainsAsync(Expression<Func<Target, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
-                .Include(t => t.Notes)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(t => t.Services)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(t => t.Notes)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(a => a.Labels)
-                        .ThenInclude(ac => ac.Label)
+            var target = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                .Include(t => t.Notes)                
                 .FirstOrDefaultAsync();
+
+            if (target != null)
+            {
+                target.Subdomains = await this.subdomainService.GetSubdomainsByTargetAsync(target, cancellationToken);
+            }
+            return target;
         }
 
         /// <summary>
