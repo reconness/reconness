@@ -1,3 +1,10 @@
+## [1.1.2] - 2020-05-26
+
+### Added
+
+- Order subdomains by CreatedAt desc
+- Update packages version
+
 ## [1.1.1] - 2020-03-07
 
 ### Added
