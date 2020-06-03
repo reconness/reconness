@@ -1,7 +1,7 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
-using ReconNess.Core.Models;
+﻿using ReconNess.Core.Models;
 using ReconNess.Entities;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReconNess.Core.Services
 {

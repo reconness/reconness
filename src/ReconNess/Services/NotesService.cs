@@ -1,8 +1,8 @@
-using System.Threading;
-using System.Threading.Tasks;
 using ReconNess.Core;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReconNess.Services
 {
@@ -21,17 +21,17 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="INotesService.SaveTargetNotesAsync(Target, string, CancellationToken)"/>
+        /// <see cref="INotesService.SaveTargetNotesAsync(RootDomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTargetNotesAsync(Target target, string notesContent, CancellationToken cancellationToken = default)
+        public async Task SaveTargetNotesAsync(RootDomain domain, string notesContent, CancellationToken cancellationToken = default)
         {
-            var notes = target.Notes;
+            var notes = domain.Notes;
             if (notes == null)
             {
                 notes = new Note
                 {
                     Notes = notesContent,
-                    Target = target
+                    Target = domain
                 };
 
                 await this.AddAsync(notes, cancellationToken);

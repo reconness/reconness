@@ -16,8 +16,9 @@
       TargetForm
     },
     methods: {
-      async onSave(target) {
+      async onSave(target, rootDomains) {
         try {
+          target.rootDomains = rootDomains.map(r => r.name);
           await this.$store.dispatch('targets/createTarget', target)
           this.$router.push({ name: 'target', params: { targetName: target.name } })
         }

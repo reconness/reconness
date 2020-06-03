@@ -1,10 +1,10 @@
 ﻿import api from '../../api'
 
 const actions = {
-    saveTargetNote(context, { targetName, notes}) {
+    saveTargetNote(context, { targetName, rootDomain, notes}) {
         return new Promise((resolve, reject) => {
             try {                
-                api.create('notes/target/' + targetName, { notes: notes })
+                api.create('notes/target/' + targetName + '/' + rootDomain, { notes: notes })
                     .then(() => {
                         resolve()
                     })
@@ -15,10 +15,10 @@ const actions = {
             }
         })
     },
-    saveSubdomainNote(context, { targetName, subdomain, notes }) {
+    saveSubdomainNote(context, { targetName, rootDomain, subdomain, notes }) {
         return new Promise((resolve, reject) => {
             try {
-                api.create('notes/subdomain/' + targetName + '/' + subdomain, { notes: notes })
+                api.create('notes/subdomain/' + targetName + '/' + rootDomain + '/' + subdomain, { notes: notes })
                     .then(() => {
                         resolve()
                     })

@@ -1,15 +1,14 @@
-using System;
 using FluentValidation;
 using ReconNess.Web.Dtos;
+using System;
 
 namespace ReconNess.Web.Validations
 {
-    public class TargetValidator : AbstractValidator<TargetDto>
+    public class RootDomainValidator : AbstractValidator<RootDomainDto>
     {
-        public TargetValidator()
+        public RootDomainValidator()
         {
-            RuleFor(x => x.Name).NotNull();
-            RuleFor(x => x.RootDomain).Must(rootDomain => IsValidDomainName(rootDomain));
+            RuleFor(x => x.Name).Must(rootDomain => IsValidDomainName(rootDomain));
         }
 
         private static bool IsValidDomainName(string rootDomain)

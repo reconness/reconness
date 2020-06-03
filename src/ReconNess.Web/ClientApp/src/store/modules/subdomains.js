@@ -19,22 +19,7 @@ const actions = {
                 reject(err)
             }
         })
-    },
-    createSubdomain(context, { target, subdomain }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.create('subdomains', { target: target, name: subdomain })
-                    .then((res) => {
-                        context.commit('createSubdomain', res.data)
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
+    },    
     updateSubdomain({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
@@ -50,10 +35,10 @@ const actions = {
             }
         })
     },
-    deleteSubdomain({ commit }, { targetName, subdomain }) {
+    deleteSubdomain({ commit }, { subdomain }) {
         return new Promise((resolve, reject) => {
             try {
-                api.delete('subdomains/' + targetName, subdomain.id)
+                api.delete('subdomains', subdomain.id)
                     .then(() => {
                         commit('deleteSubdomain', subdomain)
                         resolve()
@@ -101,16 +86,13 @@ const mutations = {
         state.currentSubdomain = subdomain
     },
     updateLabel(state, { subdomain, label }) {
-        const s = this.state.targets.currentTarget.subdomains.find(sub => sub.name == subdomain.name)        
+        const s = this.state.targets.currentRootDomain.subdomains.find(sub => sub.name == subdomain.name)        
         if (!s.labels.some(l => l.name === label.name)) {
             s.labels.push(label)
         }       
-    },
-    createSubdomain(state, subdomain) {
-        this.state.targets.currentTarget.subdomains.push(subdomain)
-    },   
+    },      
     deleteSubdomain(state, subdomain) {
-        this.state.targets.currentTarget.subdomains = this.state.targets.currentTarget.subdomains.filter((s) => {
+        this.state.targets.currentRootDomain.subdomains = this.state.targets.currentRootDomain.subdomains.filter((s) => {
             return s.name !== subdomain.name;
         })
     }    

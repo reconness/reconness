@@ -13,6 +13,8 @@ namespace ReconNess.Web.Dtos
 
         public string Target { get; set; }
 
+        public string RootDomain { get; set; }
+
         public string IpAddress { get; set; }
 
         public bool? Takeover { get; set; }

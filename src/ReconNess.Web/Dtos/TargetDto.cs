@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace ReconNess.Web.Dtos
@@ -9,18 +9,14 @@ namespace ReconNess.Web.Dtos
 
         public string Name { get; set; }
 
-        public string RootDomain { get; set; }
+        public string InScope { get; set; }
+
+        public string OutOfScope { get; set; }
 
         public string BugBountyProgramUrl { get; set; }
 
         public bool IsPrivate { get; set; }
 
-        public string InScope { get; set; }
-
-        public string OutOfScope { get; set; }
-
-        public List<SubdomainDto> Subdomains { get; set; }
-
-        public string Notes { get; set; }
+        public List<RootDomainDto> RootDomains { get; set; }
     }
 }

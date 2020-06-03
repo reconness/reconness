@@ -4,7 +4,8 @@ const state = {
     targets: [],
     currentTarget: {
         subdomains: []
-    }
+    },
+    currentRootDomain: {}
 }
 
 const actions = {
@@ -14,6 +15,21 @@ const actions = {
                 api.getById('targets', targetName)
                     .then((res) => {
                         context.commit('target', res.data)
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    rootDomain(context, { targetName, rootDomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.getById('targets/' + targetName, rootDomain)
+                    .then((res) => {
+                        context.commit('rootDomain', res.data)
                         resolve(res.data)
                     })
                     .catch(err => reject(err))
@@ -86,9 +102,24 @@ const actions = {
     deleteAllSubdomains({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
-                api.delete('targets', state.currentTarget.name + '/subdomains')
+                api.delete('targets', state.currentTarget.name + '/' + state.currentRootDomain.name)
                     .then(() => {
                         commit('deleteAllSubdomains')
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    createSubdomain(context, { subdomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('subdomains', { target: state.currentTarget.name, rootDomain: state.currentRootDomain.name, name: subdomain })
+                    .then((res) => {
+                        context.commit('createSubdomain', res.data)
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -101,7 +132,7 @@ const actions = {
     uploadTargets({ commit, state }, { formData }) {
         return new Promise((resolve, reject) => {
             try {
-                api.upload('targets', state.currentTarget.name + '/subdomains', formData)
+                api.upload('targets', state.currentTarget.name + '/' + state.currentRootDomain.name, formData)
                     .then((res) => {
                         commit('uploadTargets', res.data)
                         resolve()
@@ -121,6 +152,10 @@ const mutations = {
     },
     targets(state, targets) {
         state.targets = targets
+    },
+    rootDomain(state, target) {
+        state.currentTarget = target
+        state.currentRootDomain = target.rootDomains[0] || []
     },
     createTarget(state, target) {
         state.targets.push(target)
@@ -144,10 +179,13 @@ const mutations = {
         })
     },
     deleteAllSubdomains(state) {
-        state.currentTarget.subdomains = []
+        state.currentRootDomain.subdomains = []
     },
+    createSubdomain(state, subdomain) {
+        state.currentRootDomain.subdomains.push(subdomain)
+    }, 
     uploadTargets(state, subdomains) {
-        subdomains.map(sub => state.currentTarget.subdomains.push(sub))        
+        subdomains.map(sub => state.currentRootDomain.subdomains.push(sub))        
     }
 }
 

@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ReconNess.Entities;
+using System;
 
 namespace ReconNess.Data.Npgsql.Seeding
 {

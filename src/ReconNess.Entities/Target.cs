@@ -9,8 +9,6 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
-        public string RootDomain { get; set; }
-
         public string InScope { get; set; }
 
         public string OutOfScope { get; set; }
@@ -19,8 +17,6 @@ namespace ReconNess.Entities
 
         public bool IsPrivate { get; set; }
 
-        public virtual ICollection<Subdomain> Subdomains { get; set; }
-
-        public virtual Note Notes { get; set; }
+        public virtual ICollection<RootDomain> RootDomains { get; set; }
     }
 }

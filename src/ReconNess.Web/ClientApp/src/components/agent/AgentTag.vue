@@ -120,11 +120,13 @@
         agents: [],
         currentAgent: null,
         targetName: '',
+        rootDomain: '',
         subdomain: ''
       }    
     },    
     async mounted() {
       this.targetName = this.$route.params.targetName
+      this.rootDomain = this.$route.params.rootDomain
       this.subdomain = this.$route.params.subdomain 
 
       if (this.$store.state.agents.agents.length === 0) {
@@ -142,8 +144,8 @@
         this.agents.map(agent => {
                     
           const channel = this.isTarget  ?
-            `${this.targetName}_${agent.name}` :
-            `${this.targetName}_${this.subdomain}_${agent.name}`
+            `${this.targetName}_${this.rootDomain}_${agent.name}` :
+            `${this.targetName}_${this.rootDomain}_${this.subdomain}_${agent.name}`
 
           this.$connection.on(channel, (message) => {
             if (message === "Agent stopped!" || message === "Agent done!") {
@@ -190,6 +192,7 @@
             agent: agentName,
             command: agent.command,
             target: this.targetName,
+            rootDomain: this.rootDomain,
             subdomain: this.subdomain
           })
         }
@@ -209,6 +212,7 @@
           await this.$store.dispatch('agents/stop', {
             agent: agentName,
             target: this.targetName,
+            rootDomain: this.rootDomain,
             subdomain: this.subdomain
           }) 
         }

@@ -5,6 +5,7 @@ import HomePage from '@/views/home/HomePage';
 import LoginPage from '@/views/login/LoginPage'
 
 import TargetPage from '@/views/target/TargetPage';
+import RootDomainPage from '@/views/target/RootDomainPage';
 import TargetCreatePage from '@/views/target/TargetCreatePage';
 
 import AgentCreatePage from '@/views/agent/AgentCreatePage';
@@ -23,14 +24,15 @@ const router = new Router({
         { path: '/login', name: 'login', component: LoginPage },
 
         { path: '/targets/create', name: 'targetCreate', component: TargetCreatePage },
-        { path: '/targets/:targetName', name: 'target', component: TargetPage },
+        { path: '/targets/:targetName/:rootDomain', name: 'targetRootDomain', component: RootDomainPage },
+        { path: '/targets/:targetName', name: 'target', component: TargetPage },        
 
         { path: '/agents/create', name: 'agentCreate', component: AgentCreatePage },
         { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },  
         { path: '/agents/install', name: 'installDebug', component: AgentInstallPage }, 
         { path: '/agents/:agentName', name: 'agentEdit', component: AgentEditPage },                
 
-        { path: '/subdomains/:targetName/:subdomain', name: 'subdomain', component: SubdomainPage },
+        { path: '/subdomains/:targetName/:rootDomain/:subdomain', name: 'subdomain', component: SubdomainPage },
 
         { path: '*', redirect: { name: 'home' } },
   ],
