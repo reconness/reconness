@@ -19,7 +19,7 @@
                                 <div class="dropdown-divider"></div>
                                 <div v-for="t in targets" v-bind:key="t.id">
                                     <router-link class="dropdown-item text-success" :to="{name: 'target', params: { targetName: t.name }}">{{ t.name }}</router-link>
-                                    <div v-for="rootDomain in t.rootDomains" v-bind:key="r">
+                                    <div v-for="rootDomain in t.rootDomains" v-bind:key="rootDomain.id">
                                         <router-link class="dropdown-item" :to="{name: 'targetRootDomain', params: { targetName: t.name, rootDomain: rootDomain.name }}">> {{ rootDomain.name }}</router-link>
                                     </div>
                                 </div>

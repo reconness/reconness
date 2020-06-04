@@ -50,7 +50,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IRootDomainService.SaveScriptOutputAsync(RootDomain, Subdomain, Agent, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveScriptOutputAsync(RootDomain domain, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public async Task SaveScriptOutputAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -72,37 +72,33 @@ namespace ReconNess.Services
 
             if (subdomain == null || (subdomain != null && !subdomain.Name.Equals(scriptOutput.Subdomain, StringComparison.OrdinalIgnoreCase)))
             {
-                await this.AddOrUpdateSubdomainAsync(domain, agent, scriptOutput);
+                await this.AddOrUpdateSubdomainAsync(rootDomain, agent, scriptOutput);
             }
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.DeleteDomainAsync(RootDomain, CancellationToken)(Target, CancellationToken)"/>
+        /// <see cref="IRootDomainService.DeleteRootDomains(ICollection<RootDomain>, CancellationToken)(Target, CancellationToken)"/>
         /// </summary>
-        public async Task DeleteDomainAsync(RootDomain domain, CancellationToken cancellationToken = default)
+        public void DeleteRootDomains(ICollection<RootDomain> rootDomains, CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            try
+            foreach (var rootDomain in rootDomains)
             {
-                this.UnitOfWork.BeginTransaction(cancellationToken);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                this.subdomainService.DeleteSubdomains(domain.Subdomains, cancellationToken);
-                this.UnitOfWork.Repository<RootDomain>().Delete(domain, cancellationToken);
+                this.subdomainService.DeleteSubdomains(rootDomain.Subdomains, cancellationToken);
+                if (rootDomain.Notes != null)
+                {
+                    this.UnitOfWork.Repository<Note>().Delete(rootDomain.Notes, cancellationToken);
+                }
 
-                await this.UnitOfWork.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
+                this.UnitOfWork.Repository<RootDomain>().Delete(rootDomain, cancellationToken);
             }
         }
 
         /// <summary>
         /// <see cref="IRootDomainService.DeleteSubdomainsAsync(RootDomain, CancellationToken)"/>
         /// </summary>
-        public async Task DeleteSubdomainsAsync(RootDomain target, CancellationToken cancellationToken)
+        public async Task DeleteSubdomainsAsync(RootDomain rootDomain, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -110,7 +106,7 @@ namespace ReconNess.Services
             {
                 this.UnitOfWork.BeginTransaction(cancellationToken);
 
-                this.subdomainService.DeleteSubdomains(target.Subdomains, cancellationToken);
+                this.subdomainService.DeleteSubdomains(rootDomain.Subdomains, cancellationToken);
 
                 await this.UnitOfWork.CommitAsync();
             }
@@ -124,17 +120,17 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IRootDomainService.UploadSubdomainsAsync(RootDomain, IEnumerable<UploadSubdomain>, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> UploadSubdomainsAsync(RootDomain target, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
         {
-            if (target.Subdomains == null)
+            if (rootDomain.Subdomains == null)
             {
-                target.Subdomains = new List<Subdomain>();
+                rootDomain.Subdomains = new List<Subdomain>();
             }
 
             var newSubdomains = new List<Subdomain>();
             foreach (var subdomain in uploadSubdomains)
             {
-                if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !target.Subdomains.Any(s => s.Name == subdomain))
+                if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !rootDomain.Subdomains.Any(s => s.Name == subdomain))
                 {
                     newSubdomains.Add(new Subdomain
                     {
@@ -146,13 +142,37 @@ namespace ReconNess.Services
             {
                 foreach (var subdomain in newSubdomains)
                 {
-                    target.Subdomains.Add(subdomain);
+                    rootDomain.Subdomains.Add(subdomain);
                 }
 
-                await this.UpdateAsync(target);
+                await this.UpdateAsync(rootDomain);
             }
 
             return newSubdomains;
+        }
+
+        /// <summary>
+        /// <see cref="IRootDomainService.GetRootDomains(ICollection{RootDomain}, List{string}, CancellationToken)"/>
+        /// </summary>
+        public ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            myRootDomains = this.GetIntersectionRootDomainsName(myRootDomains, newRootDomains, cancellationToken);
+            foreach (var newRootDomain in newRootDomains)
+            {
+                if (myRootDomains.Any(r => r.Name == newRootDomain))
+                {
+                    continue;
+                }
+
+                myRootDomains.Add(new RootDomain
+                {
+                    Name = newRootDomain
+                });
+            }
+
+            return myRootDomains;
         }
 
         /// <summary>
@@ -185,6 +205,28 @@ namespace ReconNess.Services
             }
 
             await this.SaveScriptOutputAsync(domain, subdomain, agent, scriptOutput);
+        }
+
+        /// <summary>
+        /// Obtain the names of the rootdomains that interset the old and the new rootdomains
+        /// </summary>
+        /// <param name="myRootDomains">The list of my RootDomains</param>
+        /// <param name="newRootDomains">The list of string RootDomains</param>
+        /// <returns>The names of the categorias that interset the old and the new RootDomains</returns>
+        private ICollection<RootDomain> GetIntersectionRootDomainsName(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken)
+        {
+            var myRootDomainsName = myRootDomains.Select(c => c.Name).ToList();
+            foreach (var myRootDomainName in myRootDomainsName)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (!newRootDomains.Contains(myRootDomainName))
+                {
+                    myRootDomains.Remove(myRootDomains.First(c => c.Name == myRootDomainName));
+                }
+            }
+
+            return myRootDomains;
         }
     }
 }

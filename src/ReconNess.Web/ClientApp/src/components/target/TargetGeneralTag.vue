@@ -2,7 +2,7 @@
   <div class="row">
     <div class="pl-4 col-12"><strong>Target: </strong>{{ target.name }}</div>
     <div class="pl-4 col-12"><strong>Root Domain: </strong>{{ rootDomain.name }}</div>
-    <div class="pl-4 col-12"><strong>Subdomains: </strong>{{ rootDomain.subdomains.length }}</div>
+    <div class="pl-4 col-12"><strong>Subdomains: </strong>{{ subdomainsCount }}</div>
     <div class="pl-4 col-12"><strong>Agents: </strong>{{ agentsCount }}</div>
   </div>
 </template>
@@ -16,7 +16,8 @@
     computed: mapState({
       target: state => state.targets.currentTarget,
       rootDomain: state => state.targets.currentRootDomain,
-      agentsCount: state => state.agents.agents.length 
+      subdomainsCount: state => state.targets.currentRootDomain.subdomains.length,
+      agentsCount: state => state.agents.agents.length
     }), 
   }
 </script>

@@ -14,7 +14,7 @@
         <li v-for="t in targets" v-bind:key="t.id">
             <router-link :to="{name: 'target', params: { targetName: t.name }}">{{ t.name }}</router-link>
             <ul>
-                <li v-for="rootDomain in t.rootDomains" v-bind:key="r">
+                <li v-for="rootDomain in t.rootDomains" v-bind:key="rootDomain.id">
                     <router-link :to="{name: 'targetRootDomain', params: { targetName: t.name, rootDomain: rootDomain.name }}">{{ rootDomain.name }}</router-link>
                 </li>
             </ul>

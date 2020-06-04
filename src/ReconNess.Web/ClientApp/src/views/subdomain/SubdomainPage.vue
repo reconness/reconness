@@ -60,6 +60,9 @@
       targetName() {
         return this.$route.params.targetName
       },
+      rootDomain() {
+          return this.$route.params.rootDomain
+      },
     // mix the getters into computed with object spread operator
       ...mapGetters({
         agents: 'agents/subdomainAgents'
@@ -77,7 +80,7 @@
     methods: {  
       async initService() { 
         try {
-          await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, subdomain: this.$route.params.subdomain })          
+          await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, rootDomain: this.rootDomain, subdomain: this.$route.params.subdomain })          
         }
         catch (error) {
           helpers.errorHandle(error)

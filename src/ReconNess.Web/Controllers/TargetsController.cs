@@ -111,7 +111,10 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.FindAsync(id, cancellationToken);
+            var target = await this.targetService.GetAllQueryableByCriteria(t => t.Id == id, cancellationToken)
+                .Include(a => a.RootDomains)
+                .FirstOrDefaultAsync();
+
             if (target == null)
             {
                 return NotFound();
@@ -123,7 +126,7 @@ namespace ReconNess.Web.Controllers
             }
 
             target.Name = targetDto.Name;
-            //target.RootDomain = targetDto.RootDomain;
+            target.RootDomains = this.rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
             target.BugBountyProgramUrl = targetDto.BugBountyProgramUrl;
             target.IsPrivate = targetDto.IsPrivate;
             target.InScope = targetDto.InScope;
@@ -134,17 +137,27 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // DELETE api/targets/{target}
-        [HttpDelete("{domain}")]
-        public async Task<IActionResult> Delete(string target, CancellationToken cancellationToken)
+        // DELETE api/targets/{targetName}
+        [HttpDelete("{targetName}")]
+        public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
         {
-            var targetToDelete = await this.targetService.GetByCriteriaAsync(t => t.Name == target, cancellationToken);
-            if (targetToDelete == null)
+            var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName, cancellationToken)
+                .Include(a => a.RootDomains)
+                    .ThenInclude(a => a.Subdomains)
+                        .ThenInclude(s => s.Services)
+                .Include(a => a.RootDomains)
+                    .ThenInclude(a => a.Subdomains)
+                        .ThenInclude(s => s.Notes)
+                .Include(a => a.RootDomains)
+                    .ThenInclude(a => a.Notes)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (target == null)
             {
                 return NotFound();
             }
 
-            await this.targetService.DeleteAsync(targetToDelete, cancellationToken);
+            await this.targetService.DeleteTargetAsync(target, cancellationToken);
 
             return NoContent();
         }

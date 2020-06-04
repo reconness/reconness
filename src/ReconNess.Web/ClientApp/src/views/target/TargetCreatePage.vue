@@ -15,6 +15,9 @@
     components: {
       TargetForm
     },
+    mounted() {
+      this.$store.state.targets.currentTarget = {}
+    },
     methods: {
       async onSave(target, rootDomains) {
         try {

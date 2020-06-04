@@ -66,20 +66,24 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // GET api/notes/subdomain/{target}/{subdomain}
-        [HttpPost("subdomain/{targetName}/{subdomainName}")]
-        public async Task<IActionResult> SaveSubdomainNotes(string targetName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
+        // GET api/notes/subdomain/{target}/{rootDomain}/{subdomain}
+        [HttpPost("subdomain/{targetName}/{rootDomain}/{subdomainName}")]
+        public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomain, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (domain == null)
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
             {
                 return NotFound();
             }
+
+            var domain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == rootDomain && t.Target == target, cancellationToken)
+                .Include(t => t.Notes)
+                .FirstOrDefaultAsync(cancellationToken);
 
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == domain && s.Name == subdomainName, cancellationToken)
                .Include(s => s.Notes).FirstOrDefaultAsync(cancellationToken);

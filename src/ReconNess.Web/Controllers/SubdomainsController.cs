@@ -45,11 +45,17 @@ namespace ReconNess.Web.Controllers
             this.labelService = labelService;
         }
 
-        // GET api/subdomains/{target}/{subdomain}
-        [HttpGet("{targetName}/{subdomainName}")]
-        public async Task<IActionResult> Get(string targetName, string subdomainName, CancellationToken cancellationToken)
+        // GET api/subdomains/{target}/{rootDomain}/{subdomain}
+        [HttpGet("{targetName}/{rootDomain}/{subdomainName}")]
+        public async Task<IActionResult> Get(string targetName, string rootDomain, string subdomainName, CancellationToken cancellationToken)
         {
-            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomain, cancellationToken);
             if (domain == null)
             {
                 return BadRequest();

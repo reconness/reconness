@@ -32,7 +32,7 @@
         </div>
         <div class="form-group">
             <button class="btn btn-primary" v-if="isNew" v-on:click="$emit('save', target, rootDomains)" :disabled='!isValid()'>Add</button>
-            <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="$emit('update')">Update</button>
+            <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="$emit('update')" :disabled='!isValid()'>Update</button>
             <button class="mt-2 btn btn-danger" v-if="!isNew" v-on:click="$emit('delete')">Delete</button>
         </div>
     </div>
@@ -51,11 +51,12 @@
       }
     },    
     computed: mapState({
-        target: state => state.targets.currentTarget,
-        rootDomains: state => state.targets.currentTarget.rootDomains || [{name: ''}]
+      target: state => state.targets.currentTarget || {name: ''},
+      rootDomains: state => state.targets.currentTarget.rootDomains || [{ name: '' }]
     }), 
     methods: {
         isValid() {
+            console.log(this.rootDomains[0])
             return this.target.name && this.rootDomains[0].name !== ''
         },
         add(index) {

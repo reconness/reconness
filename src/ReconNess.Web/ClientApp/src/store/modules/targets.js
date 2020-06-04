@@ -147,8 +147,11 @@ const actions = {
 }
 
 const mutations = {
-    target(state, target) {
-        state.currentTarget = target
+    target(state, target) {        
+        state.currentTarget = target        
+        if (state.currentTarget.rootDomains.length === 0) {
+            state.currentTarget.rootDomains = [{name: ''}]
+        }
     },
     targets(state, targets) {
         state.targets = targets
@@ -164,8 +167,7 @@ const mutations = {
         state.targets.forEach((t, i) => {
             if (t.id === state.currentTarget.id) {
                 state.targets[i].name = state.currentTarget.name
-                state.targets[i].rootDomain = state.currentTarget.rootDomain
-                state.targets[i].rootDomain = state.currentTarget.rootDomain
+                state.targets[i].rootDomains = state.currentTarget.rootDomains
                 state.targets[i].bugBountyProgramUrl = state.currentTarget.bugBountyProgramUrl
                 state.targets[i].isPrivate = state.currentTarget.isPrivate
                 state.targets[i].inScope = state.currentTarget.inScope

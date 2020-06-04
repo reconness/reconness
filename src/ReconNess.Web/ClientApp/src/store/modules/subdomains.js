@@ -5,10 +5,10 @@ const state = {
 }
 
 const actions = {
-    subdomain(context, { targetName, subdomain}) {
+    subdomain(context, { targetName, rootDomain, subdomain}) {
         return new Promise((resolve, reject) => {
             try {
-                api.get('subdomains/' + targetName + '/' + subdomain)
+                api.get('subdomains/' + targetName + '/' + rootDomain + '/' + subdomain)
                     .then((res) => {
                         context.commit('subdomain', res.data)
                         resolve()

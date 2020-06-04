@@ -11,7 +11,7 @@
     </nav>
     <div class="tab-content" id="nav-tabContent">
       <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-        <target-subdomains-tag></target-subdomains-tag>
+        <target-subdomains-tag v-if="rootDomain.subdomains !== undefined"></target-subdomains-tag>
       </div>
       <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
         <agent-tag v-bind:isTarget="true"></agent-tag>
@@ -20,7 +20,7 @@
         <notes-tag v-bind:isTarget="true"></notes-tag>
       </div>
       <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-        <target-general-tag></target-general-tag>
+        <target-general-tag v-if="rootDomain.subdomains !== undefined"></target-general-tag>
       </div>
     </div>
     <hr />
