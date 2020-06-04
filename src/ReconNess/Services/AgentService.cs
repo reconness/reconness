@@ -94,13 +94,13 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.RunAsync(RootDomain, Subdomain, Agent, string, CancellationToken)"></see>
+        /// <see cref="IAgentService.RunAsync(Target, RootDomain, Subdomain, Agent, string, CancellationToken)"></see>
         /// </summary>
-        public async Task RunAsync(RootDomain domain, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
+        public async Task RunAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var channel = this.GetChannel(domain, subdomain, agent);
+            var channel = this.GetChannel(target, rootDomain, subdomain, agent);
 
             this.runnerProcess.Stopped = false;
 
@@ -109,7 +109,7 @@ namespace ReconNess.Services
                 // wait 1 sec to avoid broke the frontend modal
                 Thread.Sleep(1000);
 
-                foreach (var sub in domain.Subdomains.ToList())
+                foreach (var sub in rootDomain.Subdomains.ToList())
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -133,20 +133,20 @@ namespace ReconNess.Services
                         continue;
                     }
 
-                    var commandToRun = this.GetCommand(domain, sub, agent, command);
+                    var commandToRun = this.GetCommand(rootDomain, sub, agent, command);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                    await this.RunBashAsync(domain, sub, agent, commandToRun, channel, cancellationToken);
+                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, cancellationToken);
                 }
 
                 await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
             }
             else
             {
-                var commandToRun = this.GetCommand(domain, subdomain, agent, command);
+                var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
 
                 await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                await this.RunBashAsync(domain, subdomain, agent, commandToRun, channel, cancellationToken);
+                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, cancellationToken);
 
                 await this.connectorService.SendAsync(channel, "Agent done!");
             }
@@ -156,12 +156,12 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.StopAsync(RootDomain, Subdomain, Agent, CancellationToken)"></see>
+        /// <see cref="IAgentService.StopAsync(Target, RootDomain, Subdomain, Agent, CancellationToken)"></see>
         /// </summary>
-        public async Task StopAsync(RootDomain domain, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
+        public async Task StopAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var channel = subdomain == null ? $"{domain.Name}_{agent.Name}" : $"{domain.Name}_{subdomain.Name}_{agent.Name}";
+            var channel = subdomain == null ? $"{target.Name}_{rootDomain.Name}_{agent.Name}" : $"{target.Name}_{rootDomain.Name}_{subdomain.Name}_{agent.Name}";
 
             if (this.runnerProcess.IsRunning())
             {
@@ -194,7 +194,7 @@ namespace ReconNess.Services
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="command">The command to run on bash</param>
         /// <returns>A Task</returns>
-        private async Task RunBashAsync(RootDomain omain, Subdomain subdomain, Agent agent, string command, string channel, CancellationToken cancellationToken)
+        private async Task RunBashAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, CancellationToken cancellationToken)
         {
             try
             {
@@ -213,7 +213,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, $"Output: {terminalLineOutput}");
                     await this.connectorService.SendAsync("logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
-                    await this.rootDomainService.SaveScriptOutputAsync(omain, subdomain, agent, scriptOutput, cancellationToken);
+                    await this.rootDomainService.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, cancellationToken);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount} processed");
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
@@ -234,13 +234,13 @@ namespace ReconNess.Services
         /// <summary>
         /// Obtain the channel to send the menssage
         /// </summary>
-        /// <param name="domain">The domain</param>
+        /// <param name="rootDomain">The domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
         /// <returns>The channel to send the menssage</returns>
-        private string GetChannel(RootDomain domain, Subdomain subdomain, Agent agent)
+        private string GetChannel(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent)
         {
-            return subdomain == null ? $"{domain.Name}_{agent.Name}" : $"{domain.Name}_{subdomain.Name}_{agent.Name}";
+            return subdomain == null ? $"{target.Name}_{rootDomain.Name}_{agent.Name}" : $"{target.Name}_{rootDomain.Name}_{subdomain.Name}_{agent.Name}";
         }
 
         /// <summary>

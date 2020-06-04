@@ -51,12 +51,16 @@
       }
     },    
     computed: mapState({
-      target: state => state.targets.currentTarget || {name: ''},
-      rootDomains: state => state.targets.currentTarget.rootDomains || [{ name: '' }]
+      target: state => state.targets.currentTarget,
+      rootDomains: state => state.targets.currentTarget.rootDomains || [{ name }]
     }), 
+    mounted() {
+      if (this.isNew) {
+          this.$store.state.targets.currentTarget = { rootDomains: [{ name }] }
+      }
+    },
     methods: {
         isValid() {
-            console.log(this.rootDomains[0])
             return this.target.name && this.rootDomains[0].name !== ''
         },
         add(index) {

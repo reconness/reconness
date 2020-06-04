@@ -19,6 +19,7 @@ namespace ReconNess.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
+        private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ICategoryService categoryService;
         private readonly ISubdomainService subdomainService;
@@ -28,18 +29,21 @@ namespace ReconNess.Web.Controllers
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="agentService"><see cref="IAgentService"/></param>
+        /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="categoryService"><see cref="ICategoryService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         public AgentsController(
             IMapper mapper,
             IAgentService agentService,
+            ITargetService targetService,
             IRootDomainService rootDomainService,
             ICategoryService categoryService,
             ISubdomainService subdomainService)
         {
             this.mapper = mapper;
             this.agentService = agentService;
+            this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.categoryService = categoryService;
             this.subdomainService = subdomainService;
@@ -182,14 +186,20 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var domain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == agentRunDto.Target, cancellationToken)
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == agentRunDto.RootDomain && t.Target == target, cancellationToken)
                 .Include(t => t.Subdomains)
                     .ThenInclude(s => s.ServiceHttp)
                 .Include(t => t.Subdomains)
                     .ThenInclude(s => s.Services)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            if (domain == null)
+            if (rootDomain == null)
             {
                 return BadRequest();
             }
@@ -197,7 +207,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = null;
             if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == domain && s.Name == agentRunDto.Subdomain, cancellationToken)
+                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken)
                     .Include(s => s.Services)
                     .Include(s => s.ServiceHttp)
                         .ThenInclude(s => s.Directories)
@@ -217,7 +227,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentService.RunAsync(domain, subdomain, agent, agentRunDto.Command, cancellationToken);
+            await this.agentService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, cancellationToken);
 
             return NoContent();
         }
@@ -231,8 +241,14 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
-            if (domain == null)
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunDto.RootDomain && t.Target == target, cancellationToken);
+            if (rootDomain == null)
             {
                 return BadRequest();
             }
@@ -240,7 +256,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = null;
             if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Domain == domain && s.Name == agentRunDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Domain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
@@ -253,7 +269,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var task = this.agentService.StopAsync(domain, subdomain, agent, cancellationToken);
+            var task = this.agentService.StopAsync(target, rootDomain, subdomain, agent, cancellationToken);
 
             return NoContent();
         }

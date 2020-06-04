@@ -15,13 +15,10 @@
     components: {
       TargetForm
     },
-    mounted() {
-      this.$store.state.targets.currentTarget = {}
-    },
     methods: {
       async onSave(target, rootDomains) {
         try {
-          target.rootDomains = rootDomains.map(r => r.name);
+          target.rootDomains = rootDomains;
           await this.$store.dispatch('targets/createTarget', target)
           this.$router.push({ name: 'target', params: { targetName: target.name } })
         }
