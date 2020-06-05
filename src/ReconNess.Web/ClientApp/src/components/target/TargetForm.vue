@@ -9,7 +9,7 @@
             <input type="text" class="form-control" v-model="rootDomain.name">
             <span>
                 <font-awesome-icon :icon="['fas', 'minus-circle']" @click="remove(k)" v-show="k || ( !k && rootDomains.length > 1)" title="Remove this Root Domain"/>
-                <font-awesome-icon :icon="['fas', 'plus-circle']" @click="add(k)" v-show="k == rootDomains.length-1" title="Add Another Root Domain"/>
+                <font-awesome-icon :icon="['fas', 'plus-circle']" @click="add()" v-show="k == rootDomains.length-1" title="Add Another Root Domain"/>
             </span>
         </div>
         <div class="form-group">
@@ -63,7 +63,7 @@
         isValid() {
             return this.target.name && this.rootDomains[0].name !== ''
         },
-        add(index) {
+        add() {
             this.rootDomains.push({ name: '' });
         },
         remove(index) {
