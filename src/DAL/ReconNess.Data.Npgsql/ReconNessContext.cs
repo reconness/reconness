@@ -1,15 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using ReconNess.Core;
 using ReconNess.Data.Npgsql.Seeding;
 using ReconNess.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReconNess.Data.Npgsql
 {
@@ -21,6 +21,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<Agent> Agents { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
+        public DbSet<RootDomain> RootDomains { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<ServiceHttp> ServicesHttp { get; set; }
@@ -60,6 +61,10 @@ namespace ReconNess.Data.Npgsql
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Target>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<RootDomain>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 

@@ -9,6 +9,8 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
+        public virtual RootDomain Domain { get; set; }
+
         public bool? HasHttpOpen { get; set; }
 
         public bool? IsMainPortal { get; set; }
@@ -18,8 +20,6 @@ namespace ReconNess.Entities
         public bool? IsAlive { get; set; }
 
         public string FromAgents { get; set; }
-
-        public virtual Target Target { get; set; }
 
         public string IpAddress { get; set; }
 

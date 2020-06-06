@@ -1,8 +1,8 @@
 <template>
   <div class="row">
     <div class="pl-4 col-12"><strong>Target: </strong>{{ target.name }}</div>
-    <div class="pl-4 col-12"><strong>Root Domain: </strong>{{ target.rootDomain }}</div>
-    <div class="pl-4 col-12"><strong>Subdomains: </strong>{{ target.subdomains.length }}</div>
+    <div class="pl-4 col-12"><strong>Root Domain: </strong>{{ rootDomain.name }}</div>
+    <div class="pl-4 col-12"><strong>Subdomains: </strong>{{ subdomainsCount }}</div>
     <div class="pl-4 col-12"><strong>Agents: </strong>{{ agentsCount }}</div>
   </div>
 </template>
@@ -15,7 +15,9 @@
     name: 'TargetGeneralTag', 
     computed: mapState({
       target: state => state.targets.currentTarget,
-      agentsCount: state => state.agents.agents.length 
+      rootDomain: state => state.targets.currentRootDomain,
+      subdomainsCount: state => state.targets.currentRootDomain.subdomains.length,
+      agentsCount: state => state.agents.agents.length
     }), 
   }
 </script>

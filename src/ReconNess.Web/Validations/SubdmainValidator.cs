@@ -1,6 +1,6 @@
-using System;
 using FluentValidation;
 using ReconNess.Web.Dtos;
+using System;
 
 namespace ReconNess.Web.Validations
 {

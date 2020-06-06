@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using ReconNess.Core.Models;
+using ReconNess.Entities;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ReconNess.Core.Models;
-using ReconNess.Entities;
 
 namespace ReconNess.Core.Services
 {
@@ -17,7 +17,7 @@ namespace ReconNess.Core.Services
         /// <param name="target">The target</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of subdomains by target order by CreatedAt desc</returns>
-        Task<List<Subdomain>> GetSubdomainsByTargetAsync(Target target, CancellationToken cancellationToken = default);
+        Task<List<Subdomain>> GetSubdomainsByTargetAsync(RootDomain target, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Update the subdomain with the output for the terminal

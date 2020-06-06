@@ -1,7 +1,9 @@
 <template>
-  <div>
-    <h2 class="text-right" v-if="subdomain.isAlive === true"><a :href="'http://'+subdomain.name" target="blank">{{ subdomain.name }}</a></h2>
-    <h2 class="text-right" v-else>{{ subdomain.name }}</h2>
+  <div>    
+    <h2 class="text-right">
+      <router-link :to="{name: 'target', params: { targetName: targetName }}">{{ targetName }}</router-link> | <router-link :to="{name: 'targetRootDomain', params: { targetName: targetName, rootDomain: rootDomain }}">{{ rootDomain }}</router-link> |
+      <a :href="'http://'+subdomain.name" target="blank" v-if="subdomain.isAlive === true">{{ subdomain.name }}</a><span v-else>{{ subdomain.name }}</span>
+    </h2>
     <nav>
       <div class="nav nav-tabs" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-details-tab" data-toggle="tab" href="#nav-details" role="tab" aria-controls="nav-details" aria-selected="true">Dashboard</a>
@@ -60,6 +62,9 @@
       targetName() {
         return this.$route.params.targetName
       },
+      rootDomain() {
+          return this.$route.params.rootDomain
+      },
     // mix the getters into computed with object spread operator
       ...mapGetters({
         agents: 'agents/subdomainAgents'
@@ -77,7 +82,7 @@
     methods: {  
       async initService() { 
         try {
-          await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, subdomain: this.$route.params.subdomain })          
+          await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, rootDomain: this.rootDomain, subdomain: this.$route.params.subdomain })          
         }
         catch (error) {
           helpers.errorHandle(error)
