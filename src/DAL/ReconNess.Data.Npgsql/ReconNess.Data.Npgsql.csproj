@@ -7,6 +7,10 @@
   <ItemGroup>
     <Compile Remove="Migrations\20200529213346_AddRootDomain.cs" />
     <Compile Remove="Migrations\20200529213346_AddRootDomain.Designer.cs" />
+    <Compile Remove="Migrations\20200606172050_AddSeeding.cs" />
+    <Compile Remove="Migrations\20200606172050_AddSeeding.Designer.cs" />
+    <Compile Remove="Migrations\20200606172247_AddSeeding.cs" />
+    <Compile Remove="Migrations\20200606172247_AddSeeding.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

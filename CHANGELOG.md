@@ -1,3 +1,10 @@
+## [1.2.0] - 2020-06-06
+
+### Added
+
+- Now we can have more than one root domains inside each target
+- This version is not compatible with version 1.1.2 or less
+
 ## [1.1.2] - 2020-05-26
 
 ### Added
