@@ -1,10 +1,10 @@
 ﻿namespace ReconNess
 {
+    using ReconNess.Core;
     using System;
     using System.Collections;
     using System.Threading;
     using System.Threading.Tasks;
-    using ReconNess.Core;
 
     /// <summary>
     /// This class implement <see cref="IUnitOfWork"/>

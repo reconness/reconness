@@ -1,7 +1,3 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReconNess.Web.Controllers
 {
@@ -20,6 +20,7 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ISubdomainService subdomainService;
         private readonly ITargetService targetService;
+        private readonly IRootDomainService rootDomainService;
         private readonly ILabelService labelService;
 
         /// <summary>
@@ -28,22 +29,25 @@ namespace ReconNess.Web.Controllers
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
+        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="labelService"><see cref="ILabelService"/></param>
         public SubdomainsController(
             IMapper mapper,
             ISubdomainService subdomainService,
             ITargetService targetService,
+            IRootDomainService rootDomainService,
             ILabelService labelService)
         {
             this.mapper = mapper;
             this.subdomainService = subdomainService;
             this.targetService = targetService;
+            this.rootDomainService = rootDomainService;
             this.labelService = labelService;
         }
 
-        // GET api/subdomains/{target}/{subdomain}
-        [HttpGet("{targetName}/{subdomainName}")]
-        public async Task<IActionResult> Get(string targetName, string subdomainName, CancellationToken cancellationToken)
+        // GET api/subdomains/{target}/{rootDomain}/{subdomain}
+        [HttpGet("{targetName}/{rootDomain}/{subdomainName}")]
+        public async Task<IActionResult> Get(string targetName, string rootDomain, string subdomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
@@ -51,7 +55,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Target == target && s.Name == subdomainName, cancellationToken)
+            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomain, cancellationToken);
+            if (domain == null)
+            {
+                return BadRequest();
+            }
+
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == domain && s.Name == subdomainName, cancellationToken)
                 .Include(s => s.Notes)
                 .Include(s => s.Services)
                 .Include(s => s.ServiceHttp)
@@ -83,14 +93,20 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.Target == target))
+            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == subdomainDto.RootDomain && t.Target == target, cancellationToken);
+            if (domain == null)
+            {
+                return BadRequest();
+            }
+
+            if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.Domain == domain))
             {
                 return BadRequest();
             }
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
             {
-                Target = target,
+                Domain = domain,
                 Name = subdomainDto.Name
             }, cancellationToken);
 
@@ -157,17 +173,11 @@ namespace ReconNess.Web.Controllers
             return Ok(mapper.Map<Label, LabelDto>(newLabel));
         }
 
-        // DELETE api/subdomains/{target}/{id}
-        [HttpDelete("{targetName}/{id}")]
-        public async Task<IActionResult> Delete(string targetName, Guid id, CancellationToken cancellationToken)
+        // DELETE api/subdomains/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return BadRequest();
-            }
-
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Target == target && s.Id == id, cancellationToken)
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Id == id, cancellationToken)
                 .Include(s => s.Notes)
                 .Include(s => s.Services)
                 .FirstOrDefaultAsync(cancellationToken);

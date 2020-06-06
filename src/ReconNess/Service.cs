@@ -1,12 +1,12 @@
 ﻿namespace ReconNess
 {
+    using ReconNess.Core;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading;
     using System.Threading.Tasks;
-    using ReconNess.Core;
 
     /// <summary>
     /// This class implement the interface <see cref="IService<TEntity>"/>

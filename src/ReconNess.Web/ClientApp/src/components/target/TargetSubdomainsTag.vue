@@ -66,7 +66,7 @@
         <button type="button" class="btn btn-link" v-on:click="onAddLabel(props.row, 'Scope')" title="Add Scope Label"> <font-awesome-icon :icon="['fas', 'microscope']" /></button>
       </div>
       <div class="subdomain-actions" slot="actions" slot-scope="props">
-        <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
+        <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, rootDomain: $route.params.rootDomain, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
         <button type="button" class="btn btn-link" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></button>
       </div>
     </v-client-table>
@@ -113,16 +113,17 @@
       }
     },
     computed: mapState({
-      subdomains: state => state.targets.currentTarget.subdomains
+        subdomains: state => state.targets.currentRootDomain.subdomains
     }), 
     async mounted() {      
       this.targetName = this.$route.params.targetName
+      this.rootDomain = this.$route.params.rootDomain
     },
     methods: {
       async onDeleteSubdomain(subdomain) {
         if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {   
           try {
-            await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.targetName, subdomain: subdomain })
+            await this.$store.dispatch('subdomains/deleteSubdomain', { subdomain: subdomain })
           }
           catch (error) {
             helpers.errorHandle(error)
@@ -132,7 +133,7 @@
       async onDeleteAllSubdomains() {
         if (confirm('Are you sure to delete all the subdomains')) {     
           try {
-            await this.$store.dispatch('targets/deleteAllSubdomains')
+              await this.$store.dispatch('targets/deleteAllSubdomains')
           }
           catch (error) {
             helpers.errorHandle(error)
@@ -149,9 +150,8 @@
         } 
       },
       async onAddNewSubdomain() {
-        const target = this.$route.params.targetName
         try {
-          await this.$store.dispatch('subdomains/createSubdomain', { target: target, subdomain: this.newSubdomain })
+            await this.$store.dispatch('targets/createSubdomain', { subdomain: this.newSubdomain })
           alert("The new Subdomain was added")
         }
         catch (error) {

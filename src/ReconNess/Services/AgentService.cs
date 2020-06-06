@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ReconNess.Core;
@@ -11,6 +5,12 @@ using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using RestSharp;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReconNess.Services
 {
@@ -19,7 +19,7 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentService : Service<Agent>, IService<Agent>, IAgentService
     {
-        private readonly ITargetService targetService;
+        private readonly IRootDomainService rootDomainService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
         private readonly IRunnerProcess runnerProcess;
@@ -28,17 +28,17 @@ namespace ReconNess.Services
         /// Initializes a new instance of the <see cref="AgentService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="targetService"><see cref="ITargetService"/></param>
+        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="connectorService"><see cref="IConnectorService"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
         public AgentService(IUnitOfWork unitOfWork,
-            ITargetService targetService,
+            IRootDomainService rootDomainService,
             IConnectorService connectorService,
             IScriptEngineService scriptEngineService,
             IRunnerProcess runnerProcess)
             : base(unitOfWork)
         {
-            this.targetService = targetService;
+            this.rootDomainService = rootDomainService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
             this.runnerProcess = runnerProcess;
@@ -94,13 +94,13 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.RunAsync(Target, Subdomain, Agent, string, CancellationToken)"></see>
+        /// <see cref="IAgentService.RunAsync(Target, RootDomain, Subdomain, Agent, string, CancellationToken)"></see>
         /// </summary>
-        public async Task RunAsync(Target target, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
+        public async Task RunAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var channel = this.GetChannel(target, subdomain, agent);
+            var channel = this.GetChannel(target, rootDomain, subdomain, agent);
 
             this.runnerProcess.Stopped = false;
 
@@ -109,7 +109,7 @@ namespace ReconNess.Services
                 // wait 1 sec to avoid broke the frontend modal
                 Thread.Sleep(1000);
 
-                foreach (var sub in target.Subdomains.ToList())
+                foreach (var sub in rootDomain.Subdomains.ToList())
                 {
                     if (cancellationToken.IsCancellationRequested)
                     {
@@ -133,20 +133,20 @@ namespace ReconNess.Services
                         continue;
                     }
 
-                    var commandToRun = this.GetCommand(target, sub, agent, command);
+                    var commandToRun = this.GetCommand(rootDomain, sub, agent, command);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                    await this.RunBashAsync(target, sub, agent, commandToRun, channel, cancellationToken);
+                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, cancellationToken);
                 }
 
                 await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
             }
             else
             {
-                var commandToRun = this.GetCommand(target, subdomain, agent, command);
+                var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
 
                 await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                await this.RunBashAsync(target, subdomain, agent, commandToRun, channel, cancellationToken);
+                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, cancellationToken);
 
                 await this.connectorService.SendAsync(channel, "Agent done!");
             }
@@ -156,12 +156,12 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.StopAsync(Target, Subdomain, Agent, CancellationToken)"></see>
+        /// <see cref="IAgentService.StopAsync(Target, RootDomain, Subdomain, Agent, CancellationToken)"></see>
         /// </summary>
-        public async Task StopAsync(Target target, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
+        public async Task StopAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var channel = subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
+            var channel = subdomain == null ? $"{target.Name}_{rootDomain.Name}_{agent.Name}" : $"{target.Name}_{rootDomain.Name}_{subdomain.Name}_{agent.Name}";
 
             if (this.runnerProcess.IsRunning())
             {
@@ -194,7 +194,7 @@ namespace ReconNess.Services
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="command">The command to run on bash</param>
         /// <returns>A Task</returns>
-        private async Task RunBashAsync(Target target, Subdomain subdomain, Agent agent, string command, string channel, CancellationToken cancellationToken)
+        private async Task RunBashAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, CancellationToken cancellationToken)
         {
             try
             {
@@ -213,7 +213,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, $"Output: {terminalLineOutput}");
                     await this.connectorService.SendAsync("logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
-                    await this.targetService.SaveScriptOutputAsync(target, subdomain, agent, scriptOutput, cancellationToken);
+                    await this.rootDomainService.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, cancellationToken);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount} processed");
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
@@ -234,13 +234,13 @@ namespace ReconNess.Services
         /// <summary>
         /// Obtain the channel to send the menssage
         /// </summary>
-        /// <param name="target">The target</param>
+        /// <param name="rootDomain">The domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
         /// <returns>The channel to send the menssage</returns>
-        private string GetChannel(Target target, Subdomain subdomain, Agent agent)
+        private string GetChannel(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent)
         {
-            return subdomain == null ? $"{target.Name}_{agent.Name}" : $"{target.Name}_{subdomain.Name}_{agent.Name}";
+            return subdomain == null ? $"{target.Name}_{rootDomain.Name}_{agent.Name}" : $"{target.Name}_{rootDomain.Name}_{subdomain.Name}_{agent.Name}";
         }
 
         /// <summary>
@@ -258,19 +258,19 @@ namespace ReconNess.Services
         /// <summary>
         /// Obtain the command to run on bash
         /// </summary>
-        /// <param name="target">The target</param>
+        /// <param name="domain">The domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
         /// <returns>The command to run on bash</returns>
-        private string GetCommand(Target target, Subdomain subdomain, Agent agent, string command)
+        private string GetCommand(RootDomain domain, Subdomain subdomain, Agent agent, string command)
         {
             if (string.IsNullOrWhiteSpace(command))
             {
                 command = agent.Command;
             }
 
-            return $"{command.Replace("{{domain}}", subdomain == null ? target.RootDomain : subdomain.Name)}"
-                .Replace("{{targetName}}", target.Name)
+            return $"{command.Replace("{{domain}}", subdomain == null ? domain.Name : subdomain.Name)}"
+                .Replace("{{targetName}}", domain.Name)
                 .Replace("\"", "\\\"");
         }
 

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ReconNess.Core.Services;
+using System;
 using System.Diagnostics;
 using System.Threading;
-using ReconNess.Core.Services;
 
 namespace ReconNess.Services
 {

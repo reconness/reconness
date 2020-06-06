@@ -1,6 +1,3 @@
-using System;
-using System.Net;
-using System.Threading.Tasks;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
@@ -10,6 +7,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Data.Npgsql;
+using System;
+using System.Net;
+using System.Threading.Tasks;
 using VueCliMiddleware;
 namespace ReconNess.Web
 {

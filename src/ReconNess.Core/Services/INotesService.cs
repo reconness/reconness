@@ -1,6 +1,6 @@
+using ReconNess.Entities;
 using System.Threading;
 using System.Threading.Tasks;
-using ReconNess.Entities;
 
 namespace ReconNess.Core.Services
 {
@@ -16,7 +16,7 @@ namespace ReconNess.Core.Services
         /// <param name="notes">The notes</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task SaveTargetNotesAsync(Target target, string notes, CancellationToken cancellationToken = default);
+        Task SaveTargetNotesAsync(RootDomain target, string notes, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Save subdomains notes

@@ -24,8 +24,9 @@ namespace ReconNess.Web
 
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDbContext, ReconNessContext>();
-            services.AddScoped<ITargetService, TargetService>();
 
+            services.AddScoped<ITargetService, TargetService>();
+            services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<INotesService, NotesService>();

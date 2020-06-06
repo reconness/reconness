@@ -147,10 +147,10 @@ const actions = {
             }
         })
     },
-    run(context, { agent, command, target, subdomain }) {
+    run(context, { agent, command, target, rootDomain, subdomain }) {
         return new Promise((resolve, reject) => {
             try {
-                api.create('agents/run', {agent, command, target, subdomain }) 
+                api.create('agents/run', {agent, command, target, rootDomain, subdomain }) 
                     .then((res) => {
                         resolve(res.data)
                     })
@@ -161,10 +161,10 @@ const actions = {
             }
         })
     },
-    stop(context, { agent, target, subdomain }) {
+    stop(context, { agent, target, rootDomain, subdomain }) {
         return new Promise((resolve, reject) => {
             try {
-                api.create('agents/stop', { agent, target, subdomain })
+                api.create('agents/stop', { agent, target, rootDomain, subdomain })
                     .then((res) => {
                         resolve(res.data)
                     })

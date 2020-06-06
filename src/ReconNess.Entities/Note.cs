@@ -8,7 +8,7 @@ namespace ReconNess.Entities
 
         public string Notes { get; set; }
 
-        public virtual Target Target { get; set; }
+        public virtual RootDomain Target { get; set; }
 
         public Guid? TargetId { get; set; }
 
