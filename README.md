@@ -22,6 +22,13 @@ Check this [link](https://docs.reconness.com/getting-started/quick-start).
 
 Check this [link](https://docs.reconness.com/getting-started/installation) for the installation instruction.
 
+## Join us
+
+If you want to know what is next or you want to help us, please join us.
+
+[Dicord](https://discord.com/invite/hpKVRFM)
+[twitter](https://twitter.com/reconness)
+
 ## Licensing
 
 MIT License
