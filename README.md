@@ -10,17 +10,25 @@ ReconNess helps you to run and keep all your #recon in the same place allowing y
 
 With ReconNess you can put all your learning effort only on how to exploit the targets using one specific kind of vulnerability for example and at the same time you are sure that your #recon is good and organized.
 
-## Continuous Recon (CR) Concept
+## Continuous Recon (CR)
 
 The idea with ReconNess is create a platform to allow continuous recon (CR) where you can set up a pipeline of #recon tools (Agents) and trigger it base on schedule or events.
 
 ## Quick Start
 
-Check this [link](https://docs.reconness.com/getting-started/quick-start).
+Check this [link](https://docs.reconness.com/getting-started/quick-start) to know how put ReconNess running and start collecting #recon data from yours targets.
 
-## Installation
+## Development
 
-Check this [link](https://docs.reconness.com/getting-started/installation) for the installation instruction.
+### Windows requirements
+- TODO
+
+### Linux requirements
+
+- TODO
+### Mac requirements
+
+- TODO
 
 ## Join us
 
