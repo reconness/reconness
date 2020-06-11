@@ -25,6 +25,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<ServiceHttp> ServicesHttp { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         /// <summary>
         /// A transaction Object
@@ -89,6 +90,10 @@ namespace ReconNess.Data.Npgsql
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Note>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Notification>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 

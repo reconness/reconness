@@ -39,10 +39,17 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="nav-item" v-if="isAuth()">
-                            <a class="nav-link" v-on:click="onLogout()">
-                                Sign Out
+                        <li class="nav-item dropdown" v-if="isAuth()">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Account
                             </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <router-link class="dropdown-item" to="/settings">Settings</router-link>
+                                <div class="dropdown-divider"></div>
+                                <div>
+                                    <a href="#" class="dropdown-item" v-on:click="onLogout()">Sign Out</a>
+                                </div>
+                            </div>                            
                         </li>
                         <li class="nav-item" v-else>
                             <a class="nav-link" href="/">

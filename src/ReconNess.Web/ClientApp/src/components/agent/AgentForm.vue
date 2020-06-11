@@ -36,6 +36,25 @@
         Skip If Ran Before
       </label>
     </div>
+    <hr />
+    <label>Notification Options</label>
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" id="notifyIfAgentDone" ref="notifyIfAgentDone" v-model="agent.notifyIfAgentDone">
+      <label class="form-check-label" for="notifyIfAgentDone">
+          Notify If Agent Done
+      </label>
+    </div>
+    <div class="form-group form-check">
+      <input class="form-check-input" type="checkbox" id="notifyNewFound" ref="notifyNewFound" v-model="agent.notifyNewFound">
+      <label class="form-check-label" for="notifyNewFound">
+          Notify New Found
+      </label>
+    </div>
+    <div class="form-group">
+        <label for="inputName">Notification Payload</label>
+        <input name="notificationPayload" formControlName="notificationPayload" class="form-control" id="notificationPayload" v-model="agent.notificationPayload">
+    </div>
+      <hr />
     <div class="form-group" v-if="!isNew">
       <label for="inputArguments">Script <a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
       <editor v-model="agent.script" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>

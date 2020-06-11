@@ -147,10 +147,10 @@ const actions = {
             }
         })
     },
-    run(context, { agent, command, target, rootDomain, subdomain }) {
+    run(context, { agent, command, target, rootDomain, subdomain, activateNotification }) {
         return new Promise((resolve, reject) => {
             try {
-                api.create('agents/run', {agent, command, target, rootDomain, subdomain }) 
+                api.create('agents/run', {agent, command, target, rootDomain, subdomain, activateNotification }) 
                     .then((res) => {
                         resolve(res.data)
                     })

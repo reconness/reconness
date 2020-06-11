@@ -132,6 +132,9 @@ namespace ReconNess.Web.Controllers
             agent.OnlyIfIsAlive = agentDto.OnlyIfIsAlive;
             agent.OnlyIfHasHttpOpen = agentDto.OnlyIfHasHttpOpen;
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
+            agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
+            agent.NotifyNewFound = agentDto.NotifyNewFound;
+            agent.NotificationPayload = agentDto.NotificationPayload;
             agent.Script = agentDto.Script;
 
             await this.agentService.UpdateAsync(agent, cancellationToken);
@@ -227,7 +230,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, cancellationToken);
+            await this.agentService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, agentRunDto.ActivateNotification, cancellationToken);
 
             return NoContent();
         }
