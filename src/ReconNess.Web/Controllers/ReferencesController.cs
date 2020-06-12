@@ -59,11 +59,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ReferenceDto referenceDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var reference = this.mapper.Map<ReferenceDto, Reference>(referenceDto);
 
             await this.referenceService.AddAsync(reference, cancellationToken);

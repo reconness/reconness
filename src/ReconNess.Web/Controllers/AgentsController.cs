@@ -87,11 +87,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             if (await this.agentService.AnyAsync(t => t.Name == agentDto.Name))
             {
                 return BadRequest("There is an Agent with that name in the DB");
@@ -109,11 +104,6 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var agent = await this.agentService.GetAgentWithCategoryAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
@@ -161,11 +151,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("install")]
         public async Task<IActionResult> Install([FromBody] AgentDefaultDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             if (await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name))
             {
                 return BadRequest("There is an Agent with that name in the DB");
@@ -184,11 +169,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunDto agentRunDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
             if (target == null)
             {
@@ -239,11 +219,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("stop")]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunDto agentRunDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
             if (target == null)
             {
@@ -281,11 +256,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("debug")]
         public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             try
             {
                 return Ok(await this.agentService.DebugAsync(agentDebugDto.TerminalOutput, agentDebugDto.Script, cancellationToken));

@@ -41,11 +41,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("target/{targetName}/{rootDomain}")]
         public async Task<IActionResult> SaveTargetNotes(string targetName, string rootDomain, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
@@ -70,11 +65,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("subdomain/{targetName}/{rootDomain}/{subdomainName}")]
         public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomain, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {

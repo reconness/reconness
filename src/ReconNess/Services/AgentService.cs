@@ -22,6 +22,7 @@ namespace ReconNess.Services
         private readonly IRootDomainService rootDomainService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
+        private readonly INotificationService notificationService;
         private readonly IRunnerProcess runnerProcess;
 
         /// <summary>
@@ -31,16 +32,20 @@ namespace ReconNess.Services
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="connectorService"><see cref="IConnectorService"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
+        /// <param name="notificationService"><see cref="INotificationService"/></param>
+        /// <param name="runnerProcess"><see cref="IRunnerProcess"/></param>
         public AgentService(IUnitOfWork unitOfWork,
             IRootDomainService rootDomainService,
             IConnectorService connectorService,
             IScriptEngineService scriptEngineService,
+            INotificationService notificationService,
             IRunnerProcess runnerProcess)
             : base(unitOfWork)
         {
             this.rootDomainService = rootDomainService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
+            this.notificationService = notificationService;
             this.runnerProcess = runnerProcess;
         }
 
@@ -138,8 +143,6 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
                     await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, cancellationToken);
                 }
-
-                await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
             }
             else
             {
@@ -147,9 +150,9 @@ namespace ReconNess.Services
 
                 await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
                 await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, cancellationToken);
-
-                await this.connectorService.SendAsync(channel, "Agent done!");
             }
+
+            await SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
 
             agent.LastRun = DateTime.Now;
             await this.UpdateAsync(agent, cancellationToken);
@@ -284,6 +287,24 @@ namespace ReconNess.Services
         {
             await this.connectorService.SendAsync(channel, ex.Message);
             await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
+        }
+
+        /// <summary>
+        /// Send a msg and a notification when the agent finish
+        /// </summary>
+        /// <param name="agent">The agent</param>
+        /// <param name="activateNotification">If we need to send a notification</param>
+        /// <param name="channel">The channel to use to send the msg</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task SendAgentDoneNotificationAsync(string channel, Agent agent, bool activateNotification, CancellationToken cancellationToken)
+        {
+            if (activateNotification && agent.NotifyIfAgentDone)
+            {
+                await this.notificationService.SendAsync($"Agent {agent.Name} is done!", cancellationToken);
+            }
+
+            await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
         }
     }
 }

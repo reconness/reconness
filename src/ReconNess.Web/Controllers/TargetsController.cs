@@ -85,11 +85,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             if (await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower()))
             {
                 return BadRequest("There is a Target with that name in the DB");
@@ -106,11 +101,6 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetAllQueryableByCriteria(t => t.Id == id, cancellationToken)
                 .Include(a => a.RootDomains)
                 .FirstOrDefaultAsync();

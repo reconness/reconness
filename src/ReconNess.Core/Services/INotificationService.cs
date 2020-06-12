@@ -16,5 +16,13 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
         Task SaveNotificationAsync(Notification notification, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Send a notification
+        /// </summary>
+        /// <param name="agentPayload">The agent payload to send in the notification payload</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task SendAsync(string agentPayload, CancellationToken cancellationToken);
     }
 }

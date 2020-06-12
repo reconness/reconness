@@ -39,11 +39,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("saveNotification")]
         public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notificationDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var notification = this.mapper.Map<NotificationDto, Notification>(notificationDto);
 
             await this.notificationService.SaveNotificationAsync(notification, cancellationToken);
