@@ -152,7 +152,7 @@ namespace ReconNess.Services
                 await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, cancellationToken);
             }
 
-            await SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
+            await this.SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
 
             agent.LastRun = DateTime.Now;
             await this.UpdateAsync(agent, cancellationToken);
