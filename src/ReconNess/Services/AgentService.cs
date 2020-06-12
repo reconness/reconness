@@ -141,7 +141,7 @@ namespace ReconNess.Services
                     var commandToRun = this.GetCommand(rootDomain, sub, agent, command);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, cancellationToken);
+                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, activateNotification, cancellationToken);
                 }
             }
             else
@@ -149,7 +149,7 @@ namespace ReconNess.Services
                 var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
 
                 await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, cancellationToken);
+                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, activateNotification, cancellationToken);
             }
 
             await this.SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
@@ -197,7 +197,7 @@ namespace ReconNess.Services
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="command">The command to run on bash</param>
         /// <returns>A Task</returns>
-        private async Task RunBashAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, CancellationToken cancellationToken)
+        private async Task RunBashAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, bool activateNotification, CancellationToken cancellationToken)
         {
             try
             {
@@ -216,7 +216,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, $"Output: {terminalLineOutput}");
                     await this.connectorService.SendAsync("logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
-                    await this.rootDomainService.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, cancellationToken);
+                    await this.rootDomainService.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, activateNotification, cancellationToken);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount} processed");
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");

@@ -18,16 +18,21 @@ namespace ReconNess.Services
     public class RootDomainService : Service<RootDomain>, IService<RootDomain>, IRootDomainService
     {
         private readonly ISubdomainService subdomainService;
+        private readonly INotificationService notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RootDomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
+        /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
+        /// <param name="notificationService"><see cref="INotificationService"/></param>
         public RootDomainService(IUnitOfWork unitOfWork,
-            ISubdomainService subdomainService)
+            ISubdomainService subdomainService,
+            INotificationService notificationService)
             : base(unitOfWork)
         {
             this.subdomainService = subdomainService;
+            this.notificationService = notificationService;
         }
 
         /// <summary>
@@ -48,9 +53,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.SaveScriptOutputAsync(RootDomain, Subdomain, Agent, ScriptOutput, CancellationToken)"/>
+        /// <see cref="IRootDomainService.SaveScriptOutputAsync(RootDomain, Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
         /// </summary>
-        public async Task SaveScriptOutputAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public async Task SaveScriptOutputAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -72,7 +77,7 @@ namespace ReconNess.Services
 
             if (subdomain == null || (subdomain != null && !subdomain.Name.Equals(scriptOutput.Subdomain, StringComparison.OrdinalIgnoreCase)))
             {
-                await this.AddOrUpdateSubdomainAsync(rootDomain, agent, scriptOutput);
+                await this.AddOrUpdateSubdomainAsync(rootDomain, agent, scriptOutput, activateNotification, cancellationToken);
             }
         }
 
@@ -182,7 +187,7 @@ namespace ReconNess.Services
         /// <param name="agent">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns>A Task</returns>
-        private async Task AddOrUpdateSubdomainAsync(RootDomain domain, Agent agent, ScriptOutput scriptOutput)
+        private async Task AddOrUpdateSubdomainAsync(RootDomain domain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
         {
             if (Uri.CheckHostName(scriptOutput.Subdomain) == UriHostNameType.Unknown)
             {
@@ -202,9 +207,14 @@ namespace ReconNess.Services
                 };
 
                 subdomain = await this.subdomainService.AddAsync(subdomain);
+                if (activateNotification && agent.NotifyNewFound)
+                {
+                    var payload = agent.NotificationPayload.Replace("{{domain}}", subdomain.Name);
+                    await this.notificationService.SendAsync(payload, cancellationToken);
+                }
             }
 
-            await this.SaveScriptOutputAsync(domain, subdomain, agent, scriptOutput);
+            await this.SaveScriptOutputAsync(domain, subdomain, agent, scriptOutput, activateNotification, cancellationToken);
         }
 
         /// <summary>
