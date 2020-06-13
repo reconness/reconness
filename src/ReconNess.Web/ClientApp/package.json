@@ -21,7 +21,7 @@
     "popper.js": "1.16.1",
     "vue": "2.6.11",
     "vue-axios": "2.1.5",
-    "vue-router": "3.3.2",
+    "vue-router": "3.3.4",
     "vue-tables-2": "1.5.46",
     "vuex": "3.4.0",
     "xterm": "4.6.0"
