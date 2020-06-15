@@ -36,12 +36,18 @@
             <div class="modal-content">
               <div class="modal-header">
                 <h5 class="modal-title" id="exampleModalLabel">Confirm Command</h5>
-                <button class="close" type="button" v-on:click="showCommandModal = !showCommandModal"><span aria-hidden="true">x</span></button>
+                <button class="close" type="button" v-on:click="closeConfirmModal"><span aria-hidden="true">x</span></button>
               </div>
               <div class="modal-body">
                 <div class="form-group">
                   <label for="command">Command</label>
                   <input class="form-control" id="command" v-model="currentAgent.command" />
+                </div>
+                  <div class="form-group form-check">
+                  <input class="form-check-input" type="checkbox" id="notifyIfAgentDone" ref="notifyIfAgentDone" v-model="currentAgent.activateNotification">
+                  <label class="form-check-label" for="notifyIfAgentDone">
+                      Activate Notification
+                  </label>
                 </div>
                 <div class="form-group">
                   <button class="btn btn-primary ml-2" v-on:click="onRunAgent(currentAgent)">Run</button>
@@ -193,7 +199,8 @@
             command: agent.command,
             target: this.targetName,
             rootDomain: this.rootDomain,
-            subdomain: this.subdomain
+            subdomain: this.subdomain,
+            activateNotification: agent.activateNotification
           })
         }
         catch (error) {
@@ -227,6 +234,10 @@
 
 
         return needToBeAlive || anotherAgentIsRunning
+      },
+      closeConfirmModal() {
+          this.currentAgent = null
+          this.showCommandModal = false
       },
       startTransitionCommandModal() {      
         this.$refs.commandBackdrop.classList.toggle("d-block");

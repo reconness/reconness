@@ -82,11 +82,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
@@ -101,7 +96,7 @@ namespace ReconNess.Web.Controllers
 
             if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.Domain == domain))
             {
-                return BadRequest();
+                return BadRequest($"The subdomain {subdomainDto.Name} exist");
             }
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
@@ -117,11 +112,6 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
                .Include(a => a.Labels)
                    .ThenInclude(ac => ac.Label)
@@ -147,11 +137,6 @@ namespace ReconNess.Web.Controllers
         [HttpPut("label/{id}")]
         public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
                .Include(a => a.Labels)
                    .ThenInclude(ac => ac.Label)

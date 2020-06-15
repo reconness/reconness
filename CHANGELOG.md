@@ -1,3 +1,9 @@
+## [1.2.1] - 2020-06-15
+
+### Added
+
+- Add notification feature
+
 ## [1.2.0] - 2020-06-06
 
 ### Added

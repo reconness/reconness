@@ -34,11 +34,6 @@ namespace ReconNess.Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody]CredentialsViewModel credentials)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
             if (identity == null)
             {

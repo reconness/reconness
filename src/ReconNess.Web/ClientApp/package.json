@@ -11,7 +11,7 @@
     "@fortawesome/fontawesome-svg-core": "1.2.28",
     "@fortawesome/free-regular-svg-icons": "5.13.0",
     "@fortawesome/free-solid-svg-icons": "5.13.0",
-    "@fortawesome/vue-fontawesome": "0.1.9",
+    "@fortawesome/vue-fontawesome": "0.1.10",
     "@johmun/vue-tags-input": "2.1.0",
     "axios": "0.19.2",
     "bootstrap": "4.5.0",
@@ -21,10 +21,10 @@
     "popper.js": "1.16.1",
     "vue": "2.6.11",
     "vue-axios": "2.1.5",
-    "vue-router": "3.3.2",
+    "vue-router": "3.3.4",
     "vue-tables-2": "1.5.46",
     "vuex": "3.4.0",
-    "xterm": "4.6.0"
+    "xterm": "4.7.0"
   },
   "devDependencies": {
     "@aspnet/signalr": "1.1.4",

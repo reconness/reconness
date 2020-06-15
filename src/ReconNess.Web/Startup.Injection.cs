@@ -34,6 +34,7 @@ namespace ReconNess.Web
             services.AddScoped<ILabelService, LabelService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IReferenceService, ReferenceService>();
+            services.AddScoped<INotificationService, NotificationService>();
 
             services.AddScoped<IScriptEngineService, ScriptEngineService>();
             services.AddScoped<IConnectorService, ConnectorService>();

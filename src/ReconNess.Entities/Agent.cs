@@ -17,6 +17,12 @@ namespace ReconNess.Entities
 
         public bool SkipIfRanBefore { get; set; }
 
+        public bool NotifyNewFound { get; set; }
+
+        public string NotificationPayload { get; set; }
+
+        public bool NotifyIfAgentDone { get; set; }
+
         public string Command { get; set; }
 
         public string Script { get; set; }

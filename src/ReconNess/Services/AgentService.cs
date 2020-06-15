@@ -22,6 +22,7 @@ namespace ReconNess.Services
         private readonly IRootDomainService rootDomainService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
+        private readonly INotificationService notificationService;
         private readonly IRunnerProcess runnerProcess;
 
         /// <summary>
@@ -31,16 +32,20 @@ namespace ReconNess.Services
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="connectorService"><see cref="IConnectorService"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
+        /// <param name="notificationService"><see cref="INotificationService"/></param>
+        /// <param name="runnerProcess"><see cref="IRunnerProcess"/></param>
         public AgentService(IUnitOfWork unitOfWork,
             IRootDomainService rootDomainService,
             IConnectorService connectorService,
             IScriptEngineService scriptEngineService,
+            INotificationService notificationService,
             IRunnerProcess runnerProcess)
             : base(unitOfWork)
         {
             this.rootDomainService = rootDomainService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
+            this.notificationService = notificationService;
             this.runnerProcess = runnerProcess;
         }
 
@@ -96,7 +101,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IAgentService.RunAsync(Target, RootDomain, Subdomain, Agent, string, CancellationToken)"></see>
         /// </summary>
-        public async Task RunAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, CancellationToken cancellationToken = default)
+        public async Task RunAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, bool activateNotification, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -136,20 +141,18 @@ namespace ReconNess.Services
                     var commandToRun = this.GetCommand(rootDomain, sub, agent, command);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, cancellationToken);
+                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, activateNotification, cancellationToken);
                 }
-
-                await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
             }
             else
             {
                 var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
 
                 await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, cancellationToken);
-
-                await this.connectorService.SendAsync(channel, "Agent done!");
+                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, activateNotification, cancellationToken);
             }
+
+            await this.SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
 
             agent.LastRun = DateTime.Now;
             await this.UpdateAsync(agent, cancellationToken);
@@ -194,7 +197,7 @@ namespace ReconNess.Services
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="command">The command to run on bash</param>
         /// <returns>A Task</returns>
-        private async Task RunBashAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, CancellationToken cancellationToken)
+        private async Task RunBashAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, bool activateNotification, CancellationToken cancellationToken)
         {
             try
             {
@@ -213,7 +216,7 @@ namespace ReconNess.Services
                     await this.connectorService.SendAsync("logs_" + channel, $"Output: {terminalLineOutput}");
                     await this.connectorService.SendAsync("logs_" + channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}");
 
-                    await this.rootDomainService.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, cancellationToken);
+                    await this.rootDomainService.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, activateNotification, cancellationToken);
 
                     await this.connectorService.SendAsync("logs_" + channel, $"Output #: {lineCount} processed");
                     await this.connectorService.SendAsync("logs_" + channel, "-----------------------------------------------------");
@@ -284,6 +287,24 @@ namespace ReconNess.Services
         {
             await this.connectorService.SendAsync(channel, ex.Message);
             await this.connectorService.SendAsync("logs_" + channel, $"Exception: {ex.StackTrace}");
+        }
+
+        /// <summary>
+        /// Send a msg and a notification when the agent finish
+        /// </summary>
+        /// <param name="agent">The agent</param>
+        /// <param name="activateNotification">If we need to send a notification</param>
+        /// <param name="channel">The channel to use to send the msg</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task SendAgentDoneNotificationAsync(string channel, Agent agent, bool activateNotification, CancellationToken cancellationToken)
+        {
+            if (activateNotification && agent.NotifyIfAgentDone)
+            {
+                await this.notificationService.SendAsync($"Agent {agent.Name} is done!", cancellationToken);
+            }
+
+            await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
         }
     }
 }

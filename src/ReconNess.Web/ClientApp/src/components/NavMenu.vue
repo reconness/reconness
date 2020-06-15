@@ -3,7 +3,7 @@
         <nav class='navbar navbar-expand-sm navbar-expand-md navbar-dark bg-dark border-bottom box-shadow mb-3'>
             <div class="container">
                 <img src="../assets/logo.png" width="50" height="50" />
-                <a class="navbar-brand" href='/'>ReconNess v1.2.0</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
+                <a class="navbar-brand" href='/'>ReconNess v1.2.1</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
                         aria-expanded="isExpanded" v-on:click="toggle">
                     <span class="navbar-toggler-icon"></span>
@@ -39,10 +39,17 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="nav-item" v-if="isAuth()">
-                            <a class="nav-link" v-on:click="onLogout()">
-                                Sign Out
+                        <li class="nav-item dropdown" v-if="isAuth()">
+                            <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Account
                             </a>
+                            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <router-link class="dropdown-item" to="/settings">Settings</router-link>
+                                <div class="dropdown-divider"></div>
+                                <div>
+                                    <a href="#" class="dropdown-item" v-on:click="onLogout()">Sign Out</a>
+                                </div>
+                            </div>                            
                         </li>
                         <li class="nav-item" v-else>
                             <a class="nav-link" href="/">

@@ -11,5 +11,7 @@
         public string RootDomain { get; set; }
 
         public string Subdomain { get; set; }
+
+        public bool ActivateNotification { get; set; }
     }
 }
