@@ -1,7 +1,7 @@
 ﻿import api from '../../api'
 
 const actions = {
-    notification(context) {
+    notification() {
         return new Promise((resolve, reject) => {
             try {
                 api.get('accounts/notification')
