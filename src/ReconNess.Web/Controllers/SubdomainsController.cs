@@ -96,7 +96,7 @@ namespace ReconNess.Web.Controllers
 
             if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.Domain == domain))
             {
-                return BadRequest();
+                return BadRequest($"The subdomain {subdomainDto.Name} exist");
             }
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
