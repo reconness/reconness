@@ -26,9 +26,10 @@ namespace ReconNess.Core.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput);
+        Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the subdomain with the services
