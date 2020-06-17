@@ -1,4 +1,4 @@
-# ReconNess Web App Tool
+# ReconNess Web App
 
 [![Build Status](https://dev.azure.com/reconness/reconness/_apis/build/status/reconness.reconness?branchName=master)](https://dev.azure.com/reconness/reconness/_build/latest?definitionId=1&branchName=master)
 
