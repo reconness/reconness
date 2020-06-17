@@ -20,15 +20,11 @@ Check this [link](https://docs.reconness.com/getting-started/quick-start) to kno
 
 ## Development
 
-### Windows requirements
-- TODO
+Current and LTS Releases
+[https://nodejs.org/download/release/](https://nodejs.org/download/release/)
 
-### Linux requirements
-
-- TODO
-### Mac requirements
-
-- TODO
+DotNet Core 3.1
+[https://dotnet.microsoft.com/download/dotnet-core/3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ## Join us
 
