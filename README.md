@@ -21,9 +21,11 @@ Check this [link](https://docs.reconness.com/getting-started/quick-start) to kno
 ## Development
 
 Current and LTS Releases
+
 [https://nodejs.org/download/release/](https://nodejs.org/download/release/)
 
 DotNet Core 3.1
+
 [https://dotnet.microsoft.com/download/dotnet-core/3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ## Join us
