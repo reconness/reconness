@@ -1,4 +1,4 @@
-# ReconNess Web App Tool
+# ReconNess Web App
 
 [![Build Status](https://dev.azure.com/reconness/reconness/_apis/build/status/reconness.reconness?branchName=master)](https://dev.azure.com/reconness/reconness/_build/latest?definitionId=1&branchName=master)
 
@@ -20,15 +20,13 @@ Check this [link](https://docs.reconness.com/getting-started/quick-start) to kno
 
 ## Development
 
-### Windows requirements
-- TODO
+NodeJs Current and LTS Releases
 
-### Linux requirements
+[https://nodejs.org/download/release/](https://nodejs.org/download/release/)
 
-- TODO
-### Mac requirements
+DotNet Core 3.1
 
-- TODO
+[https://dotnet.microsoft.com/download/dotnet-core/3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
 
 ## Join us
 
