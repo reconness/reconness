@@ -273,7 +273,7 @@ namespace ReconNess.Services
             }
 
             return $"{command.Replace("{{domain}}", subdomain == null ? domain.Name : subdomain.Name)}"
-                .Replace("{{targetName}}", domain.Name)
+                .Replace("{{rootDomain}}", domain.Name)
                 .Replace("\"", "\\\"");
         }
 
