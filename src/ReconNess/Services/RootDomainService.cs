@@ -157,6 +157,39 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Subdomain>> UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var subdomainsAddd = new List<Subdomain>();                
+
+                if (uploadRootDomain.Subdomains != null)
+                {
+                    this.UnitOfWork.BeginTransaction(cancellationToken);
+                    foreach (var subdomain in uploadRootDomain.Subdomains)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        if (!rootDomain.Subdomains.Any(s => s.Name == subdomain.Name))
+                        {
+                            rootDomain.Subdomains.Add(subdomain);
+                            subdomainsAddd.Add(subdomain);
+                        }
+                    }
+
+                    await this.UnitOfWork.CommitAsync(cancellationToken);
+                }
+                return subdomainsAddd;
+            }
+            catch (Exception ex)
+            {
+                this.UnitOfWork.Rollback(cancellationToken);
+                throw ex;
+            }
+        }
+
+        /// <summary>
         /// <see cref="IRootDomainService.GetRootDomains(ICollection{RootDomain}, List{string}, CancellationToken)"/>
         /// </summary>
         public ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default)
@@ -178,7 +211,7 @@ namespace ReconNess.Services
             }
 
             return myRootDomains;
-        }
+        }       
 
         /// <summary>
         /// Add or update the subdomain belong to the target
@@ -237,6 +270,6 @@ namespace ReconNess.Services
             }
 
             return myRootDomains;
-        }
+        }        
     }
 }

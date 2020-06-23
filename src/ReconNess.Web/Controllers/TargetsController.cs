@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
@@ -10,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -175,7 +177,7 @@ namespace ReconNess.Web.Controllers
 
         // POST api/targets/{targetName}/{rootDomain}
         [HttpPost("{targetName}/{rootDomain}")]
-        public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomain, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> Upload(string targetName, string rootDomain, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)
             {
@@ -199,11 +201,15 @@ namespace ReconNess.Web.Controllers
                 var path = Path.GetTempFileName();
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);
+                    await file.CopyToAsync(stream);  
                 }
 
-                var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(domain, subdomains);
+                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
+                var rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+
+                var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+
+                var subdomainsAdded = await this.rootDomainService.UploadRootDomainAsync(domain, uploadRootDomain, cancellationToken);
 
                 return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
             }
@@ -211,6 +217,52 @@ namespace ReconNess.Web.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        // GET api/targets/export/{targetName}/{rootDomain}
+        [HttpGet("export/{targetName}/{rootDomain}")]
+        public async Task<IActionResult> Export(string targetName, string rootDomain, CancellationToken cancellationToken)
+        {
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var domain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomain && t.Target == target, cancellationToken);
+            if (domain == null)
+            {
+                return NotFound();
+            }
+
+            var domainDto = this.mapper.Map<RootDomain, RootDomainDto>(domain);
+            var result = JsonConvert.SerializeObject(domainDto, new JsonSerializerSettings());
+            var download = Encoding.UTF8.GetBytes(result); ;
+
+            return File(download, "application/json", "rootdomain.json");
+        }
+
+        // GET api/targets/exportSubdomains/{targetName}/{rootDomain}
+        [HttpGet("exportSubdomains/{targetName}/{rootDomain}")]
+        public async Task<IActionResult> ExportSubdomains(string targetName, string rootDomain, CancellationToken cancellationToken)
+        {
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var domain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomain && t.Target == target, cancellationToken);
+            if (domain == null)
+            {
+                return NotFound();
+            }
+
+            var data = string.Join(",", domain.Subdomains.Select(s => s.Name));
+
+            var download = Encoding.UTF8.GetBytes(data);
+
+            return File(download, "text/csv", "subdomains.csv");
         }
     }
 }
