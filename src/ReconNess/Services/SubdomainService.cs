@@ -58,10 +58,10 @@ namespace ReconNess.Services
             await this.UpdateSubdomainIpAddress(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             await this.UpdateSubdomainIsAlive(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             await this.UpdateSubdomainHasHttpOpen(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainTakeover(subdomain, agent, scriptOutput, activateNotification, cancellationToken);            
+            await this.UpdateSubdomainTakeover(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             await this.UpdateSubdomainDirectory(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             await this.UpdateSubdomainService(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            
+
             await this.UpdateSubdomainLabel(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             this.UpdateSubdomainAgent(subdomain, agent, activateNotification, cancellationToken);
             this.UpdateSubdomainScreenshot(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
@@ -364,7 +364,7 @@ namespace ReconNess.Services
                     SubdomainId = subdomain.Id
                 });
             }
-        }        
+        }
 
         /// <summary>
         /// Update the subdomain agent property with the agent name if was updated before

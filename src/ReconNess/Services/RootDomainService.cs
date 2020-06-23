@@ -163,7 +163,7 @@ namespace ReconNess.Services
         {
             try
             {
-                var subdomainsAddd = new List<Subdomain>();                
+                var subdomainsAddd = new List<Subdomain>();
 
                 if (uploadRootDomain.Subdomains != null)
                 {
@@ -211,7 +211,7 @@ namespace ReconNess.Services
             }
 
             return myRootDomains;
-        }       
+        }
 
         /// <summary>
         /// Add or update the subdomain belong to the target
@@ -270,6 +270,6 @@ namespace ReconNess.Services
             }
 
             return myRootDomains;
-        }        
+        }
     }
 }

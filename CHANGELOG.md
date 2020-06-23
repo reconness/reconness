@@ -1,3 +1,11 @@
+## [1.2.2] - 2020-06-23
+
+### Added
+
+- Download subdomains
+- Export root domain
+- Import root domain
+
 ## [1.2.1] - 2020-06-15
 
 ### Added

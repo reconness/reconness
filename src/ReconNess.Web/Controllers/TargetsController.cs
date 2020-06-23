@@ -201,7 +201,7 @@ namespace ReconNess.Web.Controllers
                 var path = Path.GetTempFileName();
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
-                    await file.CopyToAsync(stream);  
+                    await file.CopyToAsync(stream);
                 }
 
                 var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
