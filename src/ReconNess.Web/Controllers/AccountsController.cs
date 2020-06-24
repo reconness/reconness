@@ -17,7 +17,7 @@ namespace ReconNess.Web.Controllers
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountsController" /> class
-        public AccountsController(IMapper mapper, 
+        public AccountsController(IMapper mapper,
             INotificationService notificationService)
         {
             this.mapper = mapper;

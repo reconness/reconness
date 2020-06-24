@@ -3,7 +3,7 @@
     <div class="pt-2">
       <div class="col-12">
         <input type="file" id="file" ref="file" v-on:change="handleFileUpload()" />
-        <label class="custom-file-label" for="file">Import Subdomains...</label>
+        <label class="custom-file-label" for="file">Load Subdomains</label>
       </div>
       <hr />
       <div class="form-row align-items-center">
@@ -11,8 +11,9 @@
           <input name="newSubdomain" formControlName="newSubdomain" class="form-control" id="newSubdomain" v-model="newSubdomain" placeholder="New Subdomain">
         </div>
         <div class="col-6">
-          <button class="btn btn-primary" v-on:click="onAddNewSubdomain()">Add</button>
-          <button class="ml-2 btn btn-danger" v-on:click="onDeleteAllSubdomains()" :disabled="subdomains.length === 0">Delete All subdomains</button>
+            <button class="btn btn-primary" v-on:click="onAddNewSubdomain()">Add</button>
+            <button class="ml-2 btn btn-danger" v-on:click="onDeleteAllSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
+            <button class="ml-2 btn btn-primary" v-on:click="onExportSubdomains()">Download Subdomains</button>
         </div>
       </div>
     </div>
@@ -24,7 +25,7 @@
         <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid" />
       </div>
       <div class="col-6">
-        <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>
+          <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>          
       </div>
     </div>
 
@@ -34,7 +35,6 @@
         Show only <strong class="text-primary">Scope</strong> subdomains
       </label>
     </div>
-
     <v-client-table :columns="columns" :data="subdomains" :options="options">
       <div slot="name" slot-scope="props" v-if="props.row.isAlive">
         <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>
@@ -69,7 +69,7 @@
         <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, rootDomain: $route.params.rootDomain, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
         <button type="button" class="btn btn-link" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></button>
       </div>
-    </v-client-table>
+    </v-client-table>    
   </div>
 </template>
 
@@ -162,7 +162,7 @@
         const formData = new FormData();
         formData.append('file', this.$refs.file.files[0]);
         try {
-          await this.$store.dispatch('targets/uploadTargets', { formData })
+          await this.$store.dispatch('targets/uploadSubdomains', { formData })
           alert("subdomains were uploaded")
         }
         catch (error) {
@@ -177,6 +177,15 @@
         this.filter = this.filterOnlyScope ? "Scope" : ""        
 
         this.filterGrid();
+      },
+      async onExportSubdomains() {
+        try {                
+            await this.$store.dispatch('targets/exportSubdomains')
+            alert("subdomains were saved")
+        }
+        catch (error) {
+          helpers.errorHandle(error)
+        }    
       }
     }
   }

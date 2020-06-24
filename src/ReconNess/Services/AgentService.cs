@@ -54,10 +54,12 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryable(cancellationToken)
+            var result = await this.GetAllQueryable(cancellationToken)
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .ToListAsync();
+
+            return result.OrderBy(a => a.AgentCategories.FirstOrDefault()?.Category?.Name).ToList();
         }
 
         /// <summary>
@@ -273,7 +275,7 @@ namespace ReconNess.Services
             }
 
             return $"{command.Replace("{{domain}}", subdomain == null ? domain.Name : subdomain.Name)}"
-                .Replace("{{targetName}}", domain.Name)
+                .Replace("{{rootDomain}}", domain.Name)
                 .Replace("\"", "\\\"");
         }
 

@@ -32,7 +32,7 @@ namespace ReconNess.Web.Controllers
 
         // POST api/auth/login
         [HttpPost("[action]")]
-        public async Task<IActionResult> Login([FromBody]CredentialsViewModel credentials)
+        public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials)
         {
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
             if (identity == null)

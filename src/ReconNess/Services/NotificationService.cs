@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using ReconNess.Core;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -21,7 +20,7 @@ namespace ReconNess.Services
         /// Initializes a new instance of the <see cref="INotificationService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public NotificationService(IUnitOfWork unitOfWork) 
+        public NotificationService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
         }
@@ -38,7 +37,7 @@ namespace ReconNess.Services
                 notif.Method = notification.Method;
                 notif.Payload = notification.Payload;
 
-                await this.UpdateAsync(notif, cancellationToken);               
+                await this.UpdateAsync(notif, cancellationToken);
             }
             else
             {

@@ -50,6 +50,15 @@ export default {
         .post(`${resource}/${id}`, formData)
         .catch(this.handleResponse)        
     },
+    download(resource, id) {
+        return axios.create({
+            baseURL: '/api/',
+            headers: authHeader(),
+            responseType: 'blob'
+        })
+        .get(`${resource}/${id}`)
+        .catch(this.handleResponse)
+    },
     delete (resource, id) {
         return axios.create({
             baseURL: '/api/',
@@ -57,7 +66,6 @@ export default {
         })
         .delete(`${resource}/${id}`)
         .catch(this.handleResponse)
-
     },
     handleResponse(error) {
         if (error.response.status === 401) {

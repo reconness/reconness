@@ -39,7 +39,7 @@ const actions = {
             }
         })
     },
-    async targets(context) {
+    targets(context) {
         return new Promise((resolve, reject) => {
             try {
                 api.get('targets')
@@ -129,12 +129,67 @@ const actions = {
             }
         })
     },
-    uploadTargets({ commit, state }, { formData }) {
+    uploadSubdomains({ commit, state }, { formData }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.upload('subdomains', state.currentTarget.name + '/' + state.currentRootDomain.name, formData)
+                    .then((res) => {
+                        commit('uploadSubdomains', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    upload({ commit, state }, { formData }) {
         return new Promise((resolve, reject) => {
             try {
                 api.upload('targets', state.currentTarget.name + '/' + state.currentRootDomain.name, formData)
                     .then((res) => {
-                        commit('uploadTargets', res.data)
+                        commit('uploadSubdomains', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    export() {
+        return new Promise((resolve, reject) => {
+            try {
+                api.download('targets/export', state.currentTarget.name + '/' + state.currentRootDomain.name)
+                    .then((res) => {
+                        var fileURL = window.URL.createObjectURL(new Blob([res.data]));
+                        var fileLink = document.createElement('a');
+                        fileLink.href = fileURL;
+                        fileLink.setAttribute('download', 'rootdomain.json');
+                        document.body.appendChild(fileLink);
+                        fileLink.click();
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    exportSubdomains() {
+        return new Promise((resolve, reject) => {
+            try {                
+                api.download('targets/exportSubdomains', state.currentTarget.name + '/' + state.currentRootDomain.name)
+                    .then((res) => {
+                        var fileURL = window.URL.createObjectURL(new Blob([res.data]));
+                        var fileLink = document.createElement('a');
+                        fileLink.href = fileURL;
+                        fileLink.setAttribute('download', 'subdomains.csv');
+                        document.body.appendChild(fileLink);
+                        fileLink.click();
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -186,7 +241,7 @@ const mutations = {
     createSubdomain(state, subdomain) {
         state.currentRootDomain.subdomains.push(subdomain)
     }, 
-    uploadTargets(state, subdomains) {
+    uploadSubdomains(state, subdomains) {
         subdomains.map(sub => state.currentRootDomain.subdomains.push(sub))        
     }
 }

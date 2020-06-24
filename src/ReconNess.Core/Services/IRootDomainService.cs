@@ -63,7 +63,16 @@ namespace ReconNess.Core.Services
         /// <param name="rootDomains"></param>
         /// <param name="lists"></param>
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
+        /// <returns>A list of subdomain added</returns>
         ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Upload root domain data with subdomains, services, port, ips, directories, labels, etc
+        /// </summary>
+        /// <param name="rootDomain">Current root domain</param>
+        /// <param name="uploadRootDomain">root domain upload</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A list of subdomain added</returns>
+        Task<List<Subdomain>> UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default);
     }
 }
