@@ -61,13 +61,14 @@ namespace ReconNess.Services
             await this.UpdateSubdomainTakeover(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             await this.UpdateSubdomainDirectory(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             await this.UpdateSubdomainService(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
+            await this.UpdateSubdomainNote(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
 
             await this.UpdateSubdomainLabel(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
             this.UpdateSubdomainAgent(subdomain, agent, activateNotification, cancellationToken);
             this.UpdateSubdomainScreenshot(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
-        }
+        }        
 
         /// <summary>
         /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
@@ -120,6 +121,7 @@ namespace ReconNess.Services
         /// Assign Ip address to the subdomain
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -142,6 +144,7 @@ namespace ReconNess.Services
         /// Update the subdomain if it has http port open
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -164,6 +167,7 @@ namespace ReconNess.Services
         /// Update the subdomain if it can be takeover
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -186,6 +190,7 @@ namespace ReconNess.Services
         /// Update the subdomain with screenshots
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -232,6 +237,7 @@ namespace ReconNess.Services
         /// Update the subdomain with directory discovery
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -278,6 +284,7 @@ namespace ReconNess.Services
         /// Update the subdomain if is a new service with open port
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -313,9 +320,37 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// Update the subdomain Note
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="activateNotification">If the notification is active</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        private async Task UpdateSubdomainNote(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.Note))
+            {
+                if (subdomain.Notes == null)
+                {
+                    subdomain.Notes = new Note();
+                }
+
+                subdomain.Notes.Notes = subdomain.Notes.Notes + '\n'+ scriptOutput.Note;
+                if (activateNotification && agent.NotifyNewFound)
+                {
+                    var payload = agent.NotificationPayload.Replace("{{domain}}", subdomain.Name).Replace("{{note}}", scriptOutput.Note);
+                    await this.notificationService.SendAsync(payload, cancellationToken);
+                }
+            }
+        }
+
+        /// <summary>
         /// Update the subdomain if is Alive
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -338,6 +373,7 @@ namespace ReconNess.Services
         /// Update the subdomain label
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
+        /// <param name="agent">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>

@@ -29,5 +29,7 @@
         public string HttpDirectorySize { get; set; }
 
         public string Label { get; set; }
+
+        public string Note { get; set; }
     }
 }

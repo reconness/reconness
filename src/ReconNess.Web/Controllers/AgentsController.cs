@@ -180,6 +180,8 @@ namespace ReconNess.Web.Controllers
                     .ThenInclude(s => s.ServiceHttp)
                 .Include(t => t.Subdomains)
                     .ThenInclude(s => s.Services)
+                .Include(t => t.Subdomains)
+                    .ThenInclude(n => n.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (rootDomain == null)
@@ -192,6 +194,7 @@ namespace ReconNess.Web.Controllers
             {
                 subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken)
                     .Include(s => s.Services)
+                    .Include(n => n.Notes)
                     .Include(s => s.ServiceHttp)
                         .ThenInclude(s => s.Directories)
                     .Include(s => s.Labels)
