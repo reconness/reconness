@@ -9,7 +9,7 @@
       <vue-tags-input v-model="tag" placeholder="Add Category" :tags="tags" :autocomplete-items="filteredItems" @tags-changed="newTags => tags = newTags" />
     </div>
     <div class="form-group">
-      <label for="inputCmd">Command <a href="https://docs.reconness.com/agents/add-agent#add-new-agent">Learn more</a></label>
+      <label for="inputCmd">Command <a href="https://docs.reconness.com/agents/add-agent#add-new-agent" target="_blank">Learn more</a></label>
       <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
     </div>
     <div class="form-group form-check">
@@ -51,8 +51,36 @@
       </label>
     </div>
     <div class="form-group">
-        <label for="inputName">Notification Payload</label>
-        <input name="notificationPayload" formControlName="notificationPayload" class="form-control" id="notificationPayload" v-model="agent.notificationPayload">
+        <label for="inputName">New Subdomain. Use <code v-html="`{{domain}}`"></code> to obtain <code>scriptOutput.Subdomain</code> value</label>
+        <input name="SubdomainPayload" formControlName="SubdomainPayload" class="form-control" id="SubdomainPayload" v-model="agent.SubdomainPayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New IpAddress. Use <code v-html="`{{ip}}`"></code> to obtain <code>scriptOutput.Ip</code> value</label>
+        <input name="IpAddressPayload" formControlName="IpAddressPayload" class="form-control" id="IpAddressPayload" v-model="agent.IpAddressPayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New IsAlive. Use <code v-html="`{{isAlive}}`"></code> to obtain <code>scriptOutput.IsAlive</code> value</label>
+        <input name="IsAlivePayload" formControlName="IsAlivePayload" class="form-control" id="IsAlivePayload" v-model="agent.IsAlivePayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New Has Http Open. Use <code v-html="`{{httpOpen}}`"></code> to obtain <code>scriptOutput.HasHttpOpen</code> value</label>
+        <input name="HasHttpOpenPayload" formControlName="HasHttpOpenPayload" class="form-control" id="HasHttpOpenPayload" v-model="agent.HasHttpOpenPayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New Takeover. Use <code v-html="`{{takeover}}`"></code> to obtain <code>scriptOutput.Takeover</code> value</label>
+        <input name="TakeoverPayload" formControlName="TakeoverPayload" class="form-control" id="TakeoverPayload" v-model="agent.TakeoverPayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New Directory. Use <code v-html="`{{directory}}`"></code> to obtain <code>scriptOutput.Directory</code> value</label>
+        <input name="DirectoryPayload" formControlName="DirectoryPayload" class="form-control" id="DirectoryPayload" v-model="agent.DirectoryPayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New Service and Port. Use <code v-html="`{{service}}`"></code> and <code v-html="`{{port}}`"></code> to obtain <code>scriptOutput.Service</code> and <code>scriptOutput.Port</code> values</label>
+        <input name="ServicePayload" formControlName="ServicePayload" class="form-control" id="ServicePayload" v-model="agent.ServicePayload" :disabled="disabledIsNotNotif">
+    </div>
+      <div class="form-group">
+        <label for="inputName">New Note. Use <code v-html="`{{note}}`"></code> to obtain <code>scriptOutput.Note</code> value</label>
+        <input name="NotePayload" formControlName="NotePayload" class="form-control" id="NotePayload" v-model="agent.NotePayload" :disabled="disabledIsNotNotif">
     </div>
       <hr />
     <div class="form-group" v-if="!isNew">
@@ -99,7 +127,10 @@
         })
       },
       disabledIsNotBySubdomain() {
-        return !this.agent.isBySubdomain
+        return !this.agent.isBySubdomain        
+      },
+      disabledIsNotNotif() {
+        return this.agent.notifyNewFound !== true
       },
       tags: {
         get: function () {

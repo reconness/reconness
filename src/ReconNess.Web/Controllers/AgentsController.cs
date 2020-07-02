@@ -124,7 +124,20 @@ namespace ReconNess.Web.Controllers
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
             agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
             agent.NotifyNewFound = agentDto.NotifyNewFound;
-            agent.NotificationPayload = agentDto.NotificationPayload;
+            if (agent.AgentNotification == null)
+            {
+                agent.AgentNotification = new AgentNotification();
+            }
+
+            agent.AgentNotification.SubdomainPayload = agentDto.SubdomainPayload;
+            agent.AgentNotification.IpAddressPayload = agentDto.IpAddressPayload;
+            agent.AgentNotification.IsAlivePayload = agentDto.IsAlivePayload;
+            agent.AgentNotification.HasHttpOpenPayload = agentDto.HasHttpOpenPayload;
+            agent.AgentNotification.TakeoverPayload = agentDto.TakeoverPayload;
+            agent.AgentNotification.DirectoryPayload = agentDto.DirectoryPayload;
+            agent.AgentNotification.ServicePayload = agentDto.ServicePayload;
+            agent.AgentNotification.NotePayload = agentDto.NotePayload;
+
             agent.Script = agentDto.Script;
 
             await this.agentService.UpdateAsync(agent, cancellationToken);

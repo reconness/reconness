@@ -19,7 +19,21 @@ namespace ReconNess.Web.Dtos
 
         public bool NotifyNewFound { get; set; }
 
-        public string NotificationPayload { get; set; }
+        public string SubdomainPayload { get; set; }
+
+        public string IpAddressPayload { get; set; }
+
+        public string IsAlivePayload { get; set; }
+
+        public string HasHttpOpenPayload { get; set; }
+
+        public string TakeoverPayload { get; set; }
+
+        public string DirectoryPayload { get; set; }
+
+        public string ServicePayload { get; set; }
+
+        public string NotePayload { get; set; }
 
         public bool NotifyIfAgentDone { get; set; }
 

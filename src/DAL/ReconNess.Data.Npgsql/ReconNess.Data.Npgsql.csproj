@@ -11,6 +11,8 @@
     <Compile Remove="Migrations\20200606172050_AddSeeding.Designer.cs" />
     <Compile Remove="Migrations\20200606172247_AddSeeding.cs" />
     <Compile Remove="Migrations\20200606172247_AddSeeding.Designer.cs" />
+    <Compile Remove="Migrations\20200702171229_ChangeAgentNotification.cs" />
+    <Compile Remove="Migrations\20200702171229_ChangeAgentNotification.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

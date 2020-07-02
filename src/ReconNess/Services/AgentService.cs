@@ -55,6 +55,7 @@ namespace ReconNess.Services
         public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(CancellationToken cancellationToken = default)
         {
             var result = await this.GetAllQueryable(cancellationToken)
+                .Include(n => n.AgentNotification)
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .ToListAsync();
@@ -68,6 +69,7 @@ namespace ReconNess.Services
         public async Task<Agent> GetAgentWithCategoryAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                .Include(n => n.AgentNotification)
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .FirstOrDefaultAsync();
