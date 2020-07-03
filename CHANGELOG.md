@@ -1,3 +1,10 @@
+## [1.2.3] - 2020-07-03
+
+### Added
+
+- Parse output to save in the Notes
+- Add different payload for notifications per variables
+
 ## [1.2.2] - 2020-06-23
 
 ### Added

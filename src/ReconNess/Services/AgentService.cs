@@ -55,6 +55,7 @@ namespace ReconNess.Services
         public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(CancellationToken cancellationToken = default)
         {
             var result = await this.GetAllQueryable(cancellationToken)
+                .Include(n => n.AgentNotification)
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .ToListAsync();
@@ -68,6 +69,7 @@ namespace ReconNess.Services
         public async Task<Agent> GetAgentWithCategoryAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                .Include(n => n.AgentNotification)
                 .Include(a => a.AgentCategories)
                 .ThenInclude(c => c.Category)
                 .FirstOrDefaultAsync();
@@ -131,31 +133,24 @@ namespace ReconNess.Services
                         break;
                     }
 
-                    var needToBeAlive = agent.OnlyIfIsAlive && (sub.IsAlive == null || !sub.IsAlive.Value);
-                    var needTohasHttpOpen = agent.OnlyIfHasHttpOpen && (sub.HasHttpOpen == null || !sub.HasHttpOpen.Value);
-                    var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(sub.FromAgents) && sub.FromAgents.Contains(agent.Name));
-                    if (needToBeAlive || needTohasHttpOpen || needToSkip)
+                    var needToSkip = this.NeedToSkipSubdomain(agent, sub);
+                    if (needToSkip)
                     {
                         await this.connectorService.SendAsync("logs_" + channel, $"Skip subdomain: {sub.Name}");
                         continue;
                     }
 
-                    var commandToRun = this.GetCommand(rootDomain, sub, agent, command);
-
-                    await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                    await this.RunBashAsync(rootDomain, sub, agent, commandToRun, channel, activateNotification, cancellationToken);
+                    await this.RunAgentAsync(rootDomain, sub, agent, command, channel, activateNotification, cancellationToken);
                 }
             }
             else
             {
-                var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
-
-                await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
-                await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, activateNotification, cancellationToken);
+                await this.RunAgentAsync(rootDomain, subdomain, agent, command, channel, activateNotification, cancellationToken);
             }
 
             await this.SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
 
+            // update the last time that we run this agent
             agent.LastRun = DateTime.Now;
             await this.UpdateAsync(agent, cancellationToken);
         }
@@ -191,6 +186,40 @@ namespace ReconNess.Services
         public async Task<ScriptOutput> DebugAsync(string terminalOutput, string script, CancellationToken cancellationToken = default)
         {
             return await this.scriptEngineService.ParseInputAsync(terminalOutput, 0, script);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rootDomain"></param>
+        /// <param name="subdomain"></param>
+        /// <param name="agent"></param>
+        /// <param name="command"></param>
+        /// <param name="channel"></param>
+        /// <param name="activateNotification"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task RunAgentAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, bool activateNotification, CancellationToken cancellationToken)
+        {
+            var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
+
+            await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
+            await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, activateNotification, cancellationToken);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="agent"></param>
+        /// <param name="subdomain"></param>
+        /// <returns></returns>
+        private bool NeedToSkipSubdomain(Agent agent, Subdomain subdomain)
+        {
+            var needToBeAlive = agent.OnlyIfIsAlive && (subdomain.IsAlive == null || !subdomain.IsAlive.Value);
+            var needTohasHttpOpen = agent.OnlyIfHasHttpOpen && (subdomain.HasHttpOpen == null || !subdomain.HasHttpOpen.Value);
+            var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(subdomain.FromAgents) && subdomain.FromAgents.Contains(agent.Name));
+
+            return needToBeAlive || needTohasHttpOpen || needToSkip;
         }
 
         /// <summary>

@@ -240,9 +240,9 @@ namespace ReconNess.Services
                 };
 
                 subdomain = await this.subdomainService.AddAsync(subdomain);
-                if (activateNotification && agent.NotifyNewFound)
+                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.SubdomainPayload))
                 {
-                    var payload = agent.NotificationPayload.Replace("{{domain}}", subdomain.Name);
+                    var payload = agent.AgentNotification.SubdomainPayload.Replace("{{domain}}", subdomain.Name);
                     await this.notificationService.SendAsync(payload, cancellationToken);
                 }
             }

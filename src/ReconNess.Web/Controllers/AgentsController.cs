@@ -124,7 +124,20 @@ namespace ReconNess.Web.Controllers
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
             agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
             agent.NotifyNewFound = agentDto.NotifyNewFound;
-            agent.NotificationPayload = agentDto.NotificationPayload;
+            if (agent.AgentNotification == null)
+            {
+                agent.AgentNotification = new AgentNotification();
+            }
+
+            agent.AgentNotification.SubdomainPayload = agentDto.SubdomainPayload;
+            agent.AgentNotification.IpAddressPayload = agentDto.IpAddressPayload;
+            agent.AgentNotification.IsAlivePayload = agentDto.IsAlivePayload;
+            agent.AgentNotification.HasHttpOpenPayload = agentDto.HasHttpOpenPayload;
+            agent.AgentNotification.TakeoverPayload = agentDto.TakeoverPayload;
+            agent.AgentNotification.DirectoryPayload = agentDto.DirectoryPayload;
+            agent.AgentNotification.ServicePayload = agentDto.ServicePayload;
+            agent.AgentNotification.NotePayload = agentDto.NotePayload;
+
             agent.Script = agentDto.Script;
 
             await this.agentService.UpdateAsync(agent, cancellationToken);
@@ -180,6 +193,8 @@ namespace ReconNess.Web.Controllers
                     .ThenInclude(s => s.ServiceHttp)
                 .Include(t => t.Subdomains)
                     .ThenInclude(s => s.Services)
+                .Include(t => t.Subdomains)
+                    .ThenInclude(n => n.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (rootDomain == null)
@@ -192,6 +207,7 @@ namespace ReconNess.Web.Controllers
             {
                 subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken)
                     .Include(s => s.Services)
+                    .Include(n => n.Notes)
                     .Include(s => s.ServiceHttp)
                         .ThenInclude(s => s.Directories)
                     .Include(s => s.Labels)
@@ -204,7 +220,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunDto.Agent, cancellationToken);
+            var agent = await agentService.GetAgentWithCategoryAsync(a => a.Name == agentRunDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();

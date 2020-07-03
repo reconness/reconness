@@ -19,8 +19,6 @@ namespace ReconNess.Entities
 
         public bool NotifyNewFound { get; set; }
 
-        public string NotificationPayload { get; set; }
-
         public bool NotifyIfAgentDone { get; set; }
 
         public string Command { get; set; }
@@ -29,6 +27,7 @@ namespace ReconNess.Entities
 
         public DateTime LastRun { get; set; }
 
+        public virtual AgentNotification AgentNotification { get; set; }
         public virtual ICollection<AgentCategory> AgentCategories { get; set; }
     }
 }
