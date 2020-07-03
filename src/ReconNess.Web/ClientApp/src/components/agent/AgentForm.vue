@@ -52,35 +52,35 @@
     </div>
     <div class="form-group">
         <label for="inputName">New Subdomain. Use <code v-html="`{{domain}}`"></code> to obtain <code>scriptOutput.Subdomain</code> value</label>
-        <input name="SubdomainPayload" formControlName="SubdomainPayload" class="form-control" id="SubdomainPayload" v-model="agent.SubdomainPayload" :disabled="disabledIsNotNotif">
+        <input name="subdomainPayload" formControlName="subdomainPayload" class="form-control" id="subdomainPayload" v-model="agent.subdomainPayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New IpAddress. Use <code v-html="`{{ip}}`"></code> to obtain <code>scriptOutput.Ip</code> value</label>
-        <input name="IpAddressPayload" formControlName="IpAddressPayload" class="form-control" id="IpAddressPayload" v-model="agent.IpAddressPayload" :disabled="disabledIsNotNotif">
+        <input name="ipAddressPayload" formControlName="ipAddressPayload" class="form-control" id="ipAddressPayload" v-model="agent.ipAddressPayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New IsAlive. Use <code v-html="`{{isAlive}}`"></code> to obtain <code>scriptOutput.IsAlive</code> value</label>
-        <input name="IsAlivePayload" formControlName="IsAlivePayload" class="form-control" id="IsAlivePayload" v-model="agent.IsAlivePayload" :disabled="disabledIsNotNotif">
+        <input name="isAlivePayload" formControlName="isAlivePayload" class="form-control" id="isAlivePayload" v-model="agent.isAlivePayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New Has Http Open. Use <code v-html="`{{httpOpen}}`"></code> to obtain <code>scriptOutput.HasHttpOpen</code> value</label>
-        <input name="HasHttpOpenPayload" formControlName="HasHttpOpenPayload" class="form-control" id="HasHttpOpenPayload" v-model="agent.HasHttpOpenPayload" :disabled="disabledIsNotNotif">
+        <input name="hasHttpOpenPayload" formControlName="hasHttpOpenPayload" class="form-control" id="hasHttpOpenPayload" v-model="agent.hasHttpOpenPayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New Takeover. Use <code v-html="`{{takeover}}`"></code> to obtain <code>scriptOutput.Takeover</code> value</label>
-        <input name="TakeoverPayload" formControlName="TakeoverPayload" class="form-control" id="TakeoverPayload" v-model="agent.TakeoverPayload" :disabled="disabledIsNotNotif">
+        <input name="takeoverPayload" formControlName="takeoverPayload" class="form-control" id="takeoverPayload" v-model="agent.takeoverPayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New Directory. Use <code v-html="`{{directory}}`"></code> to obtain <code>scriptOutput.Directory</code> value</label>
-        <input name="DirectoryPayload" formControlName="DirectoryPayload" class="form-control" id="DirectoryPayload" v-model="agent.DirectoryPayload" :disabled="disabledIsNotNotif">
+        <input name="directoryPayload" formControlName="directoryPayload" class="form-control" id="directoryPayload" v-model="agent.directoryPayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New Service and Port. Use <code v-html="`{{service}}`"></code> and <code v-html="`{{port}}`"></code> to obtain <code>scriptOutput.Service</code> and <code>scriptOutput.Port</code> values</label>
-        <input name="ServicePayload" formControlName="ServicePayload" class="form-control" id="ServicePayload" v-model="agent.ServicePayload" :disabled="disabledIsNotNotif">
+        <input name="servicePayload" formControlName="servicePayload" class="form-control" id="servicePayload" v-model="agent.servicePayload" :disabled="disabledIsNotNotif">
     </div>
       <div class="form-group">
         <label for="inputName">New Note. Use <code v-html="`{{note}}`"></code> to obtain <code>scriptOutput.Note</code> value</label>
-        <input name="NotePayload" formControlName="NotePayload" class="form-control" id="NotePayload" v-model="agent.NotePayload" :disabled="disabledIsNotNotif">
+        <input name="notePayload" formControlName="notePayload" class="form-control" id="notePayload" v-model="agent.notePayload" :disabled="disabledIsNotNotif">
     </div>
       <hr />
     <div class="form-group" v-if="!isNew">

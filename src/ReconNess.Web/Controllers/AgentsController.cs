@@ -220,7 +220,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunDto.Agent, cancellationToken);
+            var agent = await agentService.GetAgentWithCategoryAsync(a => a.Name == agentRunDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
