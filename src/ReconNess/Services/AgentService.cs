@@ -140,12 +140,12 @@ namespace ReconNess.Services
                         continue;
                     }
 
-                    await this.RunAgentAsync(rootDomain, sub, agent, command, channel, activateNotification, cancellationToken);
+                    await this.RunAgentAsync(target, rootDomain, sub, agent, command, channel, activateNotification, cancellationToken);
                 }
             }
             else
             {
-                await this.RunAgentAsync(rootDomain, subdomain, agent, command, channel, activateNotification, cancellationToken);
+                await this.RunAgentAsync(target, rootDomain, subdomain, agent, command, channel, activateNotification, cancellationToken);
             }
 
             await this.SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
@@ -189,8 +189,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// 
+        /// Run the Agent
         /// </summary>
+        /// <param name="target">The target</param>
         /// <param name="rootDomain"></param>
         /// <param name="subdomain"></param>
         /// <param name="agent"></param>
@@ -199,16 +200,16 @@ namespace ReconNess.Services
         /// <param name="activateNotification"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task RunAgentAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, bool activateNotification, CancellationToken cancellationToken)
+        private async Task RunAgentAsync(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, string command, string channel, bool activateNotification, CancellationToken cancellationToken)
         {
-            var commandToRun = this.GetCommand(rootDomain, subdomain, agent, command);
+            var commandToRun = this.GetCommand(target, rootDomain, subdomain, agent, command);
 
             await this.connectorService.SendAsync("logs_" + channel, $"RUN: {command}");
             await this.RunBashAsync(rootDomain, subdomain, agent, commandToRun, channel, activateNotification, cancellationToken);
         }
 
         /// <summary>
-        /// 
+        /// Check if we need to skip the subdomain and does not the agent in that subdomain
         /// </summary>
         /// <param name="agent"></param>
         /// <param name="subdomain"></param>
@@ -292,11 +293,13 @@ namespace ReconNess.Services
         /// <summary>
         /// Obtain the command to run on bash
         /// </summary>
+        /// <param name="target">The target</param>
         /// <param name="domain">The domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
+        /// <param name="command">The command to run</param>
         /// <returns>The command to run on bash</returns>
-        private string GetCommand(RootDomain domain, Subdomain subdomain, Agent agent, string command)
+        private string GetCommand(Target target, RootDomain domain, Subdomain subdomain, Agent agent, string command)
         {
             if (string.IsNullOrWhiteSpace(command))
             {
@@ -304,6 +307,7 @@ namespace ReconNess.Services
             }
 
             return $"{command.Replace("{{domain}}", subdomain == null ? domain.Name : subdomain.Name)}"
+                .Replace("{{target}}", target.Name)
                 .Replace("{{rootDomain}}", domain.Name)
                 .Replace("\"", "\\\"");
         }
