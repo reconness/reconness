@@ -37,8 +37,8 @@ namespace ReconNess.Web.Controllers
             this.subdomainService = subdomainService;
         }
 
-        // GET api/notes/target/{targetName}/{rootDomain}
-        [HttpPost("target/{targetName}/{rootDomain}")]
+        // GET api/notes/target/{targetName}/{rootDomainName}
+        [HttpPost("target/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> SaveTargetNotes(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
@@ -61,8 +61,8 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // GET api/notes/subdomain/{target}/{rootDomain}/{subdomain}
-        [HttpPost("subdomain/{targetName}/{rootDomain}/{subdomainName}")]
+        // GET api/notes/subdomain/{target}/{rootDomainName}/{subdomain}
+        [HttpPost("subdomain/{targetName}/{rootDomainName}/{subdomainName}")]
         public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomainName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);

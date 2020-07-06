@@ -68,8 +68,8 @@ namespace ReconNess.Web.Controllers
             return Ok(this.mapper.Map<Target, TargetDto>(target));
         }
 
-        // GET api/targets/{targetName}/{rootDomain}
-        [HttpGet("{targetName}/{rootDomain}")]
+        // GET api/targets/{targetName}/{rootDomainName}
+        [HttpGet("{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Get(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
@@ -154,8 +154,8 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // DELETE api/targets/{targetName}/{rootDomain}
-        [HttpDelete("{targetName}/{rootDomain}")]
+        // DELETE api/targets/{targetName}/{rootDomainName}
+        [HttpDelete("{targetName}/{rootDomainName}")]
         public async Task<IActionResult> DeleteAllSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
@@ -175,8 +175,8 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // POST api/targets/{targetName}/{rootDomain}
-        [HttpPost("{targetName}/{rootDomain}")]
+        // POST api/targets/{targetName}/{rootDomainName}
+        [HttpPost("{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)
@@ -219,8 +219,8 @@ namespace ReconNess.Web.Controllers
             }
         }
 
-        // GET api/targets/export/{targetName}/{rootDomain}
-        [HttpGet("export/{targetName}/{rootDomain}")]
+        // GET api/targets/export/{targetName}/{rootDomainName}
+        [HttpGet("export/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
@@ -242,8 +242,8 @@ namespace ReconNess.Web.Controllers
             return File(download, "application/json", "rootdomain.json");
         }
 
-        // GET api/targets/exportSubdomains/{targetName}/{rootDomain}
-        [HttpGet("exportSubdomains/{targetName}/{rootDomain}")]
+        // GET api/targets/exportSubdomains/{targetName}/{rootDomainName}
+        [HttpGet("exportSubdomains/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> ExportSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);

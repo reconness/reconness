@@ -48,8 +48,8 @@ namespace ReconNess.Web.Controllers
             this.labelService = labelService;
         }
 
-        // GET api/subdomains/{target}/{rootDomain}/{subdomain}
-        [HttpGet("{targetName}/{rootDomain}/{subdomainName}")]
+        // GET api/subdomains/{target}/{rootDomainName}/{subdomain}
+        [HttpGet("{targetName}/{rootDomainName}/{subdomainName}")]
         public async Task<IActionResult> Get(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
@@ -111,8 +111,8 @@ namespace ReconNess.Web.Controllers
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
         }
 
-        // POST api/subdomains/{targetName}/{rootDomain}
-        [HttpPost("{targetName}/{rootDomain}")]
+        // POST api/subdomains/{targetName}/{rootDomainName}
+        [HttpPost("{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)
