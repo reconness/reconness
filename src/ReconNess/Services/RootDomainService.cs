@@ -216,18 +216,18 @@ namespace ReconNess.Services
         /// <summary>
         /// Add or update the subdomain belong to the target
         /// </summary>
-        /// <param name="domain">The domain</param>
+        /// <param name="rootDomain">The domain</param>
         /// <param name="agent">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns>A Task</returns>
-        private async Task AddOrUpdateSubdomainAsync(RootDomain domain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private async Task AddOrUpdateSubdomainAsync(RootDomain rootDomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
         {
             if (Uri.CheckHostName(scriptOutput.Subdomain) == UriHostNameType.Unknown)
             {
                 return;
             }
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(d => d.Name == scriptOutput.Subdomain && d.Domain == domain)
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(d => d.Name == scriptOutput.Subdomain && d.RootDomain == rootDomain)
                                 .Include(s => s.Services)
                                 .FirstOrDefaultAsync();
 
@@ -236,7 +236,7 @@ namespace ReconNess.Services
                 subdomain = new Subdomain
                 {
                     Name = scriptOutput.Subdomain,
-                    Domain = domain
+                    RootDomain = rootDomain
                 };
 
                 subdomain = await this.subdomainService.AddAsync(subdomain);
@@ -247,7 +247,7 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.SaveScriptOutputAsync(domain, subdomain, agent, scriptOutput, activateNotification, cancellationToken);
+            await this.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, activateNotification, cancellationToken);
         }
 
         /// <summary>

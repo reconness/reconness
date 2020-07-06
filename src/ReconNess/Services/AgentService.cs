@@ -294,21 +294,21 @@ namespace ReconNess.Services
         /// Obtain the command to run on bash
         /// </summary>
         /// <param name="target">The target</param>
-        /// <param name="domain">The domain</param>
+        /// <param name="rootDomain">The domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="agent">The agent</param>
         /// <param name="command">The command to run</param>
         /// <returns>The command to run on bash</returns>
-        private string GetCommand(Target target, RootDomain domain, Subdomain subdomain, Agent agent, string command)
+        private string GetCommand(Target target, RootDomain rootDomain, Subdomain subdomain, Agent agent, string command)
         {
             if (string.IsNullOrWhiteSpace(command))
             {
                 command = agent.Command;
             }
 
-            return $"{command.Replace("{{domain}}", subdomain == null ? domain.Name : subdomain.Name)}"
+            return $"{command.Replace("{{domain}}", subdomain == null ? rootDomain.Name : subdomain.Name)}"
                 .Replace("{{target}}", target.Name)
-                .Replace("{{rootDomain}}", domain.Name)
+                .Replace("{{rootDomain}}", rootDomain.Name)
                 .Replace("\"", "\\\"");
         }
 

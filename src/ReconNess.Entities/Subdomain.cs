@@ -9,7 +9,7 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
-        public virtual RootDomain Domain { get; set; }
+        public virtual RootDomain RootDomain { get; set; }
 
         public bool? HasHttpOpen { get; set; }
 
