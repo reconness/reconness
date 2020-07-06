@@ -44,6 +44,7 @@
         async onSave() {
             try { 
                 await this.$store.dispatch('accounts/saveNotification', this.notification)
+                alert("The settings were saved")
             }
             catch (error) {
                 helpers.errorHandle(error)
