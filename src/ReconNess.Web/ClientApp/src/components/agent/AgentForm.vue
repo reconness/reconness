@@ -50,6 +50,9 @@
           Notify New Found
       </label>
     </div>
+    <div>
+        <p class="font-italic"><ins>Remember that we need to have setting up the notifications in the <router-link to="/settings">Settings</router-link> Page.</ins></p>
+    </div>
     <div class="form-group">
         <label for="inputName">New Subdomain. Use <code v-html="`{{domain}}`"></code> to obtain <code>scriptOutput.Subdomain</code> value</label>
         <input name="subdomainPayload" formControlName="subdomainPayload" class="form-control" id="subdomainPayload" v-model="agent.subdomainPayload" :disabled="disabledIsNotNotif">
