@@ -3,7 +3,7 @@
 ### Added
 
 - Add links to the documentation
-- Refactor (** Break previus version **)
+- Refactor (** Break previous version **)
 - Update packages
 
 ## [1.2.3] - 2020-07-03
