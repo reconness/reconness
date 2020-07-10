@@ -1,36 +1,35 @@
 <template>
-  <div>
-    <h3>New Target</h3>
-    <target-form v-on:save="onSave" v-bind:isNew="true"></target-form>
-  </div>
+    <div>
+        <h3>New Target</h3>
+        <target-form v-on:save="onSave" v-bind:isNew="true"></target-form>
+    </div>
 </template>
 
 <script>
-  import TargetForm from '../../components/target/TargetForm'
+    import TargetForm from '../../components/target/TargetForm'
 
-  import helpers from '../../helpers'
+    import helpers from '../../helpers'
 
-  export default {
-    name: 'TargetCreatePage',
-    components: {
-      TargetForm
-    },
-    methods: {
-      async onSave(target, rootDomains) {
-        try {
-          target.rootDomains = rootDomains;
-          await this.$store.dispatch('targets/createTarget', target)
-          this.$router.push({ name: 'target', params: { targetName: target.name } })
+    export default {
+        name: 'TargetCreatePage',
+        components: {
+            TargetForm
+        },
+        methods: {
+            async onSave(target, rootDomains) {
+                try {
+                    target.rootDomains = rootDomains;
+                    await this.$store.dispatch('targets/createTarget', target)
+                    this.$router.push({ name: 'target', params: { targetName: target.name } })
+                }
+                catch (error) {
+                    helpers.errorHandle(error)
+                }
+            }
         }
-        catch(error) {
-          helpers.errorHandle(error)
-        }
-      }
     }
-  }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 </style>

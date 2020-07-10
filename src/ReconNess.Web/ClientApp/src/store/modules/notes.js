@@ -1,9 +1,9 @@
 ﻿import api from '../../api'
 
 const actions = {
-    saveTargetNote(context, { targetName, rootDomain, notes}) {
+    saveTargetNote(context, { targetName, rootDomain, notes }) {
         return new Promise((resolve, reject) => {
-            try {                
+            try {
                 api.create('notes/target/' + targetName + '/' + rootDomain, { notes: notes })
                     .then(() => {
                         resolve()

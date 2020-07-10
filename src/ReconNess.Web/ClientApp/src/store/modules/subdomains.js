@@ -5,7 +5,7 @@ const state = {
 }
 
 const actions = {
-    subdomain(context, { targetName, rootDomain, subdomain}) {
+    subdomain(context, { targetName, rootDomain, subdomain }) {
         return new Promise((resolve, reject) => {
             try {
                 api.get('subdomains/' + targetName + '/' + rootDomain + '/' + subdomain)
@@ -19,7 +19,7 @@ const actions = {
                 reject(err)
             }
         })
-    },    
+    },
     updateSubdomain({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
@@ -64,13 +64,13 @@ const actions = {
             }
         })
     },
-    updateLabel(context, { subdomain, label}) {
+    updateLabel(context, { subdomain, label }) {
         return new Promise((resolve, reject) => {
             try {
                 api.update('subdomains/label', subdomain.id, { label: label })
-                    .then((res) => {                     
+                    .then((res) => {
                         const label = res.data
-                        context.commit('updateLabel', { subdomain,  label})                        
+                        context.commit('updateLabel', { subdomain, label })
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -86,16 +86,16 @@ const mutations = {
         state.currentSubdomain = subdomain
     },
     updateLabel(state, { subdomain, label }) {
-        const s = this.state.targets.currentRootDomain.subdomains.find(sub => sub.name == subdomain.name)        
+        const s = this.state.targets.currentRootDomain.subdomains.find(sub => sub.name == subdomain.name)
         if (!s.labels.some(l => l.name === label.name)) {
             s.labels.push(label)
-        }       
-    },      
+        }
+    },
     deleteSubdomain(state, subdomain) {
         this.state.targets.currentRootDomain.subdomains = this.state.targets.currentRootDomain.subdomains.filter((s) => {
             return s.name !== subdomain.name;
         })
-    }    
+    }
 }
 
 export default {

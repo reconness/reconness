@@ -205,7 +205,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = null;
             if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken)
+                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken)
                     .Include(s => s.Services)
                     .Include(n => n.Notes)
                     .Include(s => s.ServiceHttp)
@@ -250,7 +250,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = null;
             if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.Domain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();

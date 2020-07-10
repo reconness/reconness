@@ -16,12 +16,13 @@ import connection from './api/signalR'
 import { ClientTable } from 'vue-tables-2';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faArrowAltCircleRight, faTrashAlt, faExclamation,
+import {
+    faArrowAltCircleRight, faTrashAlt, faExclamation,
     faBug, faCoffee, faGuitar, faHome, faHeart, faBookOpen,
     faFireAlt, faDollarSign, faMicroscope, faMinusCircle, faPlusCircle
 } from '@fortawesome/free-solid-svg-icons'
 
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'                                     
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug,
     faCoffee, faGuitar, faHome, faHeart, faBookOpen, faFireAlt,
@@ -37,9 +38,9 @@ Vue.config.productionTip = false
 
 Vue.$connection = connection
 Object.defineProperty(Vue.prototype, '$connection', {
-  get () {
-    return connection.start()
-  }
+    get() {
+        return connection.start()
+    }
 })
 
 new Vue({

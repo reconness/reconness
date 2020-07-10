@@ -29,7 +29,7 @@ const actions = {
                 reject(err)
             }
         })
-    },    
+    },
     agents(context) {
         return new Promise((resolve, reject) => {
             try {
@@ -71,7 +71,7 @@ const actions = {
             }
             catch (err) {
                 reject(err)
-            }           
+            }
         })
     },
     createAgent(context, agent) {
@@ -150,7 +150,7 @@ const actions = {
     run(context, { agent, command, target, rootDomain, subdomain, activateNotification }) {
         return new Promise((resolve, reject) => {
             try {
-                api.create('agents/run', {agent, command, target, rootDomain, subdomain, activateNotification }) 
+                api.create('agents/run', { agent, command, target, rootDomain, subdomain, activateNotification })
                     .then((res) => {
                         resolve(res.data)
                     })

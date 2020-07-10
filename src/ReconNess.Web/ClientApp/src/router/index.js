@@ -19,7 +19,7 @@ import SubdomainPage from '@/views/subdomain/SubdomainPage';
 Vue.use(Router);
 
 const router = new Router({
-  routes: [
+    routes: [
         { path: '/', name: 'home', component: HomePage },
         { path: '/settings', name: 'setting', component: SettingPage },
 
@@ -27,17 +27,17 @@ const router = new Router({
 
         { path: '/targets/create', name: 'targetCreate', component: TargetCreatePage },
         { path: '/targets/:targetName/:rootDomain', name: 'targetRootDomain', component: RootDomainPage },
-        { path: '/targets/:targetName', name: 'target', component: TargetPage },        
+        { path: '/targets/:targetName', name: 'target', component: TargetPage },
 
         { path: '/agents/create', name: 'agentCreate', component: AgentCreatePage },
-        { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },  
-        { path: '/agents/install', name: 'installDebug', component: AgentInstallPage }, 
-        { path: '/agents/:agentName', name: 'agentEdit', component: AgentEditPage },                
+        { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },
+        { path: '/agents/install', name: 'installDebug', component: AgentInstallPage },
+        { path: '/agents/:agentName', name: 'agentEdit', component: AgentEditPage },
 
         { path: '/subdomains/:targetName/:rootDomain/:subdomain', name: 'subdomain', component: SubdomainPage },
 
         { path: '*', redirect: { name: 'home' } },
-  ],
+    ],
 });
 
 router.beforeEach((to, from, next) => {

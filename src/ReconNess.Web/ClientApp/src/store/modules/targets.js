@@ -54,7 +54,7 @@ const actions = {
             }
         })
     },
-    createTarget(context,  target) {
+    createTarget(context, target) {
         return new Promise((resolve, reject) => {
             try {
                 api.create('targets', target)
@@ -181,7 +181,7 @@ const actions = {
     },
     exportSubdomains() {
         return new Promise((resolve, reject) => {
-            try {                
+            try {
                 api.download('targets/exportSubdomains', state.currentTarget.name + '/' + state.currentRootDomain.name)
                     .then((res) => {
                         var fileURL = window.URL.createObjectURL(new Blob([res.data]));
@@ -202,10 +202,10 @@ const actions = {
 }
 
 const mutations = {
-    target(state, target) {        
-        state.currentTarget = target        
+    target(state, target) {
+        state.currentTarget = target
         if (state.currentTarget.rootDomains.length === 0) {
-            state.currentTarget.rootDomains = [{name: ''}]
+            state.currentTarget.rootDomains = [{ name: '' }]
         }
     },
     targets(state, targets) {
@@ -240,9 +240,9 @@ const mutations = {
     },
     createSubdomain(state, subdomain) {
         state.currentRootDomain.subdomains.push(subdomain)
-    }, 
+    },
     uploadSubdomains(state, subdomains) {
-        subdomains.map(sub => state.currentRootDomain.subdomains.push(sub))        
+        subdomains.map(sub => state.currentRootDomain.subdomains.push(sub))
     }
 }
 

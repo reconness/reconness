@@ -48,9 +48,9 @@ namespace ReconNess.Web.Controllers
             this.labelService = labelService;
         }
 
-        // GET api/subdomains/{target}/{rootDomain}/{subdomain}
-        [HttpGet("{targetName}/{rootDomain}/{subdomainName}")]
-        public async Task<IActionResult> Get(string targetName, string rootDomain, string subdomainName, CancellationToken cancellationToken)
+        // GET api/subdomains/{target}/{rootDomainName}/{subdomain}
+        [HttpGet("{targetName}/{rootDomainName}/{subdomainName}")]
+        public async Task<IActionResult> Get(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
@@ -58,13 +58,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomain, cancellationToken);
-            if (domain == null)
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
             {
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Domain == domain && s.Name == subdomainName, cancellationToken)
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
                 .Include(s => s.Notes)
                 .Include(s => s.Services)
                 .Include(s => s.ServiceHttp)
@@ -91,29 +91,29 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var domain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == subdomainDto.RootDomain && t.Target == target, cancellationToken);
-            if (domain == null)
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == subdomainDto.RootDomain && t.Target == target, cancellationToken);
+            if (rootDomain == null)
             {
                 return BadRequest();
             }
 
-            if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.Domain == domain))
+            if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.RootDomain == rootDomain))
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");
             }
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
             {
-                Domain = domain,
+                RootDomain = rootDomain,
                 Name = subdomainDto.Name
             }, cancellationToken);
 
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
         }
 
-        // POST api/subdomains/{targetName}/{rootDomain}
-        [HttpPost("{targetName}/{rootDomain}")]
-        public async Task<IActionResult> Upload(string targetName, string rootDomain, IFormFile file, CancellationToken cancellationToken)
+        // POST api/subdomains/{targetName}/{rootDomainName}
+        [HttpPost("{targetName}/{rootDomainName}")]
+        public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)
             {
@@ -126,8 +126,8 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var domain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomain && t.Target == target, cancellationToken);
-            if (domain == null)
+            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            if (rootDomain == null)
             {
                 return NotFound();
             }
@@ -141,7 +141,7 @@ namespace ReconNess.Web.Controllers
                 }
 
                 var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(domain, subdomains);
+                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
 
                 return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
             }

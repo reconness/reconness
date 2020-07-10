@@ -1,12 +1,12 @@
-import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr' 
+import { HubConnectionBuilder, LogLevel } from '@aspnet/signalr'
 
 export default {
-    start(){
+    start() {
         const connection = new HubConnectionBuilder()
-        .withUrl(`AgentRunLogsHub`)
-        .configureLogging(LogLevel.Information)
-        .build()
-        
+            .withUrl(`AgentRunLogsHub`)
+            .configureLogging(LogLevel.Information)
+            .build()
+
         connection.start()
 
         return connection

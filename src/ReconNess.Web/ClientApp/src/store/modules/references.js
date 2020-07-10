@@ -49,7 +49,7 @@ const actions = {
                 reject(err)
             }
         })
-    },    
+    },
     deleteReference(context, reference) {
         return new Promise((resolve, reject) => {
             try {

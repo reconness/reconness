@@ -11,7 +11,7 @@ import login from './modules/login'
 
 Vue.use(Vuex)
 
-export default new  Vuex.Store({
+export default new Vuex.Store({
     modules: {
         targets,
         accounts,
@@ -20,5 +20,5 @@ export default new  Vuex.Store({
         references,
         notes,
         login
-    }    
+    }
 })

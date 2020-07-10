@@ -1,3 +1,11 @@
+## [1.3.0] - 2020-07-10
+
+### Added
+
+- Add links to the documentation
+- Refactor (** Break previus version **)
+- Update packages
+
 ## [1.2.3] - 2020-07-03
 
 ### Added

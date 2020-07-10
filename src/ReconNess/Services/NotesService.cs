@@ -23,15 +23,15 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="INotesService.SaveTargetNotesAsync(RootDomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTargetNotesAsync(RootDomain domain, string notesContent, CancellationToken cancellationToken = default)
+        public async Task SaveTargetNotesAsync(RootDomain rootDomain, string notesContent, CancellationToken cancellationToken = default)
         {
-            var notes = domain.Notes;
+            var notes = rootDomain.Notes;
             if (notes == null)
             {
                 notes = new Note
                 {
                     Notes = notesContent,
-                    Target = domain
+                    Target = rootDomain
                 };
 
                 await this.AddAsync(notes, cancellationToken);
