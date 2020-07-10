@@ -3,6 +3,7 @@
     <h1>Settings</h1>
     <hr />
     <h2>Notification</h2>
+    <p class="font-italic"><ins>To know more about settings the notification check the <a href="https://docs.reconness.com/account/settings" target="_blank">documentation</a></ins><p/>
     <div class="form-group">
       <label for="inputName">URL</label>
       <input name="url" formControlName="url" class="form-control" id="url" v-model="notification.url">
