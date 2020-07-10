@@ -1,6 +1,6 @@
 
 export default {
-    errorHandle (error) {
+    errorHandle(error) {
         if (error) {
             alert(JSON.stringify(error))
         }

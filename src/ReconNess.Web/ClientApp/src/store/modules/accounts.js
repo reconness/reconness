@@ -14,7 +14,7 @@ const actions = {
                 reject(err)
             }
         })
-    },    
+    },
     saveNotification(context, notification) {
         return new Promise((resolve, reject) => {
             try {

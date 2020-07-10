@@ -20,7 +20,7 @@
                                 <div v-for="t in targets" v-bind:key="t.id">
                                     <router-link class="dropdown-item text-success" :to="{name: 'target', params: { targetName: t.name }}">{{ t.name }}</router-link>
                                     <div v-for="rootDomain in t.rootDomains" v-bind:key="rootDomain.id">
-                                        <router-link class="dropdown-item" :to="{name: 'targetRootDomain', params: { targetName: t.name, rootDomain: rootDomain.name }}">> {{ rootDomain.name }}</router-link>
+                                        <a class="dropdown-item" :href="$router.resolve({name: 'targetRootDomain', params: { targetName: t.name, rootDomain: rootDomain.name }}).href">> {{ rootDomain.name }}</a>
                                     </div>
                                 </div>
                             </div>
@@ -49,7 +49,7 @@
                                 <div>
                                     <a href="#" class="dropdown-item" v-on:click="onLogout()">Sign Out</a>
                                 </div>
-                            </div>                            
+                            </div>
                         </li>
                         <li class="nav-item" v-else>
                             <a class="nav-link" href="/">
@@ -64,59 +64,60 @@
 </template>
 
 <script>
-  import { mapState } from 'vuex'
+    import { mapState } from 'vuex'
 
-  export default {
-    name: 'NavMenu',
-    data: () => {
-      return {
-        isExpanded: false
-      }
-    },
-    computed: mapState({
-      targets: state => state.targets.targets,
-      agents: state => state.agents.agents
-    }),  
-    methods: {
-      collapse: function() {
-        this.isExpanded = false;
-      },
-      toggle: function() {
-        this.isExpanded = !this.isExpanded;
-      },
-      onLogout () {
-        localStorage.removeItem('user');
-        this.$router.push({ name: 'login' })
-      },
-      isAuth() {
-        const loggedIn = localStorage.getItem('user')
-        return loggedIn !== null
-      }
-    },
-    async mounted() {  
-      this.$store.dispatch('targets/targets')
-      this.$store.dispatch('agents/agents')
+    export default {
+        name: 'NavMenu',
+        data: () => {
+            return {
+                isExpanded: false
+            }
+        },
+        computed: mapState({
+            targets: state => state.targets.targets,
+            agents: state => state.agents.agents
+        }),
+        methods: {
+            collapse: function () {
+                this.isExpanded = false;
+            },
+            toggle: function () {
+                this.isExpanded = !this.isExpanded;
+            },
+            onLogout() {
+                localStorage.removeItem('user');
+                this.$router.push({ name: 'login' })
+            },
+            isAuth() {
+                const loggedIn = localStorage.getItem('user')
+                return loggedIn !== null
+            }
+        },
+        async mounted() {
+            this.$store.dispatch('targets/targets')
+            this.$store.dispatch('agents/agents')
+        }
     }
-  }
 </script>
 
 <style scoped>
-a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
-}
+    a.navbar-brand {
+        white-space: normal;
+        text-align: center;
+        word-break: break-all;
+    }
 
-html {
-  font-size: 14px;
-}
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
+    html {
+        font-size: 14px;
+    }
 
-.box-shadow {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
-}
+    @media (min-width: 768px) {
+        html {
+            font-size: 16px;
+        }
+    }
+
+    .box-shadow {
+        box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+    }
 </style>

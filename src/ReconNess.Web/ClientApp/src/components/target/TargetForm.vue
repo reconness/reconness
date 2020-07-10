@@ -8,8 +8,8 @@
             <label for="rootDomain">Root Domain</label>
             <input type="text" class="form-control" v-model="rootDomain.name">
             <span>
-                <font-awesome-icon :icon="['fas', 'minus-circle']" @click="remove(k)" v-show="k || ( !k && rootDomains.length > 1)" title="Remove this Root Domain"/>
-                <font-awesome-icon :icon="['fas', 'plus-circle']" @click="add()" v-show="k == rootDomains.length-1" title="Add Another Root Domain"/>
+                <font-awesome-icon :icon="['fas', 'minus-circle']" @click="remove(k)" v-show="k || ( !k && rootDomains.length > 1)" title="Remove this Root Domain" />
+                <font-awesome-icon :icon="['fas', 'plus-circle']" @click="add()" v-show="k == rootDomains.length-1" title="Add Another Root Domain" />
             </span>
         </div>
         <div class="form-group">
@@ -40,40 +40,39 @@
 
 <script>
 
-  import { mapState } from 'vuex'
+    import { mapState } from 'vuex'
 
-  export default {
-    name: 'TargetFrom',
-    props: {      
-      isNew: {
-        type: Boolean,
-        default: false
-      }
-    },    
-    computed: mapState({
-      target: state => state.targets.currentTarget,
-      rootDomains: state => state.targets.currentTarget.rootDomains || [{ name }]
-    }), 
-    mounted() {
-      if (this.isNew) {
-          this.$store.state.targets.currentTarget = { rootDomains: [{ name }] }
-      }
-    },
-    methods: {
-        isValid() {
-            return this.target.name && this.rootDomains[0].name !== ''
+    export default {
+        name: 'TargetFrom',
+        props: {
+            isNew: {
+                type: Boolean,
+                default: false
+            }
         },
-        add() {
-            this.rootDomains.push({ name: '' });
+        computed: mapState({
+            target: state => state.targets.currentTarget,
+            rootDomains: state => state.targets.currentTarget.rootDomains || [{ name }]
+        }),
+        mounted() {
+            if (this.isNew) {
+                this.$store.state.targets.currentTarget = { rootDomains: [{ name }] }
+            }
         },
-        remove(index) {
-            this.rootDomains.splice(index, 1);
+        methods: {
+            isValid() {
+                return this.target.name && this.rootDomains[0].name !== ''
+            },
+            add() {
+                this.rootDomains.push({ name: '' });
+            },
+            remove(index) {
+                this.rootDomains.splice(index, 1);
+            }
         }
     }
-  }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-
 </style>

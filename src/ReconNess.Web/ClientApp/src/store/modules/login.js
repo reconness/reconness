@@ -1,7 +1,7 @@
 ﻿import api from '../../api'
 
 const actions = {
-    login(context, { username, password}) {
+    login(context, { username, password }) {
         return new Promise((resolve, reject) => {
             try {
                 api.login(username, password)
