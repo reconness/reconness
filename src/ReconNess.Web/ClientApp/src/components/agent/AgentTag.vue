@@ -125,16 +125,20 @@
         termLog: null,  
         agents: [],
         currentAgent: null,
-        targetName: '',
-        rootDomain: '',
-        subdomain: ''
       }    
     },    
+    computed: {
+        targetName: function () {
+            return this.$route.params.targetName
+        },
+        rootDomain: function () {
+            return this.$route.params.rootDomain
+        },
+        subdomain: function () {
+            return this.$route.params.subdomain
+        }
+    }, 
     async mounted() {
-      this.targetName = this.$route.params.targetName
-      this.rootDomain = this.$route.params.rootDomain
-      this.subdomain = this.$route.params.subdomain 
-
       if (this.$store.state.agents.agents.length === 0) {
         await this.$store.dispatch('agents/agents')  
       }
