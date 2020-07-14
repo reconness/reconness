@@ -27,7 +27,10 @@ namespace ReconNess.Entities
 
         public DateTime LastRun { get; set; }
 
+        public string Repository { get; set; }
+
         public virtual AgentNotification AgentNotification { get; set; }
+
         public virtual ICollection<AgentCategory> AgentCategories { get; set; }
     }
 }

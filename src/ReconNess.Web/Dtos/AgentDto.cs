@@ -9,6 +9,8 @@ namespace ReconNess.Web.Dtos
 
         public string Name { get; set; }
 
+        public string Repository { get; set; }
+
         public bool IsBySubdomain { get; set; }
 
         public bool OnlyIfIsAlive { get; set; }

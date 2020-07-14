@@ -116,6 +116,7 @@ namespace ReconNess.Web.Controllers
             }
 
             agent.Name = agentDto.Name;
+            agent.Repository = agentDto.Repository;
             agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
             agent.Command = agentDto.Command;
             agent.IsBySubdomain = agentDto.IsBySubdomain;
