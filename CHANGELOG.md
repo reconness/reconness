@@ -1,3 +1,10 @@
+## [1.3.1] - 2020-07-18
+
+### Added
+
+- Add for each tool github link
+- Update packages
+
 ## [1.3.0] - 2020-07-10
 
 ### Added

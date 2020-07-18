@@ -5,6 +5,10 @@
             <input name="agentName" formControlName="agentName" class="form-control" id="agentName" v-model="agent.name">
         </div>
         <div class="form-group">
+            <label for="inputName">Repository</label>
+            <input name="agentRepository" formControlName="agentRepository" class="form-control" id="agentRepository" v-model="agent.repository">
+        </div>
+        <div class="form-group">
             <label for="inputCategory">Category</label>
             <vue-tags-input v-model="tag" placeholder="Add Category" :tags="tags" :autocomplete-items="filteredItems" @tags-changed="newTags => tags = newTags" />
         </div>

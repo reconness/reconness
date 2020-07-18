@@ -43,6 +43,12 @@
                                     <label for="command">Command</label>
                                     <input class="form-control" id="command" v-model="currentAgent.command" />
                                 </div>
+                                <div class="form-group" v-if="currentAgent.repository">
+                                    <label class="form-check-label">
+                                        Repository:
+                                    </label>
+                                    <a :href="currentAgent.repository" target="_blank">{{currentAgent.repository}}</a>
+                                </div>
                                 <div class="form-group form-check">
                                     <input class="form-check-input" type="checkbox" id="notifyIfAgentDone" ref="notifyIfAgentDone" v-model="currentAgent.activateNotification">
                                     <label class="form-check-label" for="notifyIfAgentDone">

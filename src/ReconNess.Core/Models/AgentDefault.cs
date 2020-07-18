@@ -4,6 +4,8 @@
     {
         public string Name { get; set; }
 
+        public string Repository { get; set; }
+
         public string Category { get; set; }
 
         public string Command { get; set; }
