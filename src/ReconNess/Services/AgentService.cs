@@ -306,9 +306,17 @@ namespace ReconNess.Services
                 command = agent.Command;
             }
 
+            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
+                              Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
+
+            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
+                              Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
+
             return $"{command.Replace("{{domain}}", subdomain == null ? rootDomain.Name : subdomain.Name)}"
                 .Replace("{{target}}", target.Name)
                 .Replace("{{rootDomain}}", rootDomain.Name)
+                .Replace("{{userName}}", envUserName)
+                .Replace("{{password}}", envPassword)
                 .Replace("\"", "\\\"");
         }
 
