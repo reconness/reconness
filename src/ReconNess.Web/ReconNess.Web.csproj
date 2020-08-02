@@ -15,6 +15,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.6" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.6" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.7.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
@@ -32,6 +34,7 @@
     <ProjectReference Include="..\DAL\ReconNess.Data.Npgsql\ReconNess.Data.Npgsql.csproj" />
     <ProjectReference Include="..\ReconNess.Core\ReconNess.Core.csproj" />
     <ProjectReference Include="..\ReconNess.Entities\ReconNess.Entities.csproj" />
+    <ProjectReference Include="..\ReconNess.Worker\ReconNess.Worker.csproj" />
     <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
   </ItemGroup>
 

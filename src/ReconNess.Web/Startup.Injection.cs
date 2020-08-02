@@ -6,6 +6,7 @@ using ReconNess.Core.Services;
 using ReconNess.Data.Npgsql;
 using ReconNess.Services;
 using ReconNess.Web.Auth;
+using ReconNess.Worker;
 
 namespace ReconNess.Web
 {
@@ -28,6 +29,7 @@ namespace ReconNess.Web
             services.AddScoped<ITargetService, TargetService>();
             services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<IAgentService, AgentService>();
+            services.AddScoped<IAgentRunnerService, AgentRunnerService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<INotesService, NotesService>();
             services.AddScoped<ISubdomainService, SubdomainService>();
@@ -38,6 +40,7 @@ namespace ReconNess.Web
 
             services.AddScoped<IScriptEngineService, ScriptEngineService>();
             services.AddScoped<IConnectorService, ConnectorService>();
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }
 }

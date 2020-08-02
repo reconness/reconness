@@ -19,6 +19,7 @@ namespace ReconNess.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
+        private readonly IAgentRunnerService agentRunnerService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ICategoryService categoryService;
@@ -29,6 +30,7 @@ namespace ReconNess.Web.Controllers
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="agentService"><see cref="IAgentService"/></param>
+        /// <param name="agentRunnerService"><see cref="IAgentRunnerService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="categoryService"><see cref="ICategoryService"/></param>
@@ -36,6 +38,7 @@ namespace ReconNess.Web.Controllers
         public AgentsController(
             IMapper mapper,
             IAgentService agentService,
+            IAgentRunnerService agentRunnerService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
             ICategoryService categoryService,
@@ -43,6 +46,7 @@ namespace ReconNess.Web.Controllers
         {
             this.mapper = mapper;
             this.agentService = agentService;
+            this.agentRunnerService = agentRunnerService;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.categoryService = categoryService;
@@ -227,7 +231,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, agentRunDto.ActivateNotification, cancellationToken);
+            await this.agentRunnerService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, agentRunDto.ActivateNotification, cancellationToken);
 
             return NoContent();
         }
@@ -264,7 +268,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var task = this.agentService.StopAsync(target, rootDomain, subdomain, agent, cancellationToken);
+            var task = this.agentRunnerService.StopAsync(target, rootDomain, subdomain, agent, cancellationToken);
 
             return NoContent();
         }

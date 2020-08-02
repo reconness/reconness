@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using ReconNess.Worker;
 
 namespace ReconNess.Web
 {
@@ -12,6 +15,10 @@ namespace ReconNess.Web
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                 .ConfigureServices((hostContext, services) =>
+                 {
+                     services.AddHostedService<QueuedHostedService>();
+                 })
                 .UseStartup<Startup>();
     }
 }
