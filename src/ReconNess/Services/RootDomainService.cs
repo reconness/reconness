@@ -53,19 +53,19 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.SaveScriptOutputAsync(RootDomain, Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
+        /// <see cref="IRootDomainService.SaveScriptOutputAsync(AgentRun, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveScriptOutputAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        public async Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (subdomain != null)
+            if (agentRun.Subdomain != null)
             {
                 try
                 {
                     this.UnitOfWork.BeginTransaction();
 
-                    await this.subdomainService.UpdateSubdomain(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
+                    await this.subdomainService.UpdateSubdomainByAgent(agentRun, scriptOutput, cancellationToken);
 
                     await this.UnitOfWork.CommitAsync();
                 }
@@ -75,9 +75,9 @@ namespace ReconNess.Services
                 }
             }
 
-            if (subdomain == null || (subdomain != null && !subdomain.Name.Equals(scriptOutput.Subdomain, StringComparison.OrdinalIgnoreCase)))
+            if (agentRun.Subdomain == null || (agentRun.Subdomain != null && !agentRun.Subdomain.Name.Equals(scriptOutput.Subdomain, StringComparison.OrdinalIgnoreCase)))
             {
-                await this.AddOrUpdateSubdomainAsync(rootDomain, agent, scriptOutput, activateNotification, cancellationToken);
+                await this.AddOrUpdateSubdomainAsync(agentRun, scriptOutput, cancellationToken);
             }
         }
 
@@ -216,18 +216,17 @@ namespace ReconNess.Services
         /// <summary>
         /// Add or update the subdomain belong to the target
         /// </summary>
-        /// <param name="rootDomain">The domain</param>
-        /// <param name="agent">The agent</param>
+        /// <param name="agentRun">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns>A Task</returns>
-        private async Task AddOrUpdateSubdomainAsync(RootDomain rootDomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private async Task AddOrUpdateSubdomainAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (Uri.CheckHostName(scriptOutput.Subdomain) == UriHostNameType.Unknown)
             {
                 return;
             }
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(d => d.Name == scriptOutput.Subdomain && d.RootDomain == rootDomain)
+            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(d => d.Name == scriptOutput.Subdomain && d.RootDomain == agentRun.RootDomain)
                                 .Include(s => s.Services)
                                 .FirstOrDefaultAsync();
 
@@ -236,18 +235,19 @@ namespace ReconNess.Services
                 subdomain = new Subdomain
                 {
                     Name = scriptOutput.Subdomain,
-                    RootDomain = rootDomain
+                    RootDomain = agentRun.RootDomain
                 };
 
                 subdomain = await this.subdomainService.AddAsync(subdomain);
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.SubdomainPayload))
+                agentRun.Subdomain = subdomain;
+                if (agentRun.ActivateNotification && agentRun.Agent.NotifyNewFound && agentRun.Agent.AgentNotification != null && !string.IsNullOrEmpty(agentRun.Agent.AgentNotification.SubdomainPayload))
                 {
-                    var payload = agent.AgentNotification.SubdomainPayload.Replace("{{domain}}", subdomain.Name);
+                    var payload = agentRun.Agent.AgentNotification.SubdomainPayload.Replace("{{domain}}", subdomain.Name);
                     await this.notificationService.SendAsync(payload, cancellationToken);
                 }
             }
 
-            await this.SaveScriptOutputAsync(rootDomain, subdomain, agent, scriptOutput, activateNotification, cancellationToken);
+            await this.SaveScriptOutputAsync(agentRun, scriptOutput, cancellationToken);
         }
 
         /// <summary>

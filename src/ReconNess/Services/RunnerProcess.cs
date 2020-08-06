@@ -1,37 +1,16 @@
-﻿using ReconNess.Core.Services;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Threading;
 
 namespace ReconNess.Services
 {
-    public class RunnerProcess : IRunnerProcess
+    public class RunnerProcess
     {
         private Process process;
 
-        public bool Stopped { get; set; }
-
-        public bool EndOfStream
+        public RunnerProcess(string command)
         {
-            get
-            {
-                if (this.process == null)
-                {
-                    return true;
-                }
-
-                return this.process.StandardOutput.EndOfStream;
-            }
-        }
-
-        public void StartProcess(string command)
-        {
-            if (this.IsRunning())
-            {
-                this.KillProcess();
-            }
-
-            process = new Process()
+            this.process = new Process()
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -46,20 +25,30 @@ namespace ReconNess.Services
 
             Thread.Sleep(1000);
 
-            process.Start();
+            this.process.Start();
         }
 
-        public bool IsRunning()
+        public bool EndOfStream
         {
-            try
+            get
             {
-                return process != null;
+                if (this.process == null)
+                {
+                    return true;
+                }
+
+                return this.process.StandardOutput.EndOfStream;
             }
-            catch (Exception)
+        }
+
+        public string TerminalLineOutput()
+        {
+            if (!this.EndOfStream)
             {
-                this.KillProcess();
-                return false;
+                return this.process.StandardOutput.ReadLine();
             }
+
+            return string.Empty;
         }
 
         public void KillProcess()
@@ -71,16 +60,5 @@ namespace ReconNess.Services
                 process = null;
             }
         }
-
-        public string TerminalLineOutput()
-        {
-            if (this.IsRunning())
-            {
-                return process.StandardOutput.ReadLine();
-            }
-
-            return string.Empty;
-        }
-
     }
 }

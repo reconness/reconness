@@ -231,7 +231,16 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentRunnerService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, agentRunDto.ActivateNotification, cancellationToken);
+            await this.agentRunnerService.RunAsync(
+                new AgentRun
+                {
+                    Agent = agent,
+                    Target = target,
+                    RootDomain = rootDomain,
+                    Subdomain = subdomain,
+                    ActivateNotification = agentRunDto.ActivateNotification,
+                    Command = agentRunDto.Command
+                }, cancellationToken);
 
             return NoContent();
         }
@@ -268,7 +277,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var task = this.agentRunnerService.StopAsync(target, rootDomain, subdomain, agent, cancellationToken);
+            var task = this.agentRunnerService.StopAsync(new AgentRun
+            {
+                Agent = agent,
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = subdomain
+            }, cancellationToken);
 
             return NoContent();
         }
