@@ -129,6 +129,7 @@ namespace ReconNess.Web.Controllers
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
             agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
             agent.NotifyNewFound = agentDto.NotifyNewFound;
+
             if (agent.AgentNotification == null)
             {
                 agent.AgentNotification = new AgentNotification();
@@ -286,6 +287,42 @@ namespace ReconNess.Web.Controllers
             }, cancellationToken);
 
             return NoContent();
+        }
+
+        // GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
+        [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
+        public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
+        {
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            if (rootDomain == null)
+            {
+                return BadRequest();
+            }
+
+            Subdomain subdomain = null;
+            if (!string.IsNullOrWhiteSpace(subdomainName))
+            {
+                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+                if (subdomain == null)
+                {
+                    return NotFound();
+                }
+            }
+
+            var agents = this.agentRunnerService.RunningAsync(new AgentRun
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = subdomain
+            }, cancellationToken);
+
+            return Ok(agents);
         }
 
         // POST api/agents/debug

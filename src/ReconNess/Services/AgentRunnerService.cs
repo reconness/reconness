@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,40 +18,38 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
     {
-        private readonly IRootDomainService rootDomainService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
         private readonly INotificationService notificationService;
 
+        private readonly IAgentParseService agentParseService;
+
         private readonly IBackgroundTaskQueue backgroundTaskQueue;
 
-        private readonly ConcurrentDictionary<string, Func<CancellationToken, Task>> concurrentDictionary;
-        private readonly ConcurrentDictionary<string, RunnerProcess> concurrentRunnerProcessDictionary;
+        private readonly ConcurrentDictionary<string, Func<CancellationToken, Task>> concurrentDictionary = new ConcurrentDictionary<string, Func<CancellationToken, Task>>();
+        private readonly static Dictionary<string, RunnerProcess> runnerProcessDictionary = new Dictionary<string, RunnerProcess>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunnerService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="connectorService"><see cref="IConnectorService"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
         /// <param name="notificationService"><see cref="INotificationService"/></param>
+        /// <param name="agentParseService"><see cref="IAgentParseService"/></param>
+        /// <param name="backgroundTaskQueue"><see cref="IBackgroundTaskQueue"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork, 
-            IRootDomainService rootDomainService,
             IConnectorService connectorService,
-            IScriptEngineService scriptEngineService,
-            IBackgroundTaskQueue backgroundTaskQueue,
-            INotificationService notificationService) : base(unitOfWork)
+            IScriptEngineService scriptEngineService,            
+            INotificationService notificationService,
+            IAgentParseService agentParseService,
+            IBackgroundTaskQueue backgroundTaskQueue) : base(unitOfWork)
         {
-            this.rootDomainService = rootDomainService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
             this.notificationService = notificationService;
-
+            this.agentParseService = agentParseService;
             this.backgroundTaskQueue = backgroundTaskQueue;
-
-            this.concurrentDictionary = new ConcurrentDictionary<string, Func<CancellationToken, Task>>();
-            this.concurrentRunnerProcessDictionary = new ConcurrentDictionary<string, RunnerProcess>();
         }
 
         /// <summary>
@@ -87,13 +87,7 @@ namespace ReconNess.Services
 
                 agentRun.Subdomain = subdomain;
                 await this.RunAgentAsync(agentRun, channel, cancellationToken);
-            }
-
-            //await this.SendAgentDoneNotificationAsync(channel, agent, activateNotification, cancellationToken);
-
-            // update the last time that we run this agent
-            //agent.LastRun = DateTime.Now;
-            //await this.UpdateAsync(agent, cancellationToken);
+            }            
         }
 
         /// <summary>
@@ -106,7 +100,7 @@ namespace ReconNess.Services
             var channel = this.GetChannel(agentRun);
             var key = this.GetKey(agentRun);
 
-            var processLst = this.concurrentRunnerProcessDictionary.Where(c => c.Key.Contains(key)).ToList();
+            var processLst = runnerProcessDictionary.Where(c => c.Key.Contains(key)).ToList();
             foreach (var process in processLst)
             {
                 try
@@ -116,7 +110,7 @@ namespace ReconNess.Services
                         process.Value.KillProcess();
                     }
 
-                    this.concurrentRunnerProcessDictionary.TryRemove(process.Key, out RunnerProcess result);
+                    runnerProcessDictionary.Remove(process.Key);
                 }
                 catch (Exception ex)
                 {
@@ -124,7 +118,29 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.SendMsgAsync(channel, "Agent stopped!", cancellationToken);
+            await this.SendAgentDoneNotificationAsync(agentRun, channel, cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunnerService.RunningAsync(AgentRun, CancellationToken)"/>
+        /// </summary>
+        public async Task<List<string>> RunningAsync(AgentRun agentRun, CancellationToken cancellationToken = default)
+        {            
+            var agents = await this.UnitOfWork.Repository<Agent>().GetAllAsync(cancellationToken);
+
+            var agentsRunning = new List<string>();
+            foreach (var agent in agents)
+            {
+                agentRun.Agent = agent;
+                var key = this.GetKey(agentRun);
+
+                if (runnerProcessDictionary.Any(c => c.Key.Contains(key)))
+                {
+                    agentsRunning.Add(agent.Name);
+                }
+            }
+
+            return agentsRunning;
         }
 
         /// <summary>
@@ -153,7 +169,7 @@ namespace ReconNess.Services
         /// <param name="key"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A Task</returns>
-        private Task RunBashAsync(AgentRun agentRun, string channel, string key,CancellationToken cancellationToken)
+        private Task RunBashAsync(AgentRun agentRun, string channel, string key, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -166,7 +182,7 @@ namespace ReconNess.Services
                 {
                     runnerProcess = new RunnerProcess(agentRun.Command);
 
-                    this.concurrentRunnerProcessDictionary.GetOrAdd(channel, runnerProcess);
+                    runnerProcessDictionary.Add(key, runnerProcess);
 
                     this.scriptEngineService.InintializeAgent(agentRun.Agent);
 
@@ -177,8 +193,7 @@ namespace ReconNess.Services
                         var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
                         await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
-
-                        await this.rootDomainService.SaveScriptOutputAsync(agentRun, scriptOutput, token);
+                        await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);                                             
 
                         await SendMsgLogTailAsync(channel, lineCount, token);
 
@@ -192,10 +207,11 @@ namespace ReconNess.Services
                 }
                 finally
                 {
-                    if (runnerProcess != null)
-                    {
-                        runnerProcess.KillProcess();
-                    }
+                    await this.StopAsync(agentRun, token);                    
+
+                    // update the last time that we run this agent
+                    //agent.LastRun = DateTime.Now;
+                    //await this.UpdateAsync(agent, cancellationToken);
                 }
             });
 
@@ -290,11 +306,11 @@ namespace ReconNess.Services
         /// <param name="activateNotification">If we need to send a notification</param> 
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task SendAgentDoneNotificationAsync(Agent agent, string channel, bool activateNotification, CancellationToken cancellationToken)
+        private async Task SendAgentDoneNotificationAsync(AgentRun agentRun, string channel, CancellationToken cancellationToken)
         {
-            if (activateNotification && agent.NotifyIfAgentDone)
+            if (agentRun.ActivateNotification && agentRun.Agent.NotifyIfAgentDone)
             {
-                await this.notificationService.SendAsync($"Agent {agent.Name} is done!", cancellationToken);
+                await this.notificationService.SendAsync($"Agent {agentRun.Agent.Name} is done!", cancellationToken);
             }
 
             await this.SendMsgAsync(channel, "Agent done!", cancellationToken);
