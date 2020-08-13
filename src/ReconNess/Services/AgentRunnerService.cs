@@ -66,11 +66,13 @@ namespace ReconNess.Services
 
             if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
             {
-                await this.RunAgentAsync(agentRun, channel, cancellationToken);
+                await this.RunAgentAsync(agentRun, channel, true, cancellationToken);
                 return;
             }
 
-            foreach (var subdomain in agentRun.RootDomain.Subdomains.ToList())
+            var subdomains = agentRun.RootDomain.Subdomains.ToList();
+            var subdomainsCount = subdomains.Count;
+            foreach (var subdomain in subdomains)
             {
                 if (cancellationToken.IsCancellationRequested)
                 {
@@ -86,7 +88,8 @@ namespace ReconNess.Services
                 }
 
                 agentRun.Subdomain = subdomain;
-                await this.RunAgentAsync(agentRun, channel, cancellationToken);
+                await this.RunAgentAsync(agentRun, channel, subdomainsCount == 1, cancellationToken);
+                subdomainsCount--;
             }            
         }
 
@@ -127,12 +130,15 @@ namespace ReconNess.Services
         public List<string> Running(AgentRun agentRun, List<Agent> agents, CancellationToken cancellationToken = default)
         {            
             var agentsRunning = new List<string>();
+            var keys = runnerProcessDictionary.Keys.ToList();
+            var process = runnerProcessDictionary.Values.ToList();
+
             foreach (var agent in agents)
             {
                 agentRun.Agent = agent;
                 var key = this.GetKey(agentRun);
 
-                if (runnerProcessDictionary.Any(c => c.Key.Contains(key)))
+                if (keys.Any(c => c.Contains(key)))
                 {
                     agentsRunning.Add(agent.Name);
                 }
@@ -146,17 +152,15 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRun">The target</param>
         /// <param name="channel"></param>
+        /// <param name="last"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task RunAgentAsync(AgentRun agentRun, string channel, CancellationToken cancellationToken)
+        private async Task RunAgentAsync(AgentRun agentRun, string channel, bool last, CancellationToken cancellationToken)
         {
-            agentRun.Command = this.GetCommand(agentRun);
-
-            await this.SendMsgLogAsync(channel, $"RUN: {agentRun.Command}", cancellationToken);
-            await this.SendMsgAsync(channel, $"RUN: {agentRun.Command}", cancellationToken);
+            agentRun.Command = this.GetCommand(agentRun);            
 
             var key = this.GetKey(agentRun);
-            await this.RunBashAsync(agentRun, channel, key, cancellationToken);
+            await this.RunBashAsync(agentRun, channel, key, last, cancellationToken);
         }
 
         /// <summary>
@@ -165,9 +169,10 @@ namespace ReconNess.Services
         /// <param name="agentRun"></param>
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="key"></param>
+        /// <param name="last"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A Task</returns>
-        private Task RunBashAsync(AgentRun agentRun, string channel, string key, CancellationToken cancellationToken)
+        private Task RunBashAsync(AgentRun agentRun, string channel, string key, bool last, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -179,6 +184,9 @@ namespace ReconNess.Services
                 try
                 {
                     runnerProcess = new RunnerProcess(agentRun.Command);
+                    
+                    await this.SendMsgLogAsync(channel, $"RUN: {agentRun.Command}", cancellationToken);
+                    await this.SendMsgAsync(channel, $"RUN: {agentRun.Command}", cancellationToken);
 
                     runnerProcessDictionary.Add(key, runnerProcess);
 
@@ -191,8 +199,7 @@ namespace ReconNess.Services
                         var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
                         await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
-                        await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);                                             
-
+                        await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);   
                         await SendMsgLogTailAsync(channel, lineCount, token);
 
                         await this.SendMsgAsync(channel, terminalLineOutput, token);
@@ -205,7 +212,10 @@ namespace ReconNess.Services
                 }
                 finally
                 {
-                    await this.StopAsync(agentRun, token);                    
+                    if (last)
+                    {
+                        await this.StopAsync(agentRun, token);                    
+                    }
 
                     // update the last time that we run this agent
                     //agent.LastRun = DateTime.Now;
@@ -242,7 +252,7 @@ namespace ReconNess.Services
         /// <returns>The channel to send the menssage</returns>
         private string GetChannel(AgentRun agentRun)
         {
-            return agentRun.Subdomain == null ? $"{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Agent.Name}" : $"{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}_{agentRun.Agent.Name}";
+            return agentRun.Subdomain == null ? $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}" : $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}";
         }
 
         /// <summary>
@@ -254,7 +264,7 @@ namespace ReconNess.Services
         /// <returns>The channel to send the menssage</returns>
         private string GetKey(AgentRun agentRun)
         {
-            return agentRun.Subdomain == null ? $"{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Agent.Name}" : $"{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}_{agentRun.Agent.Name}";
+            return agentRun.Subdomain == null ? $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}" : $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}";
         }
 
         /// <summary>

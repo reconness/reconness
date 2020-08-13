@@ -178,8 +178,8 @@
                         }
 
                         const channel = this.isTarget ?
-                            `${this.targetName}_${this.rootDomain}_${agent.name}` :
-                            `${this.targetName}_${this.rootDomain}_${this.subdomain}_${agent.name}`
+                            `${agent.name}_${this.targetName}_${this.rootDomain}` :
+                            `${agent.name}_${this.targetName}_${this.rootDomain}_${this.subdomain}`
 
                         this.$connection.on(channel, (message) => {
                             if (message === "Agent stopped!" || message === "Agent done!") {
@@ -188,6 +188,7 @@
                             }
 
                             if (this.term !== null) {
+                                console.log(message)
                                 this.term.writeln(message)
                             }
                         });
@@ -195,6 +196,7 @@
                         this.$connection.on("logs_" + channel, (message) => {
 
                             if (this.termLog !== null) {
+                                console.log("logs_" + message)
                                 this.termLog.writeln(message)
                             }
                         });
