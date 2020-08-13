@@ -31,8 +31,9 @@ namespace ReconNess.Core.Services
         /// Obtain a list of agents name that still are running
         /// </summary>
         /// <param name="agentRun">The agent run parameters</param>
+        /// <param name="agents">The list of agents installed</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A list of agents name that still are running</returns>
-        Task<List<string>> RunningAsync(AgentRun agentRun, CancellationToken cancellationToken = default);
+        List<string> Running(AgentRun agentRun, List<Agent> agents, CancellationToken cancellationToken = default);
     }
 }

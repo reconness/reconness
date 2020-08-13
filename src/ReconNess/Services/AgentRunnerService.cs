@@ -122,12 +122,10 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerService.RunningAsync(AgentRun, CancellationToken)"/>
+        /// <see cref="IAgentRunnerService.Running(AgentRun, List<Agent>, CancellationToken)"/>
         /// </summary>
-        public async Task<List<string>> RunningAsync(AgentRun agentRun, CancellationToken cancellationToken = default)
+        public List<string> Running(AgentRun agentRun, List<Agent> agents, CancellationToken cancellationToken = default)
         {            
-            var agents = await this.UnitOfWork.Repository<Agent>().GetAllAsync(cancellationToken);
-
             var agentsRunning = new List<string>();
             foreach (var agent in agents)
             {

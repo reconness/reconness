@@ -306,7 +306,7 @@ namespace ReconNess.Web.Controllers
             }
 
             Subdomain subdomain = null;
-            if (!string.IsNullOrWhiteSpace(subdomainName))
+            if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
             {
                 subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
                 if (subdomain == null)
@@ -315,14 +315,15 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agents = this.agentRunnerService.RunningAsync(new AgentRun
+            var agents = await this.agentService.GetAllAsync(cancellationToken);
+            var agentsRunning = this.agentRunnerService.Running(new AgentRun
             {
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain
-            }, cancellationToken);
+            }, agents, cancellationToken);
 
-            return Ok(agents);
+            return Ok(agentsRunning);
         }
 
         // POST api/agents/debug

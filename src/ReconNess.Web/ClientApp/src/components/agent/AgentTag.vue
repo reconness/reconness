@@ -18,7 +18,7 @@
                         <td class="w-25">{{ agent.categories.join(', ') }}</td>
                         <td class="w-25">{{ agent.lastRun | formatDate('YYYY-MM-DD') }}</td>
                         <td class="w-25">
-                            <button class="btn btn-primary ml-2" v-on:click="onConfirmCommand(agent)" v-if="!agent.isRunning" :disabled="disabledCanRun(agent)">Run</button>
+                            <button class="btn btn-primary ml-2" v-on:click="onConfirmCommand(agent)" v-if="!agent.isRunning">Run</button>
                             <button class="btn btn-danger ml-2" v-on:click="onStopAgent(agent)" v-if="agent.isRunning">Stop</button>
                             <button class="btn btn-dark ml-2" v-on:click="showTerminalModal = !showTerminalModal" v-if="agent.isRunning">Terminal</button>
                             <button class="btn btn-dark ml-2" v-on:click="showLogModal = !showLogModal" v-if="agent.isRunning">Logs</button>
@@ -131,6 +131,7 @@
                 termLog: null,
                 agents: [],
                 currentAgent: null,
+                runningAgents: []
             }
         },
         computed: {
@@ -162,6 +163,7 @@
                 this.agents = this.$store.getters['agents/subdomainAgents']
             }
 
+            this.runningAgents = await this.$store.dispatch('agents/runningAgents', { targetName: this.targetName, rootDomain: this.rootDomain, subdomain: this.subdomain })
             this.connectAgent()
         },
         methods: {
@@ -169,13 +171,19 @@
                 if (this.agents.length > 0) {
                     this.agents.map(agent => {
 
+                        if (this.runningAgents.length !== 0) {
+                            if (this.runningAgents.indexOf(agent.name) > -1) {
+                                agent.isRunning = true
+                            }
+                        }
+
                         const channel = this.isTarget ?
                             `${this.targetName}_${this.rootDomain}_${agent.name}` :
                             `${this.targetName}_${this.rootDomain}_${this.subdomain}_${agent.name}`
 
                         this.$connection.on(channel, (message) => {
                             if (message === "Agent stopped!" || message === "Agent done!") {
-                                agent.isRunning = false;
+                                agent.isRunning = false
                                 this.currentAgent = null
                             }
 
