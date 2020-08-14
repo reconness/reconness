@@ -95,7 +95,7 @@ namespace ReconNess.Services
                     ActivateNotification = agentRun.ActivateNotification,
                     Command = agentRun.Command
                 }, channel, subdomainsCount == 1, cancellationToken);
-                
+
                 subdomainsCount--;
             }            
         }
@@ -103,9 +103,14 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IAgentRunnerService.StopAsync(AgentRun, CancellationToken)"></see>
         /// </summary>
-        public async Task StopAsync(AgentRun agentRun, CancellationToken cancellationToken = default)
+        public async Task StopAsync(AgentRun agentRun, bool removeAll, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+            if (removeAll)
+            {
+                agentRun.Subdomain = null;
+            }
 
             var channel = this.GetChannel(agentRun);
             var key = this.GetKey(agentRun);
@@ -137,9 +142,8 @@ namespace ReconNess.Services
         public List<string> Running(AgentRun agentRun, List<Agent> agents, CancellationToken cancellationToken = default)
         {            
             var agentsRunning = new List<string>();
+            
             var keys = runnerProcessDictionary.Keys.ToList();
-            var process = runnerProcessDictionary.Values.ToList();
-
             foreach (var agent in agents)
             {
                 agentRun.Agent = agent;
@@ -207,7 +211,7 @@ namespace ReconNess.Services
                 {
                     if (last)
                     {
-                        await this.StopAsync(agentRun, token);                    
+                        await this.StopAsync(agentRun, true, token);                    
                     }
 
                     // update the last time that we run this agent

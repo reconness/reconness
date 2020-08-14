@@ -284,7 +284,7 @@ namespace ReconNess.Web.Controllers
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain
-            }, cancellationToken);
+            }, false, cancellationToken);
 
             return NoContent();
         }

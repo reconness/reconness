@@ -25,7 +25,7 @@ namespace ReconNess.Core.Services
         /// <param name="agentRun">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task StopAsync(AgentRun agentRun, CancellationToken cancellationToken = default);
+        Task StopAsync(AgentRun agentRun, bool removeAll, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a list of agents name that still are running

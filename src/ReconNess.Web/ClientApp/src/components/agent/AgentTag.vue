@@ -18,7 +18,7 @@
                         <td class="w-25">{{ agent.categories.join(', ') }}</td>
                         <td class="w-25">{{ agent.lastRun | formatDate('YYYY-MM-DD') }}</td>
                         <td class="w-25">
-                            <button class="btn btn-primary ml-2" v-on:click="onConfirmCommand(agent)" v-if="!agent.isRunning">Run</button>
+                            <button class="btn btn-primary ml-2" v-on:click="onConfirmCommand(agent)" v-if="!agent.isRunning" :disabled="disabledCanRun(agent)">Run</button>
                             <button class="btn btn-danger ml-2" v-on:click="onStopAgent(agent)" v-if="agent.isRunning">Stop</button>
                             <button class="btn btn-dark ml-2" v-on:click="showTerminalModal = !showTerminalModal" v-if="agent.isRunning">Terminal</button>
                             <button class="btn btn-dark ml-2" v-on:click="showLogModal = !showLogModal" v-if="agent.isRunning">Logs</button>
@@ -171,11 +171,11 @@
                 if (this.agents.length > 0) {
                     this.agents.map(agent => {
 
-                        if (this.runningAgents.length !== 0) {
+                        /*if (this.runningAgents.length !== 0) {
                             if (this.runningAgents.indexOf(agent.name) > -1) {
                                 agent.isRunning = true
                             }
-                        }
+                        }*/
 
                         const channel = this.isTarget ?
                             `${agent.name}_${this.targetName}_${this.rootDomain}` :
