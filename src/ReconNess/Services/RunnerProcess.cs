@@ -37,7 +37,7 @@ namespace ReconNess.Services
                     return true;
                 }
                 
-                return this.process.StandardOutput.EndOfStream && this.process.StandardError.EndOfStream;
+                return this.process.StandardOutput.EndOfStream;
             }
         }
 
@@ -45,10 +45,6 @@ namespace ReconNess.Services
         {
             if (!this.EndOfStream)
             {
-                if (!this.process.StandardError.EndOfStream)
-                {
-                    return this.process.StandardError.ReadLine();
-                }
                 return this.process.StandardOutput.ReadLine();
             }
 
