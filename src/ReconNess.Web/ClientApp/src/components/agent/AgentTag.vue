@@ -188,7 +188,6 @@
                             }
 
                             if (this.term !== null) {
-                                console.log(message)
                                 this.term.writeln(message)
                             }
                         });
@@ -196,7 +195,6 @@
                         this.$connection.on("logs_" + channel, (message) => {
 
                             if (this.termLog !== null) {
-                                console.log("logs_" + message)
                                 this.termLog.writeln(message)
                             }
                         });
