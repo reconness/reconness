@@ -26,7 +26,6 @@ namespace ReconNess.Services
 
         private readonly IBackgroundTaskQueue backgroundTaskQueue;
 
-        private readonly ConcurrentDictionary<string, Func<CancellationToken, Task>> concurrentDictionary = new ConcurrentDictionary<string, Func<CancellationToken, Task>>();
         private readonly static Dictionary<string, RunnerProcess> runnerProcessDictionary = new Dictionary<string, RunnerProcess>();
 
         /// <summary>
@@ -66,7 +65,7 @@ namespace ReconNess.Services
 
             if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
             {
-                await this.RunAgentAsync(agentRun, channel, true, cancellationToken);
+                await this.RunBashAsync(agentRun, channel, true, cancellationToken);
                 return;
             }
 
@@ -87,8 +86,16 @@ namespace ReconNess.Services
                     continue;
                 }
 
-                agentRun.Subdomain = subdomain;
-                await this.RunAgentAsync(agentRun, channel, subdomainsCount == 1, cancellationToken);
+                await this.RunBashAsync(new AgentRun
+                {
+                    Agent = agentRun.Agent,
+                    Target = agentRun.Target,
+                    RootDomain = agentRun.RootDomain,
+                    Subdomain = subdomain,
+                    ActivateNotification = agentRun.ActivateNotification,
+                    Command = agentRun.Command
+                }, channel, subdomainsCount == 1, cancellationToken);
+                
                 subdomainsCount--;
             }            
         }
@@ -148,46 +155,32 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// Run the Agent
-        /// </summary>
-        /// <param name="agentRun">The target</param>
-        /// <param name="channel"></param>
-        /// <param name="last"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        private async Task RunAgentAsync(AgentRun agentRun, string channel, bool last, CancellationToken cancellationToken)
-        {
-            agentRun.Command = this.GetCommand(agentRun);            
-
-            var key = this.GetKey(agentRun);
-            await this.RunBashAsync(agentRun, channel, key, last, cancellationToken);
-        }
-
-        /// <summary>
         /// Method to run a bash command
         /// </summary>
         /// <param name="agentRun"></param>
         /// <param name="channel">The channel to send the menssage</param>
-        /// <param name="key"></param>
         /// <param name="last"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A Task</returns>
-        private Task RunBashAsync(AgentRun agentRun, string channel, string key, bool last, CancellationToken cancellationToken)
+        private Task RunBashAsync(AgentRun agentRun, string channel, bool last, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             // instert in the work queue a process with a key(channel)
-            var task = this.concurrentDictionary.GetOrAdd(key, async token =>
+            this.backgroundTaskQueue.QueueBackgroundWorkItem(async token =>
             {
                 RunnerProcess runnerProcess = null;
 
                 try
                 {
-                    runnerProcess = new RunnerProcess(agentRun.Command);
-                    
-                    await this.SendMsgLogAsync(channel, $"RUN: {agentRun.Command}", cancellationToken);
-                    await this.SendMsgAsync(channel, $"RUN: {agentRun.Command}", cancellationToken);
+                    var command = this.GetCommand(agentRun);  
 
+                    runnerProcess = new RunnerProcess(command);
+                    
+                    await this.SendMsgLogAsync(channel, $"RUN: {command}", cancellationToken);
+                    await this.SendMsgAsync(channel, $"RUN: {command}", cancellationToken);
+
+                    var key = this.GetKey(agentRun);
                     runnerProcessDictionary.Add(key, runnerProcess);
 
                     this.scriptEngineService.InintializeAgent(agentRun.Agent);
@@ -221,9 +214,7 @@ namespace ReconNess.Services
                     //agent.LastRun = DateTime.Now;
                     //await this.UpdateAsync(agent, cancellationToken);
                 }
-            });
-
-            this.backgroundTaskQueue.QueueBackgroundWorkItem(task);
+            });            
 
             return Task.CompletedTask;
         }
