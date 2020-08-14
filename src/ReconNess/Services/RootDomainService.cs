@@ -58,27 +58,29 @@ namespace ReconNess.Services
         public async Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            if (agentRun.Subdomain != null)
+            
+            try
             {
-                try
-                {
-                    this.UnitOfWork.BeginTransaction();
+                this.UnitOfWork.BeginTransaction();
 
-                    await this.subdomainService.UpdateSubdomainByAgent(agentRun, scriptOutput, cancellationToken);
-
-                    await this.UnitOfWork.CommitAsync();
-                }
-                catch (Exception)
+                var subdomain = agentRun.Subdomain;
+                if (!string.IsNullOrEmpty(scriptOutput.Subdomain) && 
+                    (subdomain == null || !scriptOutput.Subdomain.Equals(subdomain.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    this.UnitOfWork.Rollback();
+                    subdomain = await this.AddOrUpdateSubdomainAsync(agentRun, scriptOutput, cancellationToken);
                 }
+
+                if (subdomain != null)
+                {
+                    await this.subdomainService.UpdateSubdomainByAgent(subdomain, agentRun, scriptOutput, cancellationToken);
+                }
+                await this.UnitOfWork.CommitAsync();
             }
-
-            if (agentRun.Subdomain == null || (agentRun.Subdomain != null && !agentRun.Subdomain.Name.Equals(scriptOutput.Subdomain, StringComparison.OrdinalIgnoreCase)))
+            catch (Exception)
             {
-                await this.AddOrUpdateSubdomainAsync(agentRun, scriptOutput, cancellationToken);
+                this.UnitOfWork.Rollback();
             }
+            
         }
 
         /// <summary>
@@ -219,11 +221,11 @@ namespace ReconNess.Services
         /// <param name="agentRun">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns>A Task</returns>
-        private async Task AddOrUpdateSubdomainAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task<Subdomain> AddOrUpdateSubdomainAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (Uri.CheckHostName(scriptOutput.Subdomain) == UriHostNameType.Unknown)
             {
-                return;
+                return null;
             }
 
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(d => d.Name == scriptOutput.Subdomain && d.RootDomain == agentRun.RootDomain)
@@ -247,8 +249,7 @@ namespace ReconNess.Services
                 }
             }
 
-            agentRun.Subdomain = subdomain;
-            await this.SaveScriptOutputAsync(agentRun, scriptOutput, cancellationToken);
+            return subdomain;            
         }
 
         /// <summary>
