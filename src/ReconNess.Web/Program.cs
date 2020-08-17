@@ -13,12 +13,14 @@ namespace ReconNess.Web
             CreateWebHostBuilder(args).Build().MigrateDatabase().Run();
         }
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args)
                  .ConfigureServices((hostContext, services) =>
                  {
                      services.AddHostedService<QueuedHostedService>();
                  })
                 .UseStartup<Startup>();
+        }
     }
 }

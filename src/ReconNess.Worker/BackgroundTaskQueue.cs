@@ -15,12 +15,14 @@ namespace ReconNess.Worker
         private SemaphoreSlim signal = new SemaphoreSlim(0);
         private AgentRunProcess currentRunProcess;
 
+        public string KeyDeleted { get; set; }
+
         public IList<string> Keys 
         {
             get
             {
-                var keys = workItems.Where(w => !w.MarkAsDeleted).Select(a => a.Key).ToList();
-                if (this.currentRunProcess != null && !this.currentRunProcess.MarkAsDeleted)
+                var keys = workItems.Select(a => a.Key).ToList();
+                if (this.currentRunProcess != null)
                 {
                     keys.Add(this.currentRunProcess.Key);
                 }
@@ -29,7 +31,7 @@ namespace ReconNess.Worker
             }
         }
 
-        public int Count => this.workItems.Count;
+        public int Count => this.workItems.Count();
 
         public void QueueBackgroundWorkItem(AgentRunProcess workItem)
         {
@@ -39,6 +41,7 @@ namespace ReconNess.Worker
             }
 
             this.workItems.Enqueue(workItem);
+
             this.signal.Release();
         }
 
@@ -49,9 +52,12 @@ namespace ReconNess.Worker
             AgentRunProcess workItem = null;
             do
             {
-                this.workItems.TryDequeue(out workItem);
+                if (!this.workItems.TryDequeue(out workItem))
+                {
+                    return null;
+                }
 
-            } while (workItem.MarkAsDeleted);
+            } while (!string.IsNullOrEmpty(this.KeyDeleted) && workItem.Key.Contains(this.KeyDeleted));
 
             this.currentRunProcess = workItem;
 
@@ -60,20 +66,13 @@ namespace ReconNess.Worker
 
         public Task StopAndRemoveAsync(string key)
         {
-            workItems.ToList().ForEach(workItem =>
+            if (this.currentRunProcess != null && this.currentRunProcess.Key.Contains(key))
             {
-                if (workItem.Key.Contains(key))
+                if (this.currentRunProcess.RunnerProcess != null)
                 {
-                    workItem.MarkAsDeleted = true;
+                    this.currentRunProcess.RunnerProcess.KillProcess();
                 }
-            });
-
-            if (this.currentRunProcess != null && !this.currentRunProcess.MarkAsDeleted && 
-                this.currentRunProcess.Key.Contains(key) && this.currentRunProcess.RunnerProcess != null)
-            {
-                this.currentRunProcess.RunnerProcess.KillProcess();
-                this.currentRunProcess.MarkAsDeleted = true;
-            }
+            }       
 
             return Task.CompletedTask;
         }

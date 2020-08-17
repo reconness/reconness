@@ -174,6 +174,7 @@
                         if (this.runningAgents.length !== 0) {
                             if (this.runningAgents.indexOf(agent.name) > -1) {
                                 agent.isRunning = true
+                                this.currentAgent = agent
                             }
                         }
 

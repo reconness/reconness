@@ -39,8 +39,10 @@ namespace ReconNess.Worker
 
                 try
                 {
-                    await workItem.Process(stoppingToken);
-                    workItem.MarkAsDeleted = true;
+                    if (workItem != null)
+                    {
+                        await workItem.Process(stoppingToken);
+                    }
                 }
                 catch (Exception ex)
                 {

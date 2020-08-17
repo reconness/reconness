@@ -13,11 +13,10 @@ namespace ReconNess.Core.Models
             Process = process;
         }
 
-        public RunnerProcess RunnerProcess { get; set; }
-
         public string Key { get; set; }
 
-        public bool MarkAsDeleted { get; set; } = false;
+        public RunnerProcess RunnerProcess { get; set; }
+        
         public Func<CancellationToken, Task> Process { get; set; } 
     }
 }

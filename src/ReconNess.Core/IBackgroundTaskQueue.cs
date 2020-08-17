@@ -8,6 +8,8 @@ namespace ReconNess.Core
 {
     public interface IBackgroundTaskQueue
     {
+        string KeyDeleted { get; set; }
+        
         int Count { get; }
         
         IList<string> Keys { get; }

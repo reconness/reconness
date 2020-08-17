@@ -81,6 +81,8 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            this.backgroundTaskQueue.KeyDeleted = string.Empty;
+            
             var channel = this.GetChannel(agentRun);
 
             if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
@@ -133,6 +135,7 @@ namespace ReconNess.Services
 
             try
             {
+                this.backgroundTaskQueue.KeyDeleted = key;
                 await this.backgroundTaskQueue.StopAndRemoveAsync(key);
             }
             catch (Exception ex)
@@ -155,51 +158,68 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private Task RunBashAsync(AgentRun agentRun, string channel, bool last)
         {
-            RunnerProcess runnerProcess = null;
-            this.backgroundTaskQueue.QueueBackgroundWorkItem(new AgentRunProcess(this.GetKey(agentRun), runnerProcess, async token =>
+            try
             {
-                try
+                if (!string.IsNullOrEmpty(this.backgroundTaskQueue.KeyDeleted))
                 {
-                    var command = this.GetCommand(agentRun);  
+                    return Task.CompletedTask;
+                }
 
-                    runnerProcess = new RunnerProcess(command);
-                    
-                    await this.SendMsgLogAsync(channel, $"RUN: {command}", token);
-                    await this.SendMsgAsync(channel, $"RUN: {command}", token);
-                    
-                    this.scriptEngineService.InintializeAgent(agentRun.Agent);
+                var command = this.GetCommand(agentRun);  
+                var runnerProcess = new RunnerProcess(command);
 
-                    int lineCount = 1;
-                    while (!runnerProcess.EndOfStream)
-                    {
-                        token.ThrowIfCancellationRequested();
+                this.backgroundTaskQueue.QueueBackgroundWorkItem(new AgentRunProcess(this.GetKey(agentRun), runnerProcess,async token =>
+                {
+                    try
+                    {   
+                        await this.SendMsgLogAsync(channel, $"RUN: {command}", token);
+                        await this.SendMsgAsync(channel, $"RUN: {command}", token);
+                        
+                        this.scriptEngineService.InintializeAgent(agentRun.Agent);
 
-                        var terminalLineOutput = runnerProcess.TerminalLineOutput();
-                        var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
+                        int lineCount = 1;
+                        while (!runnerProcess.EndOfStream)
+                        {
+                            token.ThrowIfCancellationRequested();
 
-                        await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
-                        await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);   
-                        await SendMsgLogTailAsync(channel, lineCount, token);
+                            var terminalLineOutput = runnerProcess.TerminalLineOutput();
+                            var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
-                        await this.SendMsgAsync(channel, terminalLineOutput, token);
+                            await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
+                            await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);   
+                            await SendMsgLogTailAsync(channel, lineCount, token);
+
+                            await this.SendMsgAsync(channel, terminalLineOutput, token);
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    await this.SendMsgAsync(channel, ex.Message, token);
-                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace}", token);
-                }
-                finally
-                {
-                    if (last)
+                    catch (Exception ex)
                     {
-                        await this.StopAsync(agentRun, true, token);
-                        // update the last time that we run this agent
-                        //agent.LastRun = DateTime.Now;
-                        //await this.UpdateAsync(agent, cancellationToken);
+                        await this.SendMsgAsync(channel, ex.Message, token);
+                        await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace}", token);
                     }
-                }
-            }));            
+                    finally
+                    {
+                        if (last)
+                        {
+                            try
+                            {
+                                await this.StopAsync(agentRun, true, token);
+                                // update the last time that we run this agent
+                                //agent.LastRun = DateTime.Now;
+                                //await this.UpdateAsync(agent, cancellationToken);
+                            }
+                            catch(Exception)
+                            {
+
+                            }
+                        }
+                    }
+                }));   
+            }
+            catch (Exception)
+            {
+
+            }         
 
             return Task.CompletedTask;
         }
