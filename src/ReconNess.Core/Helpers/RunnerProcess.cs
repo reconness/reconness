@@ -1,8 +1,7 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading;
 
-namespace ReconNess.Services
+namespace ReconNess.Core
 {
     public class RunnerProcess
     {

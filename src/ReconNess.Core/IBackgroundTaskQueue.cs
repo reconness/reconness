@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ReconNess.Core.Models;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,9 +8,14 @@ namespace ReconNess.Core
 {
     public interface IBackgroundTaskQueue
     {
-        void QueueBackgroundWorkItem(Func<CancellationToken, Task> workItem);
+        int Count { get; }
+        
+        IList<string> Keys { get; }
 
-        Task<Func<CancellationToken, Task>> DequeueAsync(
-            CancellationToken cancellationToken);
+        void QueueBackgroundWorkItem(AgentRunProcess workItem);
+
+        Task<AgentRunProcess> DequeueAsync(CancellationToken cancellationToken);
+
+        Task StopAndRemoveAsync(string key);
     }
 }

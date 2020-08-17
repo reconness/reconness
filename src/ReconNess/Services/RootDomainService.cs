@@ -72,7 +72,7 @@ namespace ReconNess.Services
 
                 if (subdomain != null)
                 {
-                    await this.subdomainService.UpdateSubdomainByAgent(subdomain, agentRun, scriptOutput, cancellationToken);
+                    await this.subdomainService.UpdateSubdomainByAgentRunning(subdomain, agentRun, scriptOutput, cancellationToken);
                 }
                 await this.UnitOfWork.CommitAsync();
             }

@@ -171,11 +171,11 @@
                 if (this.agents.length > 0) {
                     this.agents.map(agent => {
 
-                        /*if (this.runningAgents.length !== 0) {
+                        if (this.runningAgents.length !== 0) {
                             if (this.runningAgents.indexOf(agent.name) > -1) {
                                 agent.isRunning = true
                             }
-                        }*/
+                        }
 
                         const channel = this.isTarget ?
                             `${agent.name}_${this.targetName}_${this.rootDomain}` :
