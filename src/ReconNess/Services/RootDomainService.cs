@@ -58,13 +58,13 @@ namespace ReconNess.Services
         public async Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             try
             {
                 this.UnitOfWork.BeginTransaction();
 
                 var subdomain = agentRun.Subdomain;
-                if (!string.IsNullOrEmpty(scriptOutput.Subdomain) && 
+                if (!string.IsNullOrEmpty(scriptOutput.Subdomain) &&
                     (subdomain == null || !scriptOutput.Subdomain.Equals(subdomain.Name, StringComparison.OrdinalIgnoreCase)))
                 {
                     subdomain = await this.AddOrUpdateSubdomainAsync(agentRun, scriptOutput, cancellationToken);
@@ -80,7 +80,7 @@ namespace ReconNess.Services
             {
                 this.UnitOfWork.Rollback();
             }
-            
+
         }
 
         /// <summary>
@@ -241,7 +241,7 @@ namespace ReconNess.Services
                 };
 
                 subdomain = await this.subdomainService.AddAsync(subdomain);
-                
+
                 if (agentRun.ActivateNotification && agentRun.Agent.NotifyNewFound && agentRun.Agent.AgentNotification != null && !string.IsNullOrEmpty(agentRun.Agent.AgentNotification.SubdomainPayload))
                 {
                     var payload = agentRun.Agent.AgentNotification.SubdomainPayload.Replace("{{domain}}", subdomain.Name);
@@ -249,7 +249,7 @@ namespace ReconNess.Services
                 }
             }
 
-            return subdomain;            
+            return subdomain;
         }
 
         /// <summary>

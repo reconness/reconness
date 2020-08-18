@@ -19,7 +19,7 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentService : Service<Agent>, IService<Agent>, IAgentService
     {
-        private readonly IScriptEngineService scriptEngineService;     
+        private readonly IScriptEngineService scriptEngineService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class

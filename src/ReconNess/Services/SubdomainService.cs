@@ -131,13 +131,13 @@ namespace ReconNess.Services
                 subdomain.IpAddress = scriptOutput.Ip;
 
                 var payload = agentRun.Agent.AgentNotification?.IpAddressPayload ?? string.Empty;
-                await this.SendNotificationIfActive(agentRun, payload, new[] 
-                { 
+                await this.SendNotificationIfActive(agentRun, payload, new[]
+                {
                     ("{{domain}}", subdomain.Name),
-                    ("{{ip}}", scriptOutput.Ip) 
+                    ("{{ip}}", scriptOutput.Ip)
                 }, cancellationToken);
             }
-        }       
+        }
 
         /// <summary>
         /// Update the subdomain if it has http port open
@@ -181,7 +181,7 @@ namespace ReconNess.Services
                     ("{{takeover}}", scriptOutput.Takeover.Value.ToString())
                 }, cancellationToken);
             }
-        }        
+        }
 
         /// <summary>
         /// Update the subdomain with directory discovery
@@ -292,7 +292,7 @@ namespace ReconNess.Services
                     ("{{domain}}", subdomain.Name),
                     ("{{note}}", scriptOutput.Note)
                 }, cancellationToken);
-            }            
+            }
         }
 
         /// <summary>

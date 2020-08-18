@@ -1,13 +1,12 @@
 ﻿using System.Diagnostics;
-using System.Threading;
 
-namespace ReconNess.Core
+namespace ReconNess.Core.Helpers
 {
     public class RunnerProcess
     {
         private Process process;
 
-        public RunnerProcess(string command)
+        public void Start(string command)
         {
             this.process = new Process()
             {
@@ -22,8 +21,6 @@ namespace ReconNess.Core
                 }
             };
 
-            Thread.Sleep(1000);
-            
             this.process.Start();
         }
 
@@ -35,7 +32,7 @@ namespace ReconNess.Core
                 {
                     return true;
                 }
-                
+
                 return this.process.StandardOutput.EndOfStream;
             }
         }

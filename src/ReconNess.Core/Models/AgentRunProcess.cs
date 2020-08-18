@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReconNess.Core.Helpers;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,7 +17,7 @@ namespace ReconNess.Core.Models
         public string Key { get; set; }
 
         public RunnerProcess RunnerProcess { get; set; }
-        
-        public Func<CancellationToken, Task> Process { get; set; } 
+
+        public Func<CancellationToken, Task> Process { get; set; }
     }
 }

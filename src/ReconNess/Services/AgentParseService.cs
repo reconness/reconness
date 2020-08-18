@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace ReconNess.Services
 {

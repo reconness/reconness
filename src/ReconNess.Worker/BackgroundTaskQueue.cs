@@ -17,7 +17,7 @@ namespace ReconNess.Worker
 
         public string KeyDeleted { get; set; }
 
-        public IList<string> Keys 
+        public IList<string> Keys
         {
             get
             {
@@ -49,7 +49,7 @@ namespace ReconNess.Worker
         {
             await this.signal.WaitAsync(cancellationToken);
 
-            AgentRunProcess workItem = null;
+            AgentRunProcess workItem;
             do
             {
                 if (!this.workItems.TryDequeue(out workItem))
@@ -72,7 +72,7 @@ namespace ReconNess.Worker
                 {
                     this.currentRunProcess.RunnerProcess.KillProcess();
                 }
-            }       
+            }
 
             return Task.CompletedTask;
         }

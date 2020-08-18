@@ -1,11 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using ReconNess.Core;
+using ReconNess.Core.Helpers;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -33,9 +32,9 @@ namespace ReconNess.Services
         /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="agentParseService"><see cref="IAgentParseService"/></param>
         /// <param name="backgroundTaskQueue"><see cref="IBackgroundTaskQueue"/></param>
-        public AgentRunnerService(IUnitOfWork unitOfWork, 
+        public AgentRunnerService(IUnitOfWork unitOfWork,
             IConnectorService connectorService,
-            IScriptEngineService scriptEngineService,            
+            IScriptEngineService scriptEngineService,
             INotificationService notificationService,
             IAgentParseService agentParseService,
             IBackgroundTaskQueue backgroundTaskQueue) : base(unitOfWork)
@@ -82,7 +81,7 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             this.backgroundTaskQueue.KeyDeleted = string.Empty;
-            
+
             var channel = this.GetChannel(agentRun);
 
             if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
@@ -115,7 +114,7 @@ namespace ReconNess.Services
                 }, channel, subdomainsCount == 1);
 
                 subdomainsCount--;
-            }            
+            }
         }
 
         /// <summary>
@@ -158,68 +157,62 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private Task RunBashAsync(AgentRun agentRun, string channel, bool last)
         {
-            try
+            if (!string.IsNullOrEmpty(this.backgroundTaskQueue.KeyDeleted))
             {
-                if (!string.IsNullOrEmpty(this.backgroundTaskQueue.KeyDeleted))
-                {
-                    return Task.CompletedTask;
-                }
-
-                var command = this.GetCommand(agentRun);  
-                var runnerProcess = new RunnerProcess(command);
-
-                this.backgroundTaskQueue.QueueBackgroundWorkItem(new AgentRunProcess(this.GetKey(agentRun), runnerProcess,async token =>
-                {
-                    try
-                    {   
-                        await this.SendMsgLogAsync(channel, $"RUN: {command}", token);
-                        await this.SendMsgAsync(channel, $"RUN: {command}", token);
-                        
-                        this.scriptEngineService.InintializeAgent(agentRun.Agent);
-
-                        int lineCount = 1;
-                        while (!runnerProcess.EndOfStream)
-                        {
-                            token.ThrowIfCancellationRequested();
-
-                            var terminalLineOutput = runnerProcess.TerminalLineOutput();
-                            var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
-
-                            await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
-                            await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);   
-                            await SendMsgLogTailAsync(channel, lineCount, token);
-
-                            await this.SendMsgAsync(channel, terminalLineOutput, token);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        await this.SendMsgAsync(channel, ex.Message, token);
-                        await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace}", token);
-                    }
-                    finally
-                    {
-                        if (last)
-                        {
-                            try
-                            {
-                                await this.StopAsync(agentRun, true, token);
-                                // update the last time that we run this agent
-                                //agent.LastRun = DateTime.Now;
-                                //await this.UpdateAsync(agent, cancellationToken);
-                            }
-                            catch(Exception)
-                            {
-
-                            }
-                        }
-                    }
-                }));   
+                return Task.CompletedTask;
             }
-            catch (Exception)
-            {
 
-            }         
+            var runnerProcess = new RunnerProcess();
+            this.backgroundTaskQueue.QueueBackgroundWorkItem(new AgentRunProcess(this.GetKey(agentRun), runnerProcess, async token =>
+            {
+                try
+                {
+                    var command = this.GetCommand(agentRun);
+                    runnerProcess.Start(command);
+
+                    await this.SendMsgLogAsync(channel, $"RUN: {command}", token);
+                    await this.SendMsgAsync(channel, $"RUN: {command}", token);
+
+                    this.scriptEngineService.InintializeAgent(agentRun.Agent);
+
+                    int lineCount = 1;
+                    while (!runnerProcess.EndOfStream)
+                    {
+                        token.ThrowIfCancellationRequested();
+
+                        var terminalLineOutput = runnerProcess.TerminalLineOutput();
+                        var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
+
+                        await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
+                        await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);
+                        await SendMsgLogTailAsync(channel, lineCount, token);
+
+                        await this.SendMsgAsync(channel, terminalLineOutput, token);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    await this.SendMsgAsync(channel, ex.Message, token);
+                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace}", token);
+                }
+                finally
+                {
+                    if (last)
+                    {
+                        try
+                        {
+                            await this.StopAsync(agentRun, true, token);
+                            // update the last time that we run this agent
+                            //agent.LastRun = DateTime.Now;
+                            //await this.UpdateAsync(agent, cancellationToken);
+                        }
+                        catch (Exception)
+                        {
+
+                        }
+                    }
+                }
+            }));
 
             return Task.CompletedTask;
         }
@@ -301,7 +294,7 @@ namespace ReconNess.Services
                 .Replace("{{password}}", envPassword)
                 .Replace("\"", "\\\"");
         }
-        
+
         /// <summary>
         /// Send a msg and a notification when the agent finish
         /// </summary>
@@ -331,7 +324,7 @@ namespace ReconNess.Services
         {
             await this.SendMsgLogAsync(channel, $"Output #: {lineCount} processed", cancellationToken);
             await this.SendMsgLogAsync(channel, "-----------------------------------------------------", cancellationToken);
-        }               
+        }
 
         private async Task SendMsgLogAsync(string channel, string msg, CancellationToken cancellationToken)
         {
