@@ -183,9 +183,12 @@ namespace ReconNess.Services
                         var terminalLineOutput = runnerProcess.TerminalLineOutput();
                         var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
-                        await SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
+                        await this.SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
+
                         await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);
-                        await SendMsgLogTailAsync(channel, lineCount, token);
+
+                        await this.SendMsgLogAsync(channel, runnerProcess.ResourceUsage, token);
+                        await this.SendMsgLogTailAsync(channel, lineCount, token);
 
                         await this.SendMsgAsync(channel, terminalLineOutput, token);
                     }
