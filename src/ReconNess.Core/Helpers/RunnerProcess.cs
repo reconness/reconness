@@ -24,9 +24,9 @@ namespace ReconNess.Core.Helpers
             this.process.Start();
         }
 
-        public string ResourceUsage 
-        { 
-            get 
+        public string ResourceUsage
+        {
+            get
             {
                 if (this.process != null)
                 {
@@ -34,7 +34,7 @@ namespace ReconNess.Core.Helpers
                 }
 
                 return string.Empty;
-            } 
+            }
         }
         public bool EndOfStream
         {

@@ -17,5 +17,13 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
         Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Update the last time that the agent ran
+        /// </summary>
+        /// <param name="agentRun">The agent</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        Task UpdateLastRunAsync(AgentRun agentRun, CancellationToken cancellationToken = default);
     }
 }

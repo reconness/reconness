@@ -205,9 +205,7 @@ namespace ReconNess.Services
                         try
                         {
                             await this.StopAsync(agentRun, true, token);
-                            // update the last time that we run this agent
-                            //agent.LastRun = DateTime.Now;
-                            //await this.UpdateAsync(agent, cancellationToken);
+                            await this.agentParseService.UpdateLastRunAsync(agentRun, token);
                         }
                         catch (Exception)
                         {
