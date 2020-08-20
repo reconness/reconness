@@ -187,7 +187,6 @@ namespace ReconNess.Services
 
                         await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);
 
-                        await this.SendMsgLogAsync(channel, runnerProcess.ResourceUsage, token);
                         await this.SendMsgLogTailAsync(channel, lineCount, token);
 
                         await this.SendMsgAsync(channel, terminalLineOutput, token);

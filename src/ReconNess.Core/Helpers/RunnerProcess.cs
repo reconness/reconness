@@ -24,18 +24,6 @@ namespace ReconNess.Core.Helpers
             this.process.Start();
         }
 
-        public string ResourceUsage
-        {
-            get
-            {
-                if (this.process != null)
-                {
-                    return $"Working set {this.process.WorkingSet64} bytes. Total CPU time {this.process.TotalProcessorTime.TotalSeconds} sec";
-                }
-
-                return string.Empty;
-            }
-        }
         public bool EndOfStream
         {
             get
