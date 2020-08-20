@@ -31,7 +31,19 @@ namespace ReconNess.Worker
             }
         }
 
-        public int Count => this.workItems.Count();
+        public int Count
+        {
+            get
+            {
+                var count = this.workItems.Count();
+                if (this.currentRunProcess != null)
+                {
+                    count++;
+                }
+
+                return count;
+            }
+        }
 
         public void QueueBackgroundWorkItem(AgentRunProcess workItem)
         {
