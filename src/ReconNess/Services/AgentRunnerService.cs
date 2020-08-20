@@ -124,12 +124,13 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var channel = this.GetChannel(agentRun);
+
             if (removeSubdomainForTheKey)
             {
                 agentRun.Subdomain = null;
             }
-
-            var channel = this.GetChannel(agentRun);
+            
             var key = this.GetKey(agentRun);
 
             try
