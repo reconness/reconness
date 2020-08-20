@@ -1,3 +1,11 @@
+## [1.4.0] - 2020-08-20
+
+### Added
+
+- Move run Agents to Services Worker
+- Allow refresh the page and continue running the Agent
+- Update packages
+
 ## [1.3.2] - 2020-08-10
 
 ### Added
