@@ -24,14 +24,11 @@ namespace ReconNess.Core.Services
         /// <summary>
         /// Save the output that the ScriptEnginer returned on database
         /// </summary>
-        /// <param name="rootDomain">The rootdomain</param>
-        /// <param name="subdomain">the subdomain.async Can be null is the agent run only for the target</param>
-        /// <param name="agent">The agent was ran</param>
+        /// <param name="agentRun">The agent was ran</param>
         /// <param name="scriptOutput">The output that the ScriptEnginer returned</param>
-        /// <param name="activateNotification">if we need to notify if notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        Task SaveScriptOutputAsync(RootDomain rootDomain, Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default);
+        Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the rootdomains with all the subdomains and relations

@@ -19,6 +19,7 @@ namespace ReconNess.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
+        private readonly IAgentRunnerService agentRunnerService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ICategoryService categoryService;
@@ -29,6 +30,7 @@ namespace ReconNess.Web.Controllers
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="agentService"><see cref="IAgentService"/></param>
+        /// <param name="agentRunnerService"><see cref="IAgentRunnerService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="categoryService"><see cref="ICategoryService"/></param>
@@ -36,6 +38,7 @@ namespace ReconNess.Web.Controllers
         public AgentsController(
             IMapper mapper,
             IAgentService agentService,
+            IAgentRunnerService agentRunnerService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
             ICategoryService categoryService,
@@ -43,6 +46,7 @@ namespace ReconNess.Web.Controllers
         {
             this.mapper = mapper;
             this.agentService = agentService;
+            this.agentRunnerService = agentRunnerService;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.categoryService = categoryService;
@@ -125,6 +129,7 @@ namespace ReconNess.Web.Controllers
             agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
             agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
             agent.NotifyNewFound = agentDto.NotifyNewFound;
+
             if (agent.AgentNotification == null)
             {
                 agent.AgentNotification = new AgentNotification();
@@ -227,7 +232,16 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentService.RunAsync(target, rootDomain, subdomain, agent, agentRunDto.Command, agentRunDto.ActivateNotification, cancellationToken);
+            await this.agentRunnerService.RunAsync(
+                new AgentRun
+                {
+                    Agent = agent,
+                    Target = target,
+                    RootDomain = rootDomain,
+                    Subdomain = subdomain,
+                    ActivateNotification = agentRunDto.ActivateNotification,
+                    Command = agentRunDto.Command
+                }, cancellationToken);
 
             return NoContent();
         }
@@ -264,9 +278,52 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var task = this.agentService.StopAsync(target, rootDomain, subdomain, agent, cancellationToken);
+            var task = this.agentRunnerService.StopAsync(new AgentRun
+            {
+                Agent = agent,
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = subdomain
+            }, false, cancellationToken);
 
             return NoContent();
+        }
+
+        // GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
+        [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
+        public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
+        {
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            if (rootDomain == null)
+            {
+                return BadRequest();
+            }
+
+            Subdomain subdomain = null;
+            if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
+            {
+                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+                if (subdomain == null)
+                {
+                    return NotFound();
+                }
+            }
+
+            var agents = await this.agentService.GetAllAsync(cancellationToken);
+            var agentsRunning = this.agentRunnerService.Running(new AgentRun
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = subdomain
+            }, agents, cancellationToken);
+
+            return Ok(agentsRunning);
         }
 
         // POST api/agents/debug
