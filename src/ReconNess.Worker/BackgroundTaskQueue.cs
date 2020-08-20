@@ -83,6 +83,7 @@ namespace ReconNess.Worker
                 if (this.currentRunProcess.RunnerProcess != null)
                 {
                     this.currentRunProcess.RunnerProcess.KillProcess();
+                    this.currentRunProcess = null;
                 }
             }
 
