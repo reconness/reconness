@@ -74,6 +74,7 @@ namespace ReconNess.Services
                 {
                     await this.subdomainService.UpdateSubdomainByAgentRunning(subdomain, agentRun, scriptOutput, cancellationToken);
                 }
+
                 await this.UnitOfWork.CommitAsync();
             }
             catch (Exception)

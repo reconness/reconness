@@ -94,7 +94,6 @@ namespace ReconNess.Services
 
             var subdomains = agentRun.RootDomain.Subdomains.ToList();
             var subdomainsCount = subdomains.Count;
-
             foreach (var subdomain in subdomains)
             {
                 var last = subdomainsCount == 1;
@@ -109,6 +108,11 @@ namespace ReconNess.Services
                 }, channel, last);
 
                 subdomainsCount--;
+            }
+
+            if (subdomains.Count == 0)
+            {
+                await this.SendAgentDoneNotificationAsync(agentRun, channel, cancellationToken);
             }
         }
 
@@ -161,8 +165,8 @@ namespace ReconNess.Services
                     var needToSkip = this.NeedToSkipSubdomain(agentRun);
                     if (needToSkip)
                     {
-                        await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name}", token);
-                        await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name}", token);
+                        await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{DateTime.Now.ToString("hh:mm tt")}]", token);
+                        await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{DateTime.Now.ToString("hh:mm tt")}]", token);
                     }
                     else
                     {
@@ -190,6 +194,11 @@ namespace ReconNess.Services
 
                             await this.SendMsgAsync(channel, terminalLineOutput, token);
                         }
+
+                        if (agentRun.Subdomain != null)
+                        {
+                            await this.agentParseService.RegisterAgentAsync(agentRun, token);
+                        }
                     }
                 }
                 catch (Exception ex)
@@ -204,7 +213,7 @@ namespace ReconNess.Services
                         try
                         {
                             await this.StopAsync(agentRun, true, token);
-                            await this.agentParseService.UpdateLastRunAsync(agentRun, token);
+                            await this.agentParseService.UpdateLastRunAsync(agentRun.Agent, token);
                         }
                         catch (Exception)
                         {

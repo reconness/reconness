@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
+using ReconNess.Entities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,7 +27,6 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IAgentParseService.SaveScriptOutputAsync(AgentRun, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        /// <returns></returns>
         public async Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
@@ -40,9 +40,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentParseService.UpdateLastRunAsync(AgentRun, CancellationToken)"/>
+        /// <see cref="IAgentParseService.UpdateLastRunAsync(Agent, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateLastRunAsync(AgentRun agentRun, CancellationToken cancellationToken = default)
+        public async Task UpdateLastRunAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
@@ -50,8 +50,23 @@ namespace ReconNess.Services
                     scope.ServiceProvider
                         .GetRequiredService<IAgentService>();
 
-                agentRun.Agent.LastRun = DateTime.Now;
-                await agentService.UpdateAsync(agentRun.Agent, cancellationToken);
+                agent.LastRun = DateTime.Now;
+                await agentService.UpdateAsync(agent, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// <see cref="IAgentParseService.RegisterAgentAsync(AgentRun, CancellationToken)"/>
+        /// </summary>
+        public async Task RegisterAgentAsync(AgentRun agentRun, CancellationToken cancellationToken = default)
+        {
+            using (var scope = this.serviceProvider.CreateScope())
+            {
+                var subdomainService =
+                    scope.ServiceProvider
+                        .GetRequiredService<ISubdomainService>();
+
+                await subdomainService.UpdateSubdomainAgent(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
             }
         }
     }

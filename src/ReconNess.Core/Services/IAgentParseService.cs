@@ -1,4 +1,5 @@
 ﻿using ReconNess.Core.Models;
+using ReconNess.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -21,9 +22,17 @@ namespace ReconNess.Core.Services
         /// <summary>
         /// Update the last time that the agent ran
         /// </summary>
-        /// <param name="agentRun">The agent</param>
+        /// <param name="agent">The agent</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateLastRunAsync(AgentRun agentRun, CancellationToken cancellationToken = default);
+        Task UpdateLastRunAsync(Agent agent, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Register that we run this Agent in the Subdomain
+        /// </summary>
+        /// <param name="agentRun">The agent</param>
+        /// <param name="token"></param>
+        /// <returns>Notification that operations should be canceled</returns>
+        Task RegisterAgentAsync(AgentRun agentRun, CancellationToken cancellationToken = default);
     }
 }
