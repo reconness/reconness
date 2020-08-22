@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace ReconNess.Worker
 {
-    public class BackgroundTaskQueue : IBackgroundTaskQueue
+    /// <summary>
+    /// 
+    /// </summary>
+    public class AgentRunBackgroundTaskQueue : IAgentRunBackgroundTaskQueue
     {
         private ConcurrentQueue<AgentRunProcess> workItems = new ConcurrentQueue<AgentRunProcess>();
         private SemaphoreSlim signal = new SemaphoreSlim(0);
@@ -17,7 +20,10 @@ namespace ReconNess.Worker
 
         private string keyDeleted;
 
-        public IList<string> Keys
+        /// <summary>
+        /// 
+        /// </summary>
+        public IList<string> AgentRunKeys
         {
             get
             {
@@ -31,7 +37,10 @@ namespace ReconNess.Worker
             }
         }
 
-        public int Count
+        /// <summary>
+        /// 
+        /// </summary>
+        public int AgentRunCount
         {
             get
             {
@@ -45,7 +54,11 @@ namespace ReconNess.Worker
             }
         }
 
-        public void QueueBackgroundWorkItem(AgentRunProcess workItem)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workItem"></param>
+        public void QueueAgentRun(AgentRunProcess workItem)
         {
             if (workItem == null)
             {
@@ -57,7 +70,12 @@ namespace ReconNess.Worker
             this.signal.Release();
         }
 
-        public async Task<AgentRunProcess> DequeueAsync(CancellationToken cancellationToken)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public async Task<AgentRunProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
         {
             await this.signal.WaitAsync(cancellationToken);
 
@@ -76,7 +94,12 @@ namespace ReconNess.Worker
             return workItem;
         }
 
-        public Task StopAndRemoveAsync(string key)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public Task StopCurrentAgentRunAsync(string key)
         {
             this.keyDeleted = key;
             if (this.currentRunProcess != null && this.currentRunProcess.Key.Contains(key))
@@ -91,9 +114,21 @@ namespace ReconNess.Worker
             return Task.CompletedTask;
         }
 
-        public void ResetKeyToDelete()
+        /// <summary>
+        /// 
+        /// </summary>
+        public void InitializeCurrentAgentRun()
         {
             this.keyDeleted = string.Empty;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public bool IsCurrentAgentRunStopped()
+        {
+            return !string.IsNullOrEmpty(this.keyDeleted);
         }
     }
 }

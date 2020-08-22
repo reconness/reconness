@@ -39,7 +39,7 @@ namespace ReconNess.Web
 
             services.AddScoped<IScriptEngineService, ScriptEngineService>();
             services.AddScoped<IConnectorService, ConnectorService>();
-            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+            services.AddSingleton<IAgentRunBackgroundTaskQueue, AgentRunBackgroundTaskQueue>();
 
             services.AddSingleton<IAgentParseService, AgentParseService>();
         }

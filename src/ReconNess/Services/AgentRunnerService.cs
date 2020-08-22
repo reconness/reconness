@@ -21,7 +21,7 @@ namespace ReconNess.Services
         private readonly IScriptEngineService scriptEngineService;
         private readonly INotificationService notificationService;
         private readonly IAgentParseService agentParseService;
-        private readonly IBackgroundTaskQueue backgroundTaskQueue;
+        private readonly IAgentRunBackgroundTaskQueue backgroundTaskQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunnerService" /> class
@@ -31,13 +31,13 @@ namespace ReconNess.Services
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
         /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="agentParseService"><see cref="IAgentParseService"/></param>
-        /// <param name="backgroundTaskQueue"><see cref="IBackgroundTaskQueue"/></param>
+        /// <param name="backgroundTaskQueue"><see cref="IAgentRunBackgroundTaskQueue"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
             IConnectorService connectorService,
             IScriptEngineService scriptEngineService,
             INotificationService notificationService,
             IAgentParseService agentParseService,
-            IBackgroundTaskQueue backgroundTaskQueue) : base(unitOfWork)
+            IAgentRunBackgroundTaskQueue backgroundTaskQueue) : base(unitOfWork)
         {
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
@@ -53,9 +53,9 @@ namespace ReconNess.Services
         {
             var agentsRunning = new List<string>();
 
-            if (this.backgroundTaskQueue.Count != 0)
+            if (this.backgroundTaskQueue.AgentRunCount != 0)
             {
-                var keys = this.backgroundTaskQueue.Keys;
+                var keys = this.backgroundTaskQueue.AgentRunKeys;
                 foreach (var agent in agents)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
@@ -80,7 +80,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.backgroundTaskQueue.ResetKeyToDelete();
+            this.backgroundTaskQueue.InitializeCurrentAgentRun();
 
             var channel = this.GetChannel(agentRun);
 
@@ -95,6 +95,7 @@ namespace ReconNess.Services
 
             foreach (var subdomain in subdomains)
             {
+                var last = subdomainsCount == 1;
                 await this.RunBashAsync(new AgentRun
                 {
                     Agent = agentRun.Agent,
@@ -103,7 +104,7 @@ namespace ReconNess.Services
                     Subdomain = subdomain,
                     ActivateNotification = agentRun.ActivateNotification,
                     Command = agentRun.Command
-                }, channel, last: subdomainsCount == 1);
+                }, channel, last);
 
                 subdomainsCount--;
             }
@@ -123,7 +124,7 @@ namespace ReconNess.Services
                 agentRun.Subdomain = removeSubdomainForTheKey ? null : agentRun.Subdomain;
 
                 var key = this.GetKey(agentRun);
-                await this.backgroundTaskQueue.StopAndRemoveAsync(key);
+                await this.backgroundTaskQueue.StopCurrentAgentRunAsync(key);
             }
             catch (Exception ex)
             {
@@ -145,13 +146,13 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private Task RunBashAsync(AgentRun agentRun, string channel, bool last)
         {
-            if (!string.IsNullOrEmpty(this.backgroundTaskQueue.KeyDeleted))
+            if (this.backgroundTaskQueue.IsCurrentAgentRunStopped())
             {
                 return Task.CompletedTask;
             }
 
             var runnerProcess = new RunnerProcess();
-            this.backgroundTaskQueue.QueueBackgroundWorkItem(new AgentRunProcess(this.GetKey(agentRun), runnerProcess, async token =>
+            this.backgroundTaskQueue.QueueAgentRun(new AgentRunProcess(this.GetKey(agentRun), runnerProcess, async token =>
             {
                 try
                 {
@@ -311,6 +312,15 @@ namespace ReconNess.Services
             await this.SendMsgAsync(channel, "Agent done!", cancellationToken);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="lineCount"></param>
+        /// <param name="terminalLineOutput"></param>
+        /// <param name="scriptOutput"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task SendMsgLogHeadAsync(string channel, int lineCount, string terminalLineOutput, ScriptOutput scriptOutput, CancellationToken cancellationToken)
         {
             await this.SendMsgLogAsync(channel, $"Output #: {lineCount}", cancellationToken);
@@ -318,17 +328,38 @@ namespace ReconNess.Services
             await this.SendMsgLogAsync(channel, $"Result: {JsonConvert.SerializeObject(scriptOutput)}", cancellationToken);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="lineCount"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task SendMsgLogTailAsync(string channel, int lineCount, CancellationToken cancellationToken)
         {
             await this.SendMsgLogAsync(channel, $"Output #: {lineCount} processed", cancellationToken);
             await this.SendMsgLogAsync(channel, "-----------------------------------------------------", cancellationToken);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="msg"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task SendMsgLogAsync(string channel, string msg, CancellationToken cancellationToken)
         {
             await this.connectorService.SendAsync("logs_" + channel, msg, cancellationToken);
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="channel"></param>
+        /// <param name="msg"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private async Task SendMsgAsync(string channel, string msg, CancellationToken cancellationToken)
         {
             await this.connectorService.SendAsync(channel, msg, cancellationToken);
