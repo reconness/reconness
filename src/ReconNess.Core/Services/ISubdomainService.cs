@@ -23,13 +23,11 @@ namespace ReconNess.Core.Services
         /// Update the subdomain with the output for the terminal
         /// Add IpAddress, if is alive, if HasHttpOpen and Services running on the subdomain
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The agent</param>
+        /// <param name="agentRun">The agent raw</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default);
+        Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the subdomain with the services

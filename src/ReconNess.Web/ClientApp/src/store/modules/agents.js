@@ -45,6 +45,20 @@ const actions = {
             }
         })
     },
+    runningAgents(context, { targetName, rootDomain, subdomain }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('agents/running/' + targetName + '/' + rootDomain + '/' + subdomain)
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     agentsDefault() {
         return new Promise((resolve, reject) => {
             try {

@@ -18,6 +18,6 @@
 
         public bool SkipIfRanBefore { get; set; }
 
-        public string ScriptUrl { get; set; }        
+        public string ScriptUrl { get; set; }
     }
 }

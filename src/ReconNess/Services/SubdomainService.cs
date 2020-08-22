@@ -51,21 +51,21 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.UpdateSubdomainAsync(Subdomain, Agent, ScriptOutput, bool, CancellationToken)"/>
+        /// <see cref="ISubdomainService.UpdateSubdomainAsync(AgentRun, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateSubdomain(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        public async Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
-            await this.UpdateSubdomainIpAddress(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainIsAlive(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainHasHttpOpen(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainTakeover(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainDirectory(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainService(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            await this.UpdateSubdomainNote(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
+            await this.UpdateSubdomainIpAddress(subdomain, agentRun, scriptOutput, cancellationToken);
+            await this.UpdateSubdomainIsAlive(subdomain, agentRun, scriptOutput, cancellationToken);
+            await this.UpdateSubdomainHasHttpOpen(subdomain, agentRun, scriptOutput, cancellationToken);
+            await this.UpdateSubdomainTakeover(subdomain, agentRun, scriptOutput, cancellationToken);
+            await this.UpdateSubdomainDirectory(subdomain, agentRun, scriptOutput, cancellationToken);
+            await this.UpdateSubdomainService(subdomain, agentRun, scriptOutput, cancellationToken);
+            await this.UpdateSubdomainNote(subdomain, agentRun, scriptOutput, cancellationToken);
 
-            await this.UpdateSubdomainLabel(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
-            this.UpdateSubdomainAgent(subdomain, agent, activateNotification, cancellationToken);
-            this.UpdateSubdomainScreenshot(subdomain, agent, scriptOutput, activateNotification, cancellationToken);
+            await this.UpdateSubdomainLabel(subdomain, agentRun, scriptOutput, cancellationToken);
+            this.UpdateSubdomainAgent(subdomain, agentRun, cancellationToken);
+            this.UpdateSubdomainScreenshot(subdomain, agentRun, scriptOutput, cancellationToken);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
         }
@@ -120,81 +120,210 @@ namespace ReconNess.Services
         /// <summary>
         /// Assign Ip address to the subdomain
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
+        /// <param name="agentRun">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainIpAddress(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainIpAddress(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.Ip != null && Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
             {
                 subdomain.IpAddress = scriptOutput.Ip;
 
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.IpAddressPayload))
+                var payload = agentRun.Agent.AgentNotification?.IpAddressPayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
                 {
-                    var payload = agent.AgentNotification.IpAddressPayload.Replace("{{domain}}", subdomain.Name).Replace("{{ip}}", scriptOutput.Ip);
-                    await this.notificationService.SendAsync(payload, cancellationToken);
-                }
+                    ("{{domain}}", subdomain.Name),
+                    ("{{ip}}", scriptOutput.Ip)
+                }, cancellationToken);
             }
         }
 
         /// <summary>
         /// Update the subdomain if it has http port open
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
+        /// <param name="agentRun">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainHasHttpOpen(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainHasHttpOpen(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.HasHttpOpen != null && subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
 
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.HasHttpOpenPayload))
+                var payload = agentRun.Agent.AgentNotification?.HasHttpOpenPayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
                 {
-                    var payload = agent.AgentNotification.HasHttpOpenPayload.Replace("{{domain}}", subdomain.Name).Replace("{{httpOpen}}", scriptOutput.HasHttpOpen.Value.ToString());
-                    await this.notificationService.SendAsync(payload, cancellationToken);
-                }
+                    ("{{domain}}", subdomain.Name),
+                    ("{{httpOpen}}", scriptOutput.HasHttpOpen.Value.ToString())
+                }, cancellationToken);
             }
         }
 
         /// <summary>
         /// Update the subdomain if it can be takeover
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
+        /// <param name="agentRun">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainTakeover(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainTakeover(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.Takeover != null && subdomain.Takeover != scriptOutput.Takeover.Value)
             {
                 subdomain.Takeover = scriptOutput.Takeover.Value;
 
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.TakeoverPayload))
+                var payload = agentRun.Agent.AgentNotification?.TakeoverPayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
                 {
-                    var payload = agent.AgentNotification.TakeoverPayload.Replace("{{domain}}", subdomain.Name).Replace("{{takeover}}", scriptOutput.Takeover.Value.ToString());
-                    await this.notificationService.SendAsync(payload, cancellationToken);
+                    ("{{domain}}", subdomain.Name),
+                    ("{{takeover}}", scriptOutput.Takeover.Value.ToString())
+                }, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Update the subdomain with directory discovery
+        /// </summary>
+        /// <param name="agentRun">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        private async Task UpdateSubdomainDirectory(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.HttpDirectory))
+            {
+                var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
+                if (subdomain.ServiceHttp == null)
+                {
+                    subdomain.ServiceHttp = new ServiceHttp();
                 }
+
+                if (subdomain.ServiceHttp.Directories == null)
+                {
+                    subdomain.ServiceHttp.Directories = new List<ServiceHttpDirectory>();
+                }
+
+                if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == httpDirectory))
+                {
+                    return;
+                }
+
+                var directory = new ServiceHttpDirectory()
+                {
+                    Directory = httpDirectory,
+                    StatusCode = scriptOutput.HttpDirectoryStatusCode,
+                    Method = scriptOutput.HttpDirectoryMethod,
+                    Size = scriptOutput.HttpDirectorySize
+                };
+
+                subdomain.ServiceHttp.Directories.Add(directory);
+
+                var payload = agentRun.Agent.AgentNotification?.DirectoryPayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
+                {
+                    ("{{domain}}", subdomain.Name),
+                    ("{{directory}}", httpDirectory)
+                }, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Update the subdomain if is a new service with open port
+        /// </summary>
+        /// <param name="agentRun">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        private async Task UpdateSubdomainService(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        {
+            if (string.IsNullOrWhiteSpace(scriptOutput.Service))
+            {
+                return;
+            }
+
+            var service = new Service
+            {
+                Name = scriptOutput.Service.ToLower(),
+                Port = scriptOutput.Port.Value
+            };
+
+            if (subdomain.Services == null)
+            {
+                subdomain.Services = new List<Service>();
+            }
+
+            if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
+            {
+                subdomain.Services.Add(service);
+
+                var payload = agentRun.Agent.AgentNotification?.ServicePayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
+                {
+                    ("{{domain}}", subdomain.Name),
+                    ("{{service}}", service.Name),
+                    ("{{port}}", service.Port.ToString())
+                }, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Update the subdomain Note
+        /// </summary>
+        /// <param name="agentRun">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        private async Task UpdateSubdomainNote(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.Note))
+            {
+                if (subdomain.Notes == null)
+                {
+                    subdomain.Notes = new Note();
+                }
+
+                subdomain.Notes.Notes = subdomain.Notes.Notes + '\n' + scriptOutput.Note;
+
+                var payload = agentRun.Agent.AgentNotification?.NotePayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
+                {
+                    ("{{domain}}", subdomain.Name),
+                    ("{{note}}", scriptOutput.Note)
+                }, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Update the subdomain if is Alive
+        /// </summary>
+        /// <param name="agentRun">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        private async Task UpdateSubdomainIsAlive(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        {
+            if (scriptOutput.IsAlive != null && subdomain.IsAlive != scriptOutput.IsAlive)
+            {
+                subdomain.IsAlive = scriptOutput.IsAlive.Value;
+
+                var payload = agentRun.Agent.AgentNotification?.IsAlivePayload ?? string.Empty;
+                await this.SendNotificationIfActive(agentRun, payload, new[]
+                {
+                    ("{{domain}}", subdomain.Name),
+                    ("{{isAlive}}", scriptOutput.IsAlive.Value.ToString())
+                }, cancellationToken);
             }
         }
 
         /// <summary>
         /// Update the subdomain with screenshots
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
+        /// <param name="agentRun">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        private void UpdateSubdomainScreenshot(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private void UpdateSubdomainScreenshot(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrEmpty(scriptOutput.HttpScreenshotFilePath))
             {
@@ -234,151 +363,13 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// Update the subdomain with directory discovery
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async Task UpdateSubdomainDirectory(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
-        {
-            if (!string.IsNullOrEmpty(scriptOutput.HttpDirectory))
-            {
-                var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
-                if (subdomain.ServiceHttp == null)
-                {
-                    subdomain.ServiceHttp = new ServiceHttp();
-                }
-
-                if (subdomain.ServiceHttp.Directories == null)
-                {
-                    subdomain.ServiceHttp.Directories = new List<ServiceHttpDirectory>();
-                }
-
-                if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == httpDirectory))
-                {
-                    return;
-                }
-
-                var directory = new ServiceHttpDirectory()
-                {
-                    Directory = httpDirectory,
-                    StatusCode = scriptOutput.HttpDirectoryStatusCode,
-                    Method = scriptOutput.HttpDirectoryMethod,
-                    Size = scriptOutput.HttpDirectorySize
-                };
-
-                subdomain.ServiceHttp.Directories.Add(directory);
-
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.DirectoryPayload))
-                {
-                    var payload = agent.AgentNotification.DirectoryPayload.Replace("{{domain}}", subdomain.Name).Replace("{{directory}}", httpDirectory);
-                    await this.notificationService.SendAsync(payload, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain if is a new service with open port
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async Task UpdateSubdomainService(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
-        {
-            if (string.IsNullOrWhiteSpace(scriptOutput.Service))
-            {
-                return;
-            }
-
-            var service = new Service
-            {
-                Name = scriptOutput.Service.ToLower(),
-                Port = scriptOutput.Port.Value
-            };
-
-            if (subdomain.Services == null)
-            {
-                subdomain.Services = new List<Service>();
-            }
-
-            if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
-            {
-                subdomain.Services.Add(service);
-
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.ServicePayload))
-                {
-                    var payload = agent.AgentNotification.ServicePayload.Replace("{{domain}}", subdomain.Name).Replace("{{service}}", service.Name).Replace("{{port}}", service.Port.ToString());
-                    await this.notificationService.SendAsync(payload, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain Note
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async Task UpdateSubdomainNote(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken)
-        {
-            if (!string.IsNullOrEmpty(scriptOutput.Note))
-            {
-                if (subdomain.Notes == null)
-                {
-                    subdomain.Notes = new Note();
-                }
-
-                subdomain.Notes.Notes = subdomain.Notes.Notes + '\n' + scriptOutput.Note;
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.NotePayload))
-                {
-                    var payload = agent.AgentNotification.NotePayload.Replace("{{domain}}", subdomain.Name).Replace("{{note}}", scriptOutput.Note);
-                    await this.notificationService.SendAsync(payload, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain if is Alive
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async Task UpdateSubdomainIsAlive(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
-        {
-            if (scriptOutput.IsAlive != null && subdomain.IsAlive != scriptOutput.IsAlive)
-            {
-                subdomain.IsAlive = scriptOutput.IsAlive.Value;
-
-                if (activateNotification && agent.NotifyNewFound && agent.AgentNotification != null && !string.IsNullOrEmpty(agent.AgentNotification.IsAlivePayload))
-                {
-                    var payload = agent.AgentNotification.IsAlivePayload.Replace("{{domain}}", subdomain.Name).Replace("{{isAlive}}", scriptOutput.IsAlive.Value.ToString());
-                    await this.notificationService.SendAsync(payload, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
         /// Update the subdomain label
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The Agent</param>
+        /// <param name="agentRun">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="activateNotification">If the notification is active</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainLabel(Subdomain subdomain, Agent agent, ScriptOutput scriptOutput, bool activateNotification, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainLabel(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(scriptOutput.Label) &&
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
@@ -405,19 +396,39 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain agent property with the agent name if was updated before
         /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="agent">The agent</param>
-        /// <param name="activateNotification">If the notification is active</param>
+        /// <param name="agentRun">The agent</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        private void UpdateSubdomainAgent(Subdomain subdomain, Agent agent, bool activateNotification, CancellationToken cancellationToken = default)
+        private void UpdateSubdomainAgent(Subdomain subdomain, AgentRun agentRun, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
             {
-                subdomain.FromAgents = agent.Name;
+                subdomain.FromAgents = agentRun.Agent.Name;
             }
-            else if (!subdomain.FromAgents.Contains(agent.Name))
+            else if (!subdomain.FromAgents.Contains(agentRun.Agent.Name))
             {
-                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agent.Name);
+                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agentRun.Agent.Name);
+            }
+        }
+
+        /// <summary>
+        /// Send notifications if it is actived
+        /// </summary>
+        /// <param name="agentRun">The Agent running</param>
+        /// <param name="payload">The payload</param>
+        /// <param name="replaces">The replacement values</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        private async Task SendNotificationIfActive(AgentRun agentRun, string payload, (string, string)[] replaces, CancellationToken cancellationToken = default)
+        {
+            if (!string.IsNullOrEmpty(payload) && agentRun.ActivateNotification && agentRun.Agent.NotifyNewFound)
+            {
+                foreach (var replace in replaces)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    payload = payload.Replace(replace.Item1, replace.Item2);
+                }
+
+                await this.notificationService.SendAsync(payload, cancellationToken);
             }
         }
     }
