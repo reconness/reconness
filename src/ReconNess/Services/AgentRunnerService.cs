@@ -84,6 +84,8 @@ namespace ReconNess.Services
 
             var channel = this.GetChannel(agentRun);
 
+            Thread.Sleep(1000);
+
             if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
             {
                 await this.RunBashAsync(agentRun, channel, last: true);
@@ -161,32 +163,33 @@ namespace ReconNess.Services
                     {
                         await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name}", token);
                         await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name}", token);
-                        return;
                     }
-
-                    var command = this.GetCommand(agentRun);
-                    runnerProcess.Start(command);
-
-                    await this.SendMsgLogAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
-                    await this.SendMsgAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
-
-                    this.scriptEngineService.InintializeAgent(agentRun.Agent);
-
-                    int lineCount = 1;
-                    while (!runnerProcess.EndOfStream)
+                    else
                     {
-                        token.ThrowIfCancellationRequested();
+                        var command = this.GetCommand(agentRun);
+                        runnerProcess.Start(command);
 
-                        var terminalLineOutput = runnerProcess.TerminalLineOutput();
-                        var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
+                        await this.SendMsgLogAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
+                        await this.SendMsgAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
 
-                        await this.SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
+                        this.scriptEngineService.InintializeAgent(agentRun.Agent);
 
-                        await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);
+                        int lineCount = 1;
+                        while (!runnerProcess.EndOfStream)
+                        {
+                            token.ThrowIfCancellationRequested();
 
-                        await this.SendMsgLogTailAsync(channel, lineCount, token);
+                            var terminalLineOutput = runnerProcess.TerminalLineOutput();
+                            var scriptOutput = await this.scriptEngineService.ParseInputAsync(terminalLineOutput, lineCount++);
 
-                        await this.SendMsgAsync(channel, terminalLineOutput, token);
+                            await this.SendMsgLogHeadAsync(channel, lineCount, terminalLineOutput, scriptOutput, token);
+
+                            await this.agentParseService.SaveScriptOutputAsync(agentRun, scriptOutput, token);
+
+                            await this.SendMsgLogTailAsync(channel, lineCount, token);
+
+                            await this.SendMsgAsync(channel, terminalLineOutput, token);
+                        }
                     }
                 }
                 catch (Exception ex)
