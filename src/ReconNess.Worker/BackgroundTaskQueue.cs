@@ -15,7 +15,7 @@ namespace ReconNess.Worker
         private SemaphoreSlim signal = new SemaphoreSlim(0);
         private AgentRunProcess currentRunProcess;
 
-        public string KeyDeleted { get; set; }
+        private string keyDeleted;
 
         public IList<string> Keys
         {
@@ -69,7 +69,7 @@ namespace ReconNess.Worker
                     return null;
                 }
 
-            } while (!string.IsNullOrEmpty(this.KeyDeleted) && workItem.Key.Contains(this.KeyDeleted));
+            } while (!string.IsNullOrEmpty(this.keyDeleted) && workItem.Key.Contains(this.keyDeleted));
 
             this.currentRunProcess = workItem;
 
@@ -78,6 +78,7 @@ namespace ReconNess.Worker
 
         public Task StopAndRemoveAsync(string key)
         {
+            this.keyDeleted = key;
             if (this.currentRunProcess != null && this.currentRunProcess.Key.Contains(key))
             {
                 if (this.currentRunProcess.RunnerProcess != null)
@@ -88,6 +89,11 @@ namespace ReconNess.Worker
             }
 
             return Task.CompletedTask;
+        }
+
+        public void ResetKeyToDelete()
+        {
+            this.keyDeleted = string.Empty;
         }
     }
 }

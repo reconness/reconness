@@ -7,7 +7,7 @@ namespace ReconNess.Core
 {
     public interface IBackgroundTaskQueue
     {
-        string KeyDeleted { get; set; }
+        void ResetKeyToDelete();
 
         int Count { get; }
 

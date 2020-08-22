@@ -80,13 +80,13 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.backgroundTaskQueue.KeyDeleted = string.Empty;
+            this.backgroundTaskQueue.ResetKeyToDelete();
 
             var channel = this.GetChannel(agentRun);
 
             if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
             {
-                await this.RunBashAsync(agentRun, channel, true);
+                await this.RunBashAsync(agentRun, channel, last: true);
                 return;
             }
 
@@ -95,14 +95,6 @@ namespace ReconNess.Services
 
             foreach (var subdomain in subdomains)
             {
-                var needToSkip = this.NeedToSkipSubdomain(agentRun.Agent, subdomain);
-                if (needToSkip)
-                {
-                    await this.SendMsgLogAsync(channel, $"Skip subdomain: {subdomain.Name}", cancellationToken);
-                    await this.SendMsgAsync(channel, $"Skip subdomain: {subdomain.Name}", cancellationToken);
-                    continue;
-                }
-
                 await this.RunBashAsync(new AgentRun
                 {
                     Agent = agentRun.Agent,
@@ -111,7 +103,7 @@ namespace ReconNess.Services
                     Subdomain = subdomain,
                     ActivateNotification = agentRun.ActivateNotification,
                     Command = agentRun.Command
-                }, channel, subdomainsCount == 1);
+                }, channel, last: subdomainsCount == 1);
 
                 subdomainsCount--;
             }
@@ -126,16 +118,11 @@ namespace ReconNess.Services
 
             var channel = this.GetChannel(agentRun);
 
-            if (removeSubdomainForTheKey)
-            {
-                agentRun.Subdomain = null;
-            }
-            
-            var key = this.GetKey(agentRun);
-
             try
-            {
-                this.backgroundTaskQueue.KeyDeleted = key;
+            {              
+                agentRun.Subdomain = removeSubdomainForTheKey ? null : agentRun.Subdomain;
+
+                var key = this.GetKey(agentRun);
                 await this.backgroundTaskQueue.StopAndRemoveAsync(key);
             }
             catch (Exception ex)
@@ -168,11 +155,19 @@ namespace ReconNess.Services
             {
                 try
                 {
+                    var needToSkip = this.NeedToSkipSubdomain(agentRun);
+                    if (needToSkip)
+                    {
+                        await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name}", token);
+                        await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name}", token);
+                        return;
+                    }
+
                     var command = this.GetCommand(agentRun);
                     runnerProcess.Start(command);
 
-                    await this.SendMsgLogAsync(channel, $"RUN: {command}", token);
-                    await this.SendMsgAsync(channel, $"RUN: {command}", token);
+                    await this.SendMsgLogAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
+                    await this.SendMsgAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
 
                     this.scriptEngineService.InintializeAgent(agentRun.Agent);
 
@@ -196,7 +191,7 @@ namespace ReconNess.Services
                 catch (Exception ex)
                 {
                     await this.SendMsgAsync(channel, ex.Message, token);
-                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace}", token);
+                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace} [{DateTime.Now.ToString("hh:mm tt")}]", token);
                 }
                 finally
                 {
@@ -221,14 +216,12 @@ namespace ReconNess.Services
         /// <summary>
         /// Check if we need to skip the subdomain and does not the agent in that subdomain
         /// </summary>
-        /// <param name="agent"></param>
-        /// <param name="subdomain"></param>
-        /// <returns></returns>
-        private bool NeedToSkipSubdomain(Agent agent, Subdomain subdomain)
+        /// <param name="agentRun"></param>
+        private bool NeedToSkipSubdomain(AgentRun agentRun)
         {
-            var needToBeAlive = agent.OnlyIfIsAlive && (subdomain.IsAlive == null || !subdomain.IsAlive.Value);
-            var needTohasHttpOpen = agent.OnlyIfHasHttpOpen && (subdomain.HasHttpOpen == null || !subdomain.HasHttpOpen.Value);
-            var needToSkip = agent.SkipIfRanBefore && (!string.IsNullOrEmpty(subdomain.FromAgents) && subdomain.FromAgents.Contains(agent.Name));
+            var needToBeAlive = agentRun.Agent.OnlyIfIsAlive && (agentRun.Subdomain.IsAlive == null || !agentRun.Subdomain.IsAlive.Value);
+            var needTohasHttpOpen = agentRun.Agent.OnlyIfHasHttpOpen && (agentRun.Subdomain.HasHttpOpen == null || !agentRun.Subdomain.HasHttpOpen.Value);
+            var needToSkip = agentRun.Agent.SkipIfRanBefore && (!string.IsNullOrEmpty(agentRun.Subdomain.FromAgents) && agentRun.Subdomain.FromAgents.Contains(agentRun.Agent.Name));
 
             return needToBeAlive || needTohasHttpOpen || needToSkip;
         }
@@ -242,7 +235,9 @@ namespace ReconNess.Services
         /// <returns>The channel to send the menssage</returns>
         private string GetChannel(AgentRun agentRun)
         {
-            return agentRun.Subdomain == null ? $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}" : $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}";
+            return agentRun.Subdomain == null ? 
+                $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}" : 
+                $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}";
         }
 
         /// <summary>
@@ -254,7 +249,9 @@ namespace ReconNess.Services
         /// <returns>The channel to send the menssage</returns>
         private string GetKey(AgentRun agentRun)
         {
-            return agentRun.Subdomain == null ? $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}" : $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}";
+            return agentRun.Subdomain == null ? 
+                $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}" : 
+                $"{agentRun.Agent.Name}_{agentRun.Target.Name}_{agentRun.RootDomain.Name}_{agentRun.Subdomain.Name}";
         }
 
         /// <summary>
@@ -308,7 +305,7 @@ namespace ReconNess.Services
         {
             if (agentRun.ActivateNotification && agentRun.Agent.NotifyIfAgentDone)
             {
-                await this.notificationService.SendAsync($"Agent {agentRun.Agent.Name} is done!", cancellationToken);
+                await this.notificationService.SendAsync($"Agent {agentRun.Agent.Name} is done! [{DateTime.Now.ToString("hh:mm tt")}]", cancellationToken);
             }
 
             await this.SendMsgAsync(channel, "Agent done!", cancellationToken);
