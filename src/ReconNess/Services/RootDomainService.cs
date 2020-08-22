@@ -136,8 +136,10 @@ namespace ReconNess.Services
             }
 
             var newSubdomains = new List<Subdomain>();
-            foreach (var subdomain in uploadSubdomains)
-            {
+            var subdomains = this.SplitSubdomains(uploadSubdomains);
+
+            foreach (var subdomain in subdomains)
+            {               
                 if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !rootDomain.Subdomains.Any(s => s.Name == subdomain))
                 {
                     newSubdomains.Add(new Subdomain
@@ -273,6 +275,29 @@ namespace ReconNess.Services
             }
 
             return myRootDomains;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="uploadSubdomains"></param>
+        /// <returns></returns>
+        private List<string> SplitSubdomains(IEnumerable<string> uploadSubdomains)
+        {
+            var subdomains = new List<string>();
+            foreach (var subdomain in uploadSubdomains)
+            {
+                if (subdomain.Contains(","))
+                {
+                    subdomains.AddRange(subdomain.Split(","));
+                }
+                else
+                {
+                    subdomains.Add(subdomain);
+                }
+            }
+
+            return subdomains;
         }
     }
 }
