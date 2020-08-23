@@ -166,16 +166,16 @@ namespace ReconNess.Services
                     var needToSkip = this.NeedToSkipSubdomain(agentRun);
                     if (needToSkip)
                     {
-                        await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{time}]", token);
-                        await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{time}]", token);
+                        await this.SendMsgLogAsync(channel, $"[{time}] Skip subdomain: {agentRun.Subdomain.Name}", token);
+                        await this.SendMsgAsync(channel, $"[{time}] Skip subdomain: {agentRun.Subdomain.Name} ", token);
                     }
                     else
                     {
                         var command = this.GetCommand(agentRun);
                         runnerProcess.Start(command);
 
-                        await this.SendMsgLogAsync(channel, $"RUN: {command} [{time}]", token);
-                        await this.SendMsgAsync(channel, $"RUN: {command} [{time}]", token);
+                        await this.SendMsgLogAsync(channel, $"[{time}] RUN: {command}", token);
+                        await this.SendMsgAsync(channel, $"[{time}] RUN: {command}", token);
 
                         this.scriptEngineService.InintializeAgent(agentRun.Agent);
 
@@ -205,7 +205,7 @@ namespace ReconNess.Services
                 catch (Exception ex)
                 {
                     await this.SendMsgAsync(channel, ex.Message, token);
-                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace} [{time}]", token);
+                    await this.SendMsgLogAsync(channel, $"[{time}] Exception: {ex.StackTrace}", token);
                 }
                 finally
                 {
