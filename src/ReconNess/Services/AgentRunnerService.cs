@@ -159,21 +159,23 @@ namespace ReconNess.Services
             var runnerProcess = new RunnerProcess();
             this.backgroundTaskQueue.QueueAgentRun(new AgentRunProcess(this.GetKey(agentRun), runnerProcess, async token =>
             {
+                var time = DateTime.Now.ToString("hh:mm:ss tt");
+
                 try
-                {
+                {                    
                     var needToSkip = this.NeedToSkipSubdomain(agentRun);
                     if (needToSkip)
                     {
-                        await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{DateTime.Now.ToString("hh:mm tt")}]", token);
-                        await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{DateTime.Now.ToString("hh:mm tt")}]", token);
+                        await this.SendMsgLogAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{time}]", token);
+                        await this.SendMsgAsync(channel, $"Skip subdomain: {agentRun.Subdomain.Name} [{time}]", token);
                     }
                     else
                     {
                         var command = this.GetCommand(agentRun);
                         runnerProcess.Start(command);
 
-                        await this.SendMsgLogAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
-                        await this.SendMsgAsync(channel, $"RUN: {command} [{DateTime.Now.ToString("hh:mm tt")}]", token);
+                        await this.SendMsgLogAsync(channel, $"RUN: {command} [{time}]", token);
+                        await this.SendMsgAsync(channel, $"RUN: {command} [{time}]", token);
 
                         this.scriptEngineService.InintializeAgent(agentRun.Agent);
 
@@ -203,7 +205,7 @@ namespace ReconNess.Services
                 catch (Exception ex)
                 {
                     await this.SendMsgAsync(channel, ex.Message, token);
-                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace} [{DateTime.Now.ToString("hh:mm tt")}]", token);
+                    await this.SendMsgLogAsync(channel, $"Exception: {ex.StackTrace} [{time}]", token);
                 }
                 finally
                 {
@@ -317,7 +319,7 @@ namespace ReconNess.Services
         {
             if (agentRun.ActivateNotification && agentRun.Agent.NotifyIfAgentDone)
             {
-                await this.notificationService.SendAsync($"Agent {agentRun.Agent.Name} is done! [{DateTime.Now.ToString("hh:mm tt")}]", cancellationToken);
+                await this.notificationService.SendAsync($"Agent {agentRun.Agent.Name} is done!", cancellationToken);
             }
 
             await this.SendMsgAsync(channel, "Agent done!", cancellationToken);
