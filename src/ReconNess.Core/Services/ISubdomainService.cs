@@ -43,5 +43,14 @@ namespace ReconNess.Core.Services
         /// <param name="subdomains">The list subdomains to delete</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         void DeleteSubdomains(ICollection<Subdomain> subdomains, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Update the agent that ran in the subdomain
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="name">The agentName</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        Task UpdateSubdomainAgent(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
     }
 }

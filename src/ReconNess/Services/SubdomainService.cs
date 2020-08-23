@@ -62,10 +62,10 @@ namespace ReconNess.Services
             await this.UpdateSubdomainDirectory(subdomain, agentRun, scriptOutput, cancellationToken);
             await this.UpdateSubdomainService(subdomain, agentRun, scriptOutput, cancellationToken);
             await this.UpdateSubdomainNote(subdomain, agentRun, scriptOutput, cancellationToken);
-
             await this.UpdateSubdomainLabel(subdomain, agentRun, scriptOutput, cancellationToken);
-            this.UpdateSubdomainAgent(subdomain, agentRun, cancellationToken);
-            this.UpdateSubdomainScreenshot(subdomain, agentRun, scriptOutput, cancellationToken);
+
+            //this.UpdateSubdomainScreenshot(subdomain, scriptOutput);
+            this.UpdateSubdomainAgent(subdomain, agentRun.Agent.Name);
 
             this.UnitOfWork.Repository<Subdomain>().Update(subdomain);
         }
@@ -115,6 +115,18 @@ namespace ReconNess.Services
                 this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
                 this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
             }
+        }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.UpdateSubdomainAgent(Subdomain, string, CancellationToken)"/>
+        /// </summary>
+        public async Task UpdateSubdomainAgent(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            this.UpdateSubdomainAgent(subdomain, agentName);
+
+            await this.UpdateAsync(subdomain, cancellationToken);           
         }
 
         /// <summary>
@@ -323,7 +335,7 @@ namespace ReconNess.Services
         /// <param name="agentRun">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        private void UpdateSubdomainScreenshot(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private void UpdateSubdomainScreenshot(Subdomain subdomain, ScriptOutput scriptOutput)
         {
             if (string.IsNullOrEmpty(scriptOutput.HttpScreenshotFilePath))
             {
@@ -374,7 +386,7 @@ namespace ReconNess.Services
             if (!string.IsNullOrWhiteSpace(scriptOutput.Label) &&
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower());
+                var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower(), cancellationToken);
                 if (label == null)
                 {
                     var random = new Random();
@@ -398,15 +410,15 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRun">The agent</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        private void UpdateSubdomainAgent(Subdomain subdomain, AgentRun agentRun, CancellationToken cancellationToken = default)
+        private void UpdateSubdomainAgent(Subdomain subdomain, string agentName)
         {
             if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
             {
-                subdomain.FromAgents = agentRun.Agent.Name;
+                subdomain.FromAgents = agentName;
             }
-            else if (!subdomain.FromAgents.Contains(agentRun.Agent.Name))
+            else if (!subdomain.FromAgents.Contains(agentName))
             {
-                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agentRun.Agent.Name);
+                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agentName);
             }
         }
 

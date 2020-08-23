@@ -11,14 +11,14 @@ namespace ReconNess.Worker
     {
         private readonly ILogger<QueuedHostedService> _logger;
 
-        public QueuedHostedService(IBackgroundTaskQueue taskQueue,
+        public QueuedHostedService(IAgentRunBackgroundTaskQueue taskQueue,
             ILogger<QueuedHostedService> logger)
         {
             TaskQueue = taskQueue;
             _logger = logger;
         }
 
-        public IBackgroundTaskQueue TaskQueue { get; }
+        public IAgentRunBackgroundTaskQueue TaskQueue { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -35,7 +35,7 @@ namespace ReconNess.Worker
             while (!stoppingToken.IsCancellationRequested)
             {
                 var workItem =
-                    await TaskQueue.DequeueAsync(stoppingToken);
+                    await TaskQueue.DequeueAgentRunAsync(stoppingToken);
 
                 try
                 {
