@@ -37,13 +37,15 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainsByTargetAsync(RootDomain, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetSubdomainsByRootDomainAsync(RootDomain, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> GetSubdomainsByTargetAsync(RootDomain rootDomain, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> GetSubdomainsByRootDomainAsync(RootDomain rootDomain, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain, cancellationToken)
                 .Include(t => t.Services)
                 .Include(t => t.Notes)
+                .Include(t => t.ServiceHttp)
+                    .ThenInclude(sh => sh.Directories)
                 .Include(t => t.Labels)
                     .ThenInclude(ac => ac.Label)
                 .OrderByDescending(s => s.CreatedAt)

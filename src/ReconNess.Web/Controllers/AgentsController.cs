@@ -194,15 +194,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == agentRunDto.RootDomain && t.Target == target, cancellationToken)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(s => s.ServiceHttp)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(s => s.Services)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(n => n.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunDto.RootDomain && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();

@@ -17,6 +17,7 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
     {
+        private readonly ISubdomainService subdomainService;
         private readonly IConnectorService connectorService;
         private readonly IScriptEngineService scriptEngineService;
         private readonly INotificationService notificationService;
@@ -33,12 +34,14 @@ namespace ReconNess.Services
         /// <param name="agentParseService"><see cref="IAgentParseService"/></param>
         /// <param name="backgroundTaskQueue"><see cref="IAgentRunBackgroundTaskQueue"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
+            ISubdomainService subdomainService,
             IConnectorService connectorService,
             IScriptEngineService scriptEngineService,
             INotificationService notificationService,
             IAgentParseService agentParseService,
             IAgentRunBackgroundTaskQueue backgroundTaskQueue) : base(unitOfWork)
         {
+            this.subdomainService = subdomainService;
             this.connectorService = connectorService;
             this.scriptEngineService = scriptEngineService;
             this.notificationService = notificationService;
@@ -86,32 +89,36 @@ namespace ReconNess.Services
 
             Thread.Sleep(1000);
 
-            if (this.NeedToRunOneSubdomain(agentRun))
+            if (agentRun.Agent.IsBySubdomain && agentRun.Subdomain == null)
+            {
+                var subdomains = await this.subdomainService.GetSubdomainsByRootDomainAsync(agentRun.RootDomain, cancellationToken);
+                if (subdomains.Any())
+                {
+                    var subdomainsCount = subdomains.Count;
+                    foreach (var subdomain in subdomains)
+                    {
+                        var last = subdomainsCount == 1;
+                        await this.RunBashAsync(new AgentRun
+                        {
+                            Agent = agentRun.Agent,
+                            Target = agentRun.Target,
+                            RootDomain = agentRun.RootDomain,
+                            Subdomain = subdomain,
+                            ActivateNotification = agentRun.ActivateNotification,
+                            Command = agentRun.Command
+                        }, channel, last);
+
+                        subdomainsCount--;
+                    }
+                }
+                else
+                {
+                    await this.SendAgentDoneNotificationAsync(agentRun, channel, cancellationToken);
+                }
+            }
+            else
             {
                 await this.RunBashAsync(agentRun, channel, last: true, removeSubdomainForTheKey: false);
-                return;
-            }
-
-            var subdomainsCount = agentRun.RootDomain.Subdomains.Count;
-            foreach (var subdomain in agentRun.RootDomain.Subdomains)
-            {
-                var last = subdomainsCount == 1;
-                await this.RunBashAsync(new AgentRun
-                {
-                    Agent = agentRun.Agent,
-                    Target = agentRun.Target,
-                    RootDomain = agentRun.RootDomain,
-                    Subdomain = subdomain,
-                    ActivateNotification = agentRun.ActivateNotification,
-                    Command = agentRun.Command
-                }, channel, last);
-
-                subdomainsCount--;
-            }
-
-            if (agentRun.RootDomain.Subdomains?.Count == 0)
-            {
-                await this.SendAgentDoneNotificationAsync(agentRun, channel, cancellationToken);
             }
         }
 

@@ -55,7 +55,7 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(n => n.AgentNotification)
                 .Include(a => a.AgentCategories)
-                .ThenInclude(c => c.Category)
+                    .ThenInclude(c => c.Category)
                 .FirstOrDefaultAsync();
         }
 

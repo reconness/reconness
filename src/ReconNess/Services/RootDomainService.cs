@@ -46,7 +46,7 @@ namespace ReconNess.Services
 
             if (rootDomain != null)
             {
-                rootDomain.Subdomains = await this.subdomainService.GetSubdomainsByTargetAsync(rootDomain, cancellationToken);
+                rootDomain.Subdomains = await this.subdomainService.GetSubdomainsByRootDomainAsync(rootDomain, cancellationToken);
             }
 
             return rootDomain;
