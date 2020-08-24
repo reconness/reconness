@@ -86,15 +86,14 @@ namespace ReconNess.Services
 
             Thread.Sleep(1000);
 
-            if (!this.NeedToRunInEachSubdomain(agentRun.Agent, agentRun.Subdomain))
+            if (this.NeedToRunOneSubdomain(agentRun))
             {
-                await this.RunBashAsync(agentRun, channel, last: true);
+                await this.RunBashAsync(agentRun, channel, last: true, removeSubdomainForTheKey: false);
                 return;
             }
 
-            var subdomains = agentRun.RootDomain.Subdomains.ToList();
-            var subdomainsCount = subdomains.Count;
-            foreach (var subdomain in subdomains)
+            var subdomainsCount = agentRun.RootDomain.Subdomains.Count;
+            foreach (var subdomain in agentRun.RootDomain.Subdomains)
             {
                 var last = subdomainsCount == 1;
                 await this.RunBashAsync(new AgentRun
@@ -110,7 +109,7 @@ namespace ReconNess.Services
                 subdomainsCount--;
             }
 
-            if (subdomains.Count == 0)
+            if (agentRun.RootDomain.Subdomains?.Count == 0)
             {
                 await this.SendAgentDoneNotificationAsync(agentRun, channel, cancellationToken);
             }
@@ -147,9 +146,10 @@ namespace ReconNess.Services
         /// <param name="agentRun"></param>
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="last"></param>
+        /// <param name="removeSubdomainForTheKey"></param>
         /// <param name="cancellationToken"></param>
         /// <returns>A Task</returns>
-        private Task RunBashAsync(AgentRun agentRun, string channel, bool last)
+        private Task RunBashAsync(AgentRun agentRun, string channel, bool last, bool removeSubdomainForTheKey = true)
         {
             if (this.backgroundTaskQueue.IsCurrentAgentRunStopped())
             {
@@ -213,7 +213,7 @@ namespace ReconNess.Services
                     {
                         try
                         {
-                            await this.StopAsync(agentRun, true, token);
+                            await this.StopAsync(agentRun, removeSubdomainForTheKey, token);
                             await this.agentParseService.UpdateLastRunAsync(agentRun.Agent, token);
                         }
                         catch (Exception)
@@ -269,15 +269,13 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// Obtain if we need to run this agent in each target subdomains base on if the subdomain
-        /// param if null and the agent can run in the subdomain level
+        /// Obtain if we need to run this agent in one subdomain
         /// </summary>
-        /// <param name="agent">The agent</param>
-        /// <param name="subdomain">The subdomain</param>
-        /// <returns>If we need to run this agent in each target subdomains</returns>
-        private bool NeedToRunInEachSubdomain(Agent agent, Subdomain subdomain)
+        /// <param name="agentRun">The agent</param>
+        /// <returns>If we need to run this agent in one subdomain</returns>
+        private bool NeedToRunOneSubdomain(AgentRun agentRun)
         {
-            return subdomain == null && agent.IsBySubdomain;
+            return agentRun.Subdomain != null && agentRun.Agent.IsBySubdomain;
         }
 
         /// <summary>
