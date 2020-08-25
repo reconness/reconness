@@ -53,9 +53,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.SaveScriptOutputAsync(AgentRun, ScriptOutput, CancellationToken)"/>
+        /// <see cref="IRootDomainService.SaveTerminalOutputParseAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseAsync(AgentRunner agentRunner, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -63,16 +63,16 @@ namespace ReconNess.Services
             {
                 this.UnitOfWork.BeginTransaction();
 
-                var subdomain = agentRun.Subdomain;
-                if (!string.IsNullOrEmpty(scriptOutput.Subdomain) &&
-                    (subdomain == null || !scriptOutput.Subdomain.Equals(subdomain.Name, StringComparison.OrdinalIgnoreCase)))
+                var subdomain = agentRunner.Subdomain;
+                if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) &&
+                    (subdomain == null || !terminalOutputParse.Subdomain.Equals(subdomain.Name, StringComparison.OrdinalIgnoreCase)))
                 {
-                    subdomain = await this.AddOrUpdateSubdomainAsync(agentRun, scriptOutput, cancellationToken);
+                    subdomain = await this.AddOrUpdateSubdomainAsync(agentRunner, terminalOutputParse, cancellationToken);
                 }
 
                 if (subdomain != null)
                 {
-                    await this.subdomainService.UpdateSubdomainByAgentRunning(subdomain, agentRun, scriptOutput, cancellationToken);
+                    await this.subdomainService.UpdateSubdomainByAgentRunning(subdomain, agentRunner, terminalOutputParse, cancellationToken);
                 }
 
                 await this.UnitOfWork.CommitAsync();
@@ -139,7 +139,7 @@ namespace ReconNess.Services
             var subdomains = this.SplitSubdomains(uploadSubdomains);
 
             foreach (var subdomain in subdomains)
-            {               
+            {
                 if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !rootDomain.Subdomains.Any(s => s.Name == subdomain))
                 {
                     newSubdomains.Add(new Subdomain
@@ -224,7 +224,7 @@ namespace ReconNess.Services
         /// <param name="agentRun">The agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <returns>A Task</returns>
-        private async Task<Subdomain> AddOrUpdateSubdomainAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task<Subdomain> AddOrUpdateSubdomainAsync(AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (Uri.CheckHostName(scriptOutput.Subdomain) == UriHostNameType.Unknown)
             {

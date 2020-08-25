@@ -39,11 +39,11 @@ namespace ReconNess.Core.Services
         /// <summary>
         /// Allow Debug a script with a terminal output provide manually
         /// </summary>
-        /// <param name="terminalOutput">Terminal output</param>
         /// <param name="script">The script</param>
+        /// <param name="terminalOutput">Terminal output</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A ScriptOutput class or Exception</returns>
-        Task<ScriptOutput> DebugAsync(string terminalOutput, string script, CancellationToken cancellationToken = default);
+        Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain the Agent Script using the URL

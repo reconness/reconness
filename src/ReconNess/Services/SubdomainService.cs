@@ -53,9 +53,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.UpdateSubdomainAsync(AgentRun, ScriptOutput, CancellationToken)"/>
+        /// <see cref="ISubdomainService.UpdateSubdomainAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public async Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             await this.UpdateSubdomainIpAddress(subdomain, agentRun, scriptOutput, cancellationToken);
             await this.UpdateSubdomainIsAlive(subdomain, agentRun, scriptOutput, cancellationToken);
@@ -120,15 +120,15 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.UpdateSubdomainAgent(Subdomain, string, CancellationToken)"/>
+        /// <see cref="ISubdomainService.UpdateSubdomainAgentAsync(Subdomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateSubdomainAgent(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
+        public async Task UpdateSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             this.UpdateSubdomainAgent(subdomain, agentName);
 
-            await this.UpdateAsync(subdomain, cancellationToken);           
+            await this.UpdateAsync(subdomain, cancellationToken);
         }
 
         /// <summary>
@@ -138,7 +138,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainIpAddress(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainIpAddress(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.Ip != null && Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
             {
@@ -160,7 +160,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainHasHttpOpen(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainHasHttpOpen(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.HasHttpOpen != null && subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
@@ -182,7 +182,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainTakeover(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainTakeover(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.Takeover != null && subdomain.Takeover != scriptOutput.Takeover.Value)
             {
@@ -204,7 +204,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainDirectory(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainDirectory(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrEmpty(scriptOutput.HttpDirectory))
             {
@@ -250,7 +250,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainService(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainService(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (string.IsNullOrWhiteSpace(scriptOutput.Service))
             {
@@ -289,7 +289,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainNote(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        private async Task UpdateSubdomainNote(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken)
         {
             if (!string.IsNullOrEmpty(scriptOutput.Note))
             {
@@ -316,7 +316,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainIsAlive(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainIsAlive(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (scriptOutput.IsAlive != null && subdomain.IsAlive != scriptOutput.IsAlive)
             {
@@ -383,7 +383,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainLabel(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainLabel(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrWhiteSpace(scriptOutput.Label) &&
                 !subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
@@ -432,7 +432,7 @@ namespace ReconNess.Services
         /// <param name="replaces">The replacement values</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        private async Task SendNotificationIfActive(AgentRun agentRun, string payload, (string, string)[] replaces, CancellationToken cancellationToken = default)
+        private async Task SendNotificationIfActive(AgentRunner agentRun, string payload, (string, string)[] replaces, CancellationToken cancellationToken = default)
         {
             if (!string.IsNullOrEmpty(payload) && agentRun.ActivateNotification && agentRun.Agent.NotifyNewFound)
             {

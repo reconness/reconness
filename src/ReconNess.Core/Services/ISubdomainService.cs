@@ -27,7 +27,7 @@ namespace ReconNess.Core.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
+        Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRunner agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the subdomain with the services
@@ -51,6 +51,6 @@ namespace ReconNess.Core.Services
         /// <param name="name">The agentName</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomainAgent(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
+        Task UpdateSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
     }
 }

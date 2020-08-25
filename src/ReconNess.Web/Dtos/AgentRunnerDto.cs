@@ -1,6 +1,6 @@
 ﻿namespace ReconNess.Web.Dtos
 {
-    public class AgentRunDto
+    public class AgentRunnerDto
     {
         public string Agent { get; set; }
 

@@ -1,5 +1,8 @@
 using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using ReconNess.Core.Models;
 using ReconNess.Core.Services;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -28,7 +31,37 @@ namespace ReconNess.Web
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var time = DateTime.Now.ToString("hh:mm:ss tt");
+
+            msg = $"[{time}] {msg}";
             await this.reconnessHub.Clients.All.SendAsync(method, msg, cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="IConnectorService.SendLogsAsync(string, string, CancellationToken)"/>
+        /// </summary>
+        public async Task SendLogsAsync(string channel, string msg, CancellationToken cancellationToken = default)
+        {
+            await this.SendAsync("logs_" + channel, msg, cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="IConnectorService.SendLogsHeadAsync(string, int, string, ScriptOutput, CancellationToken)"/>
+        /// </summary>
+        public async Task SendLogsHeadAsync(string channel, int lineCount, string terminalLineOutput, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        {
+            await this.SendLogsAsync(channel, $"Output #: {lineCount}", cancellationToken);
+            await this.SendLogsAsync(channel, $"Output: {terminalLineOutput}", cancellationToken);
+            await this.SendLogsAsync(channel, $"Result: {JsonConvert.SerializeObject(terminalOutputParse)}", cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="IConnectorService.SendLogsTailAsync(string, int, CancellationToken)"/>
+        /// </summary>
+        public async Task SendLogsTailAsync(string channel, int lineCount, CancellationToken cancellationToken = default)
+        {
+            await this.SendLogsAsync(channel, $"Output #: {lineCount} processed", cancellationToken);
+            await this.SendLogsAsync(channel, "-----------------------------------------------------", cancellationToken);
         }
     }
 }

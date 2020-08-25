@@ -89,9 +89,9 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IAgentService.DebugAsync(string, string, CancellationToken)"/>
         /// </summary>
-        public async Task<ScriptOutput> DebugAsync(string terminalOutput, string script, CancellationToken cancellationToken = default)
+        public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
-            return await this.scriptEngineService.ParseInputAsync(terminalOutput, 0, script);
+            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
         }
     }
 }

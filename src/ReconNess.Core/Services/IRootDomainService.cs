@@ -25,10 +25,10 @@ namespace ReconNess.Core.Services
         /// Save the output that the ScriptEnginer returned on database
         /// </summary>
         /// <param name="agentRun">The agent was ran</param>
-        /// <param name="scriptOutput">The output that the ScriptEnginer returned</param>
+        /// <param name="terminalOutputParse">The output that the ScriptEnginer returned</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
+        Task SaveTerminalOutputParseAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the rootdomains with all the subdomains and relations

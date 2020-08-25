@@ -2,7 +2,7 @@
 
 namespace ReconNess.Core.Models
 {
-    public class AgentRun
+    public class AgentRunner
     {
         public Agent Agent { get; set; }
         public Target Target { get; set; }

@@ -11,10 +11,8 @@ namespace ReconNess.UnitTests
         public void TestFierceOneParseInputAsyncMethod()
         {
             // Arrange
-            var agent = new Agent
-            {
-                Name = "Fierce",
-                Script = @"
+
+            var script = @"
                     var match = System.Text.RegularExpressions.Regex.Match(lineInput, @""^.*?:\s(.*?opera.*?)\s\((.*?)\)"");
                     if (match.Success && match.Groups.Count == 3)
                     {
@@ -22,14 +20,13 @@ namespace ReconNess.UnitTests
                         return new ReconNess.Core.Models.ScriptOutput { Ip = match.Groups[2].Value, Subdomain = subdomain };
                     }
 
-                    return new ReconNess.Core.Models.ScriptOutput();"
-            };
+                    return new ReconNess.Core.Models.ScriptOutput();";
+           
 
             var scriptEngineService = new ScriptEngineService();
-            scriptEngineService.InintializeAgent(agent);
 
             // Act
-            var result = scriptEngineService.ParseInputAsync("Found: pl.opera.com. (3.15.119.208)", 0).Result;
+            var result = scriptEngineService.TerminalOutputParseAsync(script, "Found: pl.opera.com. (3.15.119.208)", 0).Result;
 
             // Assert
             Assert.IsTrue(result.Subdomain == "pl.opera.com");
@@ -40,10 +37,7 @@ namespace ReconNess.UnitTests
         public void TestFierceTwoParseInputAsyncMethod()
         {
             // Arrange
-            var agent = new Agent
-            {
-                Name = "Fierce",
-                Script = @"
+            var script = @"
                     var match = System.Text.RegularExpressions.Regex.Match(lineInput, @""^.*?:\s(.*?opera.*?)\s\((.*?)\)"");
                     if (match.Success && match.Groups.Count == 3)
                     {
@@ -51,14 +45,13 @@ namespace ReconNess.UnitTests
                         return new ReconNess.Core.Models.ScriptOutput { Ip = match.Groups[2].Value, Subdomain = subdomain };
                     }
 
-                    return new ReconNess.Core.Models.ScriptOutput();"
-            };
+                    return new ReconNess.Core.Models.ScriptOutput();";
+            
 
             var scriptEngineService = new ScriptEngineService();
-            scriptEngineService.InintializeAgent(agent);
 
             // Act
-            var result = scriptEngineService.ParseInputAsync("SOA: nic1.opera.com. (185.26.183.160)", 0).Result;
+            var result = scriptEngineService.TerminalOutputParseAsync(script, "SOA: nic1.opera.com. (185.26.183.160)", 0).Result;
 
             // Assert
             Assert.IsTrue(result.Subdomain == "nic1.opera.com");
@@ -76,10 +69,7 @@ namespace ReconNess.UnitTests
                 var ips = group[0].Value.Length;
             }
 
-            var agent = new Agent
-            {
-                Name = "GoBuster",
-                Script = @"
+            var script = @"
                     if (lineInputCount < 13)
                     {
 	                    return new ReconNess.Core.Models.ScriptOutput();
@@ -91,14 +81,12 @@ namespace ReconNess.UnitTests
                         return new ReconNess.Core.Models.ScriptOutput { Subdomain = match.Groups[1].Value };
                     }
 
-                    return new ReconNess.Core.Models.ScriptOutput(); "
-            };
+                    return new ReconNess.Core.Models.ScriptOutput(); ";
 
             var scriptEngineService = new ScriptEngineService();
-            scriptEngineService.InintializeAgent(agent);
 
             // Act
-            var result = scriptEngineService.ParseInputAsync("Found: acme5.opera.com", 20).Result;
+            var result = scriptEngineService.TerminalOutputParseAsync(script, "Found: acme5.opera.com", 20).Result;
 
             // Assert
             Assert.IsTrue(result.Subdomain == "acme5.opera.com");
@@ -108,24 +96,19 @@ namespace ReconNess.UnitTests
         public void TestNmapParseInputAsyncMethod()
         {
             // Arrange
-            var agent = new Agent
-            {
-                Name = "Nmap",
-                Script = @"
+            var script = @"
                     var match = System.Text.RegularExpressions.Regex.Match(lineInput, @""(.*?)/tcp\s*open\s*(.*?)$"");
                     if (match.Success && match.Groups.Count == 3)
                     {
                         return new ReconNess.Core.Models.ScriptOutput { Service = match.Groups[2].Value, Port = int.Parse(match.Groups[1].Value) };
                     }
 
-                    return new ReconNess.Core.Models.ScriptOutput();"
-            };
+                    return new ReconNess.Core.Models.ScriptOutput();";
 
             var scriptEngineService = new ScriptEngineService();
-            scriptEngineService.InintializeAgent(agent);
 
             // Act
-            var result = scriptEngineService.ParseInputAsync("22/tcp  open  ssh", 0).Result;
+            var result = scriptEngineService.TerminalOutputParseAsync(script, "22/tcp  open  ssh", 0).Result;
 
             // Assert
             Assert.IsTrue(result.Service == "ssh");

@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 namespace ReconNess.Services
 {
     /// <summary>
-    /// This class implement <see cref="IAgentParseService"/>
+    /// This class implement <see cref="IAgentScopeService"/>
     /// </summary>
-    public class AgentParseService : IAgentParseService
+    public class AgentScopeService : IAgentScopeService
     {
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
-        ///  Initializes a new instance of the <see cref="AgentParseService" /> class
+        ///  Initializes a new instance of the <see cref="AgentScopeService" /> class
         /// </summary>
         /// <param name="serviceProvider"><see cref="IServiceProvider"/></param>
-        public AgentParseService(IServiceProvider serviceProvider)
+        public AgentScopeService(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
         }
 
         /// <summary>
-        /// <see cref="IAgentParseService.SaveScriptOutputAsync(AgentRun, ScriptOutput, CancellationToken)"/>
+        /// <see cref="IAgentScopeService.SaveTerminalOutputParseOnScopeAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
@@ -35,14 +35,14 @@ namespace ReconNess.Services
                     scope.ServiceProvider
                         .GetRequiredService<IRootDomainService>();
 
-                await rootDomainService.SaveScriptOutputAsync(agentRun, scriptOutput, cancellationToken);
+                await rootDomainService.SaveTerminalOutputParseAsync(agentRun, terminalOutputParse, cancellationToken);
             }
         }
 
         /// <summary>
-        /// <see cref="IAgentParseService.UpdateLastRunAsync(Agent, CancellationToken)"/>
+        /// <see cref="IAgentScopeService.UpdateLastRunAgentOnScopeAsync(Agent, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateLastRunAsync(Agent agent, CancellationToken cancellationToken = default)
+        public async Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
@@ -56,9 +56,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentParseService.RegisterAgentAsync(AgentRun, CancellationToken)"/>
+        /// <see cref="IAgentScopeService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, CancellationToken)"/>
         /// </summary>
-        public async Task RegisterAgentAsync(AgentRun agentRun, CancellationToken cancellationToken = default)
+        public async Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
@@ -66,7 +66,7 @@ namespace ReconNess.Services
                     scope.ServiceProvider
                         .GetRequiredService<ISubdomainService>();
 
-                await subdomainService.UpdateSubdomainAgent(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
+                await subdomainService.UpdateSubdomainAgentAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
             }
         }
     }
