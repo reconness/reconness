@@ -221,7 +221,7 @@ namespace ReconNess.Services
 
                             await this.connectorService.SendLogsTailAsync(channel, lineCount, token);
 
-                            await this.connectorService.SendAsync(channel, terminalLineOutput, token);
+                            await this.connectorService.SendAsync(channel, terminalLineOutput, token, false);
                         }
 
                         if (agentRunner.Subdomain != null)

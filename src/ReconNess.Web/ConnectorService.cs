@@ -27,13 +27,13 @@ namespace ReconNess.Web
         /// <summary>
         /// <see cref="IConnectorService.SendAsync(string, string, CancellationToken)"/>
         /// </summary>
-        public async Task SendAsync(string method, string msg, CancellationToken cancellationToken = default)
+        public async Task SendAsync(string method, string msg, CancellationToken cancellationToken = default, bool includeTime = true)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var time = DateTime.Now.ToString("hh:mm:ss tt");
 
-            msg = $"[{time}] {msg}";
+            msg = includeTime ? $"[{time}] {msg}" : msg;
             await this.reconnessHub.Clients.All.SendAsync(method, msg, cancellationToken);
         }
 
