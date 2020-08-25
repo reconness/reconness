@@ -270,7 +270,7 @@ namespace ReconNess.Services
                 await this.notificationService.SendAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
             }
 
-            await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken);
+            await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken, false);
         }
     }
 }
