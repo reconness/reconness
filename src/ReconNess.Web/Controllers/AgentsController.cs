@@ -7,6 +7,7 @@ using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -203,15 +204,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = null;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken)
-                    .Include(s => s.Services)
-                    .Include(n => n.Notes)
-                    .Include(s => s.ServiceHttp)
-                        .ThenInclude(s => s.Directories)
-                    .Include(s => s.Labels)
-                        .ThenInclude(l => l.Label)
-                    .FirstOrDefaultAsync(cancellationToken);
-
+                subdomain = (await this.subdomainService.GetSubdomainsAsync(rootDomain, agentRunnerDto.Subdomain, cancellationToken)).FirstOrDefault();
                 if (subdomain == null)
                 {
                     return NotFound();

@@ -11,7 +11,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ITargetService
     /// </summary>
-    public interface IRootDomainService : IService<RootDomain>
+    public interface IRootDomainService : IService<RootDomain>, ISaveTerminalOutputParseService
     {
         /// <summary>
         /// Obtain a rootDomain with subdomains
@@ -20,15 +20,6 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A rootDomain with subdomains</returns>
         Task<RootDomain> GetDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Save the output that the ScriptEnginer returned on database
-        /// </summary>
-        /// <param name="agentRun">The agent was ran</param>
-        /// <param name="terminalOutputParse">The output that the ScriptEnginer returned</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A Task</returns>
-        Task SaveTerminalOutputParseAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the rootdomains with all the subdomains and relations

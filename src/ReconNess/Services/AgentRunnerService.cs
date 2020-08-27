@@ -142,7 +142,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var subdomains = await this.subdomainService.GetSubdomainsByRootDomainAsync(agentRunner.RootDomain);
+            var subdomains = await this.subdomainService.GetSubdomainsAsync(agentRunner.RootDomain, string.Empty);
             if (subdomains.Any())
             {
                 var subdomainsCount = subdomains.Count;
