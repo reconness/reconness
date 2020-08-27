@@ -31,11 +31,11 @@ namespace ReconNess.Services
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
-                var rootDomainService =
+                var targetService =
                     scope.ServiceProvider
-                        .GetRequiredService<IRootDomainService>();
+                        .GetRequiredService<ITargetService>();
 
-                await rootDomainService.SaveTerminalOutputParseAsync(agentRun, terminalOutputParse, cancellationToken);
+                await targetService.SaveTerminalOutputParseAsync(agentRun, terminalOutputParse, cancellationToken);
             }
         }
 

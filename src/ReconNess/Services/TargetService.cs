@@ -74,15 +74,18 @@ namespace ReconNess.Services
         /// <returns>If we need to add a new RootDomain</returns>
         private async Task<bool> NeedAddNewRootDomain(AgentRunner agentRunner, string rootDomain, CancellationToken cancellationToken)
         {
-            var weHaveRootDomainFromParse = !string.IsNullOrEmpty(rootDomain);
-            var weHaveRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
-
-            if (weHaveRootDomainFromParse && weHaveRootDomainToAdd)
+            if (string.IsNullOrEmpty(rootDomain))
             {
-                return !(await this.rootDomainService.AnyAsync(r => r.Name == rootDomain && r.Target == agentRunner.Target, cancellationToken));
+                return false;
             }
 
-            return false;
+            var weHaveRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
+            if (!weHaveRootDomainToAdd)
+            {
+                return false;
+            }
+
+            return !(await this.rootDomainService.AnyAsync(r => r.Name == rootDomain && r.Target == agentRunner.Target, cancellationToken));
         }
 
         /// <summary>

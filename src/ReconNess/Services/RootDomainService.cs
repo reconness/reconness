@@ -70,7 +70,10 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.subdomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);   
+            if (agentRunner.Subdomain != null)
+            {
+                await this.subdomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);   
+            }
         }
 
         /// <summary>
@@ -216,15 +219,18 @@ namespace ReconNess.Services
         /// <returns>If we need to add a new RootDomain</returns>
         private async Task<bool> NeedAddNewSubdomain(AgentRunner agentRunner, string subdomain, CancellationToken cancellationToken)
         {
-            var weHaveSubdomainFromParse = !string.IsNullOrEmpty(subdomain);
-            var weHaveSubdomainToAdd = (agentRunner.Subdomain == null || !subdomain.Equals(agentRunner.Subdomain.Name, StringComparison.OrdinalIgnoreCase));
-
-            if (weHaveSubdomainFromParse && weHaveSubdomainToAdd)
+            if (string.IsNullOrEmpty(subdomain))
             {
-                return !(await this.subdomainService.AnyAsync(r => r.Name == subdomain && r.RootDomain == agentRunner.RootDomain, cancellationToken));
+                return false;
             }
 
-            return false;
+            var weHaveSubdomainToAdd = (agentRunner.Subdomain == null || !subdomain.Equals(agentRunner.Subdomain.Name, StringComparison.OrdinalIgnoreCase));
+            if (!weHaveSubdomainToAdd)
+            {
+                return false;
+            }
+
+            return !(await this.subdomainService.AnyAsync(r => r.Name == subdomain && r.RootDomain == agentRunner.RootDomain, cancellationToken));
         }
 
         /// <summary>
