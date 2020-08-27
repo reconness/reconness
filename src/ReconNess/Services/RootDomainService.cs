@@ -224,11 +224,6 @@ namespace ReconNess.Services
                 return false;
             }
 
-            if (Uri.CheckHostName(subdomain) == UriHostNameType.Unknown)
-            {
-                return false;
-            }
-
             var weHaveSubdomainToAdd = (agentRunner.Subdomain == null || !subdomain.Equals(agentRunner.Subdomain.Name, StringComparison.OrdinalIgnoreCase));
             if (!weHaveSubdomainToAdd)
             {
@@ -251,10 +246,9 @@ namespace ReconNess.Services
             {
                 Name = subdomain,
                 RootDomain = rootDomain                
-            };
+            };            
 
-            return Task.FromResult(newSubdomain);
-            //return this.subdomainService.AddAsync(newSubdomain, cancellationToken);
+            return this.subdomainService.AddAsync(newSubdomain, cancellationToken);
         }     
 
         /// <summary>

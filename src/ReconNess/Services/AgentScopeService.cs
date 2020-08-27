@@ -66,7 +66,7 @@ namespace ReconNess.Services
                     scope.ServiceProvider
                         .GetRequiredService<ISubdomainService>();
 
-                await subdomainService.RegisterSubdomainAgentAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
+                await subdomainService.UpdateSubdomainAgentAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
             }
         }
     }
