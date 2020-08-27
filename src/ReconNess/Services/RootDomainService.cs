@@ -224,6 +224,11 @@ namespace ReconNess.Services
                 return false;
             }
 
+            if (Uri.CheckHostName(subdomain) == UriHostNameType.Unknown)
+            {
+                return false;
+            }
+
             var weHaveSubdomainToAdd = (agentRunner.Subdomain == null || !subdomain.Equals(agentRunner.Subdomain.Name, StringComparison.OrdinalIgnoreCase));
             if (!weHaveSubdomainToAdd)
             {
@@ -242,6 +247,7 @@ namespace ReconNess.Services
         /// <returns>The new subdomain added</returns>
         private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
         {
+
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
