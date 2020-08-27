@@ -247,14 +247,14 @@ namespace ReconNess.Services
         /// <returns>The new subdomain added</returns>
         private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
         {
-
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
                 RootDomain = rootDomain                
-            };            
+            };
 
-            return this.subdomainService.AddAsync(newSubdomain, cancellationToken);
+            return Task.FromResult(newSubdomain);
+            //return this.subdomainService.AddAsync(newSubdomain, cancellationToken);
         }     
 
         /// <summary>

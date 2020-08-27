@@ -42,6 +42,6 @@ namespace ReconNess.Core.Services
         /// <param name="name">The agentName</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
+        Task RegisterSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
     }
 }

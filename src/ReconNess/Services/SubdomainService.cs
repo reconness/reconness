@@ -112,20 +112,12 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ISubdomainService.UpdateSubdomainAgentAsync(Subdomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
+        public async Task RegisterSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
-            {
-                subdomain.FromAgents = agentName;
-                await this.UpdateAsync(subdomain, cancellationToken);
-            }
-            else if (!subdomain.FromAgents.Contains(agentName))
-            {
-                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agentName);
-                await this.UpdateAsync(subdomain, cancellationToken);
-            }
+            await this.UpdateSubdomainAgentAsync(subdomain, agentName, cancellationToken);
+            await this.UpdateAsync(subdomain);
         }
 
         /// <summary>
@@ -183,6 +175,21 @@ namespace ReconNess.Services
             await this.UpdateSubdomainAgentAsync(agentRunner.Subdomain, agentRunner.Agent.Name, cancellationToken);
         }       
 
+        private async Task UpdateSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
+        {
+
+            if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
+            {
+                subdomain.FromAgents = agentName;
+                //await this.UpdateAsync(subdomain, cancellationToken);
+            }
+            else if (!subdomain.FromAgents.Contains(agentName))
+            {
+                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agentName);
+                //await this.UpdateAsync(subdomain, cancellationToken);
+            }
+        }
+
         /// <summary>
         /// Assign Ip address to the subdomain
         /// </summary>
@@ -195,7 +202,7 @@ namespace ReconNess.Services
             if (Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
             {
                 subdomain.IpAddress = scriptOutput.Ip;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                //await this.UpdateAsync(subdomain, cancellationToken);
 
                 var payload = agentRunner.Agent.AgentNotification?.IpAddressPayload ?? string.Empty;
                 await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -218,7 +225,7 @@ namespace ReconNess.Services
             if (subdomain.IsAlive != scriptOutput.IsAlive)
             {
                 subdomain.IsAlive = scriptOutput.IsAlive.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                //await this.UpdateAsync(subdomain, cancellationToken);
 
                 var payload = agentRunner.Agent.AgentNotification?.IsAlivePayload ?? string.Empty;
                 await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -241,7 +248,7 @@ namespace ReconNess.Services
             if (subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                //await this.UpdateAsync(subdomain, cancellationToken);
 
                 var payload = agentRunner.Agent.AgentNotification?.HasHttpOpenPayload ?? string.Empty;
                 await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -264,7 +271,7 @@ namespace ReconNess.Services
             if (subdomain.Takeover != scriptOutput.Takeover.Value)
             {
                 subdomain.Takeover = scriptOutput.Takeover.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                //await this.UpdateAsync(subdomain, cancellationToken);
 
                 var payload = agentRunner.Agent.AgentNotification?.TakeoverPayload ?? string.Empty;
                 await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -309,7 +316,7 @@ namespace ReconNess.Services
             };
 
             subdomain.ServiceHttp.Directories.Add(directory);
-            await this.UpdateAsync(subdomain, cancellationToken);
+            //await this.UpdateAsync(subdomain, cancellationToken);
 
             var payload = agentRunner.Agent.AgentNotification?.DirectoryPayload ?? string.Empty;
             await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -342,7 +349,7 @@ namespace ReconNess.Services
             if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
             {
                 subdomain.Services.Add(service);
-                await this.UpdateAsync(subdomain, cancellationToken);
+                //await this.UpdateAsync(subdomain, cancellationToken);
 
                 var payload = agentRunner.Agent.AgentNotification?.ServicePayload ?? string.Empty;
                 await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -371,7 +378,7 @@ namespace ReconNess.Services
             var notes = subdomain.Notes.Notes ?? string.Empty;
             subdomain.Notes.Notes = notes + '\n' + scriptOutput.Note;
 
-            await this.UpdateAsync(subdomain, cancellationToken);
+            //await this.UpdateAsync(subdomain, cancellationToken);
 
             var payload = agentRunner.Agent.AgentNotification?.NotePayload ?? string.Empty;
             await this.SendNotificationIfActive(agentRunner, payload, new[]
@@ -409,7 +416,7 @@ namespace ReconNess.Services
                     SubdomainId = subdomain.Id
                 });
 
-                await this.UpdateAsync(subdomain, cancellationToken);
+                //await this.UpdateAsync(subdomain, cancellationToken);
             }
         }
 
@@ -432,7 +439,7 @@ namespace ReconNess.Services
                     }
 
                     subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
-                    await this.UpdateAsync(subdomain, cancellationToken);
+                    //await this.UpdateAsync(subdomain, cancellationToken);
                 }
                 catch
                 {
@@ -451,7 +458,7 @@ namespace ReconNess.Services
                     }
 
                     subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
-                    await this.UpdateAsync(subdomain, cancellationToken);
+                    //await this.UpdateAsync(subdomain, cancellationToken);
                 }
                 catch
                 {

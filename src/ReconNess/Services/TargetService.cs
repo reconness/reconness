@@ -57,12 +57,22 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (await this.NeedAddNewRootDomain(agentRunner, terminalOutputParse.RootDomain, cancellationToken))
+            try
             {
-                agentRunner.RootDomain = await this.AddTargetNewRootDomainAsync(agentRunner.Target, terminalOutputParse.RootDomain, cancellationToken);
-            }
+                this.UnitOfWork.BeginTransaction();
+                if (await this.NeedAddNewRootDomain(agentRunner, terminalOutputParse.RootDomain, cancellationToken))
+                {
+                    agentRunner.RootDomain = await this.AddTargetNewRootDomainAsync(agentRunner.Target, terminalOutputParse.RootDomain, cancellationToken);
+                }
 
-            await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+                await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+
+                await this.UnitOfWork.CommitAsync();
+            }
+            catch (Exception)
+            {
+                this.UnitOfWork.Rollback();
+            }
         }
 
         /// <summary>
@@ -103,7 +113,8 @@ namespace ReconNess.Services
                 Target = target
             };
 
-            return this.rootDomainService.AddAsync(newRootDomain, cancellationToken);
+            return Task.FromResult(newRootDomain);
+            //return this.rootDomainService.AddAsync(newRootDomain, cancellationToken);
         }
     }
 }
