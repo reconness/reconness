@@ -18,6 +18,7 @@ namespace ReconNess.Services
     public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService, ISaveTerminalOutputParseService
     {
         private readonly ILabelService labelService;
+        private readonly INotesService notesService;
         private readonly INotificationService notificationService;
 
         /// <summary>
@@ -29,10 +30,12 @@ namespace ReconNess.Services
         public SubdomainService(
             IUnitOfWork unitOfWork,
             ILabelService labelService,
+            INotesService notesService,
             INotificationService notificationService)
             : base(unitOfWork)
         {
             this.labelService = labelService;
+            this.notesService = notesService;
             this.notificationService = notificationService;
         }
 
@@ -363,16 +366,14 @@ namespace ReconNess.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
         private async Task UpdateSubdomainNoteAsync(Subdomain subdomain, AgentRunner agentRunner, ScriptOutput scriptOutput, CancellationToken cancellationToken)
-        {           
-            if (subdomain.Notes == null)
+        {      
+            var notes = scriptOutput.Note;            
+            if(!string.IsNullOrEmpty(subdomain.Notes?.Notes ?? string.Empty))
             {
-                subdomain.Notes = new Note();
-            }
+                notes = subdomain.Notes.Notes + "\n" + notes;
+            }            
 
-            var notes = subdomain.Notes.Notes ?? string.Empty;
-            subdomain.Notes.Notes = notes + '\n' + scriptOutput.Note;
-
-            await this.UpdateAsync(subdomain, cancellationToken);
+            await this.notesService.SaveSubdomainNotesAsync(subdomain, notes, cancellationToken);
 
             var payload = agentRunner.Agent.AgentNotification?.NotePayload ?? string.Empty;
             await this.SendNotificationIfActive(agentRunner, payload, new[]
