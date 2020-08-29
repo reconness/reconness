@@ -72,7 +72,7 @@ namespace ReconNess.Services
 
             if (agentRunner.Subdomain != null)
             {
-                await this.subdomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);   
+                await this.subdomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
             }
         }
 
@@ -245,11 +245,11 @@ namespace ReconNess.Services
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
-                RootDomain = rootDomain                
-            };            
+                RootDomain = rootDomain
+            };
 
             return this.subdomainService.AddAsync(newSubdomain, cancellationToken);
-        }     
+        }
 
         /// <summary>
         /// Obtain the names of the rootdomains that interset the old and the new rootdomains

@@ -1,10 +1,8 @@
-using Microsoft.EntityFrameworkCore.Internal;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 

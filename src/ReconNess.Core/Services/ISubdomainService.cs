@@ -1,5 +1,4 @@
-﻿using ReconNess.Core.Models;
-using ReconNess.Entities;
+﻿using ReconNess.Entities;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;

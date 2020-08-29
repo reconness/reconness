@@ -1,6 +1,5 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;

@@ -182,9 +182,9 @@ namespace ReconNess.Services
             {
                 await this.UpdateSubdomainLabelAsync(agentRunner.Subdomain, agentRunner, terminalOutputParse, cancellationToken);
             }
-            
+
             await this.UpdateSubdomainAgentAsync(agentRunner.Subdomain, agentRunner.Agent.Name, cancellationToken);
-        }       
+        }
 
         /// <summary>
         /// Assign Ip address to the subdomain
@@ -286,7 +286,7 @@ namespace ReconNess.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
         private async Task UpdateSubdomainDirectoryAsync(Subdomain subdomain, AgentRunner agentRunner, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {            
+        {
             var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
             if (subdomain.ServiceHttp == null)
             {
@@ -320,7 +320,7 @@ namespace ReconNess.Services
                 ("{{domain}}", subdomain.Name),
                 ("{{directory}}", httpDirectory)
             }, cancellationToken);
-            
+
         }
 
         /// <summary>
@@ -341,7 +341,7 @@ namespace ReconNess.Services
             {
                 Name = scriptOutput.Service.ToLower(),
                 Port = scriptOutput.Port.Value
-            };           
+            };
 
             if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
             {
@@ -366,12 +366,12 @@ namespace ReconNess.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
         private async Task UpdateSubdomainNoteAsync(Subdomain subdomain, AgentRunner agentRunner, ScriptOutput scriptOutput, CancellationToken cancellationToken)
-        {      
-            var notes = scriptOutput.Note;            
-            if(!string.IsNullOrEmpty(subdomain.Notes?.Notes ?? string.Empty))
+        {
+            var notes = scriptOutput.Note;
+            if (!string.IsNullOrEmpty(subdomain.Notes?.Notes ?? string.Empty))
             {
                 notes = subdomain.Notes.Notes + "\n" + notes;
-            }            
+            }
 
             await this.notesService.SaveSubdomainNotesAsync(subdomain, notes, cancellationToken);
 
@@ -380,7 +380,7 @@ namespace ReconNess.Services
             {
                 ("{{domain}}", subdomain.Name),
                 ("{{note}}", scriptOutput.Note)
-            }, cancellationToken);            
+            }, cancellationToken);
         }
 
         /// <summary>
@@ -460,7 +460,7 @@ namespace ReconNess.Services
 
                 }
             }
-        }        
+        }
 
         /// <summary>
         /// Send notifications if it is actived

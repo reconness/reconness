@@ -1,5 +1,4 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using ReconNess.Entities;
 using ReconNess.Services;
 
 namespace ReconNess.UnitTests
@@ -21,7 +20,7 @@ namespace ReconNess.UnitTests
                     }
 
                     return new ReconNess.Core.Models.ScriptOutput();";
-           
+
 
             var scriptEngineService = new ScriptEngineService();
 
@@ -46,7 +45,7 @@ namespace ReconNess.UnitTests
                     }
 
                     return new ReconNess.Core.Models.ScriptOutput();";
-            
+
 
             var scriptEngineService = new ScriptEngineService();
 
