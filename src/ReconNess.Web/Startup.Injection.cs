@@ -41,7 +41,7 @@ namespace ReconNess.Web
             services.AddScoped<IConnectorService, ConnectorService>();
             services.AddSingleton<IAgentRunBackgroundTaskQueue, AgentRunBackgroundTaskQueue>();
 
-            services.AddSingleton<IAgentParseService, AgentParseService>();
+            services.AddSingleton<IAgentScopeService, AgentScopeService>();
         }
     }
 }

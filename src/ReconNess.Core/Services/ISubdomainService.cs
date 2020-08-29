@@ -1,5 +1,4 @@
-﻿using ReconNess.Core.Models;
-using ReconNess.Entities;
+﻿using ReconNess.Entities;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,25 +8,16 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ISubdomainService
     /// </summary>
-    public interface ISubdomainService : IService<Subdomain>
+    public interface ISubdomainService : IService<Subdomain>, ISaveTerminalOutputParseService
     {
         /// <summary>
         /// Obtain the list of subdomains by target order by CreatedAt desc
         /// </summary>
-        /// <param name="target">The target</param>
+        /// <param name="rootDomain">The root domain</param>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of subdomains by target order by CreatedAt desc</returns>
-        Task<List<Subdomain>> GetSubdomainsByTargetAsync(RootDomain target, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Update the subdomain with the output for the terminal
-        /// Add IpAddress, if is alive, if HasHttpOpen and Services running on the subdomain
-        /// </summary>
-        /// <param name="agentRun">The agent raw</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        Task UpdateSubdomainByAgentRunning(Subdomain subdomain, AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
+        Task<List<Subdomain>> GetSubdomainsAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the subdomain with the services
@@ -51,6 +41,6 @@ namespace ReconNess.Core.Services
         /// <param name="name">The agentName</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomainAgent(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
+        Task UpdateSubdomainAgentAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default);
     }
 }

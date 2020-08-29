@@ -7,7 +7,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ILabelService
     /// </summary>
-    public interface ITargetService : IService<Target>
+    public interface ITargetService : IService<Target>, ISaveTerminalOutputParseService
     {
         Task DeleteTargetAsync(Target target, CancellationToken cancellationToken);
     }

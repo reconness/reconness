@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace ReconNess.Core.Models
 {
-    public class AgentRunProcess
+    public class AgentRunnerProcess
     {
-        public AgentRunProcess(string key, RunnerProcess runnerProcess, Func<CancellationToken, Task> process)
+        public AgentRunnerProcess(string key, RunnerProcess runnerProcess, Func<CancellationToken, Task> process)
         {
             Key = key;
             RunnerProcess = runnerProcess;

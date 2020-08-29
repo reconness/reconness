@@ -14,9 +14,9 @@ namespace ReconNess.Worker
     /// </summary>
     public class AgentRunBackgroundTaskQueue : IAgentRunBackgroundTaskQueue
     {
-        private ConcurrentQueue<AgentRunProcess> workItems = new ConcurrentQueue<AgentRunProcess>();
+        private ConcurrentQueue<AgentRunnerProcess> workItems = new ConcurrentQueue<AgentRunnerProcess>();
         private SemaphoreSlim signal = new SemaphoreSlim(0);
-        private AgentRunProcess currentRunProcess;
+        private AgentRunnerProcess currentRunProcess;
 
         private string keyDeleted;
 
@@ -58,7 +58,7 @@ namespace ReconNess.Worker
         /// 
         /// </summary>
         /// <param name="workItem"></param>
-        public void QueueAgentRun(AgentRunProcess workItem)
+        public void QueueAgentRun(AgentRunnerProcess workItem)
         {
             if (workItem == null)
             {
@@ -75,11 +75,11 @@ namespace ReconNess.Worker
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<AgentRunProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
+        public async Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
         {
             await this.signal.WaitAsync(cancellationToken);
 
-            AgentRunProcess workItem;
+            AgentRunnerProcess workItem;
             do
             {
                 if (!this.workItems.TryDequeue(out workItem))

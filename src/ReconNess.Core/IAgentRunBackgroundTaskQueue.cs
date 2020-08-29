@@ -24,14 +24,14 @@ namespace ReconNess.Core
         /// 
         /// </summary>
         /// <param name="agentRunProcess"></param>
-        void QueueAgentRun(AgentRunProcess agentRunProcess);
+        void QueueAgentRun(AgentRunnerProcess agentRunProcess);
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<AgentRunProcess> DequeueAgentRunAsync(CancellationToken cancellationToken);
+        Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken);
 
         /// <summary>
         /// 

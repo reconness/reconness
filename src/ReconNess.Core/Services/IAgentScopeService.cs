@@ -8,16 +8,16 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ICategoryService
     /// </summary>
-    public interface IAgentParseService
+    public interface IAgentScopeService
     {
         /// <summary>
         /// Save the output that the ScriptEnginer returned on database
         /// </summary>
         /// <param name="agentRun">The agent was ran</param>
-        /// <param name="scriptOutput">The output that the ScriptEnginer returned</param>
+        /// <param name="terminalOutputParse">The output that the ScriptEnginer returned</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        Task SaveScriptOutputAsync(AgentRun agentRun, ScriptOutput scriptOutput, CancellationToken cancellationToken = default);
+        Task SaveTerminalOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Update the last time that the agent ran
@@ -25,7 +25,7 @@ namespace ReconNess.Core.Services
         /// <param name="agent">The agent</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateLastRunAsync(Agent agent, CancellationToken cancellationToken = default);
+        Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Register that we run this Agent in the Subdomain
@@ -33,6 +33,6 @@ namespace ReconNess.Core.Services
         /// <param name="agentRun">The agent</param>
         /// <param name="token"></param>
         /// <returns>Notification that operations should be canceled</returns>
-        Task RegisterAgentAsync(AgentRun agentRun, CancellationToken cancellationToken = default);
+        Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default);
     }
 }

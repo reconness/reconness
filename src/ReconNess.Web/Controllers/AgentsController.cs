@@ -1,12 +1,12 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -186,61 +186,45 @@ namespace ReconNess.Web.Controllers
 
         // POST api/agents/run
         [HttpPost("run")]
-        public async Task<IActionResult> RunAgent([FromBody] AgentRunDto agentRunDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == agentRunDto.RootDomain && t.Target == target, cancellationToken)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(s => s.ServiceHttp)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(s => s.Services)
-                .Include(t => t.Subdomains)
-                    .ThenInclude(n => n.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
             }
 
             Subdomain subdomain = null;
-            if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken)
-                    .Include(s => s.Services)
-                    .Include(n => n.Notes)
-                    .Include(s => s.ServiceHttp)
-                        .ThenInclude(s => s.Directories)
-                    .Include(s => s.Labels)
-                        .ThenInclude(l => l.Label)
-                    .FirstOrDefaultAsync(cancellationToken);
-
+                subdomain = (await this.subdomainService.GetSubdomainsAsync(rootDomain, agentRunnerDto.Subdomain, cancellationToken)).FirstOrDefault();
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            var agent = await agentService.GetAgentWithCategoryAsync(a => a.Name == agentRunDto.Agent, cancellationToken);
+            var agent = await agentService.GetAgentWithCategoryAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
             }
 
             await this.agentRunnerService.RunAsync(
-                new AgentRun
+                new AgentRunner
                 {
                     Agent = agent,
                     Target = target,
                     RootDomain = rootDomain,
                     Subdomain = subdomain,
-                    ActivateNotification = agentRunDto.ActivateNotification,
-                    Command = agentRunDto.Command
+                    ActivateNotification = agentRunnerDto.ActivateNotification,
+                    Command = agentRunnerDto.Command
                 }, cancellationToken);
 
             return NoContent();
@@ -248,37 +232,37 @@ namespace ReconNess.Web.Controllers
 
         // POST api/agents/stop
         [HttpPost("stop")]
-        public async Task<ActionResult> StopAgent([FromBody] AgentRunDto agentRunDto, CancellationToken cancellationToken)
+        public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunDto.Target, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunDto.RootDomain && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
             }
 
             Subdomain subdomain = null;
-            if (!string.IsNullOrWhiteSpace(agentRunDto.Subdomain))
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == agentRunDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunDto.Agent, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
             }
 
-            var task = this.agentRunnerService.StopAsync(new AgentRun
+            var task = this.agentRunnerService.StopAsync(new AgentRunner
             {
                 Agent = agent,
                 Target = target,
@@ -315,13 +299,12 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agents = await this.agentService.GetAllAsync(cancellationToken);
-            var agentsRunning = this.agentRunnerService.Running(new AgentRun
+            var agentsRunning = await this.agentRunnerService.RunningAsync(new AgentRunner
             {
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain
-            }, agents, cancellationToken);
+            }, cancellationToken);
 
             return Ok(agentsRunning);
         }
@@ -332,7 +315,7 @@ namespace ReconNess.Web.Controllers
         {
             try
             {
-                return Ok(await this.agentService.DebugAsync(agentDebugDto.TerminalOutput, agentDebugDto.Script, cancellationToken));
+                return Ok(await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken));
             }
             catch (Exception ex)
             {
