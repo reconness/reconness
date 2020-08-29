@@ -13,7 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "5.14.0",
     "@fortawesome/vue-fontawesome": "0.1.10",
     "@johmun/vue-tags-input": "2.1.0",
-    "axios": "0.19.2",
+    "axios": "0.20.0",
     "bootstrap": "4.5.2",
     "core-js": "2.6.11",
     "jquery": "3.5.1",
