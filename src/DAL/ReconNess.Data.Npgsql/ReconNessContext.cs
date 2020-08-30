@@ -19,7 +19,6 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : DbContext, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
-        public DbSet<AgentNotification> AgentNotification { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -97,15 +96,6 @@ namespace ReconNess.Data.Npgsql
             modelBuilder.Entity<Notification>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<AgentNotification>()
-               .Property(i => i.Id)
-               .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<Agent>()
-                .HasOne(a => a.AgentNotification)
-                .WithOne(b => b.Agent)
-                .HasForeignKey<AgentNotification>(b => b.AgentRef);
 
             modelBuilder.Entity<AgentCategory>()
                 .HasKey(t => new { t.AgentId, t.CategoryId });

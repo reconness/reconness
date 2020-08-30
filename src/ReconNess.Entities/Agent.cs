@@ -29,8 +29,6 @@ namespace ReconNess.Entities
 
         public string Repository { get; set; }
 
-        public virtual AgentNotification AgentNotification { get; set; }
-
         public virtual ICollection<AgentCategory> AgentCategories { get; set; }
     }
 }

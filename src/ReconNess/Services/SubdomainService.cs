@@ -200,12 +200,14 @@ namespace ReconNess.Services
                 subdomain.IpAddress = scriptOutput.Ip;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                var payload = agentRunner.Agent.AgentNotification?.IpAddressPayload ?? string.Empty;
-                await this.SendNotificationIfActive(agentRunner, payload, new[]
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
                 {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{ip}}", scriptOutput.Ip)
-                }, cancellationToken);
+                    await this.notificationService.SendAsync(NotificationType.IP, new[]
+                    {
+                        ("{{domain}}", subdomain.Name),
+                        ("{{ip}}", scriptOutput.Ip)
+                    }, cancellationToken);
+                }
             }
         }
 
@@ -223,12 +225,14 @@ namespace ReconNess.Services
                 subdomain.IsAlive = scriptOutput.IsAlive.Value;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                var payload = agentRunner.Agent.AgentNotification?.IsAlivePayload ?? string.Empty;
-                await this.SendNotificationIfActive(agentRunner, payload, new[]
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
                 {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{isAlive}}", scriptOutput.IsAlive.Value.ToString())
-                }, cancellationToken);
+                    await this.notificationService.SendAsync(NotificationType.IS_ALIVE, new[]
+                    {
+                        ("{{domain}}", subdomain.Name),
+                        ("{{isAlive}}", scriptOutput.IsAlive.Value.ToString())
+                    }, cancellationToken);
+                }
             }
         }
 
@@ -246,12 +250,14 @@ namespace ReconNess.Services
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                var payload = agentRunner.Agent.AgentNotification?.HasHttpOpenPayload ?? string.Empty;
-                await this.SendNotificationIfActive(agentRunner, payload, new[]
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
                 {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{httpOpen}}", scriptOutput.HasHttpOpen.Value.ToString())
-                }, cancellationToken);
+                    await this.notificationService.SendAsync(NotificationType.HAS_HTTP_OPEN, new[]
+                    {
+                        ("{{domain}}", subdomain.Name),
+                        ("{{httpOpen}}", scriptOutput.HasHttpOpen.Value.ToString())
+                    }, cancellationToken);
+                }
             }
         }
 
@@ -269,12 +275,14 @@ namespace ReconNess.Services
                 subdomain.Takeover = scriptOutput.Takeover.Value;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                var payload = agentRunner.Agent.AgentNotification?.TakeoverPayload ?? string.Empty;
-                await this.SendNotificationIfActive(agentRunner, payload, new[]
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
                 {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{takeover}}", scriptOutput.Takeover.Value.ToString())
-                }, cancellationToken);
+                    await this.notificationService.SendAsync(NotificationType.TAKEOVER, new[]
+                    {
+                        ("{{domain}}", subdomain.Name),
+                        ("{{takeover}}", scriptOutput.Takeover.Value.ToString())
+                    }, cancellationToken);
+                }
             }
         }
 
@@ -314,13 +322,14 @@ namespace ReconNess.Services
             subdomain.ServiceHttp.Directories.Add(directory);
             await this.UpdateAsync(subdomain, cancellationToken);
 
-            var payload = agentRunner.Agent.AgentNotification?.DirectoryPayload ?? string.Empty;
-            await this.SendNotificationIfActive(agentRunner, payload, new[]
+            if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
             {
-                ("{{domain}}", subdomain.Name),
-                ("{{directory}}", httpDirectory)
-            }, cancellationToken);
-
+                await this.notificationService.SendAsync(NotificationType.DIRECTORY, new[]
+                {
+                    ("{{domain}}", subdomain.Name),
+                    ("{{directory}}", httpDirectory)
+                }, cancellationToken);
+            }
         }
 
         /// <summary>
@@ -348,13 +357,15 @@ namespace ReconNess.Services
                 subdomain.Services.Add(service);
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                var payload = agentRunner.Agent.AgentNotification?.ServicePayload ?? string.Empty;
-                await this.SendNotificationIfActive(agentRunner, payload, new[]
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
                 {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{service}}", service.Name),
-                    ("{{port}}", service.Port.ToString())
-                }, cancellationToken);
+                    await this.notificationService.SendAsync(NotificationType.SERVICE, new[]
+                    {
+                        ("{{domain}}", subdomain.Name),
+                        ("{{service}}", service.Name),
+                        ("{{port}}", service.Port.ToString())
+                    }, cancellationToken);
+                }
             }
         }
 
@@ -375,12 +386,14 @@ namespace ReconNess.Services
 
             await this.notesService.SaveSubdomainNotesAsync(subdomain, notes, cancellationToken);
 
-            var payload = agentRunner.Agent.AgentNotification?.NotePayload ?? string.Empty;
-            await this.SendNotificationIfActive(agentRunner, payload, new[]
+            if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
             {
-                ("{{domain}}", subdomain.Name),
-                ("{{note}}", scriptOutput.Note)
-            }, cancellationToken);
+                await this.notificationService.SendAsync(NotificationType.NOTE, new[]
+                {
+                    ("{{domain}}", subdomain.Name),
+                    ("{{note}}", scriptOutput.Note)
+                }, cancellationToken);
+            }
         }
 
         /// <summary>
@@ -459,28 +472,6 @@ namespace ReconNess.Services
                 {
 
                 }
-            }
-        }
-
-        /// <summary>
-        /// Send notifications if it is actived
-        /// </summary>
-        /// <param name="agentRunner">The Agent running</param>
-        /// <param name="payload">The payload</param>
-        /// <param name="replaces">The replacement values</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns></returns>
-        private async Task SendNotificationIfActive(AgentRunner agentRunner, string payload, (string, string)[] replaces, CancellationToken cancellationToken = default)
-        {
-            if (!string.IsNullOrEmpty(payload) && agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
-            {
-                foreach (var replace in replaces)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-                    payload = payload.Replace(replace.Item1, replace.Item2);
-                }
-
-                await this.notificationService.SendAsync(payload, cancellationToken);
             }
         }
     }

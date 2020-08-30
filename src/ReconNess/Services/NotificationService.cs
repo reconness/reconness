@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using ReconNess.Core;
+using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using RestSharp;
@@ -71,6 +72,50 @@ namespace ReconNess.Services
             catch (Exception)
             {
             }
+        }
+
+        /// <summary>
+        /// <see cref="INotificationService.SendNotificationIfActive(NotificationType, (string, string)[], CancellationToken)"/>
+        /// </summary>
+        public async Task SendAsync(NotificationType notificationType, (string, string)[] replaces, CancellationToken cancellationToken = default)
+        {
+            var payload = await this.GetPayloadAsync(notificationType, cancellationToken);
+            if (string.IsNullOrEmpty(payload))
+            {
+                return;
+            }
+
+            foreach (var replace in replaces)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                payload = payload.Replace(replace.Item1, replace.Item2);
+            }
+
+            await this.SendAsync(payload, cancellationToken);
+        }
+
+        /// <summary>
+        /// Obtain the payload
+        /// </summary>
+        /// <param name="notificationType">Notification type</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The payload</returns>
+        private async Task<string> GetPayloadAsync(NotificationType notificationType, CancellationToken cancellationToken)
+        {
+            var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+
+            return notificationType switch
+            {
+                NotificationType.SUBDOMAIN => notification.SubdomainPayload,
+                NotificationType.IP => notification.IpAddressPayload,
+                NotificationType.IS_ALIVE => notification.IsAlivePayload,
+                NotificationType.HAS_HTTP_OPEN => notification.HasHttpOpenPayload,
+                NotificationType.SERVICE => notification.ServicePayload,
+                NotificationType.TAKEOVER => notification.TakeoverPayload,
+                NotificationType.DIRECTORY => notification.DirectoryPayload,
+                NotificationType.SCREENSHOT => notification.ScreenshotPayload,
+                _ => string.Empty,
+            };
         }
     }
 }

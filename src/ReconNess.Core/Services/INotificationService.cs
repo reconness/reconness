@@ -1,3 +1,4 @@
+using ReconNess.Core.Models;
 using ReconNess.Entities;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,5 +25,15 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
         Task SendAsync(string agentPayload, CancellationToken cancellationToken);
+
+
+        /// <summary>
+        /// Send notifications if it is actived
+        /// </summary>
+        /// <param name="notificationType">Notification Type</param>
+        /// <param name="replaces">The replacement values</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task SendAsync(NotificationType notificationType, (string, string)[] replaces, CancellationToken cancellationToken = default);
     }
 }
