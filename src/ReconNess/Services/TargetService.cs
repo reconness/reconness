@@ -22,8 +22,8 @@ namespace ReconNess.Services
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="notificationService"><see cref="INotificationService"/></param>
-        public TargetService(IUnitOfWork unitOfWork, 
-            IRootDomainService rootDomainService, 
+        public TargetService(IUnitOfWork unitOfWork,
+            IRootDomainService rootDomainService,
             INotificationService notificationService)
             : base(unitOfWork)
         {

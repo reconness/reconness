@@ -68,7 +68,7 @@ namespace ReconNess.Services
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {
                         ("{{domain}}", agentRunner.Subdomain.Name)
-                    },cancellationToken);
+                    }, cancellationToken);
                 }
             }
 

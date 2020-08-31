@@ -269,7 +269,7 @@ namespace ReconNess.Services
             {
                 if (needOnScope)
                 {
-                    await this.agentParseService.SendOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
+                    await this.agentParseService.SendNotificationOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
                 }
                 else
                 {

@@ -71,9 +71,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentScopeService.SendOnScopeAsync(string, CancellationToken)"/>
+        /// <see cref="IAgentScopeService.SendNotificationOnScopeAsync(string, CancellationToken)"/>
         /// </summary>
-        public async Task SendOnScopeAsync(string payload, CancellationToken cancellationToken = default)
+        public async Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
