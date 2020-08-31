@@ -1,3 +1,10 @@
+## [1.4.1] - 2020-08-31
+
+### Added
+
+- Move the notifications to Account/Settings
+- Update packages
+
 ## [1.4.0] - 2020-08-20
 
 ### Added
