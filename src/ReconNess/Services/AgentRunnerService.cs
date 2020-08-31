@@ -106,9 +106,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerService.StopAsync(AgentRunner, bool, CancellationToken)"></see>
+        /// <see cref="IAgentRunnerService.StopAsync(AgentRunner, bool, bool, CancellationToken)"></see>
         /// </summary>
-        public async Task StopAsync(AgentRunner agentRunner, bool removeSubdomainForTheKey, CancellationToken cancellationToken = default)
+        public async Task StopAsync(AgentRunner agentRunner, bool removeSubdomainForTheKey, bool needNewScope, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -127,7 +127,7 @@ namespace ReconNess.Services
             }
             finally
             {
-                await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
+                await this.SendAgentDoneNotificationAsync(agentRunner, channel, needNewScope, cancellationToken);                
             }
         }
 
@@ -164,7 +164,7 @@ namespace ReconNess.Services
             }
             else
             {
-                await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
+                await this.SendAgentDoneNotificationAsync(agentRunner, channel, false, cancellationToken);
             }
         }
 
@@ -241,7 +241,7 @@ namespace ReconNess.Services
                     {
                         try
                         {
-                            await this.StopAsync(agentRunner, removeSubdomainForTheKey, token);
+                            await this.StopAsync(agentRunner, removeSubdomainForTheKey, true, token);
                             await this.agentParseService.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, token);
                         }
                         catch (Exception exx)
@@ -263,11 +263,18 @@ namespace ReconNess.Services
         /// <param name="activateNotification">If we need to send a notification</param> 
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        private async Task SendAgentDoneNotificationAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
+        private async Task SendAgentDoneNotificationAsync(AgentRunner agentRunner, string channel, bool needOnScope, CancellationToken cancellationToken)
         {
             if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyIfAgentDone)
             {
-                await this.notificationService.SendAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
+                if (needOnScope)
+                {
+                    await this.agentParseService.SendNotificationOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
+                }
+                else
+                {
+                    await this.notificationService.SendAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
+                }
             }
 
             await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken, false);

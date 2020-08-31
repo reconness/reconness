@@ -14,15 +14,21 @@ namespace ReconNess.Services
     public class TargetService : Service<Target>, IService<Target>, ITargetService, ISaveTerminalOutputParseService
     {
         private readonly IRootDomainService rootDomainService;
+        private readonly INotificationService notificationService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ILabelService" /> class
+        /// Initializes a new instance of the <see cref="ITargetService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public TargetService(IUnitOfWork unitOfWork, IRootDomainService rootDomainService)
+        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
+        /// <param name="notificationService"><see cref="INotificationService"/></param>
+        public TargetService(IUnitOfWork unitOfWork,
+            IRootDomainService rootDomainService,
+            INotificationService notificationService)
             : base(unitOfWork)
         {
             this.rootDomainService = rootDomainService;
+            this.notificationService = notificationService;
         }
 
         /// <summary>
@@ -58,6 +64,13 @@ namespace ReconNess.Services
             if (await this.NeedAddNewRootDomain(agentRunner, terminalOutputParse.RootDomain, cancellationToken))
             {
                 agentRunner.RootDomain = await this.AddTargetNewRootDomainAsync(agentRunner.Target, terminalOutputParse.RootDomain, cancellationToken);
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                {
+                    await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
+                    {
+                        ("{{rootDomain}}", agentRunner.RootDomain.Name)
+                    }, cancellationToken);
+                }
             }
 
             await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);

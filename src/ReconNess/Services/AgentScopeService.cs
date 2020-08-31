@@ -69,5 +69,20 @@ namespace ReconNess.Services
                 await subdomainService.UpdateSubdomainAgentAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
             }
         }
+
+        /// <summary>
+        /// <see cref="IAgentScopeService.SendNotificationOnScopeAsync(string, CancellationToken)"/>
+        /// </summary>
+        public async Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default)
+        {
+            using (var scope = this.serviceProvider.CreateScope())
+            {
+                var notificationService =
+                    scope.ServiceProvider
+                        .GetRequiredService<INotificationService>();
+
+                await notificationService.SendAsync(payload, cancellationToken);
+            }
+        }
     }
 }

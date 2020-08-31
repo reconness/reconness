@@ -31,8 +31,16 @@ namespace ReconNess.Core.Services
         /// Register that we run this Agent in the Subdomain
         /// </summary>
         /// <param name="agentRun">The agent</param>
-        /// <param name="token"></param>
-        /// <returns>Notification that operations should be canceled</returns>
+        /// <param name="token">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
         Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Send a notification 
+        /// </summary>
+        /// <param name="payload">The payload to send</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default);
     }
 }
