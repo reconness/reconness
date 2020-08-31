@@ -54,7 +54,7 @@
             <input name="servicePayload" formControlName="servicePayload" class="form-control" id="servicePayload" v-model="notification.servicePayload">
         </div>
         <div class="form-group">
-            <label for="inputName">New Note. Use <code v-html="`{{httpsScreenshot}}`"></code> and <code v-html="`{{httpScreenshot}}`"></code> to obtain <code>scriptOutput.HttpsScreenshotFilePath</code> and <code>scriptOutput.HttpScreenshotFilePath</code> value</label>
+            <label for="inputName">New Screenshot. Use <code v-html="`{{httpsScreenshot}}`"></code> and <code v-html="`{{httpScreenshot}}`"></code> to obtain <code>scriptOutput.HttpsScreenshotFilePath</code> and <code>scriptOutput.HttpScreenshotFilePath</code> value</label>
             <input name="screenshotPayload" formControlName="screenshotPayload" class="form-control" id="notePayload" v-model="notification.screenshotPayload">
         </div>
         <div class="form-group">

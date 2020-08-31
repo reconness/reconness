@@ -225,7 +225,7 @@ namespace ReconNess.Services
                 subdomain.IsAlive = scriptOutput.IsAlive.Value;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound && subdomain.IsAlive.Value)
                 {
                     await this.notificationService.SendAsync(NotificationType.IS_ALIVE, new[]
                     {
@@ -250,7 +250,7 @@ namespace ReconNess.Services
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound && subdomain.HasHttpOpen.Value)
                 {
                     await this.notificationService.SendAsync(NotificationType.HAS_HTTP_OPEN, new[]
                     {
@@ -275,7 +275,7 @@ namespace ReconNess.Services
                 subdomain.Takeover = scriptOutput.Takeover.Value;
                 await this.UpdateAsync(subdomain, cancellationToken);
 
-                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound && subdomain.Takeover.Value)
                 {
                     await this.notificationService.SendAsync(NotificationType.TAKEOVER, new[]
                     {
@@ -370,6 +370,73 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// Update the subdomain with screenshots
+        /// </summary>
+        /// <param name="agentRunner">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        private async Task UpdateSubdomainScreenshotAsync(Subdomain subdomain, AgentRunner agentRunner, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.HttpScreenshotFilePath))
+            {
+                try
+                {
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));
+                    if (subdomain.ServiceHttp == null)
+                    {
+                        subdomain.ServiceHttp = new ServiceHttp();
+                    }
+
+                    subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
+                    await this.UpdateAsync(subdomain, cancellationToken);
+
+                    if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                    {
+                        await this.notificationService.SendAsync(NotificationType.SCREENSHOT, new[]
+                        {
+                            ("{{domain}}", subdomain.Name),
+                            ("{{httpScreenshot}}", "true"),
+                            ("{{httpsScreenshot}}", "false")
+                        }, cancellationToken);
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+
+            if (!string.IsNullOrEmpty(scriptOutput.HttpsScreenshotFilePath))
+            {
+                try
+                {
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpsScreenshotFilePath));
+                    if (subdomain.ServiceHttp == null)
+                    {
+                        subdomain.ServiceHttp = new ServiceHttp();
+                    }
+
+                    subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
+                    await this.UpdateAsync(subdomain, cancellationToken);
+
+                    if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                    {
+                        await this.notificationService.SendAsync(NotificationType.SCREENSHOT, new[]
+                        {
+                            ("{{domain}}", subdomain.Name),
+                            ("{{httpScreenshot}}", "false"),
+                            ("{{httpsScreenshot}}", "true")
+                        }, cancellationToken);
+                    }
+                }
+                catch
+                {
+
+                }
+            }
+        }
+
+        /// <summary>
         /// Update the subdomain Note
         /// </summary>
         /// <param name="agentRunner">The Agent</param>
@@ -426,53 +493,6 @@ namespace ReconNess.Services
 
                 await this.UpdateAsync(subdomain, cancellationToken);
             }
-        }
-
-        /// <summary>
-        /// Update the subdomain with screenshots
-        /// </summary>
-        /// <param name="agentRunner">The Agent</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        private async Task UpdateSubdomainScreenshotAsync(Subdomain subdomain, AgentRunner agentRunner, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (!string.IsNullOrEmpty(scriptOutput.HttpScreenshotFilePath))
-            {
-                try
-                {
-                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));
-                    if (subdomain.ServiceHttp == null)
-                    {
-                        subdomain.ServiceHttp = new ServiceHttp();
-                    }
-
-                    subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
-                    await this.UpdateAsync(subdomain, cancellationToken);
-                }
-                catch
-                {
-
-                }
-            }
-
-            if (!string.IsNullOrEmpty(scriptOutput.HttpsScreenshotFilePath))
-            {
-                try
-                {
-                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpsScreenshotFilePath));
-                    if (subdomain.ServiceHttp == null)
-                    {
-                        subdomain.ServiceHttp = new ServiceHttp();
-                    }
-
-                    subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
-                    await this.UpdateAsync(subdomain, cancellationToken);
-                }
-                catch
-                {
-
-                }
-            }
-        }
+        }        
     }
 }
