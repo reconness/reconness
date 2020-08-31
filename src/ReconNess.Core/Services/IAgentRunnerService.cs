@@ -24,9 +24,10 @@ namespace ReconNess.Core.Services
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="removeSubdomainForTheKey">If we need to remove the subdomain to generate the key</param>
+        /// <param name="needNewScope">If we need to create a new scope</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task StopAsync(AgentRunner agentRunner, bool removeSubdomainForTheKey, CancellationToken cancellationToken = default);
+        Task StopAsync(AgentRunner agentRunner, bool removeSubdomainForTheKey, bool needNewScope, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a list of agents name that still are running

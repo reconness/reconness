@@ -34,5 +34,7 @@ namespace ReconNess.Core.Services
         /// <param name="token"></param>
         /// <returns>Notification that operations should be canceled</returns>
         Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default);
+        
+        Task SendOnScopeAsync(string payload, CancellationToken cancellationToken = default);
     }
 }

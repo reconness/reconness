@@ -37,6 +37,16 @@ namespace ReconNess.Services
                 notif.Url = notification.Url;
                 notif.Method = notification.Method;
                 notif.Payload = notification.Payload;
+                notif.RootDomainPayload = notification.RootDomainPayload;
+                notif.SubdomainPayload = notification.SubdomainPayload;
+                notif.IpAddressPayload = notification.IpAddressPayload;
+                notif.IsAlivePayload = notification.IsAlivePayload;
+                notif.HasHttpOpenPayload = notification.HasHttpOpenPayload;
+                notif.ServicePayload = notification.ServicePayload;
+                notif.DirectoryPayload = notification.DirectoryPayload;
+                notif.TakeoverPayload = notification.TakeoverPayload;
+                notif.ScreenshotPayload = notification.ScreenshotPayload;
+                notif.NotePayload = notification.NotePayload;
 
                 await this.UpdateAsync(notif, cancellationToken);
             }
