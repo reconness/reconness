@@ -64,7 +64,7 @@ namespace ReconNess.Services
             if (await this.NeedAddNewRootDomain(agentRunner, terminalOutputParse.RootDomain, cancellationToken))
             {
                 agentRunner.RootDomain = await this.AddTargetNewRootDomainAsync(agentRunner.Target, terminalOutputParse.RootDomain, cancellationToken);
-                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                if (agentRunner.ActivateNotification)
                 {
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {

@@ -11,20 +11,6 @@ namespace ReconNess.Web.Dtos
 
         public string Repository { get; set; }
 
-        public bool IsBySubdomain { get; set; }
-
-        public bool OnlyIfIsAlive { get; set; }
-
-        public bool OnlyIfHasHttpOpen { get; set; }
-
-        public bool SkipIfRanBefore { get; set; }
-
-        public bool NotifyNewFound { get; set; }
-
-        public bool NotifyIfAgentDone { get; set; }
-
-        public List<string> Categories { get; set; }
-
         public string Command { get; set; }
 
         public string Arguments { get; set; }
@@ -32,6 +18,8 @@ namespace ReconNess.Web.Dtos
         public string Script { get; set; }
 
         public DateTime LastRun { get; set; }
+
+        public List<string> Categories { get; set; }
 
         public bool IsRunning { get; set; }
     }

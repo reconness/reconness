@@ -32,7 +32,7 @@
             notes: {
                 get: function () {
                     if (this.isTarget) {
-                        return this.$store.state.targets.currentRootDomain.notes
+                        return this.$store.state.rootdomains.currentRootDomain.notes
                     }
 
                     return this.$store.state.subdomains.currentSubdomain.notes

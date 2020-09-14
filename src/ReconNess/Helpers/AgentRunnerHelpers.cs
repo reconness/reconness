@@ -9,13 +9,15 @@ namespace ReconNess.Helpers
         /// Check if we need to skip the subdomain and does not the agent in that subdomain
         /// </summary>
         /// <param name="agentRunner"></param>
-        public static bool NeedToSkipSubdomain(AgentRunner agentRunner)
+        public static bool NeedToSkipRun(AgentRunner agentRunner)
         {
-            var needToBeAlive = agentRunner.Agent.OnlyIfIsAlive && (agentRunner.Subdomain.IsAlive == null || !agentRunner.Subdomain.IsAlive.Value);
-            var needTohasHttpOpen = agentRunner.Agent.OnlyIfHasHttpOpen && (agentRunner.Subdomain.HasHttpOpen == null || !agentRunner.Subdomain.HasHttpOpen.Value);
-            var needToSkip = agentRunner.Agent.SkipIfRanBefore && (!string.IsNullOrEmpty(agentRunner.Subdomain.FromAgents) && agentRunner.Subdomain.FromAgents.Contains(agentRunner.Agent.Name));
+            // TODO: Add trigger feature
+            if (agentRunner.Subdomain == null)
+            {
+                return false;
+            }
 
-            return needToBeAlive || needTohasHttpOpen || needToSkip;
+            return false;
         }
 
         /// <summary>

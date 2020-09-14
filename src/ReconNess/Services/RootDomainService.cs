@@ -41,12 +41,13 @@ namespace ReconNess.Services
         public async Task<RootDomain> GetDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                .Include(t => t.Target)
                 .Include(t => t.Notes)
                 .FirstOrDefaultAsync();
 
             if (rootDomain != null)
             {
-                rootDomain.Subdomains = await this.subdomainService.GetSubdomainsAsync(rootDomain, string.Empty, cancellationToken);
+                rootDomain.Subdomains = await this.subdomainService.GetSubdomainsAsync(rootDomain.Target, rootDomain, string.Empty, cancellationToken);
             }
 
             return rootDomain;
@@ -63,7 +64,7 @@ namespace ReconNess.Services
             {
                 agentRunner.Subdomain = await this.AddRootDomainNewSubdomainAsync(agentRunner.RootDomain, terminalOutputParse.Subdomain, cancellationToken);
 
-                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                if (agentRunner.ActivateNotification)
                 {
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {

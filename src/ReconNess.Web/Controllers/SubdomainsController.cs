@@ -1,14 +1,11 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -104,51 +101,12 @@ namespace ReconNess.Web.Controllers
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
             {
+                Target = target,
                 RootDomain = rootDomain,
                 Name = subdomainDto.Name
             }, cancellationToken);
 
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
-        }
-
-        // POST api/subdomains/{targetName}/{rootDomainName}
-        [HttpPost("{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
-        {
-            if (file.Length == 0)
-            {
-                return BadRequest();
-            }
-
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
-            }
-
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-            if (rootDomain == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                var path = Path.GetTempFileName();
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
-
-                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
         }
 
         // PUT api/subdomains/{id}

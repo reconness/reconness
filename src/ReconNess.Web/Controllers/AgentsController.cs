@@ -6,7 +6,6 @@ using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -57,7 +56,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAllAgentsWithCategoryAsync(cancellationToken);
+            var agents = await this.agentService.GetAllAgentsAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
             return Ok(agentsDto);
@@ -67,7 +66,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{agentName}")]
         public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetAgentWithCategoryAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await this.agentService.GetAgentAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -76,15 +75,15 @@ namespace ReconNess.Web.Controllers
             return Ok(this.mapper.Map<Agent, AgentDto>(agent));
         }
 
-        // GET api/agents/defaultToInstall
-        [HttpGet("defaultToInstall")]
-        public async Task<IActionResult> GetDefaultToInstall(CancellationToken cancellationToken)
+        // GET api/agents/marketplace
+        [HttpGet("marketplace")]
+        public async Task<IActionResult> GetMarketplace(CancellationToken cancellationToken)
         {
-            var agentDefaults = await this.agentService.GetDefaultAgentsToInstallAsync(cancellationToken);
+            var marketplaceAgents = await this.agentService.GetMarketplaceAsync(cancellationToken);
 
-            var agentsDto = this.mapper.Map<List<AgentDefault>, List<AgentDefaultDto>>(agentDefaults);
+            var marketplaceAgentsDto = this.mapper.Map<List<AgentMarketplace>, List<AgentMarketplaceDto>>(marketplaceAgents);
 
-            return Ok(agentsDto);
+            return Ok(marketplaceAgentsDto);
         }
 
         // POST api/agents
@@ -97,7 +96,10 @@ namespace ReconNess.Web.Controllers
             }
 
             var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
-            agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
+            if (string.IsNullOrEmpty(agent.Script))
+            {
+                agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
+            }
 
             await this.agentService.AddAsync(agent, cancellationToken);
 
@@ -108,7 +110,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetAgentWithCategoryAsync(t => t.Id == id, cancellationToken);
+            var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -121,16 +123,10 @@ namespace ReconNess.Web.Controllers
 
             agent.Name = agentDto.Name;
             agent.Repository = agentDto.Repository;
-            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
             agent.Command = agentDto.Command;
-            agent.IsBySubdomain = agentDto.IsBySubdomain;
-            agent.OnlyIfIsAlive = agentDto.OnlyIfIsAlive;
-            agent.OnlyIfHasHttpOpen = agentDto.OnlyIfHasHttpOpen;
-            agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
-            agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
-            agent.NotifyNewFound = agentDto.NotifyNewFound;
-
             agent.Script = agentDto.Script;
+
+            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
 
             await this.agentService.UpdateAsync(agent, cancellationToken);
 
@@ -154,20 +150,34 @@ namespace ReconNess.Web.Controllers
 
         // POST api/agents/install
         [HttpPost("install")]
-        public async Task<IActionResult> Install([FromBody] AgentDefaultDto agentDefaultDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
             if (await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name))
             {
                 return BadRequest("There is an Agent with that name in the DB");
             }
 
-            var agent = this.mapper.Map<AgentDefaultDto, Agent>(agentDefaultDto);
+            var agent = this.mapper.Map<AgentMarketplaceDto, Agent>(agentDefaultDto);
 
             agent.Script = await this.agentService.GetAgentScript(agentDefaultDto.ScriptUrl, cancellationToken);
 
             var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
+        }
+
+        // POST api/agents/debug
+        [HttpPost("debug")]
+        public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                return Ok(await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken));
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
         }
 
         // POST api/agents/run
@@ -180,23 +190,27 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
-            if (rootDomain == null)
+            RootDomain rootDomain = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
             {
-                return BadRequest();
+                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
+                if (rootDomain == null)
+                {
+                    return BadRequest();
+                }
             }
 
-            Subdomain subdomain = null;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
+            Subdomain subdomain = default;
+            if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = (await this.subdomainService.GetSubdomainsAsync(rootDomain, agentRunnerDto.Subdomain, cancellationToken)).FirstOrDefault();
+                subdomain = await this.subdomainService.GetSubdomainAsync(target, rootDomain, agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            var agent = await agentService.GetAgentWithCategoryAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
@@ -293,20 +307,6 @@ namespace ReconNess.Web.Controllers
             }, cancellationToken);
 
             return Ok(agentsRunning);
-        }
-
-        // POST api/agents/debug
-        [HttpPost("debug")]
-        public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return Ok(await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken));
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
         }
     }
 }

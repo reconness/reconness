@@ -15,50 +15,8 @@
         <div class="form-group">
             <label for="inputCmd">Command <a href="https://docs.reconness.com/agents/add-agent#add-new-agent" target="_blank">Learn more</a></label>
             <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
-        </div>
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="isBySubdomain" v-model="agent.isBySubdomain" v-on:click="onBySubdomain()">
-            <label class="form-check-label" for="isBySubdomain">
-                Run by Subdomains
-            </label>
-        </div>
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="onlyIfIsAlive" ref="onlyIfIsAlive" v-model="agent.onlyIfIsAlive" :disabled="disabledIsNotBySubdomain">
-            <label class="form-check-label" for="onlyIfIsAlive">
-                Run Only if it is Alive
-            </label>
-        </div>
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="onlyIfHasHttpOne" ref="onlyIfHasHttpOpen" v-model="agent.onlyIfHasHttpOpen" :disabled="disabledIsNotBySubdomain">
-            <label class="form-check-label" for="onlyIfHasHttpOpen">
-                Run Only if has Http Open
-            </label>
-        </div>
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="skipIfRanBefore" ref="skipIfRanBefore" v-model="agent.skipIfRanBefore" :disabled="disabledIsNotBySubdomain">
-            <label class="form-check-label" for="skipIfRanBefore">
-                Skip If Ran Before
-            </label>
-        </div>
-        <hr />
-        <div>
-            <p class="font-italic"><ins>Remember that we need to have setting up the notifications in the <router-link to="/settings">Settings</router-link> Page.</ins></p>
-        </div>
-        <label>Notification Options</label>
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="notifyIfAgentDone" ref="notifyIfAgentDone" v-model="agent.notifyIfAgentDone">
-            <label class="form-check-label" for="notifyIfAgentDone">
-                Notify If Agent Done
-            </label>
-        </div>
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="notifyNewFound" ref="notifyNewFound" v-model="agent.notifyNewFound">
-            <label class="form-check-label" for="notifyNewFound">
-                Notify New Found
-            </label>
-        </div>
-        <hr />
-        <div class="form-group" v-if="!isNew">
+        </div>  
+        <div class="form-group">
             <label for="inputArguments">Script <a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
             <editor v-model="agent.script" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
         </div>
@@ -100,10 +58,7 @@
                 return this.autocompleteItems.filter(i => {
                     return i.text.toLowerCase().indexOf(this.tag.toLowerCase()) !== -1;
                 })
-            },
-            disabledIsNotBySubdomain() {
-                return !this.agent.isBySubdomain
-            },            
+            },          
             tags: {
                 get: function () {
                     if (!this.isNew && this.agent.categories !== undefined) {
@@ -157,11 +112,6 @@
             },
             isValid() {
                 return this.agent.name && this.agent.command
-            },
-            onBySubdomain() {
-                this.agent.onlyIfIsAlive = false
-                this.agent.onlyIfHasHttpOpen = false
-                this.agent.skipIfRanBefore = false
             }
         }
     }

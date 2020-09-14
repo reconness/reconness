@@ -19,6 +19,10 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : DbContext, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
+        public DbSet<AgentRun> AgentRuns { get; set; }
+        public DbSet<AgentTrigger> AgentTriggers { get; set; }
+        public DbSet<AgentHistory> AgentHistories { get; set; }
+        public DbSet<Entities.Type> Types { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -53,11 +57,27 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<AgentRun>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentHistory>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentTrigger>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<Reference>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Category>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Entities.Type>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
@@ -110,6 +130,19 @@ namespace ReconNess.Data.Npgsql
                 .WithMany(t => t.AgentCategories)
                 .HasForeignKey(pt => pt.CategoryId);
 
+            modelBuilder.Entity<AgentType>()
+                .HasKey(t => new { t.AgentId, t.TypeId });
+
+            modelBuilder.Entity<AgentType>()
+                .HasOne(pt => pt.Agent)
+                .WithMany(p => p.AgentTypes)
+                .HasForeignKey(pt => pt.AgentId);
+
+            modelBuilder.Entity<AgentType>()
+                .HasOne(pt => pt.Type)
+                .WithMany(t => t.AgentTypes)
+                .HasForeignKey(pt => pt.TypeId);
+
             modelBuilder.Entity<SubdomainLabel>()
                 .HasKey(t => new { t.SubdomainId, t.LabelId });
 
@@ -134,6 +167,7 @@ namespace ReconNess.Data.Npgsql
         private void RunSeed(ModelBuilder modelBuilder)
         {
             LabelSeeding.Run(modelBuilder);
+            AgentTypeSeeding.Run(modelBuilder);
         }
 
         /// <summary>

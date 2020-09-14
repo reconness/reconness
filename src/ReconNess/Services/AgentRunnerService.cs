@@ -95,7 +95,7 @@ namespace ReconNess.Services
             this.backgroundTaskQueue.InitializeCurrentAgentRun();
 
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-            if (agentRunner.Agent.IsBySubdomain && agentRunner.Subdomain == null)
+            if (await this.RunBySubdomainAsync(agentRunner, cancellationToken))
             {
                 await this.RunBashBySubdomainsAsync(agentRunner, channel, cancellationToken);
             }
@@ -127,8 +127,19 @@ namespace ReconNess.Services
             }
             finally
             {
-                await this.SendAgentDoneNotificationAsync(agentRunner, channel, needNewScope, cancellationToken);                
+                await this.SendAgentDoneNotificationAsync(agentRunner, channel, needNewScope, cancellationToken);
             }
+        }
+
+        /// <summary>
+        /// If we need to run the Agent in each subdomain
+        /// </summary>
+        /// <param name="agentRunner"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        private async Task<bool> RunBySubdomainAsync(AgentRunner agentRunner, CancellationToken cancellationToken)
+        {
+            return agentRunner.Subdomain == null && await agentService.IsBySubdomainAsync(agentRunner.Agent.Name, cancellationToken);
         }
 
         /// <summary>
@@ -142,7 +153,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var subdomains = await this.subdomainService.GetSubdomainsAsync(agentRunner.RootDomain, string.Empty);
+            var subdomains = await this.subdomainService.GetSubdomainsAsync(agentRunner.Target, agentRunner.RootDomain, string.Empty, cancellationToken);
             if (subdomains.Any())
             {
                 var subdomainsCount = subdomains.Count;
@@ -189,16 +200,13 @@ namespace ReconNess.Services
             {
                 try
                 {
-                    if (AgentRunnerHelpers.NeedToSkipSubdomain(agentRunner))
+                    var command = AgentRunnerHelpers.GetCommand(agentRunner);
+                    if (AgentRunnerHelpers.NeedToSkipRun(agentRunner))
                     {
-                        await this.connectorService.SendLogsAsync(channel, $"Skip subdomain: {agentRunner.Subdomain.Name}", token);
-                        await this.connectorService.SendAsync(channel, $"Skip subdomain: {agentRunner.Subdomain.Name} ", token);
+                        await this.connectorService.SendAsync(channel, $"Skip: {command}", token);
                     }
                     else
                     {
-                        var command = AgentRunnerHelpers.GetCommand(agentRunner);
-
-                        await this.connectorService.SendLogsAsync(channel, $"RUN: {command}", token);
                         await this.connectorService.SendAsync(channel, $"RUN: {command}", token);
 
                         runnerProcess.Start(command);
@@ -265,7 +273,7 @@ namespace ReconNess.Services
         /// <returns></returns>
         private async Task SendAgentDoneNotificationAsync(AgentRunner agentRunner, string channel, bool needOnScope, CancellationToken cancellationToken)
         {
-            if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyIfAgentDone)
+            if (agentRunner.ActivateNotification)
             {
                 if (needOnScope)
                 {

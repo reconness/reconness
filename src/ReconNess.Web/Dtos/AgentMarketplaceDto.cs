@@ -1,6 +1,6 @@
-﻿namespace ReconNess.Core.Models
+﻿namespace ReconNess.Web.Dtos
 {
-    public class AgentDefault
+    public class AgentMarketplaceDto
     {
         public string Name { get; set; }
 

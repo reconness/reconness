@@ -86,13 +86,13 @@ const mutations = {
         state.currentSubdomain = subdomain
     },
     updateLabel(state, { subdomain, label }) {
-        const s = this.state.targets.currentRootDomain.subdomains.find(sub => sub.name == subdomain.name)
+        const s = this.state.rootdomains.currentRootDomain.subdomains.find(sub => sub.name == subdomain.name)
         if (!s.labels.some(l => l.name === label.name)) {
             s.labels.push(label)
         }
     },
     deleteSubdomain(state, subdomain) {
-        this.state.targets.currentRootDomain.subdomains = this.state.targets.currentRootDomain.subdomains.filter((s) => {
+        this.state.rootdomains.currentRootDomain.subdomains = this.state.rootdomains.currentRootDomain.subdomains.filter((s) => {
             return s.name !== subdomain.name;
         })
     }
