@@ -50,7 +50,8 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            target.RootDomains = new List<RootDomain> { await rootDomainService.GetDomainWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken) };
+            var rootDomain = await rootDomainService.GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
+            target.RootDomains = new List<RootDomain> { rootDomain };
 
             return Ok(this.mapper.Map<Target, TargetDto>(target));
         }
@@ -65,7 +66,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -91,7 +92,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -135,7 +136,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -170,7 +171,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -193,7 +194,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();

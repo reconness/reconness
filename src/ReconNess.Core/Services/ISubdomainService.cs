@@ -18,7 +18,7 @@ namespace ReconNess.Core.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of subdomains by target order by CreatedAt desc</returns>
-        Task<List<Subdomain>> GetSubdomainsAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
+        Task<List<Subdomain>> GetSubdomainsWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///  Obtain a subdomain by target

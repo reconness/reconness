@@ -43,7 +43,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var targets = await this.targetService.GetAllQueryableByCriteria(t => !t.Deleted, cancellationToken)
-                .Include(t => t.RootDomains)
+                    .Include(t => t.RootDomains)
                 .ToListAsync(cancellationToken);
 
             return Ok(this.mapper.Map<List<Target>, List<TargetDto>>(targets));
@@ -54,7 +54,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName, cancellationToken)
-                .Include(t => t.RootDomains)
+                    .Include(t => t.RootDomains)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (target == null)
@@ -69,7 +69,8 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            if (await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower()))
+            var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower());
+            if (targetExist)
             {
                 return BadRequest("There is a Target with that name in the DB");
             }
@@ -115,17 +116,7 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{targetName}")]
         public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName, cancellationToken)
-                .Include(a => a.RootDomains)
-                    .ThenInclude(a => a.Subdomains)
-                        .ThenInclude(s => s.Services)
-                .Include(a => a.RootDomains)
-                    .ThenInclude(a => a.Subdomains)
-                        .ThenInclude(s => s.Notes)
-                .Include(a => a.RootDomains)
-                    .ThenInclude(a => a.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var target = await this.targetService.GetTargetWithIncludeAsync(targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();

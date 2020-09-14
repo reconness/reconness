@@ -36,9 +36,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.GetDomainWithSubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
+        /// <see cref="IRootDomainService.GetWithSubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<RootDomain> GetDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(t => t.Target)
@@ -47,7 +47,7 @@ namespace ReconNess.Services
 
             if (rootDomain != null)
             {
-                rootDomain.Subdomains = await this.subdomainService.GetSubdomainsAsync(rootDomain.Target, rootDomain, string.Empty, cancellationToken);
+                rootDomain.Subdomains = await this.subdomainService.GetSubdomainsWithIncludesAsync(rootDomain.Target, rootDomain, string.Empty, cancellationToken);
             }
 
             return rootDomain;

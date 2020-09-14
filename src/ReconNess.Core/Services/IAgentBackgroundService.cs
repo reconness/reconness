@@ -8,7 +8,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ICategoryService
     /// </summary>
-    public interface IAgentScopeService
+    public interface IAgentBackgroundService
     {
         /// <summary>
         /// Save the output that the ScriptEnginer returned on database

@@ -35,12 +35,11 @@ const actions = {
             }
         })
     },
-    deleteSubdomain({ commit }, { subdomain }) {
+    deleteSubdomain(context, { subdomain }) {
         return new Promise((resolve, reject) => {
             try {
                 api.delete('subdomains', subdomain.id)
                     .then(() => {
-                        commit('deleteSubdomain', subdomain)
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -90,11 +89,6 @@ const mutations = {
         if (!s.labels.some(l => l.name === label.name)) {
             s.labels.push(label)
         }
-    },
-    deleteSubdomain(state, subdomain) {
-        this.state.rootdomains.currentRootDomain.subdomains = this.state.rootdomains.currentRootDomain.subdomains.filter((s) => {
-            return s.name !== subdomain.name;
-        })
     }
 }
 

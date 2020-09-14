@@ -117,7 +117,7 @@
                 if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) {
                     try {
                         await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: this.subdomain })
-                        this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName } })
+                        this.$router.push({ name: 'targetRootDomain', params: { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain } })
                     }
                     catch (error) {
                         helpers.errorHandle(error)

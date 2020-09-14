@@ -61,14 +61,8 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
-                .Include(s => s.Notes)
-                .Include(s => s.Services)
-                .Include(s => s.ServiceHttp)
-                    .ThenInclude(s => s.Directories)
-                .Include(s => s.Labels)
-                    .ThenInclude(s => s.Label)
-                .FirstOrDefaultAsync(cancellationToken);
+            var subdomain = (await this.subdomainService.GetSubdomainsWithIncludesAsync(target, rootDomain, subdomainName, cancellationToken))
+                .FirstOrDefault();
 
             if (subdomain == null)
             {
@@ -94,7 +88,8 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.RootDomain == rootDomain))
+            var subdomainExist = await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.RootDomain == rootDomain);
+            if (subdomainExist)
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");
             }

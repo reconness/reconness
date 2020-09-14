@@ -48,7 +48,7 @@ namespace ReconNess.Web.Controllers
             }
 
             var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
-                .Include(t => t.Notes)
+                    .Include(t => t.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (rootDomain == null)
@@ -72,7 +72,7 @@ namespace ReconNess.Web.Controllers
             }
 
             var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
-                .Include(t => t.Notes)
+                    .Include(t => t.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
             var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)

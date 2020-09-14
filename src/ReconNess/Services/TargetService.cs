@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -31,13 +32,26 @@ namespace ReconNess.Services
             this.notificationService = notificationService;
         }
 
-        /// <summary>
+        public async Task<Target> GetTargetWithIncludeAsync(string targetName, CancellationToken cancellationToken)
+        {
+            return await this.GetAllQueryableByCriteria(t => t.Name == targetName, cancellationToken)
+                       .Include(a => a.RootDomains)
+                           .ThenInclude(a => a.Subdomains)
+                               .ThenInclude(s => s.Services)
+                       .Include(a => a.RootDomains)
+                           .ThenInclude(a => a.Subdomains)
+                               .ThenInclude(s => s.Notes)
+                       .Include(a => a.RootDomains)
+                           .ThenInclude(a => a.Notes)
+                       .FirstOrDefaultAsync(cancellationToken);
+        }
+
         /// <see cref="ITargetService.DeleteTargetAsync(Target, CancellationToken)"/>
         /// </summary>
         public async Task DeleteTargetAsync(Target target, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
+                        
             try
             {
                 this.UnitOfWork.BeginTransaction(cancellationToken);

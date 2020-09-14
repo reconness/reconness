@@ -40,9 +40,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainsAsync(Target RootDomain, string, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetSubdomainsWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> GetSubdomainsAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> GetSubdomainsWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
             target = target ?? throw new ArgumentException("'Target' can not be null");
             rootDomain = rootDomain ?? throw new ArgumentException("'RootDomain' can not be null");
@@ -69,7 +69,7 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainsAsync(Target RootDomain, string, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetSubdomainsWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
         /// </summary>
         public async Task<Subdomain> GetSubdomainAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
