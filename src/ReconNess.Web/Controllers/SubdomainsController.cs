@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
@@ -61,9 +60,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomain = (await this.subdomainService.GetSubdomainsWithIncludesAsync(target, rootDomain, subdomainName, cancellationToken))
-                .FirstOrDefault();
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(target, rootDomain, subdomainName, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -108,11 +105,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
-               .Include(a => a.Labels)
-                   .ThenInclude(ac => ac.Label)
-               .FirstOrDefaultAsync();
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -133,11 +126,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("label/{id}")]
         public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
-               .Include(a => a.Labels)
-                   .ThenInclude(ac => ac.Label)
-               .FirstOrDefaultAsync();
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -158,11 +147,7 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Id == id, cancellationToken)
-                .Include(s => s.Notes)
-                .Include(s => s.Services)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();

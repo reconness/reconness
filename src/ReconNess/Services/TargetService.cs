@@ -4,6 +4,8 @@ using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,9 +34,22 @@ namespace ReconNess.Services
             this.notificationService = notificationService;
         }
 
-        public async Task<Target> GetTargetWithIncludeAsync(string targetName, CancellationToken cancellationToken)
+        /// <summary>
+        /// <see cref="ITargetService.GetAllWithIncludeAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Target>> GetAllWithIncludeAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(t => t.Name == targetName, cancellationToken)
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                        .Include(a => a.RootDomains)
+                        .ToListAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ITargetService.GetWithIncludeAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<Target> GetWithIncludeAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        {
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
                        .Include(a => a.RootDomains)
                            .ThenInclude(a => a.Subdomains)
                                .ThenInclude(s => s.Services)
@@ -51,7 +66,7 @@ namespace ReconNess.Services
         public async Task DeleteTargetAsync(Target target, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-                        
+
             try
             {
                 this.UnitOfWork.BeginTransaction(cancellationToken);

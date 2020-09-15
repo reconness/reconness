@@ -47,7 +47,8 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
+            var rootDomain = await this.rootDomainService
+                .GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
                     .Include(t => t.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
@@ -56,7 +57,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.SaveTargetNotesAsync(rootDomain, noteDto.Notes, cancellationToken);
+            await this.notesService.SaveRootdomainNotesAsync(rootDomain, noteDto.Notes, cancellationToken);
 
             return NoContent();
         }
@@ -71,12 +72,15 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
+            var rootDomain = await this.rootDomainService
+                .GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
                     .Include(t => t.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
-               .Include(s => s.Notes).FirstOrDefaultAsync(cancellationToken);
+            var subdomain = await this.subdomainService
+                .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
+                    .Include(s => s.Notes)
+                .FirstOrDefaultAsync(cancellationToken);
 
             if (subdomain == null)
             {

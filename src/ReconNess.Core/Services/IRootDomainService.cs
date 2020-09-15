@@ -18,7 +18,7 @@ namespace ReconNess.Core.Services
         /// <param name="criteria">The criteria</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A rootDomain with subdomains</returns>
-        Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+        Task<RootDomain> GetWithIncludeAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete the rootdomains with all the subdomains and relations

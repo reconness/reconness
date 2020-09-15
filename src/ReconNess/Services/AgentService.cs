@@ -34,9 +34,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAllAgentsAsync(CancellationToken)"/>
+        /// <see cref="IAgentService.GetAllWithIncludeAsync(CancellationToken)"/>
         /// </summary>
-        public async Task<List<Agent>> GetAllAgentsAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Agent>> GetAllWithIncludeAsync(CancellationToken cancellationToken = default)
         {
             var result = await this.GetAllQueryable(cancellationToken)
                 .Include(a => a.AgentCategories)
@@ -49,9 +49,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAgentAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// <see cref="IAgentService.GetWithIncludeAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<Agent> GetWithIncludeAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(a => a.AgentCategories)
@@ -76,9 +76,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAgentScript(string, CancellationToken)"/>
+        /// <see cref="IAgentService.GetScriptAsync(string, CancellationToken)"/>
         /// </summary>
-        public async Task<string> GetAgentScript(string scriptUrl, CancellationToken cancellationToken)
+        public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
             var client = new RestClient(scriptUrl);
             var request = new RestRequest();
@@ -101,7 +101,7 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<bool> IsBySubdomainAsync(string agentName, CancellationToken cancellationToken)
         {
-            var agent = await this.GetAgentAsync(a => a.Name == agentName, cancellationToken);
+            var agent = await this.GetWithIncludeAsync(a => a.Name == agentName, cancellationToken);
 
             return agent != null && agent.AgentTypes.Any(t => t.Type.Name == AgentTypes.SUBDOMAIN);
         }

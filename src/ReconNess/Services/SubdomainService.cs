@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -40,9 +41,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainsWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetAllWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> GetSubdomainsWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> GetAllWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
             target = target ?? throw new ArgumentException("'Target' can not be null");
             rootDomain = rootDomain ?? throw new ArgumentException("'RootDomain' can not be null");
@@ -69,9 +70,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainsWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetWithIncludeAsync(Target RootDomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task<Subdomain> GetSubdomainAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
+        public async Task<Subdomain> GetWithIncludeAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
             target = target ?? throw new ArgumentException("'Target' can not be null");
             rootDomain = rootDomain ?? throw new ArgumentException("'RootDomain' can not be null");
@@ -91,6 +92,23 @@ namespace ReconNess.Services
                 .OrderByDescending(s => s.CreatedAt)
                 .FirstOrDefaultAsync(cancellationToken);
         }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.GetWithIncludeAsync(Expression<Func<Subdomain, bool>>, CancellationToken)"/>
+        /// </summary>
+        public async Task<Subdomain> GetWithIncludeAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+               .Include(t => t.Services)
+                .Include(t => t.Notes)
+                .Include(t => t.ServiceHttp)
+                    .ThenInclude(sh => sh.Directories)
+                .Include(t => t.Labels)
+                    .ThenInclude(ac => ac.Label)
+                .OrderByDescending(s => s.CreatedAt)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
 
         /// <summary>
         /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>

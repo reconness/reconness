@@ -19,7 +19,7 @@ namespace ReconNess.Core.Services
         /// <param name="isBySubdomain">If I need to obtain only the agent that run by subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>List of Agents with categories or null</returns>
-        Task<List<Agent>> GetAllAgentsAsync(CancellationToken cancellationToken = default);
+        Task<List<Agent>> GetAllWithIncludeAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain an Agent with categories
@@ -27,7 +27,7 @@ namespace ReconNess.Core.Services
         /// <param name="criteria"></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Agent or null</returns>
-        Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+        Task<Agent> GetWithIncludeAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain default Agents to install
@@ -51,7 +51,7 @@ namespace ReconNess.Core.Services
         /// <param name="scriptUrl">The URL where we have the script</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The Agent Script using the URL</returns>
-        Task<string> GetAgentScript(string scriptUrl, CancellationToken cancellationToken);
+        Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken);
 
         /// <summary>
         /// If we can run this Agent in a Subdomain 

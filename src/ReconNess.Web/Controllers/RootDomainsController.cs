@@ -50,14 +50,16 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await rootDomainService.GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
+            var rootDomain = await rootDomainService
+                .GetWithIncludeAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
+
             target.RootDomains = new List<RootDomain> { rootDomain };
 
             return Ok(this.mapper.Map<Target, TargetDto>(target));
         }
 
-        // DELETE api/rootdomains/{targetName}/{rootDomainName}
-        [HttpDelete("{targetName}/{rootDomainName}")]
+        // DELETE api/rootdomains/deleteSubdomians/{targetName}/{rootDomainName}
+        [HttpDelete("deleteSubdomians/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> DeleteSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
@@ -66,7 +68,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService
+                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+
             if (rootDomain == null)
             {
                 return NotFound();
@@ -77,8 +81,8 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // POST api/rootdomains/{targetName}/{rootDomainName}
-        [HttpPost("{targetName}/{rootDomainName}")]
+        // POST api/rootdomains/upload/{targetName}/{rootDomainName}
+        [HttpPost("upload/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)
@@ -92,7 +96,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService
+                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+
             if (rootDomain == null)
             {
                 return NotFound();
@@ -136,7 +142,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService
+                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+
             if (rootDomain == null)
             {
                 return NotFound();
@@ -171,7 +179,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService
+                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+
             if (rootDomain == null)
             {
                 return NotFound();
@@ -194,7 +204,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService
+                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+
             if (rootDomain == null)
             {
                 return NotFound();

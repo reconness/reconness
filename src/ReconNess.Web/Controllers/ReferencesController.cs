@@ -39,7 +39,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var references = await this.referenceService.GetAllQueryable(cancellationToken)
-                .OrderBy(r => r.Categories)
+                    .OrderBy(r => r.Categories)
                 .ToListAsync();
 
             var agentsDto = this.mapper.Map<List<Reference>, List<ReferenceDto>>(references);

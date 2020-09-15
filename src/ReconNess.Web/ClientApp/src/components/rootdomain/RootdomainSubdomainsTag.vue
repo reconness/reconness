@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-6">
                     <button class="btn btn-primary" v-on:click="onAddNewSubdomain()">Add</button>
-                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteAllSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
+                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
                     <button class="ml-2 btn btn-primary" v-on:click="onExportSubdomains()">Download Subdomains</button>
                 </div>
             </div>
@@ -130,10 +130,10 @@
                     }
                 }
             },
-            async onDeleteAllSubdomains() {
+            async onDeleteSubdomains() {
                 if (confirm('Are you sure to delete all the subdomains')) {
                     try {
-                        await this.$store.dispatch('rootdomains/deleteAllSubdomains')
+                        await this.$store.dispatch('rootdomains/deleteSubdomains')
                     }
                     catch (error) {
                         helpers.errorHandle(error)

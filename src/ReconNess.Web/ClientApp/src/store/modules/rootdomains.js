@@ -20,12 +20,12 @@ const actions = {
             }
         })
     },   
-    deleteAllSubdomains({ commit, state }) {
+    deleteSubdomains({ commit, state }) {
         return new Promise((resolve, reject) => {
             try {
-                api.delete('rootdomains', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
+                api.delete('rootdomains/deleteSubdomians', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
                     .then(() => {
-                        commit('deleteAllSubdomains')
+                        commit('deleteSubdomains')
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -68,7 +68,7 @@ const actions = {
     upload({ commit, state }, { formData }) {
         return new Promise((resolve, reject) => {
             try {
-                api.upload('rootdomains', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name, formData)
+                api.upload('rootdomains/upload', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name, formData)
                     .then((res) => {
                         commit('uploadSubdomains', res.data)
                         resolve()
@@ -127,7 +127,7 @@ const mutations = {
         this.state.targets.currentTarget = target
         state.currentRootDomain = target.rootDomains[0] || []
     },
-    deleteAllSubdomains(state) {
+    deleteSubdomains(state) {
         state.currentRootDomain.subdomains = []
     },
     createSubdomain(state, subdomain) {

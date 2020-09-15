@@ -1,7 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
@@ -18,6 +17,8 @@ namespace ReconNess.Web.Controllers
     [ApiController]
     public class TargetsController : ControllerBase
     {
+        private static readonly string ERROR_TARGET_EXIT = "A target with that name exist";
+
         private readonly IMapper mapper;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
@@ -42,9 +43,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetAllQueryableByCriteria(t => !t.Deleted, cancellationToken)
-                    .Include(t => t.RootDomains)
-                .ToListAsync(cancellationToken);
+            var targets = await this.targetService.GetAllWithIncludeAsync(t => !t.Deleted, cancellationToken);
 
             return Ok(this.mapper.Map<List<Target>, List<TargetDto>>(targets));
         }
@@ -53,10 +52,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{targetName}")]
         public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName, cancellationToken)
-                    .Include(t => t.RootDomains)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var target = await this.targetService.GetWithIncludeAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -72,7 +68,7 @@ namespace ReconNess.Web.Controllers
             var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower());
             if (targetExist)
             {
-                return BadRequest("There is a Target with that name in the DB");
+                return BadRequest(ERROR_TARGET_EXIT);
             }
 
             var target = this.mapper.Map<TargetDto, Target>(targetDto);
@@ -86,10 +82,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetAllQueryableByCriteria(t => t.Id == id, cancellationToken)
-                .Include(a => a.RootDomains)
-                .FirstOrDefaultAsync();
-
+            var target = await this.targetService.GetWithIncludeAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -97,15 +90,16 @@ namespace ReconNess.Web.Controllers
 
             if (target.Name != targetDto.Name && await this.targetService.AnyAsync(t => t.Name == targetDto.Name))
             {
-                return BadRequest("There is a Target with that name in the DB");
+                return BadRequest(ERROR_TARGET_EXIT);
             }
 
             target.Name = targetDto.Name;
-            target.RootDomains = this.rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
             target.BugBountyProgramUrl = targetDto.BugBountyProgramUrl;
             target.IsPrivate = targetDto.IsPrivate;
             target.InScope = targetDto.InScope;
             target.OutOfScope = targetDto.OutOfScope;
+
+            target.RootDomains = this.rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
 
             await this.targetService.UpdateAsync(target, cancellationToken);
 
@@ -116,7 +110,7 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{targetName}")]
         public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetTargetWithIncludeAsync(targetName, cancellationToken);
+            var target = await this.targetService.GetWithIncludeAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();

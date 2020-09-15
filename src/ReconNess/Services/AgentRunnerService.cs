@@ -153,7 +153,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var subdomains = await this.subdomainService.GetSubdomainsWithIncludesAsync(agentRunner.Target, agentRunner.RootDomain, string.Empty, cancellationToken);
+            var subdomains = await this.subdomainService.GetAllWithIncludesAsync(agentRunner.Target, agentRunner.RootDomain, string.Empty, cancellationToken);
             if (subdomains.Any())
             {
                 var subdomainsCount = subdomains.Count;
@@ -229,7 +229,7 @@ namespace ReconNess.Services
                     if (agentRunner.Subdomain != null)
                     {
                         await this.agentBackgroundService.UpdateSubdomainAgentOnScopeAsync(agentRunner, token);
-                    }                    
+                    }
                 }
                 else
                 {
@@ -281,7 +281,7 @@ namespace ReconNess.Services
         /// <param name="token"></param>
         /// <returns></returns>
         private async Task ParseTerminalOutputAsync(AgentRunner agentRunner, string channel, RunnerProcess runnerProcess, CancellationToken token)
-        {            
+        {
             var lineCount = 1;
             var script = agentRunner.Agent.Script;
 
