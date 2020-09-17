@@ -21,7 +21,7 @@ namespace ReconNess.Services
         private readonly INotificationService notificationService;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RootDomainService" /> class
+        /// Initializes a new instance of the <see cref="IRootDomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
@@ -143,6 +143,7 @@ namespace ReconNess.Services
                     });
                 }
             }
+
             if (newSubdomains.Count > 0)
             {
                 foreach (var subdomain in newSubdomains)

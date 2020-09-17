@@ -6,7 +6,6 @@ using ReconNess.Entities;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -29,31 +28,30 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="INotificationService.SaveNotificationAsync(Notification, CancellationToken)
         /// </summary>
-        public async Task SaveNotificationAsync(Notification notification, CancellationToken cancellationToken)
+        public async Task SaveNotificationAsync(Notification newNotification, CancellationToken cancellationToken)
         {
-            var notif = (await this.GetAllAsync(cancellationToken)).FirstOrDefault();
-            if (notif != null)
+            var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+            if (notification == null)
             {
-                notif.Url = notification.Url;
-                notif.Method = notification.Method;
-                notif.Payload = notification.Payload;
-                notif.RootDomainPayload = notification.RootDomainPayload;
-                notif.SubdomainPayload = notification.SubdomainPayload;
-                notif.IpAddressPayload = notification.IpAddressPayload;
-                notif.IsAlivePayload = notification.IsAlivePayload;
-                notif.HasHttpOpenPayload = notification.HasHttpOpenPayload;
-                notif.ServicePayload = notification.ServicePayload;
-                notif.DirectoryPayload = notification.DirectoryPayload;
-                notif.TakeoverPayload = notification.TakeoverPayload;
-                notif.ScreenshotPayload = notification.ScreenshotPayload;
-                notif.NotePayload = notification.NotePayload;
+                await this.AddAsync(newNotification, cancellationToken);
+                return;
+            }
 
-                await this.UpdateAsync(notif, cancellationToken);
-            }
-            else
-            {
-                await this.AddAsync(notification, cancellationToken);
-            }
+            notification.Url = newNotification.Url;
+            notification.Method = newNotification.Method;
+            notification.Payload = newNotification.Payload;
+            notification.RootDomainPayload = newNotification.RootDomainPayload;
+            notification.SubdomainPayload = newNotification.SubdomainPayload;
+            notification.IpAddressPayload = newNotification.IpAddressPayload;
+            notification.IsAlivePayload = newNotification.IsAlivePayload;
+            notification.HasHttpOpenPayload = newNotification.HasHttpOpenPayload;
+            notification.ServicePayload = newNotification.ServicePayload;
+            notification.DirectoryPayload = newNotification.DirectoryPayload;
+            notification.TakeoverPayload = newNotification.TakeoverPayload;
+            notification.ScreenshotPayload = newNotification.ScreenshotPayload;
+            notification.NotePayload = newNotification.NotePayload;
+
+            await this.UpdateAsync(notification, cancellationToken);
         }
 
         /// <summary>
@@ -61,7 +59,7 @@ namespace ReconNess.Services
         /// </summary>
         public async Task SendAsync(string agentPayload, CancellationToken cancellationToken)
         {
-            var notification = await this.GetByCriteriaAsync(n => !n.Deleted);
+            var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
             if (notification == null)
             {
                 return;
@@ -81,6 +79,7 @@ namespace ReconNess.Services
             }
             catch (Exception)
             {
+                // TODO: Add logs
             }
         }
 

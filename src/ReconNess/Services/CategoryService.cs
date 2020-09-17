@@ -37,7 +37,8 @@ namespace ReconNess.Services
                     continue;
                 }
 
-                myCategoriesName.Add(newCategory); // avoid add new duplicate categories
+                // avoid add new duplicate categories
+                myCategoriesName.Add(newCategory); 
 
                 var category = await this.GetNewOrExistCategory(newCategory, cancellationToken);
                 myCategories.Add(new AgentCategory

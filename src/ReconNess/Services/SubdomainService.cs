@@ -121,13 +121,7 @@ namespace ReconNess.Services
             {
                 this.UnitOfWork.BeginTransaction(cancellationToken);
 
-                if (subdomain.Notes != null)
-                {
-                    this.UnitOfWork.Repository<Note>().Delete(subdomain.Notes, cancellationToken);
-                }
-
-                this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
-                this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
+                this.DeleteSubdomains(new Subdomain[] { subdomain }, cancellationToken);
 
                 await this.UnitOfWork.CommitAsync(cancellationToken);
             }
@@ -234,6 +228,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Assign Ip address to the subdomain
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -259,6 +254,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain if is Alive
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -284,6 +280,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain if it has http port open
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -309,6 +306,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain if it can be takeover
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -334,6 +332,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain with directory discovery
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -380,6 +379,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain if is a new service with open port
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -417,6 +417,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain with screenshots
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -484,6 +485,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain Note
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
@@ -511,6 +513,7 @@ namespace ReconNess.Services
         /// <summary>
         /// Update the subdomain label
         /// </summary>
+        /// <param name="subdomain">The subdomain</param>
         /// <param name="agentRunner">The Agent</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>

@@ -72,9 +72,8 @@ namespace ReconNess.Services
                 this.UnitOfWork.BeginTransaction(cancellationToken);
 
                 this.rootDomainService.DeleteRootDomains(target.RootDomains, cancellationToken);
-                this.UnitOfWork.Repository<Target>().Delete(target, cancellationToken);
 
-                await this.UnitOfWork.CommitAsync(cancellationToken);
+                await this.DeleteAsync(target, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -119,8 +118,8 @@ namespace ReconNess.Services
                 return false;
             }
 
-            var weHaveRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
-            if (!weHaveRootDomainToAdd)
+            var doWeHaveNewRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
+            if (!doWeHaveNewRootDomainToAdd)
             {
                 return false;
             }
