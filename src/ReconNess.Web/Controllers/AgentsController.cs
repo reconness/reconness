@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
@@ -274,13 +275,16 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var task = this.agentRunnerService.StopAgentAsync(new AgentRunner
+            var agentRunner = new AgentRunner
             {
                 Agent = agent,
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain
-            }, false, cancellationToken);
+            };
+
+            var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
+            var task = this.agentRunnerService.StopAgentAsync(agentRunner, agentKey, cancellationToken);
 
             return NoContent();
         }

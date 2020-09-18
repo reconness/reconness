@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace ReconNess.Worker
 {
     /// <summary>
-    /// 
+    /// This class implement <see cref="IAgentRunnerProvider"/>
     /// </summary>
     public class WorkerAgentRunnerProvider : IAgentRunnerProvider
     {
@@ -18,10 +18,10 @@ namespace ReconNess.Worker
         private readonly IScriptEngineService scriptEngineService;
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="WorkerAgentRunnerProvider" /> class
         /// </summary>
-        /// <param name="backgroundTaskQueue"></param>
-        /// <param name="scriptEngineService"></param>
+        /// <param name="backgroundTaskQueue"><see cref="IBackgroundTaskQueue"/></param>
+        /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
         public WorkerAgentRunnerProvider(
             IBackgroundTaskQueue backgroundTaskQueue,
             IScriptEngineService scriptEngineService)
@@ -31,34 +31,28 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// 
+        /// <see cref="IAgentRunnerProvider.RunningCountAsync"/>
         /// </summary>
         public Task<int> RunningCountAsync => Task.FromResult(this.backgroundTaskQueue.RunningCountAsync);
 
         /// <summary>
-        /// 
+        /// <see cref="IAgentRunnerProvider.RunningKeysAsync"/>
         /// </summary>
         public Task<IList<string>> RunningKeysAsync => Task.FromResult(this.backgroundTaskQueue.RunningKeysAsync);
 
         /// <summary>
-        /// 
+        /// <see cref="IAgentRunnerProvider.IsStoppedAsync(string)"/>
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public Task<bool> IsStoppedAsync(string key) => Task.FromResult(this.backgroundTaskQueue.IsStoppedAsync(key));
 
         /// <summary>
-        /// 
+        /// <see cref="IAgentRunnerProvider.StopAsync(string)"/>
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public async Task StopAsync(string key) => await this.backgroundTaskQueue.StopAsync(key);
 
         /// <summary>
-        /// 
+        /// <see cref="IAgentRunnerProvider.RunAsync(AgentRunnerProviderArgs)"/>
         /// </summary>
-        /// <param name="providerArgs"></param>
-        /// <returns></returns>
         public Task RunAsync(AgentRunnerProviderArgs providerArgs)
         {
             var processWrapper = new ProcessWrapper();
@@ -66,7 +60,7 @@ namespace ReconNess.Worker
             {
                 try
                 {
-                    await providerArgs.BeginHandlerAsync(new AgentRunnerProviderHandlerArgs
+                    await providerArgs.BeginHandlerAsync(new AgentRunnerProviderResult
                     {
                         Channel = providerArgs.Channel,
                         Command = providerArgs.Command,
@@ -86,7 +80,7 @@ namespace ReconNess.Worker
                         var terminalLineOutput = processWrapper.TerminalLineOutput();
                         var scriptOutput = await this.scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
 
-                        await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderHandlerArgs
+                        await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
                         {
                             AgentRunner = providerArgs.AgentRunner,
                             Channel = providerArgs.Channel,
@@ -97,24 +91,24 @@ namespace ReconNess.Worker
                         });
                     }
 
-                    await providerArgs.EndHandlerAsync(new AgentRunnerProviderHandlerArgs
+                    await providerArgs.EndHandlerAsync(new AgentRunnerProviderResult
                     {
+                        Key = providerArgs.Key,
                         AgentRunner = providerArgs.AgentRunner,
                         Channel = providerArgs.Channel,
                         Last = providerArgs.Last,
-                        RemoveSubdomainForTheKey = providerArgs.RemoveSubdomainForTheKey,
                         CancellationToken = token
                     });
 
                 }
                 catch (Exception ex)
                 {
-                    await providerArgs.ExceptionHandlerAsync(new AgentRunnerProviderHandlerArgs
+                    await providerArgs.ExceptionHandlerAsync(new AgentRunnerProviderResult
                     {
+                        Key = providerArgs.Key,
                         AgentRunner = providerArgs.AgentRunner,
                         Channel = providerArgs.Channel,
                         Last = providerArgs.Last,
-                        RemoveSubdomainForTheKey = providerArgs.RemoveSubdomainForTheKey,
                         Exception = ex,
                         CancellationToken = token
                     });
