@@ -224,7 +224,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            await this.agentRunnerService.RunAsync(
+            await this.agentRunnerService.RunAgentAsync(
                 new AgentRunner
                 {
                     Agent = agent,
@@ -274,13 +274,13 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var task = this.agentRunnerService.StopAsync(new AgentRunner
+            var task = this.agentRunnerService.StopAgentAsync(new AgentRunner
             {
                 Agent = agent,
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain
-            }, false, false, cancellationToken);
+            }, false, cancellationToken);
 
             return NoContent();
         }
@@ -315,7 +315,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agentsRunning = await this.agentRunnerService.RunningAsync(new AgentRunner
+            var agentsRunning = await this.agentRunnerService.RunningAgentsAsync(new AgentRunner
             {
                 Target = target,
                 RootDomain = rootDomain,

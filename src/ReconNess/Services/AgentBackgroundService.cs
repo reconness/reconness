@@ -25,9 +25,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentBackgroundService.SaveTerminalOutputParseOnScopeAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
+        /// <see cref="IAgentBackgroundService.SaveOutputParseOnScopeAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {

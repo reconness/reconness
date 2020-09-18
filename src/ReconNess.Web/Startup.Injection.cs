@@ -29,6 +29,7 @@ namespace ReconNess.Web
             services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAgentRunnerService, AgentRunnerService>();
+            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<INotesService, NotesService>();
             services.AddScoped<ISubdomainService, SubdomainService>();
@@ -39,9 +40,11 @@ namespace ReconNess.Web
 
             services.AddScoped<IScriptEngineService, ScriptEngineService>();
             services.AddScoped<IConnectorService, ConnectorService>();
-            services.AddSingleton<IAgentRunBackgroundTaskQueue, AgentRunBackgroundTaskQueue>();
 
-            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
+            services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
+
+
         }
     }
 }

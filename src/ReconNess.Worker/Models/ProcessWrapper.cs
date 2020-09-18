@@ -1,8 +1,8 @@
 ﻿using System.Diagnostics;
 
-namespace ReconNess.Core.Helpers
+namespace ReconNess.Worker.Models
 {
-    public class RunnerProcess
+    public class ProcessWrapper
     {
         private Process process;
 

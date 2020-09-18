@@ -1,24 +1,24 @@
-﻿using ReconNess.Core.Models;
+﻿using ReconNess.Worker.Models;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ReconNess.Core
+namespace ReconNess.Worker
 {
     /// <summary>
     /// 
     /// </summary>
-    public interface IAgentRunBackgroundTaskQueue
+    public interface IBackgroundTaskQueue
     {
         /// <summary>
         /// 
         /// </summary>
-        int AgentRunCount { get; }
+        int RunningCountAsync { get; }
 
         /// <summary>
         /// 
         /// </summary>
-        IList<string> AgentRunKeys { get; }
+        IList<string> RunningKeysAsync { get; }
 
         /// <summary>
         /// 
@@ -38,17 +38,12 @@ namespace ReconNess.Core
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        Task StopCurrentAgentRunAsync(string key);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        void InitializeCurrentAgentRun();
+        Task StopAsync(string key);
 
         /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
-        bool IsCurrentAgentRunStopped();
+        bool IsStoppedAsync(string keyDeleted);
     }
 }

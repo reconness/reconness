@@ -17,7 +17,7 @@ namespace ReconNess.Core.Services
         /// <param name="includeTime">Include Time</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        Task SendAsync(string method, string msg, CancellationToken cancellationToken = default, bool includeTime = true);
+        Task SendAsync(string method, string msg, bool includeTime = true, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 
