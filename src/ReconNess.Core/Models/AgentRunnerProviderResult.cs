@@ -12,7 +12,7 @@ namespace ReconNess.Core.Models
         public ScriptOutput ScriptOutput { get; set; }
         public int LineCount { get; set; }
         public string TerminalLineOutput { get; set; }
-        public bool Last { get; set; }        
+        public bool Last { get; set; }
         public Exception Exception { get; set; }
         public CancellationToken CancellationToken { get; set; }
     }

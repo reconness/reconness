@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
 namespace ReconNess.Worker.Models
 {
@@ -51,9 +52,18 @@ namespace ReconNess.Worker.Models
         {
             if (process != null)
             {
-                process.Kill();
-                process.WaitForExit();
-                process = null;
+                try
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                catch(Exception)
+                { 
+                }
+                finally
+                {
+                    process = null;
+                }
             }
         }
     }
