@@ -62,7 +62,7 @@ namespace ReconNess.Services
 
             if (await this.NeedAddNewSubdomain(agentRunner, terminalOutputParse.Subdomain, cancellationToken))
             {
-                agentRunner.Subdomain = await this.AddRootDomainNewSubdomainAsync(agentRunner.RootDomain, terminalOutputParse.Subdomain, cancellationToken);
+                agentRunner.Subdomain = await this.AddRootDomainNewSubdomainAsync(agentRunner.Target, agentRunner.RootDomain, terminalOutputParse.Subdomain, cancellationToken);
 
                 if (agentRunner.ActivateNotification)
                 {
@@ -181,6 +181,7 @@ namespace ReconNess.Services
 
                     await this.UnitOfWork.CommitAsync(cancellationToken);
                 }
+                
                 return subdomainsAddd;
             }
             catch (Exception ex)
@@ -223,7 +224,7 @@ namespace ReconNess.Services
         /// <returns>If we need to add a new RootDomain</returns>
         private async Task<bool> NeedAddNewSubdomain(AgentRunner agentRunner, string subdomain, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(subdomain))
+            if (string.IsNullOrEmpty(subdomain) || Uri.CheckHostName(subdomain) == UriHostNameType.Unknown)
             {
                 return false;
             }
@@ -234,7 +235,9 @@ namespace ReconNess.Services
                 return false;
             }
 
-            return !(await this.subdomainService.AnyAsync(r => r.Name == subdomain && r.RootDomain == agentRunner.RootDomain, cancellationToken));
+            var existSubdomain = await this.subdomainService.AnyAsync(r => r.Name == subdomain && r.RootDomain == agentRunner.RootDomain && r.Target == agentRunner.Target, cancellationToken);
+
+            return !existSubdomain;
         }
 
         /// <summary>
@@ -244,11 +247,12 @@ namespace ReconNess.Services
         /// <param name="subdomain">The new root domain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>The new subdomain added</returns>
-        private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
+        private Task<Subdomain> AddRootDomainNewSubdomainAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
         {
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
+                Target = target,
                 RootDomain = rootDomain
             };
 

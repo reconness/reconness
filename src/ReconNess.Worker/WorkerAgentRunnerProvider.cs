@@ -33,17 +33,27 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IAgentRunnerProvider.RunningCountAsync"/>
         /// </summary>
-        public Task<int> RunningCountAsync => Task.FromResult(this.backgroundTaskQueue.RunningCountAsync);
+        public Task<int> RunningCountAsync => Task.FromResult(this.backgroundTaskQueue.RunningCount);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.RunningKeysAsync"/>
         /// </summary>
-        public Task<IList<string>> RunningKeysAsync => Task.FromResult(this.backgroundTaskQueue.RunningKeysAsync);
+        public Task<IList<string>> RunningKeysAsync => Task.FromResult(this.backgroundTaskQueue.RunningKeys);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.IsStoppedAsync(string)"/>
         /// </summary>
-        public Task<bool> IsStoppedAsync(string key) => Task.FromResult(this.backgroundTaskQueue.IsStoppedAsync(key));
+        public Task<bool> IsStoppedAsync(string key) => Task.FromResult(this.backgroundTaskQueue.IsStopped(key));
+
+        /// <summary>
+        /// <see cref="IAgentRunnerProvider.InitializesAsync(string)"/>
+        /// </summary>
+        public Task InitializesAsync(string key) 
+        {
+            this.backgroundTaskQueue.Initializes(key);
+
+            return Task.CompletedTask;
+        }
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.StopAsync(string)"/>

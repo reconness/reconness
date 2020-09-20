@@ -13,12 +13,12 @@ namespace ReconNess.Worker
         /// <summary>
         /// The amount of Agent running
         /// </summary>
-        int RunningCountAsync { get; }
+        int RunningCount { get; }
 
         /// <summary>
         /// The list of agent keys running
         /// </summary>
-        IList<string> RunningKeysAsync { get; }
+        IList<string> RunningKeys { get; }
 
         /// <summary>
         /// Queue an Agent to Run
@@ -45,6 +45,13 @@ namespace ReconNess.Worker
         /// </summary>
         /// <param name="key">The Agent key</param>
         /// <returns>If the Agent with that key is not running </returns>
-        bool IsStoppedAsync(string key);
+        bool IsStopped(string key);
+
+        /// <summary>
+        /// Initializes the Agent with that key
+        /// </summary>
+        /// <param name="key">The Agent key</param>
+        /// <returns>A Task</returns>
+        void Initializes(string key);
     }
 }

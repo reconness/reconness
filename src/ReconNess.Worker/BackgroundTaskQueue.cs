@@ -20,9 +20,8 @@ namespace ReconNess.Worker
         private string keyDeleted;
 
         /// <summary>
-        /// 
+        /// <see cref="IBackgroundTaskQueue.QueueAgentRun(AgentRunnerProcess)"></see>
         /// </summary>
-        /// <param name="workItem"></param>
         public void QueueAgentRun(AgentRunnerProcess workItem)
         {
             if (workItem == null)
@@ -36,10 +35,8 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// 
+        /// <see cref="IBackgroundTaskQueue.DequeueAgentRunAsync(CancellationToken)"></see>
         /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         public async Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
         {
             await this.signal.WaitAsync(cancellationToken);
@@ -60,9 +57,9 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// 
+        /// <see cref="IBackgroundTaskQueue.RunningKeys"></see>
         /// </summary>
-        public IList<string> RunningKeysAsync
+        public IList<string> RunningKeys
         {
             get
             {
@@ -77,9 +74,9 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// 
+        /// <see cref="IBackgroundTaskQueue.RunningCount"></see>
         /// </summary>
-        public int RunningCountAsync
+        public int RunningCount
         {
             get
             {
@@ -94,10 +91,8 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// 
+        /// <see cref="IBackgroundTaskQueue.StopAsync(string)"></see>
         /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public Task StopAsync(string key)
         {
             this.keyDeleted = key;
@@ -114,12 +109,19 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// 
+        /// <see cref="IBackgroundTaskQueue.IsStopped(string)"></see>
         /// </summary>
-        /// <returns></returns>
-        public bool IsStoppedAsync(string keyDeleted)
+        public bool IsStopped(string keyDeleted)
         {
             return !string.IsNullOrEmpty(this.keyDeleted) && keyDeleted.Equals(this.keyDeleted);
+        }
+
+        /// <summary>
+        /// <see cref="IBackgroundTaskQueue.Initializes(string)"></see>
+        /// </summary>
+        public void Initializes(string key)
+        {
+            this.keyDeleted = string.Empty;
         }
     }
 }

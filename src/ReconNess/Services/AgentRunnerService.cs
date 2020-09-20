@@ -92,13 +92,17 @@ namespace ReconNess.Services
             Thread.Sleep(1000);
 
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
+            var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
+
+            await this.agentRunnerProvider.InitializesAsync(agentKey);
+
             if (await this.RunBySubdomainAsync(agentRunner, cancellationToken))
             {
-                await this.RunAgenthBySubdomainsAsync(agentRunner, channel, cancellationToken);
+                await this.RunAgenthBySubdomainsAsync(agentKey, agentRunner, channel, cancellationToken);
             }
             else
-            {
-                await this.RunAgentAsync(agentRunner, channel, last: true, removeSubdomainForTheKey: false);
+            {                
+                await this.RunAgentAsync(agentKey, agentRunner, channel, last: true, removeSubdomainForTheKey: false);
             }
         }
 
@@ -142,7 +146,7 @@ namespace ReconNess.Services
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        private async Task RunAgenthBySubdomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
+        private async Task RunAgenthBySubdomainsAsync(string agentKey, AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -157,7 +161,7 @@ namespace ReconNess.Services
             foreach (var subdomain in subdomains)
             {
                 var last = subdomainsCount == 1;
-                await this.RunAgentAsync(new AgentRunner
+                await this.RunAgentAsync(agentKey, new AgentRunner
                 {
                     Agent = agentRunner.Agent,
                     Target = agentRunner.Target,
@@ -165,30 +169,10 @@ namespace ReconNess.Services
                     Subdomain = subdomain,
                     ActivateNotification = agentRunner.ActivateNotification,
                     Command = agentRunner.Command
-                }, channel, last);
+                }, channel, last, removeSubdomainForTheKey: true);
 
                 subdomainsCount--;
             }
-        }
-
-        /// <summary>
-        /// Method to run a bash command
-        /// </summary>
-        /// <param name="agentRunner"></param>
-        /// <param name="channel">The channel to send the menssage</param>
-        /// <param name="last"></param>
-        /// <param name="removeSubdomainForTheKey"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>A Task</returns>
-        private async Task RunAgentAsync(AgentRunner agentRunner, string channel, bool last, bool removeSubdomainForTheKey = true)
-        {
-            var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
-            if (await this.agentRunnerProvider.IsStoppedAsync(agentKey))
-            {
-                return;
-            }
-
-            await this.RunAgentAsync(agentKey, agentRunner, channel, last, removeSubdomainForTheKey);
         }
 
         /// <summary>
@@ -202,6 +186,11 @@ namespace ReconNess.Services
         /// <returns></returns>
         private async Task RunAgentAsync(string agentKey, AgentRunner agentRunner, string channel, bool last, bool removeSubdomainForTheKey)
         {
+            if (await this.agentRunnerProvider.IsStoppedAsync(agentKey))
+            {
+                return;
+            }
+
             var command = AgentRunnerHelpers.GetCommand(agentRunner);
             if (AgentRunnerHelpers.NeedToSkipRun(agentRunner))
             {
