@@ -6,14 +6,15 @@ using ReconNess.Web.Mappers.Resolvers;
 
 namespace ReconNess.Web.Mappers
 {
-    public class AgentDefaultProfile : Profile
+    public class AgentMarketplaceProfile : Profile
     {
-        public AgentDefaultProfile()
+        public AgentMarketplaceProfile()
         {
             CreateMap<AgentMarketplace, AgentMarketplaceDto>();
 
             CreateMap<AgentMarketplaceDto, Agent>()
-                .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentDefaultCategoryResolver>());
+                .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentMarketplaceCategoryResolver>())
+                .ForMember(dest => dest.AgentTypes, opt => opt.MapFrom<AgentMarketplaceTypeResolver>());
         }
     }
 }

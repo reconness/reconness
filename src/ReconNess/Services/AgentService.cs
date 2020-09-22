@@ -67,7 +67,7 @@ namespace ReconNess.Services
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
-            var request = new RestRequest("/reconness/reconness-agents/master/default-agents.json");
+            var request = new RestRequest("/reconness/reconness-agents/master/default-agents2.json");
 
             var response = await client.ExecuteGetAsync(request, cancellationToken);
             var agentMarketplaces = JsonConvert.DeserializeObject<AgentMarketplaces>(response.Content);

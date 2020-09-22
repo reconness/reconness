@@ -10,13 +10,15 @@
 
         public string Command { get; set; }
 
+        public bool IsByTarget { get; set; }
+
+        public bool IsByRootDomain { get; set; }
+
         public bool IsBySubdomain { get; set; }
 
-        public bool OnlyIfIsAlive { get; set; }
+        public bool IsByDirectory { get; set; }
 
-        public bool OnlyIfHasHttpOpen { get; set; }
-
-        public bool SkipIfRanBefore { get; set; }
+        public bool IsByResource { get; set; }
 
         public string ScriptUrl { get; set; }
     }
