@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-6">
                     <button class="btn btn-primary" v-on:click="onAddNewSubdomain()">Add</button>
-                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteAllSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
+                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
                     <button class="ml-2 btn btn-primary" v-on:click="onExportSubdomains()">Download Subdomains</button>
                 </div>
             </div>
@@ -80,7 +80,7 @@
     import { Event } from 'vue-tables-2';
 
     export default {
-        name: 'TargetSubdomainsTag',
+        name: 'RootdomainSubdomainsTag',
         data: () => {
             return {
                 filter: '',
@@ -113,7 +113,7 @@
             }
         },
         computed: mapState({
-            subdomains: state => state.targets.currentRootDomain.subdomains
+            subdomains: state => state.rootdomains.currentRootDomain.subdomains
         }),
         async mounted() {
             this.targetName = this.$route.params.targetName
@@ -130,10 +130,10 @@
                     }
                 }
             },
-            async onDeleteAllSubdomains() {
+            async onDeleteSubdomains() {
                 if (confirm('Are you sure to delete all the subdomains')) {
                     try {
-                        await this.$store.dispatch('targets/deleteAllSubdomains')
+                        await this.$store.dispatch('rootdomains/deleteSubdomains')
                     }
                     catch (error) {
                         helpers.errorHandle(error)
@@ -151,7 +151,7 @@
             },
             async onAddNewSubdomain() {
                 try {
-                    await this.$store.dispatch('targets/createSubdomain', { subdomain: this.newSubdomain })
+                    await this.$store.dispatch('rootdomains/createSubdomain', { subdomain: this.newSubdomain })
                     alert("The new Subdomain was added")
                 }
                 catch (error) {
@@ -162,7 +162,7 @@
                 const formData = new FormData();
                 formData.append('file', this.$refs.file.files[0]);
                 try {
-                    await this.$store.dispatch('targets/uploadSubdomains', { formData })
+                    await this.$store.dispatch('rootdomains/uploadSubdomains', { formData })
                     alert("subdomains were uploaded")
                 }
                 catch (error) {
@@ -180,7 +180,7 @@
             },
             async onExportSubdomains() {
                 try {
-                    await this.$store.dispatch('targets/exportSubdomains')
+                    await this.$store.dispatch('rootdomains/exportSubdomains')
                     alert("subdomains were saved")
                 }
                 catch (error) {

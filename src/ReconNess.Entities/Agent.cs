@@ -9,26 +9,22 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
-        public bool IsBySubdomain { get; set; }
-
-        public bool OnlyIfIsAlive { get; set; }
-
-        public bool OnlyIfHasHttpOpen { get; set; }
-
-        public bool SkipIfRanBefore { get; set; }
-
-        public bool NotifyNewFound { get; set; }
-
-        public bool NotifyIfAgentDone { get; set; }
-
         public string Command { get; set; }
-
-        public string Script { get; set; }
-
-        public DateTime LastRun { get; set; }
 
         public string Repository { get; set; }
 
+        public string Script { get; set; }
+
+        public DateTime? LastRun { get; set; }
+
+        public virtual AgentTrigger AgentTrigger { get; set; }
+
+        public virtual ICollection<AgentType> AgentTypes { get; set; }
+
         public virtual ICollection<AgentCategory> AgentCategories { get; set; }
+
+        public virtual ICollection<AgentHistory> AgentHistories { get; set; }
+
+        public virtual ICollection<AgentRun> AgentRuns { get; set; }
     }
 }

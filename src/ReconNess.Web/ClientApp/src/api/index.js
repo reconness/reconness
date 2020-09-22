@@ -56,7 +56,7 @@ export default {
             headers: authHeader(),
             responseType: 'blob'
         })
-            .get(`${resource}/${id}`)
+            .post(`${resource}/${id}`)
             .catch(this.handleResponse)
     },
     delete(resource, id) {

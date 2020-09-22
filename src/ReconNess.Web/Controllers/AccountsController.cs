@@ -28,9 +28,9 @@ namespace ReconNess.Web.Controllers
         [HttpGet("notification")]
         public async Task<IActionResult> Notification(CancellationToken cancellationToken)
         {
-            var notifications = await this.notificationService.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+            var notification = await this.notificationService.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
 
-            var notificationDto = this.mapper.Map<Notification, NotificationDto>(notifications);
+            var notificationDto = this.mapper.Map<Notification, NotificationDto>(notification);
 
             return Ok(notificationDto);
         }

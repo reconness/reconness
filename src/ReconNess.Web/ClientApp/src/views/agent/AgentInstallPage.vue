@@ -11,7 +11,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="agent in agentDefaults" v-bind:key="agent.name">
+                    <tr v-for="agent in agentMarketplaces" v-bind:key="agent.name">
                         <th class="w-25" scope="row">{{ agent.name }}</th>
                         <td class="w-25">{{ agent.category}}</td>
                         <td class="w-25">
@@ -62,14 +62,14 @@
         name: 'AgentInstallPage',
         data: () => {
             return {
-                agentDefaults: [],
+                agentMarketplaces: [],
                 currentAgent: null,
                 showCommandModal: false
             }
         },
         async mounted() {
             try {
-                this.agentDefaults = await this.$store.dispatch('agents/agentsDefault')
+                this.agentMarketplaces = await this.$store.dispatch('agents/agentsMarketplace')
             }
             catch (error) {
                 helpers.errorHandle(error)

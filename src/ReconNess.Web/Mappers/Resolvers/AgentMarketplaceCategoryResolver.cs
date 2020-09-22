@@ -6,16 +6,16 @@ using System.Collections.Generic;
 
 namespace ReconNess.Web.Mappers.Resolvers
 {
-    internal class AgentDefaultCategoryResolver : IValueResolver<AgentDefaultDto, Agent, ICollection<AgentCategory>>
+    internal class AgentMarketplaceCategoryResolver : IValueResolver<AgentMarketplaceDto, Agent, ICollection<AgentCategory>>
     {
-        private readonly ICategoryService categoryService;
+        private readonly IAgentCategoryService categoryService;
 
-        public AgentDefaultCategoryResolver(ICategoryService categoryService)
+        public AgentMarketplaceCategoryResolver(IAgentCategoryService categoryService)
         {
             this.categoryService = categoryService;
         }
 
-        public ICollection<AgentCategory> Resolve(AgentDefaultDto source, Agent destination, ICollection<AgentCategory> member, ResolutionContext context)
+        public ICollection<AgentCategory> Resolve(AgentMarketplaceDto source, Agent destination, ICollection<AgentCategory> member, ResolutionContext context)
         {
             var agentCategories = new List<AgentCategory>();
 

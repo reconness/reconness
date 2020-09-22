@@ -59,10 +59,10 @@ const actions = {
             }
         })
     },
-    agentsDefault() {
+    agentsMarketplace() {
         return new Promise((resolve, reject) => {
             try {
-                api.get('agents/defaultToInstall')
+                api.get('agents/marketplace')
                     .then((res) => {
                         resolve(res.data)
                     })

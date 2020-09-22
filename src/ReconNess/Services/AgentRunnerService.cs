@@ -1,5 +1,4 @@
 ﻿using ReconNess.Core;
-using ReconNess.Core.Helpers;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -18,63 +17,63 @@ namespace ReconNess.Services
     public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
     {
         private readonly IAgentService agentService;
-        private readonly IAgentScopeService agentParseService;
-        private readonly IScriptEngineService scriptEngineService;
         private readonly ISubdomainService subdomainService;
+        private readonly IAgentRunnerProvider agentRunnerProvider;
+        private readonly IAgentBackgroundService agentBackgroundService;
+
         private readonly INotificationService notificationService;
         private readonly IConnectorService connectorService;
-        private readonly IAgentRunBackgroundTaskQueue backgroundTaskQueue;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunnerService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="agentService"><see cref="IAgentService"/></param>
-        /// <param name="agentParseService"><see cref="IAgentScopeService"/></param>
-        /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
+        /// <param name="agentRunnerProvider"><see cref="IAgentRunnerProvider"/></param>
+        /// <param name="agentBackgroundService"><see cref="IAgentBackgroundService"/></param>
         /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="connectorService"><see cref="IConnectorService"/></param>
-        /// <param name="backgroundTaskQueue"><see cref="IAgentRunBackgroundTaskQueue"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
             IAgentService agentService,
-            IAgentScopeService agentParseService,
-            IScriptEngineService scriptEngineService,
             ISubdomainService subdomainService,
+            IAgentRunnerProvider agentRunnerProvider,
+            IAgentBackgroundService agentBackgroundService,
             INotificationService notificationService,
-            IConnectorService connectorService,
-            IAgentRunBackgroundTaskQueue backgroundTaskQueue) : base(unitOfWork)
+            IConnectorService connectorService) : base(unitOfWork)
         {
             this.agentService = agentService;
-            this.agentParseService = agentParseService;
-            this.scriptEngineService = scriptEngineService;
             this.subdomainService = subdomainService;
+            this.agentRunnerProvider = agentRunnerProvider;
+            this.agentBackgroundService = agentBackgroundService;
+
             this.notificationService = notificationService;
             this.connectorService = connectorService;
-            this.backgroundTaskQueue = backgroundTaskQueue;
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerService.RunningAsync(AgentRunner, CancellationToken)"/>
+        /// <see cref="IAgentRunnerService.RunningAgentsAsync(AgentRunner, CancellationToken)"/>
         /// </summary>
-        public async Task<List<string>> RunningAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        public async Task<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
-            if (this.backgroundTaskQueue.AgentRunCount == 0)
+            if ((await this.agentRunnerProvider.RunningCountAsync) == 0)
             {
                 return new List<string>();
             }
 
             var agentsRunning = new List<string>();
 
-            var keys = this.backgroundTaskQueue.AgentRunKeys;
+            var agentRunningkeys = await this.agentRunnerProvider.RunningKeysAsync;
+
             var agents = await this.agentService.GetAllAsync(cancellationToken);
             foreach (var agent in agents)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 agentRunner.Agent = agent;
-                var key = AgentRunnerHelpers.GetKey(agentRunner);
-                if (keys.Any(c => c.Contains(key)))
+                var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
+
+                if (agentRunningkeys.Any(c => c.Contains(agentKey)))
                 {
                     agentsRunning.Add(agent.Name);
                 }
@@ -84,51 +83,60 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerService.RunAsync(AgentRunner, CancellationToken)"></see>
+        /// <see cref="IAgentRunnerService.RunAgentAsync(AgentRunner, CancellationToken)"></see>
         /// </summary>
-        public async Task RunAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        public async Task RunAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             Thread.Sleep(1000);
 
-            this.backgroundTaskQueue.InitializeCurrentAgentRun();
-
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-            if (agentRunner.Agent.IsBySubdomain && agentRunner.Subdomain == null)
+            var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
+
+            await this.agentRunnerProvider.InitializesAsync(agentKey);
+
+            if (await this.RunBySubdomainAsync(agentRunner, cancellationToken))
             {
-                await this.RunBashBySubdomainsAsync(agentRunner, channel, cancellationToken);
+                await this.RunAgenthBySubdomainsAsync(agentKey, agentRunner, channel, cancellationToken);
             }
             else
-            {
-                await this.RunBashAsync(agentRunner, channel, last: true, removeSubdomainForTheKey: false);
+            {                
+                await this.RunAgentAsync(agentKey, agentRunner, channel, last: true, removeSubdomainForTheKey: false);
             }
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerService.StopAsync(AgentRunner, bool, bool, CancellationToken)"></see>
+        /// <see cref="IAgentRunnerService.StopAgentAsync(AgentRunner, bool, bool, CancellationToken)"></see>
         /// </summary>
-        public async Task StopAsync(AgentRunner agentRunner, bool removeSubdomainForTheKey, bool needNewScope, CancellationToken cancellationToken = default)
+        public async Task StopAgentAsync(AgentRunner agentRunner, string agentKey, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            agentRunner.Subdomain = removeSubdomainForTheKey ? null : agentRunner.Subdomain;
-
-            var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-            var key = AgentRunnerHelpers.GetKey(agentRunner);
-
+            var channel = agentKey;
             try
             {
-                await this.backgroundTaskQueue.StopCurrentAgentRunAsync(key);
+                await this.agentRunnerProvider.StopAsync(agentKey);
             }
             catch (Exception ex)
             {
-                await this.connectorService.SendAsync(channel, ex.Message, cancellationToken);
+                await this.connectorService.SendAsync(channel, ex.Message, true, cancellationToken);
             }
             finally
             {
-                await this.SendAgentDoneNotificationAsync(agentRunner, channel, needNewScope, cancellationToken);                
+                await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
             }
+        }
+
+        /// <summary>
+        /// If we need to run the Agent in each subdomain
+        /// </summary>
+        /// <param name="agentRunner"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        private async Task<bool> RunBySubdomainAsync(AgentRunner agentRunner, CancellationToken cancellationToken)
+        {
+            return agentRunner.Subdomain == null && await agentService.IsBySubdomainAsync(agentRunner.Agent.Name, cancellationToken);
         }
 
         /// <summary>
@@ -136,124 +144,175 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRunner"></param>
         /// <param name="channel">The channel to send the menssage</param>
-        /// <param name="cancellationToken"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        private async Task RunBashBySubdomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
+        private async Task RunAgenthBySubdomainsAsync(string agentKey, AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var subdomains = await this.subdomainService.GetSubdomainsAsync(agentRunner.RootDomain, string.Empty);
-            if (subdomains.Any())
+            var subdomains = await this.subdomainService.GetAllWithIncludesAsync(agentRunner.Target, agentRunner.RootDomain, string.Empty, cancellationToken);
+            if (!subdomains.Any())
             {
-                var subdomainsCount = subdomains.Count;
-                foreach (var subdomain in subdomains)
-                {
-                    var last = subdomainsCount == 1;
-                    await this.RunBashAsync(new AgentRunner
-                    {
-                        Agent = agentRunner.Agent,
-                        Target = agentRunner.Target,
-                        RootDomain = agentRunner.RootDomain,
-                        Subdomain = subdomain,
-                        ActivateNotification = agentRunner.ActivateNotification,
-                        Command = agentRunner.Command
-                    }, channel, last);
-
-                    subdomainsCount--;
-                }
+                await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
+                return;
             }
-            else
+
+            var subdomainsCount = subdomains.Count;
+            foreach (var subdomain in subdomains)
             {
-                await this.SendAgentDoneNotificationAsync(agentRunner, channel, false, cancellationToken);
+                var last = subdomainsCount == 1;
+                await this.RunAgentAsync(agentKey, new AgentRunner
+                {
+                    Agent = agentRunner.Agent,
+                    Target = agentRunner.Target,
+                    RootDomain = agentRunner.RootDomain,
+                    Subdomain = subdomain,
+                    ActivateNotification = agentRunner.ActivateNotification,
+                    Command = agentRunner.Command
+                }, channel, last, removeSubdomainForTheKey: true);
+
+                subdomainsCount--;
             }
         }
 
         /// <summary>
-        /// Method to run a bash command
+        /// 
         /// </summary>
+        /// <param name="agentKey"></param>
         /// <param name="agentRunner"></param>
-        /// <param name="channel">The channel to send the menssage</param>
+        /// <param name="channel"></param>
         /// <param name="last"></param>
         /// <param name="removeSubdomainForTheKey"></param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>A Task</returns>
-        private Task RunBashAsync(AgentRunner agentRunner, string channel, bool last, bool removeSubdomainForTheKey = true)
+        /// <returns></returns>
+        private async Task RunAgentAsync(string agentKey, AgentRunner agentRunner, string channel, bool last, bool removeSubdomainForTheKey)
         {
-            if (this.backgroundTaskQueue.IsCurrentAgentRunStopped())
+            if (await this.agentRunnerProvider.IsStoppedAsync(agentKey))
             {
-                return Task.CompletedTask;
+                return;
             }
 
-            var runnerProcess = new RunnerProcess();
-            this.backgroundTaskQueue.QueueAgentRun(new AgentRunnerProcess(AgentRunnerHelpers.GetKey(agentRunner), runnerProcess, async token =>
+            var command = AgentRunnerHelpers.GetCommand(agentRunner);
+            if (AgentRunnerHelpers.NeedToSkipRun(agentRunner))
+            {
+                await this.connectorService.SendAsync(channel, $"Skip: {command}");
+                await this.IfLastRunStopProcessAsync(agentKey, agentRunner, channel, last);
+
+                return;
+            }
+
+            await this.agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
+            {
+                Key = agentKey,
+                AgentRunner = agentRunner,
+                Channel = channel,
+                Command = command,
+                Last = last,
+                RemoveSubdomainForTheKey = removeSubdomainForTheKey,
+                BeginHandlerAsync = BeginHandlerAsync,
+                ParserOutputHandlerAsync = ParserOutputHandlerAsync,
+                EndHandlerAsync = EndHandlerAsync,
+                ExceptionHandlerAsync = ExceptionHandlerAsync
+            });
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunnerProvider.BeginHandlerAsync"/>
+        /// </summary>
+        private async Task BeginHandlerAsync(AgentRunnerProviderResult result)
+        {
+            await this.connectorService.SendAsync(result.Channel, $"RUN: {result.Command}", true, result.CancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunnerProvider.ParserOutputHandlerAsync"/>
+        /// </summary>
+        private async Task ParserOutputHandlerAsync(AgentRunnerProviderResult result)
+        {
+            await this.connectorService.SendLogsHeadAsync
+            (
+                result.Channel,
+                result.LineCount,
+                result.TerminalLineOutput,
+                result.ScriptOutput,
+                result.CancellationToken
+            );
+
+            // Save the Terminal Output Parse 
+            await this.agentBackgroundService.SaveOutputParseOnScopeAsync
+            (
+                result.AgentRunner,
+                result.ScriptOutput,
+                result.CancellationToken
+            );
+
+            await this.connectorService.SendLogsTailAsync(result.Channel, result.LineCount, result.CancellationToken);
+
+            await this.connectorService.SendAsync(result.Channel, result.TerminalLineOutput, false, result.CancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunnerProvider.EndHandlerAsync"/>
+        /// </summary>
+        private async Task EndHandlerAsync(AgentRunnerProviderResult result)
+        {
+            if (result.AgentRunner.Subdomain != null)
+            {
+                await this.agentBackgroundService.UpdateSubdomainAgentOnScopeAsync(result.AgentRunner, result.CancellationToken);
+            }
+
+            await this.IfLastRunStopProcessAsync
+            (
+                result.Key,
+                result.AgentRunner,
+                result.Channel,
+                result.Last,
+                result.CancellationToken
+            );
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunnerProvider.ExceptionHandlerAsync"/>
+        /// </summary>
+        private async Task ExceptionHandlerAsync(AgentRunnerProviderResult result)
+        {
+            await this.connectorService.SendAsync(result.Channel, result.Exception.Message, true, result.CancellationToken);
+            await this.connectorService.SendLogsAsync(result.Channel, $"Exception: {result.Exception.StackTrace}", result.CancellationToken);
+
+            await this.IfLastRunStopProcessAsync
+            (
+                result.Key,
+                result.AgentRunner,
+                result.Channel,
+                result.Last,
+                result.CancellationToken
+            );
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="agentKey">The Agent key</param>
+        /// <param name="agentRunner">The agent</param>
+        /// <param name="channel">The channel to use to send the msg</param>
+        /// <param name="last">If is the last Agent to run</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        private async Task IfLastRunStopProcessAsync(string agentKey, AgentRunner agentRunner, string channel, bool last, CancellationToken cancellationToken = default)
+        {
+            if (last)
             {
                 try
                 {
-                    if (AgentRunnerHelpers.NeedToSkipSubdomain(agentRunner))
-                    {
-                        await this.connectorService.SendLogsAsync(channel, $"Skip subdomain: {agentRunner.Subdomain.Name}", token);
-                        await this.connectorService.SendAsync(channel, $"Skip subdomain: {agentRunner.Subdomain.Name} ", token);
-                    }
-                    else
-                    {
-                        var command = AgentRunnerHelpers.GetCommand(agentRunner);
-
-                        await this.connectorService.SendLogsAsync(channel, $"RUN: {command}", token);
-                        await this.connectorService.SendAsync(channel, $"RUN: {command}", token);
-
-                        runnerProcess.Start(command);
-
-                        int lineCount = 1;
-                        var script = agentRunner.Agent.Script;
-
-                        while (!runnerProcess.EndOfStream)
-                        {
-                            token.ThrowIfCancellationRequested();
-
-                            // Parse the terminal output one line
-                            var terminalLineOutput = runnerProcess.TerminalLineOutput();
-                            var terminalLineOutputParse = await this.scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
-
-                            await this.connectorService.SendLogsHeadAsync(channel, lineCount, terminalLineOutput, terminalLineOutputParse, token);
-
-                            // Save the Terminal Output Parse 
-                            await this.agentParseService.SaveTerminalOutputParseOnScopeAsync(agentRunner, terminalLineOutputParse, token);
-
-                            await this.connectorService.SendLogsTailAsync(channel, lineCount, token);
-
-                            await this.connectorService.SendAsync(channel, terminalLineOutput, token, false);
-                        }
-
-                        if (agentRunner.Subdomain != null)
-                        {
-                            await this.agentParseService.UpdateSubdomainAgentOnScopeAsync(agentRunner, token);
-                        }
-                    }
+                    await this.StopAgentAsync(agentRunner, agentKey, cancellationToken);
+                    await this.agentBackgroundService.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
                 }
-                catch (Exception ex)
+                catch (Exception exx)
                 {
-                    await this.connectorService.SendAsync(channel, ex.Message, token);
-                    await this.connectorService.SendLogsAsync(channel, $"Exception: {ex.StackTrace}", token);
+                    await this.connectorService.SendLogsAsync(channel, $"Exception: {exx.StackTrace}", cancellationToken);
                 }
-                finally
-                {
-                    if (last)
-                    {
-                        try
-                        {
-                            await this.StopAsync(agentRunner, removeSubdomainForTheKey, true, token);
-                            await this.agentParseService.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, token);
-                        }
-                        catch (Exception exx)
-                        {
-                            await this.connectorService.SendLogsAsync(channel, $"Exception: {exx.StackTrace}", token);
-                        }
-                    }
-                }
-            }));
-
-            return Task.CompletedTask;
+            }
         }
+
 
         /// <summary>
         /// Send a msg and a notification when the agent finish
@@ -262,22 +321,15 @@ namespace ReconNess.Services
         /// <param name="channel">The channel to use to send the msg</param>
         /// <param name="activateNotification">If we need to send a notification</param> 
         /// <param name="cancellationToken"></param>
-        /// <returns></returns>
-        private async Task SendAgentDoneNotificationAsync(AgentRunner agentRunner, string channel, bool needOnScope, CancellationToken cancellationToken)
+        /// <returns>Notification that operations should be canceled</returns>
+        private async Task SendAgentDoneNotificationAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
-            if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyIfAgentDone)
+            if (agentRunner.ActivateNotification)
             {
-                if (needOnScope)
-                {
-                    await this.agentParseService.SendNotificationOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
-                }
-                else
-                {
-                    await this.notificationService.SendAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
-                }
+                await this.notificationService.SendAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
             }
 
-            await this.connectorService.SendAsync(channel, "Agent done!", cancellationToken, false);
+            await this.connectorService.SendAsync(channel, "Agent done!", false, cancellationToken);
         }
     }
 }

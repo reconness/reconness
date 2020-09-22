@@ -9,25 +9,25 @@ using System.Threading.Tasks;
 namespace ReconNess.Services
 {
     /// <summary>
-    /// This class implement <see cref="IAgentScopeService"/>
+    /// This class implement <see cref="IAgentBackgroundService"/>
     /// </summary>
-    public class AgentScopeService : IAgentScopeService
+    public class AgentBackgroundService : IAgentBackgroundService
     {
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>
-        ///  Initializes a new instance of the <see cref="AgentScopeService" /> class
+        ///  Initializes a new instance of the <see cref="AgentBackgroundService" /> class
         /// </summary>
         /// <param name="serviceProvider"><see cref="IServiceProvider"/></param>
-        public AgentScopeService(IServiceProvider serviceProvider)
+        public AgentBackgroundService(IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
         }
 
         /// <summary>
-        /// <see cref="IAgentScopeService.SaveTerminalOutputParseOnScopeAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
+        /// <see cref="IAgentBackgroundService.SaveOutputParseOnScopeAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
@@ -40,7 +40,7 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentScopeService.UpdateLastRunAgentOnScopeAsync(Agent, CancellationToken)"/>
+        /// <see cref="IAgentBackgroundService.UpdateLastRunAgentOnScopeAsync(Agent, CancellationToken)"/>
         /// </summary>
         public async Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default)
         {
@@ -56,7 +56,7 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentScopeService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, CancellationToken)"/>
+        /// <see cref="IAgentBackgroundService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, CancellationToken)"/>
         /// </summary>
         public async Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default)
         {
@@ -71,7 +71,7 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentScopeService.SendNotificationOnScopeAsync(string, CancellationToken)"/>
+        /// <see cref="IAgentBackgroundService.SendNotificationOnScopeAsync(string, CancellationToken)"/>
         /// </summary>
         public async Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default)
         {

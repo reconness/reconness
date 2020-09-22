@@ -9,21 +9,21 @@ using System.Threading.Tasks;
 namespace ReconNess.Services
 {
     /// <summary>
-    /// This class implement <see cref="ICategoryService"/>
+    /// This class implement <see cref="IAgentCategoryService"/>
     /// </summary>
-    public class CategoryService : Service<Category>, IService<Category>, ICategoryService
+    public class AgentCategoryService : Service<Category>, IService<Category>, IAgentCategoryService
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="ICategoryService" /> class
+        /// Initializes a new instance of the <see cref="IAgentCategoryService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public CategoryService(IUnitOfWork unitOfWork)
+        public AgentCategoryService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
         }
 
         /// <summary>
-        /// <see cref="ICategoryService.GetCategoriesAsync(List{AgentCategory}, List{string}, CancellationToken)"/>
+        /// <see cref="IAgentCategoryService.GetCategoriesAsync(List{AgentCategory}, List{string}, CancellationToken)"/>
         /// </summary>
         public async Task<ICollection<AgentCategory>> GetCategoriesAsync(ICollection<AgentCategory> myCategories, List<string> newCategories, CancellationToken cancellationToken = default)
         {
@@ -37,7 +37,8 @@ namespace ReconNess.Services
                     continue;
                 }
 
-                myCategoriesName.Add(newCategory); // avoid add new duplicate categories
+                // avoid add new duplicate categories
+                myCategoriesName.Add(newCategory);
 
                 var category = await this.GetNewOrExistCategory(newCategory, cancellationToken);
                 myCategories.Add(new AgentCategory

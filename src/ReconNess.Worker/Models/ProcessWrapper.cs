@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
-namespace ReconNess.Core.Helpers
+namespace ReconNess.Worker.Models
 {
-    public class RunnerProcess
+    public class ProcessWrapper
     {
         private Process process;
 
@@ -51,9 +52,18 @@ namespace ReconNess.Core.Helpers
         {
             if (process != null)
             {
-                process.Kill();
-                process.WaitForExit();
-                process = null;
+                try
+                {
+                    process.Kill();
+                    process.WaitForExit();
+                }
+                catch(Exception)
+                { 
+                }
+                finally
+                {
+                    process = null;
+                }
             }
         }
     }
