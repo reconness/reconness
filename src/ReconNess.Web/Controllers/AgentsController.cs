@@ -24,7 +24,8 @@ namespace ReconNess.Web.Controllers
         private readonly IAgentRunnerService agentRunnerService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
-        private readonly ICategoryService categoryService;
+        private readonly IAgentCategoryService categoryService;
+        private readonly IAgentTypeService agentTypeService;
         private readonly ISubdomainService subdomainService;
 
         /// <summary>
@@ -35,7 +36,8 @@ namespace ReconNess.Web.Controllers
         /// <param name="agentRunnerService"><see cref="IAgentRunnerService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
-        /// <param name="categoryService"><see cref="ICategoryService"/></param>
+        /// <param name="categoryService"><see cref="IAgentCategoryService"/></param>
+        /// <param name="agentTypeService"><see cref="IAgentTypeService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         public AgentsController(
             IMapper mapper,
@@ -43,7 +45,8 @@ namespace ReconNess.Web.Controllers
             IAgentRunnerService agentRunnerService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
-            ICategoryService categoryService,
+            IAgentCategoryService categoryService,
+            IAgentTypeService agentTypeService,
             ISubdomainService subdomainService)
         {
             this.mapper = mapper;
@@ -52,6 +55,7 @@ namespace ReconNess.Web.Controllers
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.categoryService = categoryService;
+            this.agentTypeService = agentTypeService;
             this.subdomainService = subdomainService;
         }
 
@@ -133,6 +137,14 @@ namespace ReconNess.Web.Controllers
             agent.Script = agentDto.Script;
 
             agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
+            agent.AgentTypes = await this.agentTypeService.GetTypesAsync(agent.AgentTypes, new AgentTypeModel
+            {
+                IsByTarget = agentDto.IsByTarget,
+                IsByRootDomain = agentDto.IsByRootDomain,
+                IsBySubdomain = agentDto.IsBySubdomain,
+                IsByDirectory = agentDto.IsByDirectory,
+                IsByResource = agentDto.IsByResource
+            }, cancellationToken);
 
             await this.agentService.UpdateAsync(agent, cancellationToken);
 

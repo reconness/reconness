@@ -15,9 +15,31 @@
         <div class="form-group">
             <label for="inputCmd">Command <a href="https://docs.reconness.com/agents/add-agent#add-new-agent" target="_blank">Learn more</a></label>
             <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
-        </div>  
+        </div>
+        <hr />
+        <h4>Agent Type</h4>
+        <div class="form-group form-check">
+            <input class="form-check-input" type="checkbox" id="isByTarget" v-model="agent.isByTarget">
+            <label class="form-check-label" for="isByTarget">
+                Target
+            </label>
+        </div>
+        <div class="form-group form-check">
+            <input class="form-check-input" type="checkbox" id="isByRootDomain" v-model="agent.isByRootDomain">
+            <label class="form-check-label" for="isByRootDomain">
+                RootDomain
+            </label>
+        </div>
+        <div class="form-group form-check">
+            <input class="form-check-input" type="checkbox" id="isBySubdomain" v-model="agent.isBySubdomain">
+            <label class="form-check-label" for="isBySubdomain">
+                Subdomains
+            </label>
+        </div>
+        <hr />
+        <h4>Script</h4>
         <div class="form-group">
-            <label for="inputArguments">Script <a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
+            <label for="inputArguments"><a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
             <editor v-model="agent.script" @init="editorInit" lang="csharp" theme="dracula" width="800" height="600"></editor>
         </div>
         <div class="form-group">

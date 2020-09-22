@@ -16,16 +16,16 @@ namespace ReconNess.Web.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly IMapper mapper;
-        private readonly ICategoryService categoryService;
+        private readonly IAgentCategoryService categoryService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CategoriesController" /> class
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
-        /// <param name="categoryService"><see cref="ICategoryService"/></param>
+        /// <param name="categoryService"><see cref="IAgentCategoryService"/></param>
         public CategoriesController(
             IMapper mapper,
-            ICategoryService categoryService)
+            IAgentCategoryService categoryService)
         {
             this.mapper = mapper;
             this.categoryService = categoryService;

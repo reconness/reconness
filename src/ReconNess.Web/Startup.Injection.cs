@@ -25,19 +25,21 @@ namespace ReconNess.Web
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDbContext, ReconNessContext>();
 
-            services.AddScoped<ITargetService, TargetService>();
-            services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAgentRunnerService, AgentRunnerService>();
-            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<INotesService, NotesService>();
-            services.AddScoped<ISubdomainService, SubdomainService>();
+            services.AddScoped<IAgentCategoryService, AgentCategoryService>();
+            services.AddScoped<IAgentTypeService, AgentTypeService>();
+            services.AddScoped<ITargetService, TargetService>();
+            services.AddScoped<IRootDomainService, RootDomainService>();
+            services.AddScoped<ISubdomainService, SubdomainService>();            
+            services.AddScoped<INotesService, NotesService>();            
             services.AddScoped<ILabelService, LabelService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IReferenceService, ReferenceService>();
-            services.AddScoped<INotificationService, NotificationService>();
 
+            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
+
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IConnectorService, ConnectorService>();
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();

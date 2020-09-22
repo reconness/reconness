@@ -8,9 +8,9 @@ namespace ReconNess.Web.Mappers.Resolvers
 {
     internal class AgentDefaultCategoryResolver : IValueResolver<AgentMarketplaceDto, Agent, ICollection<AgentCategory>>
     {
-        private readonly ICategoryService categoryService;
+        private readonly IAgentCategoryService categoryService;
 
-        public AgentDefaultCategoryResolver(ICategoryService categoryService)
+        public AgentDefaultCategoryResolver(IAgentCategoryService categoryService)
         {
             this.categoryService = categoryService;
         }

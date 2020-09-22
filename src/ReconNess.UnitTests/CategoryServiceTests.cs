@@ -70,7 +70,7 @@ namespace ReconNess.UnitTests
                 }
             };
 
-            var categoryService = new CategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(this.unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
@@ -97,7 +97,7 @@ namespace ReconNess.UnitTests
             };
 
             var myNewCategories = new List<string>();
-            var categoryService = new CategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(this.unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
@@ -124,7 +124,7 @@ namespace ReconNess.UnitTests
             };
 
             var myNewCategories = new List<string> { "Brute Force", "New Category" };
-            var categoryService = new CategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(this.unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
@@ -151,7 +151,7 @@ namespace ReconNess.UnitTests
             };
 
             var myNewCategories = new List<string> { "New Category" };
-            var categoryService = new CategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(this.unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
@@ -178,7 +178,7 @@ namespace ReconNess.UnitTests
             };
 
             var myNewCategories = new List<string> { "New Category", "New Category" };
-            var categoryService = new CategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(this.unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
