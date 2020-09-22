@@ -17,7 +17,7 @@
             <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
         </div>
         <hr />
-        <h4>Agent Type</h4>
+        <h4>Agent Type <span class="text-danger" title="What kind of Agent is this?">*</span></h4> 
         <div class="form-group form-check">
             <input class="form-check-input" type="checkbox" id="isByTarget" v-model="agent.isByTarget">
             <label class="form-check-label" for="isByTarget">
@@ -44,7 +44,7 @@
         </div>
         <div class="form-group">
             <button class="btn btn-primary" v-if="isNew" v-on:click="onSave" :disabled='!isValid()'>Add</button>
-            <button class="mt-2 btn btn-primary" v-if="!isNew" v-on:click="onUpdate()">Update</button>
+            <button class="mt-2 btn btn-primary" v-if="!isNew" v-on:click="onUpdate()" :disabled='!isValid()'>Update</button>
             <button class="mt-2 ml-2 btn btn-danger" v-if="!isNew" v-on:click="onDelete()">Delete</button>
         </div>
     </div>
@@ -133,7 +133,7 @@
                 require('brace/snippets/csharp')
             },
             isValid() {
-                return this.agent.name && this.agent.command
+                return this.agent.name && this.agent.command && (this.agent.isByTarget || this.agent.isByRootDomain || this.agent.isBySubdomain)
             }
         }
     }
