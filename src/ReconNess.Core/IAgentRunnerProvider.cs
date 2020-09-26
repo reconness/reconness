@@ -36,7 +36,7 @@ namespace ReconNess.Core
         /// <param name="result">The result send to the callback method</param>
         /// <returns>A task</returns>
         public delegate Task ExceptionHandlerAsync(AgentRunnerProviderResult result);
-       
+
         /// <summary>
         /// The amount of Agent running
         /// </summary>
@@ -53,7 +53,7 @@ namespace ReconNess.Core
         /// <param name="key">The Agent key</param>
         /// <returns>A task</returns>
         Task InitializesAsync(string key);
-        
+
         /// <summary>
         /// Run the Agent
         /// </summary>

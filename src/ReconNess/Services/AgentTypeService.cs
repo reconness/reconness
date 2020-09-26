@@ -76,11 +76,11 @@ namespace ReconNess.Services
             {
                 return agentType;
             }
-            
+
             return new AgentType
             {
                 TypeId = types.First(t => t.Name == type).Id
-            };            
+            };
         }
     }
 }

@@ -57,8 +57,8 @@ namespace ReconNess.Worker.Models
                     process.Kill();
                     process.WaitForExit();
                 }
-                catch(Exception)
-                { 
+                catch (Exception)
+                {
                 }
                 finally
                 {

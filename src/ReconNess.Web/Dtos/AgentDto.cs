@@ -32,5 +32,45 @@ namespace ReconNess.Web.Dtos
         public bool IsByDirectory { get; set; }
 
         public bool IsByResource { get; set; }
+
+        public bool TriggerSkipIfRunBefore { get; set; }
+
+        public bool TriggertargetHasBounty { get; set; }
+
+        public string TriggertargetIncExcName { get; set; }
+
+        public string TriggerTargetName { get; set; }
+
+        public bool TriggerRootdomainHasBounty { get; set; }
+
+        public string TriggerRootdomainIncExcName { get; set; }
+
+        public string TriggerRootdomainName { get; set; }
+
+        public bool TriggerSubdomainIsAlive { get; set; }
+
+        public bool TriggerSubdomainIsMainPortal { get; set; }
+
+        public bool TriggerSubdomainHasHttpOrHttpsOpen { get; set; }
+
+        public string TriggerSubdomainIncExcName { get; set; }
+
+        public string TriggerSubdomainName { get; set; }
+
+        public string TriggerSubdomainIncExcServicePort { get; set; }
+
+        public string TriggerSubdomainServicePort { get; set; }
+
+        public string TriggerSubdomainIncExcIP { get; set; }
+
+        public string TriggerSubdomainIP { get; set; }
+
+        public string TriggerSubdomainIncExcTechnology { get; set; }
+
+        public string TriggerSubdomainTechnology { get; set; }
+
+        public string TriggerSubdomainIncExcLabel { get; set; }
+
+        public string TriggerSubdomainLabel { get; set; }
     }
 }

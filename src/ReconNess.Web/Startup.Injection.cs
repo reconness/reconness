@@ -31,8 +31,8 @@ namespace ReconNess.Web
             services.AddScoped<IAgentTypeService, AgentTypeService>();
             services.AddScoped<ITargetService, TargetService>();
             services.AddScoped<IRootDomainService, RootDomainService>();
-            services.AddScoped<ISubdomainService, SubdomainService>();            
-            services.AddScoped<INotesService, NotesService>();            
+            services.AddScoped<ISubdomainService, SubdomainService>();
+            services.AddScoped<INotesService, NotesService>();
             services.AddScoped<ILabelService, LabelService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IReferenceService, ReferenceService>();

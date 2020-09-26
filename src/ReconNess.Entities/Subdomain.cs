@@ -21,6 +21,8 @@ namespace ReconNess.Entities
 
         public bool? IsAlive { get; set; }
 
+        public string Technology { get; set; }
+
         public string FromAgents { get; set; }
 
         public string IpAddress { get; set; }

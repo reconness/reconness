@@ -17,7 +17,7 @@
             <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
         </div>
         <hr />
-        <h4>Agent Type <span class="text-danger" title="What kind of Agent is this?">*</span></h4> 
+        <h4>Agent Type <span class="text-danger" title="What kind of Agent is this? Run in a Target, RootDomain or Subdomain?">*</span></h4>
         <div class="form-group form-check">
             <input class="form-check-input" type="checkbox" id="isByTarget" v-model="agent.isByTarget">
             <label class="form-check-label" for="isByTarget">
@@ -33,9 +33,156 @@
         <div class="form-group form-check">
             <input class="form-check-input" type="checkbox" id="isBySubdomain" v-model="agent.isBySubdomain">
             <label class="form-check-label" for="isBySubdomain">
-                Subdomains
+                Subdomain
             </label>
         </div>
+        <hr />
+        <h4>Triggers </h4>
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link active" id="nav-general-tab" data-toggle="tab" href="#nav-general" role="tab" aria-controls="nav-subdomains" aria-selected="true">General</a>
+                <a :class="agent.isByTarget ? 'nav-item nav-link' : 'nav-item nav-link disabled'"  id="nav-target-tab" data-toggle="tab" href="#nav-target" role="tab" aria-controls="nav-target" aria-selected="false">Target</a>
+                <a :class="agent.isByRootDomain ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-rootdomain-tab" data-toggle="tab" href="#nav-rootdomain" role="tab" aria-controls="nav-rootdomain" aria-selected="false">RootDomain</a>
+                <a :class="agent.isBySubdomain ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-subdomain-tab" data-toggle="tab" href="#nav-subdomain" role="tab" aria-controls="nav-subdomain" aria-selected="false">Subdomain</a>
+            </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
+                <div class="form-group form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="triggerSkipIfRunBefore" v-model="agent.triggerSkipIfRunBefore">
+                    <label class="form-check-label" for="triggerSkipIfRunBefore">
+                        Skip if Run Before
+                    </label>
+                </div>                
+            </div>
+            <div class="tab-pane fade" id="nav-target" role="tabpanel" aria-labelledby="nav-target-tab">
+                <div class="form-group form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="triggerTargetHasBounty" v-model="agent.triggerTargetHasBounty">
+                    <label class="form-check-label" for="triggerTargetHasBounty">
+                        Has Bounty
+                    </label>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerTargetIncExcName">Include/Exclude RegExp Target Name</label>
+                        <select class="form-control" id="triggerTargetIncExcName" v-model="agent.triggerTargetIncExcName">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerTargetName">RegExp Target Name</label>
+                        <input class="form-control" id="triggerTargetName" v-model="agent.triggerTargetName">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-rootdomain" role="tabpanel" aria-labelledby="nav-rootdomain-tab">
+                <div class="form-group form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="triggerRootdomainHasBounty" v-model="agent.triggerRootdomainHasBounty">
+                    <label class="form-check-label" for="triggerRootdomainHasBounty">
+                        Has Bounty
+                    </label>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerRootdomainIncExcName">Include/Exclude RegExp RootDomain</label>
+                        <select class="form-control" id="triggerRootdomainIncExcName" v-model="agent.triggerRootdomainIncExcName">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerRootdomainName">RegExp RootDomain</label>
+                        <input class="form-control" id="triggerRootdomainName" v-model="agent.triggerRootdomainName">
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade" id="nav-subdomain" role="tabpanel" aria-labelledby="nav-subdomain-tab">
+                <div class="form-group form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="triggerSubdomainIsAlive" v-model="agent.triggerSubdomainIsAlive">
+                    <label class="form-check-label" for="triggerSubdomainIsAlive">
+                        Is Alive
+                    </label>
+                </div>
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" id="triggerSubdomainIsMainPortal" v-model="agent.triggerSubdomainIsMainPortal">
+                    <label class="form-check-label" for="triggerSubdomainIsMainPortal">
+                        Is Main Portal
+                    </label>
+                </div>
+                <div class="form-group form-check">
+                    <input class="form-check-input" type="checkbox" id="triggerSubdomainHasHttpOrHttpsOpen" v-model="agent.triggerSubdomainHasHttpOrHttpsOpen">
+                    <label class="form-check-label" for="triggerSubdomainHasHttpOrHttpsOpen">
+                        Has HTTP/HTTPS Open
+                    </label>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerSubdomainIncExcName">Include/Exclude RegExp Subdomain</label>
+                        <select class="form-control" id="triggerSubdomainIncExcName" v-model="agent.triggerSubdomainIncExcName">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerSubdomainName">RegExp Subdomain</label>
+                        <input class="form-control" id="triggerSubdomainName" v-model="agent.triggerSubdomainName">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerSubdomainIncExcServicePort">Include/Exclude RegExp Service/Port</label>
+                        <select class="form-control" id="triggerSubdomainIncExcServicePort" v-model="agent.triggerSubdomainIncExcServicePort">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerSubdomainServicePort">RegExp Service/Port</label>
+                        <input class="form-control" id="triggerSubdomainServicePort" v-model="agent.triggerSubdomainServicePort">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerSubdomainIncExcIP">Include/Exclude RegExp IP</label>
+                        <select class="form-control" id="triggerSubdomainIncExcIP" v-model="agent.triggerSubdomainIncExcIP">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerSubdomainIP">RegExp IP</label>
+                        <input class="form-control" id="triggerSubdomainIP" v-model="agent.triggerSubdomainIP">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerSubdomainIncExcTechnology">Include/Exclude RegExp Technology</label>
+                        <select class="form-control" id="triggerSubdomainIncExcTechnology" v-model="agent.triggerSubdomainIncExcTechnology">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerSubdomainTechnology">RegExp Technology</label>
+                        <input class="form-control" id="triggerSubdomainTechnology" v-model="agent.triggerSubdomainTechnology">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group col-4">
+                        <label for="triggerSubdomainIncExcLabel">Include/Exclude RegExp Label</label>
+                        <select class="form-control" id="triggerSubdomainIncExcLabel" v-model="agent.triggerSubdomainIncExcLabel">
+                            <option>Include</option>
+                            <option>Exclude</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-8">
+                        <label for="triggerSubdomainLabel">RegExp Label</label>
+                        <input class="form-control" id="triggerSubdomainLabel" v-model="agent.triggerSubdomainLabel">
+                    </div>
+                </div>
+            </div>
+        </div>   
         <hr />
         <h4>Script</h4>
         <div class="form-group">

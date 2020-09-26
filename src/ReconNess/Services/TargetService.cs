@@ -125,7 +125,7 @@ namespace ReconNess.Services
             }
 
             var existRootDomain = await this.rootDomainService.AnyAsync(r => r.Name == rootDomain && r.Target == agentRunner.Target, cancellationToken);
-            
+
             return !existRootDomain;
         }
 

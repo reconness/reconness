@@ -48,7 +48,7 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IAgentRunnerProvider.InitializesAsync(string)"/>
         /// </summary>
-        public Task InitializesAsync(string key) 
+        public Task InitializesAsync(string key)
         {
             this.backgroundTaskQueue.Initializes(key);
 

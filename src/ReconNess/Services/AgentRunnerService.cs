@@ -101,7 +101,7 @@ namespace ReconNess.Services
                 await this.RunAgenthBySubdomainsAsync(agentKey, agentRunner, channel, cancellationToken);
             }
             else
-            {                
+            {
                 await this.RunAgentAsync(agentKey, agentRunner, channel, last: true, removeSubdomainForTheKey: false);
             }
         }
