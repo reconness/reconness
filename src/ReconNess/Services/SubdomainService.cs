@@ -212,6 +212,11 @@ namespace ReconNess.Services
                 await this.UpdateSubdomainNoteAsync(agentRunner.Subdomain, agentRunner, terminalOutputParse, cancellationToken);
             }
 
+            if (!string.IsNullOrEmpty(terminalOutputParse.Technology))
+            {
+                await this.UpdateSubdomainTechnologyAsync(agentRunner.Subdomain, agentRunner, terminalOutputParse, cancellationToken);
+            }
+
             if (!string.IsNullOrEmpty(terminalOutputParse.HttpScreenshotFilePath) || !string.IsNullOrEmpty(terminalOutputParse.HttpsScreenshotFilePath))
             {
                 await this.UpdateSubdomainScreenshotAsync(agentRunner.Subdomain, agentRunner, terminalOutputParse);
@@ -507,6 +512,32 @@ namespace ReconNess.Services
                     ("{{domain}}", subdomain.Name),
                     ("{{note}}", scriptOutput.Note)
                 }, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// Update the subdomain Technology
+        /// </summary>
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="agentRunner">The Agent</param>
+        /// <param name="scriptOutput">The terminal output one line</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        private async Task UpdateSubdomainTechnologyAsync(Subdomain subdomain, AgentRunner agentRunner, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        {
+            if (!string.IsNullOrEmpty(scriptOutput.Technology) && !scriptOutput.Technology.Equals(subdomain.Technology, StringComparison.OrdinalIgnoreCase))
+            {
+                subdomain.Technology = scriptOutput.Technology;
+                await this.UpdateAsync(subdomain, cancellationToken);
+
+                if (agentRunner.ActivateNotification && subdomain.Takeover.Value)
+                {
+                    await this.notificationService.SendAsync(NotificationType.TECHNOLOGY, new[]
+                    {
+                        ("{{domain}}", subdomain.Name),
+                        ("{{technology}}", scriptOutput.Technology)
+                    }, cancellationToken);
+                }
             }
         }
 

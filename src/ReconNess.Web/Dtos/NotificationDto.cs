@@ -26,6 +26,8 @@
 
         public string NotePayload { get; set; }
 
+        public string TechnologyPayload { get; set; }
+
         public string ScreenshotPayload { get; set; }
     }
 }

@@ -19,13 +19,12 @@ namespace ReconNess.Web.Mappers.Resolvers
         {
             var agentCategories = new List<AgentCategory>();
 
-            var categoryDb = this.categoryService.GetByCriteriaAsync(c => c.Name == source.Category).Result;
-
-            if (categoryDb != null)
+            var category = this.categoryService.GetByCriteriaAsync(c => c.Name == source.Category).Result;
+            if (category != null)
             {
                 agentCategories.Add(new AgentCategory
                 {
-                    CategoryId = categoryDb.Id
+                    CategoryId = category.Id
                 });
             }
             else

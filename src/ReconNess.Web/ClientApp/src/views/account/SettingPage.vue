@@ -62,6 +62,10 @@
             <input name="notePayload" formControlName="notePayload" class="form-control" id="notePayload" v-model="notification.notePayload">
         </div>
         <div class="form-group">
+            <label for="inputName">New Technology. Use <code v-html="`{{technology}}`"></code> to obtain <code>scriptOutput.Technology</code> value</label>
+            <input name="technologyPayload" formControlName="technologyPayload" class="form-control" id="technologyPayload" v-model="notification.technologyPayload">
+        </div>
+        <div class="form-group">
             <button class="btn btn-primary" v-on:click="onSave" :disabled='!isValid()'>Save</button>
         </div>
     </div>

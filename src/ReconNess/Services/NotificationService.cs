@@ -50,6 +50,7 @@ namespace ReconNess.Services
             notification.TakeoverPayload = newNotification.TakeoverPayload;
             notification.ScreenshotPayload = newNotification.ScreenshotPayload;
             notification.NotePayload = newNotification.NotePayload;
+            notification.TechnologyPayload = newNotification.TechnologyPayload;
 
             await this.UpdateAsync(notification, cancellationToken);
         }
@@ -123,6 +124,7 @@ namespace ReconNess.Services
                 NotificationType.TAKEOVER => notification.TakeoverPayload,
                 NotificationType.DIRECTORY => notification.DirectoryPayload,
                 NotificationType.SCREENSHOT => notification.ScreenshotPayload,
+                NotificationType.TECHNOLOGY => notification.TechnologyPayload,
                 _ => string.Empty,
             };
         }

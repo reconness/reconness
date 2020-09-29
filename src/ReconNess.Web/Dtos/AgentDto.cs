@@ -13,8 +13,6 @@ namespace ReconNess.Web.Dtos
 
         public string Command { get; set; }
 
-        public string Arguments { get; set; }
-
         public string Script { get; set; }
 
         public DateTime LastRun { get; set; }
@@ -35,9 +33,9 @@ namespace ReconNess.Web.Dtos
 
         public bool TriggerSkipIfRunBefore { get; set; }
 
-        public bool TriggertargetHasBounty { get; set; }
+        public bool TriggerTargetHasBounty { get; set; }
 
-        public string TriggertargetIncExcName { get; set; }
+        public string TriggerTargetIncExcName { get; set; }
 
         public string TriggerTargetName { get; set; }
 

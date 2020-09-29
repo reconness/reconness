@@ -33,5 +33,7 @@
         public string Label { get; set; }
 
         public string Note { get; set; }
+
+        public string Technology { get; set; }
     }
 }

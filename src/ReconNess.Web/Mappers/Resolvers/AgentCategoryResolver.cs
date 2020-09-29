@@ -18,15 +18,14 @@ namespace ReconNess.Web.Mappers.Resolvers
         public ICollection<AgentCategory> Resolve(AgentDto source, Agent destination, ICollection<AgentCategory> member, ResolutionContext context)
         {
             var agentCategories = new List<AgentCategory>();
-            source.Categories.ForEach(category =>
+            source.Categories.ForEach(cat =>
             {
-                var categoryDb = this.categoryService.GetByCriteriaAsync(c => c.Name == category).Result;
-
-                if (categoryDb != null)
+                var category = this.categoryService.GetByCriteriaAsync(c => c.Name == cat).Result;
+                if (category != null)
                 {
                     agentCategories.Add(new AgentCategory
                     {
-                        CategoryId = categoryDb.Id
+                        CategoryId = category.Id
                     });
                 }
                 else
@@ -35,7 +34,7 @@ namespace ReconNess.Web.Mappers.Resolvers
                     {
                         Category = new Category
                         {
-                            Name = category
+                            Name = cat
                         }
                     });
                 }

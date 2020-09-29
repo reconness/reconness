@@ -58,6 +58,7 @@ namespace ReconNess.Services
                     .ThenInclude(c => c.Category)
                 .Include(a => a.AgentTypes)
                     .ThenInclude(c => c.Type)
+                .Include(a => a.AgentTrigger)
                 .FirstOrDefaultAsync();
         }
 

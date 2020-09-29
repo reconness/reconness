@@ -11,6 +11,7 @@
         DIRECTORY,
         SERVICE,
         NOTE,
-        SCREENSHOT
+        SCREENSHOT,
+        TECHNOLOGY
     }
 }

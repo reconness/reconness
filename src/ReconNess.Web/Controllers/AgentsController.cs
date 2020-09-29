@@ -146,6 +146,32 @@ namespace ReconNess.Web.Controllers
                 IsByResource = agentDto.IsByResource
             }, cancellationToken);
 
+            if (agent.AgentTrigger == null)
+            {
+                agent.AgentTrigger = new AgentTrigger();
+            }
+
+            agent.AgentTrigger.SkipIfRunBefore = agentDto.TriggerSkipIfRunBefore;
+            agent.AgentTrigger.TargetHasBounty = agentDto.TriggerTargetHasBounty;
+            agent.AgentTrigger.TargetIncExcName = agentDto.TriggerTargetIncExcName;
+            agent.AgentTrigger.TargetName = agentDto.TriggerTargetName;
+            agent.AgentTrigger.RootdomainHasBounty = agentDto.TriggerRootdomainHasBounty;
+            agent.AgentTrigger.RootdomainIncExcName = agentDto.TriggerRootdomainIncExcName;
+            agent.AgentTrigger.RootdomainName = agentDto.TriggerRootdomainName;
+            agent.AgentTrigger.SubdomainIsAlive = agentDto.TriggerSubdomainIsAlive;
+            agent.AgentTrigger.SubdomainIsMainPortal = agentDto.TriggerSubdomainIsMainPortal;
+            agent.AgentTrigger.SubdomainHasHttpOrHttpsOpen = agentDto.TriggerSubdomainHasHttpOrHttpsOpen;
+            agent.AgentTrigger.SubdomainIncExcName = agentDto.TriggerSubdomainIncExcName;
+            agent.AgentTrigger.SubdomainName = agentDto.TriggerSubdomainName;
+            agent.AgentTrigger.SubdomainIncExcServicePort = agentDto.TriggerSubdomainIncExcServicePort;
+            agent.AgentTrigger.SubdomainServicePort = agentDto.TriggerSubdomainServicePort;
+            agent.AgentTrigger.SubdomainIncExcIP = agentDto.TriggerSubdomainIncExcIP;
+            agent.AgentTrigger.SubdomainIP = agentDto.TriggerSubdomainIP;
+            agent.AgentTrigger.SubdomainIncExcTechnology = agentDto.TriggerSubdomainIncExcTechnology;
+            agent.AgentTrigger.SubdomainTechnology = agentDto.TriggerSubdomainTechnology;
+            agent.AgentTrigger.SubdomainIncExcLabel = agentDto.TriggerSubdomainIncExcLabel;
+            agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
+
             await this.agentService.UpdateAsync(agent, cancellationToken);
 
             return NoContent();
