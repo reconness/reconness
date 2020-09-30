@@ -101,7 +101,10 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+            if (agentRunner.RootDomain != null)
+            {
+                await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+            }
         }
 
         /// <summary>

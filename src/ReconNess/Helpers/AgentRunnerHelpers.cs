@@ -29,9 +29,22 @@ namespace ReconNess.Helpers
         /// <returns>The channel to send the menssage</returns>
         public static string GetChannel(AgentRunner agentRunner)
         {
-            return agentRunner.Subdomain == null ?
-                $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}" :
-                $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}_{agentRunner.Subdomain.Name}";
+            if (agentRunner.Target == null)
+            {
+                return $"{agentRunner.Agent.Name}";
+            }
+
+            if (agentRunner.RootDomain == null)
+            {
+                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}";
+            }
+
+            if (agentRunner.Subdomain == null)
+            {
+                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}";
+            }
+
+            return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}_{agentRunner.Subdomain.Name}";
         }
 
         /// <summary>
@@ -43,9 +56,22 @@ namespace ReconNess.Helpers
         /// <returns>The channel to send the menssage</returns>
         public static string GetKey(AgentRunner agentRunner)
         {
-            return agentRunner.Subdomain == null ?
-                $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}" :
-                $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}_{agentRunner.Subdomain.Name}";
+            if (agentRunner.Target == null)
+            {
+                return $"{agentRunner.Agent.Name}";
+            }
+
+            if (agentRunner.RootDomain == null)
+            {
+                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}";
+            }
+
+            if (agentRunner.Subdomain == null)
+            {
+                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}";
+            }
+
+            return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}_{agentRunner.Subdomain.Name}";
         }
 
         /// <summary>

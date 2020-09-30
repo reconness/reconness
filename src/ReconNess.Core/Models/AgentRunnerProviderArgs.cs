@@ -9,7 +9,6 @@ namespace ReconNess.Core.Models
         public string Channel { get; set; }
         public string Command { get; set; }
         public bool Last { get; set; }
-        public bool RemoveSubdomainForTheKey { get; set; }
         public BeginHandlerAsync BeginHandlerAsync { get; set; }
         public ParserOutputHandlerAsync ParserOutputHandlerAsync { get; set; }
         public EndHandlerAsync EndHandlerAsync { get; set; }

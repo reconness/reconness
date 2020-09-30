@@ -231,16 +231,20 @@ namespace ReconNess.Web.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            var agent = await agentService.GetWithIncludeAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
-            if (target == null)
+            Target target = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                return BadRequest();
+                target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                if (target == null)
+                {
+                    return BadRequest();
+                }
             }
 
             RootDomain rootDomain = default;
@@ -321,8 +325,8 @@ namespace ReconNess.Web.Controllers
                 Subdomain = subdomain
             };
 
-            var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
-            var task = this.agentRunnerService.StopAgentAsync(agentRunner, agentKey, cancellationToken);
+            var channel = AgentRunnerHelpers.GetChannel(agentRunner);
+            await this.agentRunnerService.StopAgentAsync(agentRunner, channel, cancellationToken);
 
             return NoContent();
         }

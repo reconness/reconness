@@ -96,15 +96,5 @@ namespace ReconNess.Services
         {
             return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
         }
-
-        /// <summary>
-        /// <see cref="IAgentService.IsBySubdomainAsync(string, CancellationToken)"/>
-        /// </summary>
-        public async Task<bool> IsBySubdomainAsync(string agentName, CancellationToken cancellationToken)
-        {
-            var agent = await this.GetWithIncludeAsync(a => a.Name == agentName, cancellationToken);
-
-            return agent != null && agent.AgentTypes.Any(t => t.Type.Name == AgentTypes.SUBDOMAIN);
-        }
     }
 }

@@ -45,8 +45,10 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<List<Subdomain>> GetAllWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
-            target = target ?? throw new ArgumentException("'Target' can not be null");
-            rootDomain = rootDomain ?? throw new ArgumentException("'RootDomain' can not be null");
+            if (target == null && rootDomain == null)
+            {
+                return new List<Subdomain>();
+            }
 
             IQueryable<Subdomain> query;
             if (string.IsNullOrEmpty(subdomain))
@@ -74,8 +76,10 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<Subdomain> GetWithIncludeAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
-            target = target ?? throw new ArgumentException("'Target' can not be null");
-            rootDomain = rootDomain ?? throw new ArgumentException("'RootDomain' can not be null");
+            if (target == null && rootDomain == null)
+            {
+                return null;
+            }
 
             if (string.IsNullOrEmpty(subdomain))
             {

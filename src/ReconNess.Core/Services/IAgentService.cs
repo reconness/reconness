@@ -52,13 +52,5 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The Agent Script using the URL</returns>
         Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// If we can run this Agent in a Subdomain 
-        /// </summary>
-        /// <param name="agentName">The agent name</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>If we can run this Agent in a Subdomain </returns>
-        Task<bool> IsBySubdomainAsync(string agentName, CancellationToken cancellationToken);
     }
 }
