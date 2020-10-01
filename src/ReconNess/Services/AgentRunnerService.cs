@@ -102,15 +102,15 @@ namespace ReconNess.Services
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
             await this.agentRunnerProvider.InitializesAsync(channel);
 
-            var subLevelAgentType = this.SubLevelAgentTypeAsync(agentRunner, cancellationToken);
-            if (!string.IsNullOrEmpty(subLevelAgentType))
+            var agentRunnerType = this.GetAgentRunnerType(agentRunner);
+            if (AgentRunnerTypes.CURRENT.Equals(agentRunnerType))
             {
-                await this.RunAgenthInEachSubLevelsAsync(agentRunner, channel, subLevelAgentType, cancellationToken);
+                var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
+                await this.RunAgentAsync(agentKey, agentRunner, channel, agentRunnerType, last: true);
             }
             else
             {
-                var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
-                await this.RunAgentAsync(agentKey, agentRunner, channel, last: true);
+                await this.RunAgenthInEachSubConceptAsync(agentRunner, channel, agentRunnerType, cancellationToken);
             }
         }
 
@@ -139,32 +139,29 @@ namespace ReconNess.Services
         /// If we need to run the Agent in each subdomain
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>If we need to run the Agent in each subdomain</returns>
-        private string SubLevelAgentTypeAsync(AgentRunner agentRunner, CancellationToken cancellationToken)
+        public string GetAgentRunnerType(AgentRunner agentRunner)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var types = agentRunner.Agent.AgentTypes.Select(t => t.Type.Name);
-            if (types.Contains(AgentTypes.TARGET) && agentRunner.Target == null)
+            var type = agentRunner.Agent.AgentType;
+            if (Core.Models.AgentTypes.TARGET.Equals(type) && agentRunner.Target == null)
             {
                 // we need to run the agent in each target
-                return AgentTypes.TARGET;
+                return AgentRunnerTypes.ALLTARGET;
             }
 
-            if (types.Contains(AgentTypes.ROOTDOMAIN) && agentRunner.RootDomain == null)
+            if (Core.Models.AgentTypes.ROOTDOMAIN.Equals(type) && agentRunner.RootDomain == null)
             {
                 // we need to run the agent in each rootDomain
-                return AgentTypes.ROOTDOMAIN;
+                return AgentRunnerTypes.ALLROOTDOMAIN;
             }
 
-            if (types.Contains(AgentTypes.SUBDOMAIN) && agentRunner.Subdomain == null)
+            if (Core.Models.AgentTypes.SUBDOMAIN.Equals(type) && agentRunner.Subdomain == null)
             {
                 // we need to run the agent in each subdomain
-                return AgentTypes.SUBDOMAIN;
+                return AgentRunnerTypes.ALLSUBDOMAIN;
             }
 
-            return string.Empty;
+            return AgentRunnerTypes.CURRENT;
         }
 
         /// <summary>
@@ -172,22 +169,22 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="channel">The channel to send the menssage</param>
-        /// <param name="subLevelAgentType">The sublevel <see cref="AgentTypes"/></param>
+        /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        private async Task RunAgenthInEachSubLevelsAsync(AgentRunner agentRunner, string channel, string subLevelAgentType, CancellationToken cancellationToken)
+        private async Task RunAgenthInEachSubConceptAsync(AgentRunner agentRunner, string channel, string agentRunnerType, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (AgentTypes.TARGET.Equals(subLevelAgentType))
+            if (AgentRunnerTypes.ALLTARGET.Equals(agentRunnerType))
             {
                 await this.RunAgenthInEachTargetsAsync(agentRunner, channel, cancellationToken);
             }
-            else if (AgentTypes.ROOTDOMAIN.Equals(subLevelAgentType))
+            else if (AgentRunnerTypes.ALLROOTDOMAIN.Equals(agentRunnerType))
             {
                 await this.RunAgentInEachRootDomainsAsync(agentRunner, channel, cancellationToken);
             }
-            else if (AgentTypes.SUBDOMAIN.Equals(subLevelAgentType))
+            else if (AgentRunnerTypes.ALLSUBDOMAIN.Equals(agentRunnerType))
             {
                 await this.RunAgentInEachSubdomainsAsync(agentRunner, channel, cancellationToken);
             }
@@ -224,7 +221,7 @@ namespace ReconNess.Services
                 };
 
                 var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, last);
+                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALLTARGET, last);
 
                 targetsCount--;
             }
@@ -261,7 +258,7 @@ namespace ReconNess.Services
                 };
 
                 var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, last);
+                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALLROOTDOMAIN, last);
 
                 rootdomainsCount--;
             }
@@ -298,7 +295,7 @@ namespace ReconNess.Services
                 };
 
                 var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, last);
+                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALLSUBDOMAIN, last);
 
                 subdomainsCount--;
             }
@@ -310,9 +307,10 @@ namespace ReconNess.Services
         /// <param name="agentKey">The agent key</param>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="channel">The channel to send the menssage</param>
+        /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="last">If is the last bash to run</param>
         /// <returns>A task</returns>
-        private async Task RunAgentAsync(string agentKey, AgentRunner agentRunner, string channel, bool last)
+        private async Task RunAgentAsync(string agentKey, AgentRunner agentRunner, string channel, string agentRunnerType, bool last)
         {
             if (await this.agentRunnerProvider.IsStoppedAsync(agentKey))
             {
@@ -320,7 +318,7 @@ namespace ReconNess.Services
             }
 
             var command = AgentRunnerHelpers.GetCommand(agentRunner);
-            if (AgentRunnerHelpers.NeedToSkipRun(agentRunner))
+            if (AgentRunnerHelpers.NeedToSkipRun(agentRunner, agentRunnerType))
             {
                 await this.connectorService.SendAsync(channel, $"Skip: {command}");
                 await this.IfLastRunStopProcessAsync(agentRunner, channel, last);

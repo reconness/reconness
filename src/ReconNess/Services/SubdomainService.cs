@@ -162,14 +162,14 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (string.IsNullOrWhiteSpace(subdomain.FromAgents))
+            if (string.IsNullOrWhiteSpace(subdomain.AgentsRawBefore))
             {
-                subdomain.FromAgents = agentName;
+                subdomain.AgentsRawBefore = agentName;
                 await this.UpdateAsync(subdomain, cancellationToken);
             }
-            else if (!subdomain.FromAgents.Contains(agentName))
+            else if (!subdomain.AgentsRawBefore.Contains(agentName))
             {
-                subdomain.FromAgents = string.Join(", ", subdomain.FromAgents, agentName);
+                subdomain.AgentsRawBefore = string.Join(", ", subdomain.AgentsRawBefore, agentName);
                 await this.UpdateAsync(subdomain, cancellationToken);
             }
         }

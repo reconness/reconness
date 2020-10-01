@@ -3,12 +3,10 @@ using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ReconNess.Web.Mappers.Resolvers
 {
-    internal class AgentMarketplaceTypeResolver : IValueResolver<AgentMarketplaceDto, Agent, ICollection<AgentType>>
+    internal class AgentMarketplaceTypeResolver : IValueResolver<AgentMarketplaceDto, Agent, Entities.AgentType>
     {
         private readonly IAgentTypeService agentTypeService;
 
@@ -17,53 +15,34 @@ namespace ReconNess.Web.Mappers.Resolvers
             this.agentTypeService = agentTypeService;
         }
 
-        public ICollection<AgentType> Resolve(AgentMarketplaceDto source, Agent destination, ICollection<AgentType> member, ResolutionContext context)
+        public Entities.AgentType Resolve(AgentMarketplaceDto source, Agent destination, Entities.AgentType member, ResolutionContext context)
         {
-            var agentTypes = new List<AgentType>();
-
-            var types = this.agentTypeService.GetAllAsync().Result;
-
             if (source.IsByTarget)
             {
-                agentTypes.Add(new AgentType
-                {
-                    TypeId = types.FirstOrDefault(t => t.Name == AgentTypes.TARGET).Id
-                });
+                return this.agentTypeService.GetByCriteriaAsync(t => t.Name.Equals(Core.Models.AgentTypes.TARGET)).Result;
             }
 
             if (source.IsByRootDomain)
             {
-                agentTypes.Add(new AgentType
-                {
-                    TypeId = types.FirstOrDefault(t => t.Name == AgentTypes.ROOTDOMAIN).Id
-                });
+                return this.agentTypeService.GetByCriteriaAsync(t => t.Name.Equals(Core.Models.AgentTypes.ROOTDOMAIN)).Result;
             }
 
             if (source.IsBySubdomain)
             {
-                agentTypes.Add(new AgentType
-                {
-                    TypeId = types.FirstOrDefault(t => t.Name == AgentTypes.SUBDOMAIN).Id
-                });
+                return this.agentTypeService.GetByCriteriaAsync(t => t.Name.Equals(Core.Models.AgentTypes.SUBDOMAIN)).Result;
             }
 
             if (source.IsByDirectory)
             {
-                agentTypes.Add(new AgentType
-                {
-                    TypeId = types.FirstOrDefault(t => t.Name == AgentTypes.DIRECTORY).Id
-                });
+                return this.agentTypeService.GetByCriteriaAsync(t => t.Name.Equals(Core.Models.AgentTypes.DIRECTORY)).Result;
             }
 
             if (source.IsByResource)
             {
-                agentTypes.Add(new AgentType
-                {
-                    TypeId = types.FirstOrDefault(t => t.Name == AgentTypes.RESOURCE).Id
-                });
+                return this.agentTypeService.GetByCriteriaAsync(t => t.Name.Equals(Core.Models.AgentTypes.RESOURCE)).Result;
             }
 
-            return agentTypes;
+            return null;
         }
     }
 }

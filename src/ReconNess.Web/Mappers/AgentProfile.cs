@@ -13,16 +13,12 @@ namespace ReconNess.Web.Mappers
         {
             CreateMap<AgentDto, Agent>()
                 .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentCategoryResolver>())
-                .ForMember(dest => dest.AgentTypes, opt => opt.MapFrom<AgentTypeResolver>())
+                .ForMember(dest => dest.AgentType, opt => opt.MapFrom<AgentTypeResolver>())
                 .ForMember(dest => dest.AgentTrigger, opt => opt.MapFrom<AgentTriggerResolver>());
 
             CreateMap<Agent, AgentDto>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.AgentCategories.Select(c => c.Category.Name)))
-                .ForMember(dest => dest.IsByTarget, opt => opt.MapFrom(src => src.AgentTypes.Any(c => c.Type.Name == AgentTypes.TARGET)))
-                .ForMember(dest => dest.IsByRootDomain, opt => opt.MapFrom(src => src.AgentTypes.Any(c => c.Type.Name == AgentTypes.ROOTDOMAIN)))
-                .ForMember(dest => dest.IsBySubdomain, opt => opt.MapFrom(src => src.AgentTypes.Any(c => c.Type.Name == AgentTypes.SUBDOMAIN)))
-                .ForMember(dest => dest.IsByDirectory, opt => opt.MapFrom(src => src.AgentTypes.Any(c => c.Type.Name == AgentTypes.DIRECTORY)))
-                .ForMember(dest => dest.IsByResource, opt => opt.MapFrom(src => src.AgentTypes.Any(c => c.Type.Name == AgentTypes.RESOURCE)))
+                .ForMember(dest => dest.AgentType, opt => opt.MapFrom(src => src.AgentType.Name))
                 .ForMember(dest => dest.TriggerSkipIfRunBefore, opt => opt.MapFrom(src => src.AgentTrigger.SkipIfRunBefore))
                 .ForMember(dest => dest.TriggerTargetHasBounty, opt => opt.MapFrom(src => src.AgentTrigger.TargetHasBounty))
                 .ForMember(dest => dest.TriggerTargetIncExcName, opt => opt.MapFrom(src => src.AgentTrigger.TargetIncExcName))

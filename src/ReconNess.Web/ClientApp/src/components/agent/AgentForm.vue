@@ -19,19 +19,19 @@
         <hr />
         <h4>Agent Type <span class="text-danger" title="What kind of Agent is this? Run in a Target, RootDomain or Subdomain?">*</span></h4>
         <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="isByTarget" v-model="agent.isByTarget">
+            <input type="radio" id="isByTarget" value="Target" v-model="agent.agentType">
             <label class="form-check-label" for="isByTarget">
                 Target
             </label>
         </div>
         <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="isByRootDomain" v-model="agent.isByRootDomain">
+            <input type="radio" id="isByRootDomain" value="RootDomain" v-model="agent.agentType">
             <label class="form-check-label" for="isByRootDomain">
                 RootDomain
             </label>
         </div>
         <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" id="isBySubdomain" v-model="agent.isBySubdomain">
+            <input type="radio" id="isBySubdomain" value="Subdomain" v-model="agent.agentType">
             <label class="form-check-label" for="isBySubdomain">
                 Subdomain
             </label>
@@ -41,9 +41,9 @@
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <a class="nav-item nav-link active" id="nav-general-tab" data-toggle="tab" href="#nav-general" role="tab" aria-controls="nav-subdomains" aria-selected="true">General</a>
-                <a :class="agent.isByTarget ? 'nav-item nav-link' : 'nav-item nav-link disabled'"  id="nav-target-tab" data-toggle="tab" href="#nav-target" role="tab" aria-controls="nav-target" aria-selected="false">Target</a>
-                <a :class="agent.isByRootDomain ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-rootdomain-tab" data-toggle="tab" href="#nav-rootdomain" role="tab" aria-controls="nav-rootdomain" aria-selected="false">RootDomain</a>
-                <a :class="agent.isBySubdomain ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-subdomain-tab" data-toggle="tab" href="#nav-subdomain" role="tab" aria-controls="nav-subdomain" aria-selected="false">Subdomain</a>
+                <a :class="agent.agentType === 'Target' ? 'nav-item nav-link' : 'nav-item nav-link disabled'"  id="nav-target-tab" data-toggle="tab" href="#nav-target" role="tab" aria-controls="nav-target" aria-selected="false">Target</a>
+                <a :class="agent.agentType === 'RootDomain' ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-rootdomain-tab" data-toggle="tab" href="#nav-rootdomain" role="tab" aria-controls="nav-rootdomain" aria-selected="false">RootDomain</a>
+                <a :class="agent.agentType === 'Subdomain' ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-subdomain-tab" data-toggle="tab" href="#nav-subdomain" role="tab" aria-controls="nav-subdomain" aria-selected="false">Subdomain</a>
             </div>
         </nav>
         <div class="tab-content" id="nav-tabContent">
@@ -280,7 +280,8 @@
                 require('brace/snippets/csharp')
             },
             isValid() {
-                return this.agent.name && this.agent.command && (this.agent.isByTarget || this.agent.isByRootDomain || this.agent.isBySubdomain)
+                console.log(this.agent.agentType)
+                return this.agent.name && this.agent.command && this.agent.agentType
             }
         }
     }

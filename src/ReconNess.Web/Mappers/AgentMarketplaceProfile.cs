@@ -14,7 +14,7 @@ namespace ReconNess.Web.Mappers
 
             CreateMap<AgentMarketplaceDto, Agent>()
                 .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentMarketplaceCategoryResolver>())
-                .ForMember(dest => dest.AgentTypes, opt => opt.MapFrom<AgentMarketplaceTypeResolver>());
+                .ForMember(dest => dest.AgentType, opt => opt.MapFrom<AgentMarketplaceTypeResolver>());
         }
     }
 }

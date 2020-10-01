@@ -135,16 +135,8 @@ namespace ReconNess.Web.Controllers
             agent.Repository = agentDto.Repository;
             agent.Command = agentDto.Command;
             agent.Script = agentDto.Script;
-
-            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
-            agent.AgentTypes = await this.agentTypeService.GetTypesAsync(agent.AgentTypes, new AgentTypeModel
-            {
-                IsByTarget = agentDto.IsByTarget,
-                IsByRootDomain = agentDto.IsByRootDomain,
-                IsBySubdomain = agentDto.IsBySubdomain,
-                IsByDirectory = agentDto.IsByDirectory,
-                IsByResource = agentDto.IsByResource
-            }, cancellationToken);
+            agent.AgentType = await this.agentTypeService.GetByCriteriaAsync(t => t.Name == agentDto.AgentType);
+            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);           
 
             if (agent.AgentTrigger == null)
             {

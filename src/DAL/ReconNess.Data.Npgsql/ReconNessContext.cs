@@ -22,7 +22,6 @@ namespace ReconNess.Data.Npgsql
         public DbSet<AgentRun> AgentRuns { get; set; }
         public DbSet<AgentTrigger> AgentTriggers { get; set; }
         public DbSet<AgentHistory> AgentHistories { get; set; }
-        public DbSet<Entities.Type> Types { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -77,10 +76,6 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<Entities.Type>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
-
             modelBuilder.Entity<Target>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
@@ -129,19 +124,6 @@ namespace ReconNess.Data.Npgsql
                 .HasOne(pt => pt.Category)
                 .WithMany(t => t.AgentCategories)
                 .HasForeignKey(pt => pt.CategoryId);
-
-            modelBuilder.Entity<AgentType>()
-                .HasKey(t => new { t.AgentId, t.TypeId });
-
-            modelBuilder.Entity<AgentType>()
-                .HasOne(pt => pt.Agent)
-                .WithMany(p => p.AgentTypes)
-                .HasForeignKey(pt => pt.AgentId);
-
-            modelBuilder.Entity<AgentType>()
-                .HasOne(pt => pt.Type)
-                .WithMany(t => t.AgentTypes)
-                .HasForeignKey(pt => pt.TypeId);
 
             modelBuilder.Entity<SubdomainLabel>()
                 .HasKey(t => new { t.SubdomainId, t.LabelId });

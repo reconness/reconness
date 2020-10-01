@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -9,9 +10,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20201001173655_FixAgentTypeRelation")]
+    partial class FixAgentTypeRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -238,7 +240,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.ToTable("AgentTriggers");
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.AgentType", b =>
+            modelBuilder.Entity("ReconNess.Entities.AgentTypes", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -258,7 +260,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AgentType");
+                    b.ToTable("AgentTypes");
 
                     b.HasData(
                         new
@@ -761,7 +763,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
                 {
-                    b.HasOne("ReconNess.Entities.AgentType", "AgentType")
+                    b.HasOne("ReconNess.Entities.AgentTypes", "AgentType")
                         .WithOne("Agent")
                         .HasForeignKey("ReconNess.Entities.Agent", "AgentTypeId");
                 });

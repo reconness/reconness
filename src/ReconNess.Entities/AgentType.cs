@@ -4,24 +4,10 @@ namespace ReconNess.Entities
 {
     public class AgentType : BaseEntity, IEntity
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        public Guid AgentId { get; set; }
+        public Guid Id { get; set; }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        public string Name { get; set; }
+        
         public virtual Agent Agent { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public Guid TypeId { get; set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        public virtual Type Type { get; set; }
     }
 }

@@ -23,7 +23,7 @@ namespace ReconNess.Entities
 
         public string Technology { get; set; }
 
-        public string FromAgents { get; set; }
+        public string AgentsRawBefore { get; set; }
 
         public string IpAddress { get; set; }
 

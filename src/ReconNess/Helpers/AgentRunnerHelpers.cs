@@ -9,12 +9,32 @@ namespace ReconNess.Helpers
         /// Check if we need to skip the subdomain and does not the agent in that subdomain
         /// </summary>
         /// <param name="agentRunner"></param>
-        public static bool NeedToSkipRun(AgentRunner agentRunner)
+        public static bool NeedToSkipRun(AgentRunner agentRunner, string agentRunnerType)
         {
-            // TODO: Add trigger feature
-            if (agentRunner.Subdomain == null)
+            if (agentRunner.Agent.AgentTrigger.SkipIfRunBefore)
             {
-                return false;
+                var agentTypeTarget = AgentRunnerTypes.CURRENT.Equals(agentRunnerType) && AgentTypes.TARGET.Equals(agentRunner.Agent.AgentType.Name);
+                var agentRanBeforeInThisTarget = (agentTypeTarget || AgentRunnerTypes.ALLDIRECTORY.Equals(agentRunnerType)) &&
+                                                 agentRunner.Target != null &&
+                                                 !string.IsNullOrEmpty(agentRunner.Target.AgentsRawBefore) &&
+                                                 agentRunner.Target.AgentsRawBefore.Contains(agentRunner.Agent.Name);
+
+                var agentTypeRootDomain = AgentRunnerTypes.CURRENT.Equals(agentRunnerType) && AgentTypes.ROOTDOMAIN.Equals(agentRunner.Agent.AgentType.Name);
+                var agentRanBeforeInThisRootDomain = (agentTypeRootDomain || AgentRunnerTypes.ALLROOTDOMAIN.Equals(agentRunnerType)) &&
+                                                     agentRunner.RootDomain != null &&
+                                                     !string.IsNullOrEmpty(agentRunner.RootDomain.AgentsRawBefore) &&
+                                                     agentRunner.RootDomain.AgentsRawBefore.Contains(agentRunner.Agent.Name);
+
+                var agentTypeSubdomain = AgentRunnerTypes.CURRENT.Equals(agentRunnerType) && AgentTypes.SUBDOMAIN.Equals(agentRunner.Agent.AgentType.Name);
+                var agentRanBeforeInThisSubdomain = (agentTypeSubdomain || AgentRunnerTypes.ALLSUBDOMAIN.Equals(agentRunnerType)) &&
+                                                     agentRunner.Subdomain != null &&
+                                                     !string.IsNullOrEmpty(agentRunner.Subdomain.AgentsRawBefore) &&
+                                                     agentRunner.Subdomain.AgentsRawBefore.Contains(agentRunner.Agent.Name);
+
+                if (agentRanBeforeInThisTarget || agentRanBeforeInThisRootDomain || agentRanBeforeInThisSubdomain)
+                {
+                    return true;
+                }
             }
 
             return false;

@@ -49,7 +49,7 @@
                 <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive" />
                 <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'book-open']" fixed-width title="HTTP Open" />
 
-                <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
+                <div v-if="props.row.agentsRawBefore">Agents: <strong>{{ props.row.agentsRawBefore }} </strong></div>
                 <div v-if="props.row.labels.length > 0">Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
                 <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma('name') }} </strong></div>
                 <div v-if="props.row.ipAddress">IpAddress: <strong>{{props.row.ipAddress }} </strong></div>
@@ -104,7 +104,7 @@
                             const labelFilter = row.labels.length > 0 && row.labels.some(l => l.name.indexOf(query) > -1)
                             const serviceFilter = row.services.length > 0 && row.services.some(s => s.name.indexOf(query) > -1)
                             const ipAddressFilter = row.ipAddress !== undefined && row.ipAddress !== null && row.ipAddress.indexOf(query) > -1
-                            const agentsFilter = row.fromAgents !== undefined && row.fromAgents !== null && row.fromAgents.indexOf(query) > -1
+                            const agentsFilter = row.agentsRawBefore !== undefined && row.agentsRawBefore !== null && row.agentsRawBefore.indexOf(query) > -1
 
                             return nameFilter || labelFilter || serviceFilter || ipAddressFilter || agentsFilter;
                         }

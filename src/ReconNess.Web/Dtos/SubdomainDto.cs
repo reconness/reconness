@@ -27,7 +27,7 @@ namespace ReconNess.Web.Dtos
 
         public string Technology { get; set; }
 
-        public string FromAgents { get; set; }
+        public string AgentsRawBefore { get; set; }
 
         public string Notes { get; set; }
 

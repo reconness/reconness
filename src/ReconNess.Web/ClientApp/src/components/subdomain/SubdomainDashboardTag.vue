@@ -22,7 +22,7 @@
             <strong>Technology: </strong>{{ subdomain.technology }}
         </div>
         <div class="form-group">
-            <strong>Agents: </strong>{{ subdomain.fromAgents }}
+            <strong>Agents: </strong>{{ subdomain.agentsRawBefore }}
         </div>
         <div class="form-group" v-if="hasScreenshots()">
             <strong>Screenshots: </strong>

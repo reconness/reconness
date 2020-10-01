@@ -9,6 +9,8 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
+        public string AgentsRawBefore { get; set; }
+
         public string InScope { get; set; }
 
         public string OutOfScope { get; set; }
