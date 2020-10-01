@@ -41,7 +41,6 @@ namespace ReconNess.Services
             var result = await this.GetAllQueryable(cancellationToken)
                 .Include(a => a.AgentCategories)
                     .ThenInclude(c => c.Category)
-                .Include(a => a.AgentType)
                 .ToListAsync();
 
             return result.OrderBy(a => a.AgentCategories.FirstOrDefault()?.Category?.Name).ToList();
@@ -55,7 +54,6 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(a => a.AgentCategories)
                     .ThenInclude(c => c.Category)
-                .Include(a => a.AgentType)
                 .Include(a => a.AgentTrigger)
                 .FirstOrDefaultAsync();
         }

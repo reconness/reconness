@@ -20,6 +20,8 @@ namespace ReconNess.Entities
 
         public string RootdomainName { get; set; }
 
+        public bool SubdomainHasBounty { get; set; }
+
         public bool SubdomainIsAlive { get; set; }
 
         public bool SubdomainIsMainPortal { get; set; }

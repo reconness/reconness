@@ -149,7 +149,6 @@ namespace ReconNess.Data.Npgsql
         private void RunSeed(ModelBuilder modelBuilder)
         {
             LabelSeeding.Run(modelBuilder);
-            AgentTypeSeeding.Run(modelBuilder);
         }
 
         /// <summary>

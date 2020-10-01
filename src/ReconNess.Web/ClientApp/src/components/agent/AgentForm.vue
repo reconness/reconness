@@ -99,6 +99,12 @@
             </div>
             <div class="tab-pane fade" id="nav-subdomain" role="tabpanel" aria-labelledby="nav-subdomain-tab">
                 <div class="form-group form-check mt-4">
+                    <input class="form-check-input" type="checkbox" id="triggerSubdomainHasBounty" v-model="agent.triggerSubdomainHasBounty">
+                    <label class="form-check-label" for="triggerSubdomainHasBounty">
+                        Has Bounty
+                    </label>
+                </div>
+                <div class="form-group form-check">
                     <input class="form-check-input" type="checkbox" id="triggerSubdomainIsAlive" v-model="agent.triggerSubdomainIsAlive">
                     <label class="form-check-label" for="triggerSubdomainIsAlive">
                         Is Alive
@@ -280,7 +286,6 @@
                 require('brace/snippets/csharp')
             },
             isValid() {
-                console.log(this.agent.agentType)
                 return this.agent.name && this.agent.command && this.agent.agentType
             }
         }

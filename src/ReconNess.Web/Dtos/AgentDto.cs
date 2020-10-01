@@ -35,6 +35,8 @@ namespace ReconNess.Web.Dtos
 
         public string TriggerRootdomainName { get; set; }
 
+        public bool TriggerSubdomainHasBounty { get; set; }
+
         public bool TriggerSubdomainIsAlive { get; set; }
 
         public bool TriggerSubdomainIsMainPortal { get; set; }

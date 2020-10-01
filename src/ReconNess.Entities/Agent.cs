@@ -17,11 +17,9 @@ namespace ReconNess.Entities
 
         public DateTime? LastRun { get; set; }
 
+        public virtual string AgentType { get; set; }
+
         public virtual AgentTrigger AgentTrigger { get; set; }
-
-        public virtual AgentType AgentType { get; set; }
-
-        public Guid? AgentTypeId { get; set; }
 
         public virtual ICollection<AgentCategory> AgentCategories { get; set; }
 

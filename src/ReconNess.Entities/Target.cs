@@ -19,6 +19,8 @@ namespace ReconNess.Entities
 
         public bool IsPrivate { get; set; }
 
+        public bool HasBounty { get; set; }
+
         public virtual ICollection<RootDomain> RootDomains { get; set; }
     }
 }

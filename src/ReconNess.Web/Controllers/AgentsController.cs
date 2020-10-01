@@ -25,7 +25,6 @@ namespace ReconNess.Web.Controllers
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly IAgentCategoryService categoryService;
-        private readonly IAgentTypeService agentTypeService;
         private readonly ISubdomainService subdomainService;
 
         /// <summary>
@@ -37,7 +36,6 @@ namespace ReconNess.Web.Controllers
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="categoryService"><see cref="IAgentCategoryService"/></param>
-        /// <param name="agentTypeService"><see cref="IAgentTypeService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         public AgentsController(
             IMapper mapper,
@@ -46,7 +44,6 @@ namespace ReconNess.Web.Controllers
             ITargetService targetService,
             IRootDomainService rootDomainService,
             IAgentCategoryService categoryService,
-            IAgentTypeService agentTypeService,
             ISubdomainService subdomainService)
         {
             this.mapper = mapper;
@@ -55,7 +52,6 @@ namespace ReconNess.Web.Controllers
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.categoryService = categoryService;
-            this.agentTypeService = agentTypeService;
             this.subdomainService = subdomainService;
         }
 
@@ -135,8 +131,8 @@ namespace ReconNess.Web.Controllers
             agent.Repository = agentDto.Repository;
             agent.Command = agentDto.Command;
             agent.Script = agentDto.Script;
-            agent.AgentType = await this.agentTypeService.GetByCriteriaAsync(t => t.Name == agentDto.AgentType);
-            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);           
+            agent.AgentType = agentDto.AgentType;
+            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
 
             if (agent.AgentTrigger == null)
             {
@@ -150,6 +146,7 @@ namespace ReconNess.Web.Controllers
             agent.AgentTrigger.RootdomainHasBounty = agentDto.TriggerRootdomainHasBounty;
             agent.AgentTrigger.RootdomainIncExcName = agentDto.TriggerRootdomainIncExcName;
             agent.AgentTrigger.RootdomainName = agentDto.TriggerRootdomainName;
+            agent.AgentTrigger.SubdomainHasBounty = agentDto.TriggerSubdomainHasBounty;
             agent.AgentTrigger.SubdomainIsAlive = agentDto.TriggerSubdomainIsAlive;
             agent.AgentTrigger.SubdomainIsMainPortal = agentDto.TriggerSubdomainIsMainPortal;
             agent.AgentTrigger.SubdomainHasHttpOrHttpsOpen = agentDto.TriggerSubdomainHasHttpOrHttpsOpen;

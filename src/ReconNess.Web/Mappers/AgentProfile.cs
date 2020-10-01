@@ -1,5 +1,4 @@
 using AutoMapper;
-using ReconNess.Core.Models;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using ReconNess.Web.Mappers.Resolvers;
@@ -13,12 +12,10 @@ namespace ReconNess.Web.Mappers
         {
             CreateMap<AgentDto, Agent>()
                 .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentCategoryResolver>())
-                .ForMember(dest => dest.AgentType, opt => opt.MapFrom<AgentTypeResolver>())
                 .ForMember(dest => dest.AgentTrigger, opt => opt.MapFrom<AgentTriggerResolver>());
 
             CreateMap<Agent, AgentDto>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.AgentCategories.Select(c => c.Category.Name)))
-                .ForMember(dest => dest.AgentType, opt => opt.MapFrom(src => src.AgentType.Name))
                 .ForMember(dest => dest.TriggerSkipIfRunBefore, opt => opt.MapFrom(src => src.AgentTrigger.SkipIfRunBefore))
                 .ForMember(dest => dest.TriggerTargetHasBounty, opt => opt.MapFrom(src => src.AgentTrigger.TargetHasBounty))
                 .ForMember(dest => dest.TriggerTargetIncExcName, opt => opt.MapFrom(src => src.AgentTrigger.TargetIncExcName))
@@ -26,6 +23,7 @@ namespace ReconNess.Web.Mappers
                 .ForMember(dest => dest.TriggerRootdomainHasBounty, opt => opt.MapFrom(src => src.AgentTrigger.RootdomainHasBounty))
                 .ForMember(dest => dest.TriggerRootdomainIncExcName, opt => opt.MapFrom(src => src.AgentTrigger.RootdomainIncExcName))
                 .ForMember(dest => dest.TriggerRootdomainName, opt => opt.MapFrom(src => src.AgentTrigger.RootdomainName))
+                .ForMember(dest => dest.TriggerSubdomainHasBounty, opt => opt.MapFrom(src => src.AgentTrigger.SubdomainHasBounty))
                 .ForMember(dest => dest.TriggerSubdomainIsAlive, opt => opt.MapFrom(src => src.AgentTrigger.SubdomainIsAlive))
                 .ForMember(dest => dest.TriggerSubdomainIsMainPortal, opt => opt.MapFrom(src => src.AgentTrigger.SubdomainIsMainPortal))
                 .ForMember(dest => dest.TriggerSubdomainHasHttpOrHttpsOpen, opt => opt.MapFrom(src => src.AgentTrigger.SubdomainHasHttpOrHttpsOpen))

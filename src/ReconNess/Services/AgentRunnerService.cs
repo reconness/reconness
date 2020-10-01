@@ -103,7 +103,7 @@ namespace ReconNess.Services
             await this.agentRunnerProvider.InitializesAsync(channel);
 
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
-            if (AgentRunnerTypes.CURRENT.Equals(agentRunnerType))
+            if (agentRunnerType.Contains("Current"))
             {
                 var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
                 await this.RunAgentAsync(agentKey, agentRunner, channel, agentRunnerType, last: true);
@@ -143,25 +143,13 @@ namespace ReconNess.Services
         public string GetAgentRunnerType(AgentRunner agentRunner)
         {
             var type = agentRunner.Agent.AgentType;
-            if (Core.Models.AgentTypes.TARGET.Equals(type) && agentRunner.Target == null)
+            return type switch
             {
-                // we need to run the agent in each target
-                return AgentRunnerTypes.ALLTARGET;
-            }
-
-            if (Core.Models.AgentTypes.ROOTDOMAIN.Equals(type) && agentRunner.RootDomain == null)
-            {
-                // we need to run the agent in each rootDomain
-                return AgentRunnerTypes.ALLROOTDOMAIN;
-            }
-
-            if (Core.Models.AgentTypes.SUBDOMAIN.Equals(type) && agentRunner.Subdomain == null)
-            {
-                // we need to run the agent in each subdomain
-                return AgentRunnerTypes.ALLSUBDOMAIN;
-            }
-
-            return AgentRunnerTypes.CURRENT;
+                AgentTypes.TARGET => agentRunner.Target == null ? AgentRunnerTypes.ALL_TARGETS : AgentRunnerTypes.CURRENT_TARGET,
+                AgentTypes.ROOTDOMAIN => agentRunner.RootDomain == null ? AgentRunnerTypes.ALL_ROOTDOMAINS : AgentRunnerTypes.CURRENT_ROOTDOMAIN,
+                AgentTypes.SUBDOMAIN => agentRunner.Subdomain == null ? AgentRunnerTypes.ALL_SUBDOMAINS : AgentRunnerTypes.CURRENT_SUBDOMAIN,
+                _ => throw new ArgumentException("The Agent need a valid Type")
+            };
         }
 
         /// <summary>
@@ -176,15 +164,15 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (AgentRunnerTypes.ALLTARGET.Equals(agentRunnerType))
+            if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunnerType))
             {
                 await this.RunAgenthInEachTargetsAsync(agentRunner, channel, cancellationToken);
             }
-            else if (AgentRunnerTypes.ALLROOTDOMAIN.Equals(agentRunnerType))
+            else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunnerType))
             {
                 await this.RunAgentInEachRootDomainsAsync(agentRunner, channel, cancellationToken);
             }
-            else if (AgentRunnerTypes.ALLSUBDOMAIN.Equals(agentRunnerType))
+            else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunnerType))
             {
                 await this.RunAgentInEachSubdomainsAsync(agentRunner, channel, cancellationToken);
             }
@@ -221,7 +209,7 @@ namespace ReconNess.Services
                 };
 
                 var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALLTARGET, last);
+                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last);
 
                 targetsCount--;
             }
@@ -258,7 +246,7 @@ namespace ReconNess.Services
                 };
 
                 var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALLROOTDOMAIN, last);
+                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last);
 
                 rootdomainsCount--;
             }
@@ -295,7 +283,7 @@ namespace ReconNess.Services
                 };
 
                 var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALLSUBDOMAIN, last);
+                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last);
 
                 subdomainsCount--;
             }

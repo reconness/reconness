@@ -27,6 +27,8 @@ namespace ReconNess.Entities
 
         public string IpAddress { get; set; }
 
+        public bool? HasBounty { get; set; }
+
         public virtual ICollection<SubdomainLabel> Labels { get; set; }
 
         public virtual Note Notes { get; set; }

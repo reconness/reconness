@@ -11,6 +11,8 @@ namespace ReconNess.Entities
 
         public string AgentsRawBefore { get; set; }
 
+        public bool HasBounty { get; set; }
+
         public virtual ICollection<Subdomain> Subdomains { get; set; }
 
         public virtual Note Notes { get; set; }
