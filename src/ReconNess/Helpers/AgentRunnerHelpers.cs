@@ -7,10 +7,14 @@ namespace ReconNess.Helpers
 {
     public static class AgentRunnerHelpers
     {
+        private const string INCLUDE = "include";
+        private const string EXCLUDE = "exclude";
+
         /// <summary>
         /// Check if we need to skip the subdomain and does not the agent in that subdomain
         /// </summary>
-        /// <param name="agentRunner"></param>
+        /// <param name="agentRunner">The agent runner</param>
+        /// <param name="agentRunnerType">The agent runner type</param>
         public static bool NeedToSkipRun(AgentRunner agentRunner, string agentRunnerType)
         {
             var agentTrigger = agentRunner.Agent.AgentTrigger;
@@ -22,38 +26,22 @@ namespace ReconNess.Helpers
             var agentTypeTarget = AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunnerType) || AgentRunnerTypes.ALL_DIRECTORIES.Equals(agentRunnerType);
             var agentTypeRootDomain = AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunnerType) || AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunnerType);
             var agentTypeSubdomain = AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunnerType) || AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunnerType);
+                       
 
-            if (agentTrigger.SkipIfRunBefore && RanBefore(agentRunner, agentTypeTarget, agentTypeRootDomain, agentTypeSubdomain))
-            {
-                return true;
-            }
-
-            if (agentTypeTarget && SkipTarget(agentRunner, agentTrigger))
-            {
-                return true;
-            }
-
-            if (agentTypeRootDomain && SkipRootDomain(agentRunner, agentTrigger))
-            {
-                return true;
-            }
-
-            if (agentTypeSubdomain && SkipSubdomain(agentRunner, agentTrigger))
-            {
-                return true;
-            }
-
-            return false;
+            return (agentTrigger.SkipIfRunBefore && RanBefore(agentRunner, agentTypeTarget, agentTypeRootDomain, agentTypeSubdomain)) ||
+                   (agentTypeTarget && SkipTarget(agentRunner.Target, agentTrigger)) ||
+                   (agentTypeRootDomain && SkipRootDomain(agentRunner.RootDomain, agentTrigger)) ||
+                   (agentTypeSubdomain && SkipSubdomain(agentRunner.Subdomain, agentTrigger));
         }
 
         /// <summary>
-        /// 
+        /// If ran before (target, rootdomain, subdomain)
         /// </summary>
-        /// <param name="agentRunner"></param>
-        /// <param name="agentTypeTarget"></param>
-        /// <param name="agentTypeRootDomain"></param>
-        /// <param name="agentTypeSubdomain"></param>
-        /// <returns></returns>
+        /// <param name="agentRunner">The agent runner</param>
+        /// <param name="agentTypeTarget">if is the Target the agent type</param>
+        /// <param name="agentTypeRootDomain">if is the RootDomain the agent type</param>
+        /// <param name="agentTypeSubdomain">if is the Subdomain the agent type</param>
+        /// <returns>If ran before (target, rootdomain, subdomain)></returns>
         private static bool RanBefore(AgentRunner agentRunner, bool agentTypeTarget, bool agentTypeRootDomain, bool agentTypeSubdomain)
         {
             var agentRanBeforeInThisTarget = agentTypeTarget && agentRunner.Target != null &&
@@ -72,30 +60,30 @@ namespace ReconNess.Helpers
         }
 
         /// <summary>
-        /// 
+        /// If we need to skip this Target
         /// </summary>
-        /// <param name="agentRunner"></param>
-        /// <param name="agentTrigger"></param>
-        /// <returns></returns>
-        private static bool SkipTarget(AgentRunner agentRunner, AgentTrigger agentTrigger)
+        /// <param name="target">The Target</param>
+        /// <param name="agentTrigger">Agent trigger configuration</param>
+        /// <returns>If we need to skip this Target</returns>
+        private static bool SkipTarget(Target target, AgentTrigger agentTrigger)
         {
-            if (agentTrigger.TargetHasBounty && (agentRunner.Target == null || !agentRunner.Target.HasBounty))
+            if (agentTrigger.TargetHasBounty && (target == null || !target.HasBounty))
             {
                 return true;
             }
 
             if (!string.IsNullOrEmpty(agentTrigger.TargetIncExcName) && !string.IsNullOrEmpty(agentTrigger.TargetName))
             {
-                if ("include".Equals(agentTrigger.TargetIncExcName, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.TargetIncExcName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Target.Name, agentTrigger.TargetName);
+                    var match = Regex.Match(target.Name, agentTrigger.TargetName);
 
                     // if match success dont skip this target  
                     return !match.Success;
                 }
-                else if ("exclude".Equals(agentTrigger.TargetIncExcName, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.TargetIncExcName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Target.Name, agentTrigger.TargetName);
+                    var match = Regex.Match(target.Name, agentTrigger.TargetName);
 
                     // if match success skip this target 
                     return match.Success;
@@ -106,30 +94,30 @@ namespace ReconNess.Helpers
         }
 
         /// <summary>
-        /// 
+        /// If we need to skip this RootDomain
         /// </summary>
-        /// <param name="agentRunner"></param>
-        /// <param name="agentTrigger"></param>
-        /// <returns></returns>
-        private static bool SkipRootDomain(AgentRunner agentRunner, AgentTrigger agentTrigger)
+        /// <param name="rootDomain">The rootDomain</param>
+        /// <param name="agentTrigger">Agent trigger configuration</param>
+        /// <returns>If we need to skip this RootDomain</returns>
+        private static bool SkipRootDomain(RootDomain rootDomain, AgentTrigger agentTrigger)
         {
-            if (agentTrigger.RootdomainHasBounty && (agentRunner.RootDomain == null || !agentRunner.RootDomain.HasBounty))
+            if (agentTrigger.RootdomainHasBounty && (rootDomain == null || !rootDomain.HasBounty))
             {
                 return true;
             }
 
             if (!string.IsNullOrEmpty(agentTrigger.RootdomainIncExcName) && !string.IsNullOrEmpty(agentTrigger.RootdomainName))
             {
-                if ("include".Equals(agentTrigger.RootdomainIncExcName, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.RootdomainIncExcName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.RootDomain.Name, agentTrigger.RootdomainName);
+                    var match = Regex.Match(rootDomain.Name, agentTrigger.RootdomainName);
 
                     // if match success dont skip this rootdomain  
                     return !match.Success;
                 }
-                else if ("exclude".Equals(agentTrigger.RootdomainIncExcName, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.RootdomainIncExcName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.RootDomain.Name, agentTrigger.RootdomainName);
+                    var match = Regex.Match(rootDomain.Name, agentTrigger.RootdomainName);
 
                     // if match success skip this rootdomain 
                     return match.Success;
@@ -140,45 +128,45 @@ namespace ReconNess.Helpers
         }
 
         /// <summary>
-        /// 
+        /// If we need to skip this Subdomain
         /// </summary>
-        /// <param name="agentRunner"></param>
-        /// <param name="agentTrigger"></param>
-        /// <returns></returns>
-        private static bool SkipSubdomain(AgentRunner agentRunner, AgentTrigger agentTrigger)
+        /// <param name="subdomain">The subdomain</param>
+        /// <param name="agentTrigger">Agent trigger configuration</param>
+        /// <returns>If we need to skip this Subdomain</returns>
+        private static bool SkipSubdomain(Subdomain subdomain, AgentTrigger agentTrigger)
         {
-            if (agentTrigger.SubdomainHasBounty && (agentRunner.Subdomain == null || agentRunner.Subdomain.HasBounty == null || !agentRunner.Subdomain.HasBounty.Value))
+            if (agentTrigger.SubdomainHasBounty && (subdomain == null || subdomain.HasBounty == null || !subdomain.HasBounty.Value))
             {
                 return true;
             }
 
-            if (agentTrigger.SubdomainHasHttpOrHttpsOpen && (agentRunner.Subdomain == null || agentRunner.Subdomain.HasHttpOpen == null || !agentRunner.Subdomain.HasHttpOpen.Value))
+            if (agentTrigger.SubdomainHasHttpOrHttpsOpen && (subdomain == null || subdomain.HasHttpOpen == null || !subdomain.HasHttpOpen.Value))
             {
                 return true;
             }
 
-            if (agentTrigger.SubdomainIsAlive && (agentRunner.Subdomain == null || agentRunner.Subdomain.IsAlive == null || !agentRunner.Subdomain.IsAlive.Value))
+            if (agentTrigger.SubdomainIsAlive && (subdomain == null || subdomain.IsAlive == null || !subdomain.IsAlive.Value))
             {
                 return true;
             }
 
-            if (agentTrigger.SubdomainIsMainPortal && (agentRunner.Subdomain == null || agentRunner.Subdomain.IsMainPortal == null || !agentRunner.Subdomain.IsMainPortal.Value))
+            if (agentTrigger.SubdomainIsMainPortal && (subdomain == null || subdomain.IsMainPortal == null || !subdomain.IsMainPortal.Value))
             {
                 return true;
             }
 
             if (!string.IsNullOrEmpty(agentTrigger.SubdomainIncExcName) && !string.IsNullOrEmpty(agentTrigger.SubdomainName))
             {
-                if ("include".Equals(agentTrigger.SubdomainIncExcName, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.SubdomainIncExcName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Subdomain.Name, agentTrigger.SubdomainName);
+                    var match = Regex.Match(subdomain.Name, agentTrigger.SubdomainName);
 
                     // if match success dont skip this subdomain  
                     return !match.Success;
                 }
-                else if ("exclude".Equals(agentTrigger.SubdomainIncExcName, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.SubdomainIncExcName, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Subdomain.Name, agentTrigger.SubdomainName);
+                    var match = Regex.Match(subdomain.Name, agentTrigger.SubdomainName);
 
                     // if match success skip this subdomain 
                     return match.Success;
@@ -187,9 +175,9 @@ namespace ReconNess.Helpers
 
             if (!string.IsNullOrEmpty(agentTrigger.SubdomainIncExcServicePort) && !string.IsNullOrEmpty(agentTrigger.SubdomainServicePort))
             {
-                if ("include".Equals(agentTrigger.SubdomainIncExcServicePort, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.SubdomainIncExcServicePort, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (var service in agentRunner.Subdomain.Services)
+                    foreach (var service in subdomain.Services)
                     {
                         var matchService = Regex.Match(service.Name, agentTrigger.SubdomainServicePort);
                         var matchPort = Regex.Match(service.Port.ToString(), agentTrigger.SubdomainServicePort);
@@ -203,9 +191,9 @@ namespace ReconNess.Helpers
 
                     return true;
                 }
-                else if ("exclude".Equals(agentTrigger.SubdomainIncExcServicePort, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.SubdomainIncExcServicePort, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (var service in agentRunner.Subdomain.Services)
+                    foreach (var service in subdomain.Services)
                     {
                         var matchService = Regex.Match(service.Name, agentTrigger.SubdomainServicePort);
                         var matchPort = Regex.Match(service.Port.ToString(), agentTrigger.SubdomainServicePort);
@@ -221,16 +209,16 @@ namespace ReconNess.Helpers
 
             if (!string.IsNullOrEmpty(agentTrigger.SubdomainIncExcIP) && !string.IsNullOrEmpty(agentTrigger.SubdomainIP))
             {
-                if ("include".Equals(agentTrigger.SubdomainIncExcIP, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.SubdomainIncExcIP, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Subdomain.IpAddress, agentTrigger.SubdomainIP);
+                    var match = Regex.Match(subdomain.IpAddress, agentTrigger.SubdomainIP);
 
                     // if match success dont skip this subdomain  
                     return !match.Success;
                 }
-                else if ("exclude".Equals(agentTrigger.SubdomainIncExcIP, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.SubdomainIncExcIP, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Subdomain.IpAddress, agentTrigger.SubdomainIP);
+                    var match = Regex.Match(subdomain.IpAddress, agentTrigger.SubdomainIP);
 
                     // if match success skip this subdomain 
                     return match.Success;
@@ -239,16 +227,16 @@ namespace ReconNess.Helpers
 
             if (!string.IsNullOrEmpty(agentTrigger.SubdomainIncExcTechnology) && !string.IsNullOrEmpty(agentTrigger.SubdomainTechnology))
             {
-                if ("include".Equals(agentTrigger.SubdomainIncExcTechnology, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.SubdomainIncExcTechnology, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Subdomain.Technology, agentTrigger.SubdomainTechnology);
+                    var match = Regex.Match(subdomain.Technology, agentTrigger.SubdomainTechnology);
 
                     // if match success dont skip this subdomain  
                     return !match.Success;
                 }
-                else if ("exclude".Equals(agentTrigger.SubdomainIncExcTechnology, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.SubdomainIncExcTechnology, StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(agentRunner.Subdomain.Technology, agentTrigger.SubdomainTechnology);
+                    var match = Regex.Match(subdomain.Technology, agentTrigger.SubdomainTechnology);
 
                     // if match success skip this subdomain 
                     return match.Success;
@@ -257,9 +245,9 @@ namespace ReconNess.Helpers
 
             if (!string.IsNullOrEmpty(agentTrigger.SubdomainIncExcLabel) && !string.IsNullOrEmpty(agentTrigger.SubdomainLabel))
             {
-                if ("include".Equals(agentTrigger.SubdomainIncExcLabel, StringComparison.OrdinalIgnoreCase))
+                if (INCLUDE.Equals(agentTrigger.SubdomainIncExcLabel, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (var label in agentRunner.Subdomain.Labels)
+                    foreach (var label in subdomain.Labels)
                     {
                         var match = Regex.Match(label.Label.Name, agentTrigger.SubdomainLabel);
 
@@ -272,9 +260,9 @@ namespace ReconNess.Helpers
 
                     return true;
                 }
-                else if ("exclude".Equals(agentTrigger.SubdomainIncExcLabel, StringComparison.OrdinalIgnoreCase))
+                else if (EXCLUDE.Equals(agentTrigger.SubdomainIncExcLabel, StringComparison.OrdinalIgnoreCase))
                 {
-                    foreach (var label in agentRunner.Subdomain.Labels)
+                    foreach (var label in subdomain.Labels)
                     {
                         var match = Regex.Match(label.Label.Name, agentTrigger.SubdomainLabel);
 
