@@ -70,7 +70,7 @@ namespace ReconNess.Services
 
             var agentsRunning = new List<string>();
 
-            var agentRunningkeys = await this.agentRunnerProvider.RunningKeysAsync;
+            var channels = await this.agentRunnerProvider.RunningChannelsAsync;
 
             var agents = await this.agentService.GetAllAsync(cancellationToken);
             foreach (var agent in agents)
@@ -78,9 +78,9 @@ namespace ReconNess.Services
                 cancellationToken.ThrowIfCancellationRequested();
 
                 agentRunner.Agent = agent;
-                var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
+                var channel = AgentRunnerHelpers.GetChannel(agentRunner);
 
-                if (agentRunningkeys.Any(c => c.Contains(agentKey)))
+                if (channels.Any(c => c.Contains(channel)))
                 {
                     agentsRunning.Add(agent.Name);
                 }
@@ -104,8 +104,7 @@ namespace ReconNess.Services
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.Contains("Current"))
             {
-                var agentKey = AgentRunnerHelpers.GetKey(agentRunner);
-                await this.RunAgentAsync(agentKey, agentRunner, channel, agentRunnerType, last: true);
+                await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true);
             }
             else
             {
@@ -207,8 +206,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last);
+                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last);
 
                 targetsCount--;
             }
@@ -244,8 +242,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last);
+                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last);
 
                 rootdomainsCount--;
             }
@@ -281,8 +278,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                var agentKey = AgentRunnerHelpers.GetKey(newAgentRunner);
-                await this.RunAgentAsync(agentKey, newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last);
+                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last);
 
                 subdomainsCount--;
             }
@@ -291,23 +287,21 @@ namespace ReconNess.Services
         /// <summary>
         /// Run bash
         /// </summary>
-        /// <param name="agentKey">The agent key</param>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="last">If is the last bash to run</param>
         /// <returns>A task</returns>
-        private async Task RunAgentAsync(string agentKey, AgentRunner agentRunner, string channel, string agentRunnerType, bool last)
+        private async Task RunAgentAsync(AgentRunner agentRunner, string channel, string agentRunnerType, bool last)
         {
-            if (await this.agentRunnerProvider.IsStoppedAsync(agentKey))
+            if (await this.agentRunnerProvider.IsStoppedAsync(channel))
             {
                 return;
             }
 
-            var command = AgentRunnerHelpers.GetCommand(agentRunner); 
+            var command = AgentRunnerHelpers.GetCommand(agentRunner);
             await this.agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
             {
-                Key = agentKey,
                 AgentRunner = agentRunner,
                 Channel = channel,
                 Command = command,
@@ -341,7 +335,7 @@ namespace ReconNess.Services
         private async Task BeginHandlerAsync(AgentRunnerProviderResult result)
         {
             await this.connectorService.SendAsync(result.Channel, $"RUN: {result.Command}", true, result.CancellationToken);
-        }        
+        }
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.ParserOutputHandlerAsync"/>
@@ -375,8 +369,8 @@ namespace ReconNess.Services
         /// </summary>
         private async Task EndHandlerAsync(AgentRunnerProviderResult result)
         {
-            
-            await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);            
+
+            await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);
 
             if (result.Last)
             {
@@ -407,7 +401,7 @@ namespace ReconNess.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
         private async Task IfLastRunStopProcessAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken = default)
-        {            
+        {
             try
             {
                 await this.StopAgentAsync(agentRunner, channel, cancellationToken);
@@ -416,7 +410,7 @@ namespace ReconNess.Services
             catch (Exception exx)
             {
                 await this.connectorService.SendLogsAsync(channel, $"Exception: {exx.StackTrace}", cancellationToken);
-            }            
+            }
         }
 
         /// <summary>

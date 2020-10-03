@@ -17,7 +17,7 @@ namespace ReconNess.Worker
         private SemaphoreSlim signal = new SemaphoreSlim(0);
         private AgentRunnerProcess currentRunProcess;
 
-        private string keyDeleted;
+        private string channelDeleted;
 
         /// <summary>
         /// <see cref="IBackgroundTaskQueue.QueueAgentRun(AgentRunnerProcess)"></see>
@@ -49,7 +49,7 @@ namespace ReconNess.Worker
                     return null;
                 }
 
-            } while (!string.IsNullOrEmpty(this.keyDeleted) && workItem.Key.Contains(this.keyDeleted));
+            } while (!string.IsNullOrEmpty(this.channelDeleted) && workItem.Channel.Contains(this.channelDeleted));
 
             this.currentRunProcess = workItem;
 
@@ -57,19 +57,22 @@ namespace ReconNess.Worker
         }
 
         /// <summary>
-        /// <see cref="IBackgroundTaskQueue.RunningKeys"></see>
+        /// <see cref="IBackgroundTaskQueue.RunningChannels"></see>
         /// </summary>
-        public IList<string> RunningKeys
+        public IList<string> RunningChannels
         {
             get
             {
-                var keys = workItems.Select(a => a.Key).ToList();
+                var channels = workItems.Select(a => a.Channel).Distinct().ToList();
                 if (this.currentRunProcess != null)
                 {
-                    keys.Add(this.currentRunProcess.Key);
+                    if (!channels.Any(c => c.Equals(this.currentRunProcess.Channel)))
+                    {
+                        channels.Add(this.currentRunProcess.Channel);
+                    }
                 }
 
-                return keys;
+                return channels;
             }
         }
 
@@ -93,10 +96,10 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IBackgroundTaskQueue.StopAsync(string)"></see>
         /// </summary>
-        public Task StopAsync(string key)
+        public Task StopAsync(string channel)
         {
-            this.keyDeleted = key;
-            if (this.currentRunProcess != null && this.currentRunProcess.Key.Contains(key))
+            this.channelDeleted = channel;
+            if (this.currentRunProcess != null && this.currentRunProcess.Channel.Equals(channel))
             {
                 if (this.currentRunProcess.ProcessWrapper != null)
                 {
@@ -111,17 +114,17 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IBackgroundTaskQueue.IsStopped(string)"></see>
         /// </summary>
-        public bool IsStopped(string keyDeleted)
+        public bool IsStopped(string channelDeleted)
         {
-            return !string.IsNullOrEmpty(this.keyDeleted) && keyDeleted.Equals(this.keyDeleted);
+            return !string.IsNullOrEmpty(this.channelDeleted) && channelDeleted.Equals(this.channelDeleted);
         }
 
         /// <summary>
         /// <see cref="IBackgroundTaskQueue.Initializes(string)"></see>
         /// </summary>
-        public void Initializes(string key)
+        public void Initializes(string channel)
         {
-            this.keyDeleted = string.Empty;
+            this.channelDeleted = string.Empty;
         }
     }
 }

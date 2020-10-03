@@ -50,16 +50,16 @@ namespace ReconNess.Core
         Task<int> RunningCountAsync { get; }
 
         /// <summary>
-        /// The list of agent keys running
+        /// The list of agent channels running
         /// </summary>
-        Task<IList<string>> RunningKeysAsync { get; }
+        Task<IList<string>> RunningChannelsAsync { get; }
 
         /// <summary>
-        /// Initializes the Agent with that key
+        /// Initializes the Agent with that channel
         /// </summary>
-        /// <param name="key">The Agent key</param>
+        /// <param name="channel">The Channel</param>
         /// <returns>A task</returns>
-        Task InitializesAsync(string key);
+        Task InitializesAsync(string channel);
 
         /// <summary>
         /// Run the Agent
@@ -69,17 +69,17 @@ namespace ReconNess.Core
         Task RunAsync(AgentRunnerProviderArgs providerArgs);
 
         /// <summary>
-        /// Stop the Agent with that key
+        /// Stop the Agent with that channel
         /// </summary>
-        /// <param name="key">The Agent key</param>
+        /// <param name="channel">The Channel</param>
         /// <returns>A task</returns>
-        Task StopAsync(string key);
+        Task StopAsync(string channel);
 
         /// <summary>
-        /// If the Agent with that key is not running 
+        /// If the Agent with that channel is not running 
         /// </summary>
-        /// <param name="key">The Agent key</param>
-        /// <returns>If the Agent with that key is not running </returns>
-        Task<bool> IsStoppedAsync(string key);
+        /// <param name="channel">The Channel</param>
+        /// <returns>If the Agent with that channel is not running </returns>
+        Task<bool> IsStoppedAsync(string channel);
     }
 }

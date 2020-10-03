@@ -7,14 +7,14 @@ namespace ReconNess.Worker.Models
 {
     public class AgentRunnerProcess
     {
-        public AgentRunnerProcess(string key, ProcessWrapper processWrapper, Func<CancellationToken, Task> processFunc)
+        public AgentRunnerProcess(string channel, ProcessWrapper processWrapper, Func<CancellationToken, Task> processFunc)
         {
-            Key = key;
+            Channel = channel;
             ProcessWrapper = processWrapper;
             ProcessFunc = processFunc;
         }
 
-        public string Key { get; set; }
+        public string Channel { get; set; }
 
         public ProcessWrapper ProcessWrapper { get; set; }
 

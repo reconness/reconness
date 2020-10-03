@@ -36,21 +36,21 @@ namespace ReconNess.Worker
         public Task<int> RunningCountAsync => Task.FromResult(this.backgroundTaskQueue.RunningCount);
 
         /// <summary>
-        /// <see cref="IAgentRunnerProvider.RunningKeysAsync"/>
+        /// <see cref="IAgentRunnerProvider.RunningChannelsAsync"/>
         /// </summary>
-        public Task<IList<string>> RunningKeysAsync => Task.FromResult(this.backgroundTaskQueue.RunningKeys);
+        public Task<IList<string>> RunningChannelsAsync => Task.FromResult(this.backgroundTaskQueue.RunningChannels);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.IsStoppedAsync(string)"/>
         /// </summary>
-        public Task<bool> IsStoppedAsync(string key) => Task.FromResult(this.backgroundTaskQueue.IsStopped(key));
+        public Task<bool> IsStoppedAsync(string channel) => Task.FromResult(this.backgroundTaskQueue.IsStopped(channel));
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.InitializesAsync(string)"/>
         /// </summary>
-        public Task InitializesAsync(string key)
+        public Task InitializesAsync(string channel)
         {
-            this.backgroundTaskQueue.Initializes(key);
+            this.backgroundTaskQueue.Initializes(channel);
 
             return Task.CompletedTask;
         }
@@ -58,7 +58,7 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IAgentRunnerProvider.StopAsync(string)"/>
         /// </summary>
-        public async Task StopAsync(string key) => await this.backgroundTaskQueue.StopAsync(key);
+        public async Task StopAsync(string channel) => await this.backgroundTaskQueue.StopAsync(channel);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.RunAsync(AgentRunnerProviderArgs)"/>
@@ -66,16 +66,16 @@ namespace ReconNess.Worker
         public Task RunAsync(AgentRunnerProviderArgs providerArgs)
         {
             var processWrapper = new ProcessWrapper();
-            this.backgroundTaskQueue.QueueAgentRun(new AgentRunnerProcess(providerArgs.Key, processWrapper, async (CancellationToken token) =>
+            this.backgroundTaskQueue.QueueAgentRun(new AgentRunnerProcess(providerArgs.Channel, processWrapper, async (CancellationToken token) =>
             {
                 try
                 {
-                    if(!await providerArgs.SkipHandlerAsync(new AgentRunnerProviderResult
+                    if (!await providerArgs.SkipHandlerAsync(new AgentRunnerProviderResult
                     {
                         AgentRunner = providerArgs.AgentRunner,
-                        AgentRunnerType = providerArgs.AgentRunnerType,
                         Channel = providerArgs.Channel,
                         Command = providerArgs.Command,
+                        AgentRunnerType = providerArgs.AgentRunnerType,
                         CancellationToken = token
                     }))
                     {
@@ -113,11 +113,10 @@ namespace ReconNess.Worker
 
                     await providerArgs.EndHandlerAsync(new AgentRunnerProviderResult
                     {
-                        Key = providerArgs.Key,
                         AgentRunner = providerArgs.AgentRunner,
-                        AgentRunnerType = providerArgs.AgentRunnerType,
                         Channel = providerArgs.Channel,
-                        Last = providerArgs.Last,                        
+                        AgentRunnerType = providerArgs.AgentRunnerType,
+                        Last = providerArgs.Last,
                         CancellationToken = token
                     });
 
@@ -126,9 +125,8 @@ namespace ReconNess.Worker
                 {
                     await providerArgs.ExceptionHandlerAsync(new AgentRunnerProviderResult
                     {
-                        Key = providerArgs.Key,
-                        AgentRunner = providerArgs.AgentRunner,
                         Channel = providerArgs.Channel,
+                        AgentRunner = providerArgs.AgentRunner,
                         Last = providerArgs.Last,
                         Exception = ex,
                         CancellationToken = token

@@ -26,7 +26,7 @@ namespace ReconNess.Helpers
             var agentTypeTarget = AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunnerType) || AgentRunnerTypes.ALL_DIRECTORIES.Equals(agentRunnerType);
             var agentTypeRootDomain = AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunnerType) || AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunnerType);
             var agentTypeSubdomain = AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunnerType) || AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunnerType);
-                       
+
 
             return (agentTrigger.SkipIfRunBefore && RanBefore(agentRunner, agentTypeTarget, agentTypeRootDomain, agentTypeSubdomain)) ||
                    (agentTypeTarget && SkipTarget(agentRunner.Target, agentTrigger)) ||
@@ -279,40 +279,14 @@ namespace ReconNess.Helpers
         }
 
         /// <summary>
-        /// Obtain the channel to send the menssage
+        /// Obtain the channel, we use the channel to send notification to the frontend (tarminal and logs)
+        /// and to register the Runners process
         /// </summary>
         /// <param name="agent">The agent</param>
         /// <param name="rootDomain">The domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <returns>The channel to send the menssage</returns>
         public static string GetChannel(AgentRunner agentRunner)
-        {
-            if (agentRunner.Target == null)
-            {
-                return $"{agentRunner.Agent.Name}";
-            }
-
-            if (agentRunner.RootDomain == null)
-            {
-                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}";
-            }
-
-            if (agentRunner.Subdomain == null)
-            {
-                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}";
-            }
-
-            return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}_{agentRunner.Subdomain.Name}";
-        }
-
-        /// <summary>
-        /// Obtain the key to store the process
-        /// </summary>
-        /// <param name="agent">The agent</param>
-        /// <param name="rootDomain">The domain</param>
-        /// <param name="subdomain">The subdomain</param>
-        /// <returns>The channel to send the menssage</returns>
-        public static string GetKey(AgentRunner agentRunner)
         {
             if (agentRunner.Target == null)
             {

@@ -16,9 +16,9 @@ namespace ReconNess.Worker
         int RunningCount { get; }
 
         /// <summary>
-        /// The list of agent keys running
+        /// The list of agent channel running
         /// </summary>
-        IList<string> RunningKeys { get; }
+        IList<string> RunningChannels { get; }
 
         /// <summary>
         /// Queue an Agent to Run
@@ -34,24 +34,24 @@ namespace ReconNess.Worker
         Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken);
 
         /// <summary>
-        /// Stop the Agent with that key
+        /// Stop the Agent with that channel
         /// </summary>
-        /// <param name="key">The Agent key</param>
+        /// <param name="channel">The Channel</param>
         /// <returns>A Task</returns>
-        Task StopAsync(string key);
+        Task StopAsync(string channel);
 
         /// <summary>
-        /// If the Agent with that key is not running 
+        /// If the Agent with that channel is not running 
         /// </summary>
-        /// <param name="key">The Agent key</param>
-        /// <returns>If the Agent with that key is not running </returns>
-        bool IsStopped(string key);
+        /// <param name="channel">The Channel</param>
+        /// <returns>If the Agent with that channel is not running </returns>
+        bool IsStopped(string channel);
 
         /// <summary>
-        /// Initializes the Agent with that key
+        /// Initializes the Agent with that channel
         /// </summary>
-        /// <param name="key">The Agent key</param>
+        /// <param name="channel">The Channel</param>
         /// <returns>A Task</returns>
-        void Initializes(string key);
+        void Initializes(string channel);
     }
 }
