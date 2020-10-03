@@ -45,16 +45,16 @@ namespace ReconNess.Helpers
         private static bool RanBefore(AgentRunner agentRunner, bool agentTypeTarget, bool agentTypeRootDomain, bool agentTypeSubdomain)
         {
             var agentRanBeforeInThisTarget = agentTypeTarget && agentRunner.Target != null &&
-                                                 !string.IsNullOrEmpty(agentRunner.Target.AgentsRawBefore) &&
-                                                 agentRunner.Target.AgentsRawBefore.Contains(agentRunner.Agent.Name);
+                                                 !string.IsNullOrEmpty(agentRunner.Target.AgentsRanBefore) &&
+                                                 agentRunner.Target.AgentsRanBefore.Contains(agentRunner.Agent.Name);
 
             var agentRanBeforeInThisRootDomain = agentTypeRootDomain && agentRunner.RootDomain != null &&
-                                                 !string.IsNullOrEmpty(agentRunner.RootDomain.AgentsRawBefore) &&
-                                                 agentRunner.RootDomain.AgentsRawBefore.Contains(agentRunner.Agent.Name);
+                                                 !string.IsNullOrEmpty(agentRunner.RootDomain.AgentsRanBefore) &&
+                                                 agentRunner.RootDomain.AgentsRanBefore.Contains(agentRunner.Agent.Name);
 
             var agentRanBeforeInThisSubdomain = agentTypeSubdomain && agentRunner.Subdomain != null &&
-                                                 !string.IsNullOrEmpty(agentRunner.Subdomain.AgentsRawBefore) &&
-                                                 agentRunner.Subdomain.AgentsRawBefore.Contains(agentRunner.Agent.Name);
+                                                 !string.IsNullOrEmpty(agentRunner.Subdomain.AgentsRanBefore) &&
+                                                 agentRunner.Subdomain.AgentsRanBefore.Contains(agentRunner.Agent.Name);
 
             return agentRanBeforeInThisTarget || agentRanBeforeInThisRootDomain || agentRanBeforeInThisSubdomain;
         }

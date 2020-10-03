@@ -165,14 +165,14 @@ namespace ReconNess.Services
             var subdomain = agentRunner.Subdomain;
             var agentName = agentRunner.Agent.Name;
 
-            if (string.IsNullOrWhiteSpace(subdomain.AgentsRawBefore))
+            if (string.IsNullOrWhiteSpace(subdomain.AgentsRanBefore))
             {
-                subdomain.AgentsRawBefore = agentName;
+                subdomain.AgentsRanBefore = agentName;
                 await this.UpdateAsync(subdomain, cancellationToken);
             }
-            else if (!subdomain.AgentsRawBefore.Contains(agentName))
+            else if (!subdomain.AgentsRanBefore.Contains(agentName))
             {
-                subdomain.AgentsRawBefore = string.Join(", ", subdomain.AgentsRawBefore, agentName);
+                subdomain.AgentsRanBefore = string.Join(", ", subdomain.AgentsRanBefore, agentName);
                 await this.UpdateAsync(subdomain, cancellationToken);
             }
         }

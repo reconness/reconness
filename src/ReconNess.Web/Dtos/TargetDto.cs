@@ -9,6 +9,8 @@ namespace ReconNess.Web.Dtos
 
         public string Name { get; set; }
 
+        public string AgentsRanBefore { get; set; }
+
         public string InScope { get; set; }
 
         public string OutOfScope { get; set; }

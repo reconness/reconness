@@ -92,14 +92,14 @@ namespace ReconNess.Services
             var target = agentRunner.Target;
             var agentName = agentRunner.Agent.Name;
 
-            if (string.IsNullOrWhiteSpace(target.AgentsRawBefore))
+            if (string.IsNullOrWhiteSpace(target.AgentsRanBefore))
             {
-                target.AgentsRawBefore = agentName;
+                target.AgentsRanBefore = agentName;
                 await this.UpdateAsync(target, cancellationToken);
             }
-            else if (!target.AgentsRawBefore.Contains(agentName))
+            else if (!target.AgentsRanBefore.Contains(agentName))
             {
-                target.AgentsRawBefore = string.Join(", ", target.AgentsRawBefore, agentName);
+                target.AgentsRanBefore = string.Join(", ", target.AgentsRanBefore, agentName);
                 await this.UpdateAsync(target, cancellationToken);
             }
         }

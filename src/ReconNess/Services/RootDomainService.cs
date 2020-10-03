@@ -63,14 +63,14 @@ namespace ReconNess.Services
             var rootDomain = agentRunner.RootDomain;
             var agentName = agentRunner.Agent.Name;
 
-            if (string.IsNullOrWhiteSpace(rootDomain.AgentsRawBefore))
+            if (string.IsNullOrWhiteSpace(rootDomain.AgentsRanBefore))
             {
-                rootDomain.AgentsRawBefore = agentName;
+                rootDomain.AgentsRanBefore = agentName;
                 await this.UpdateAsync(rootDomain, cancellationToken);
             }
-            else if (!rootDomain.AgentsRawBefore.Contains(agentName))
+            else if (!rootDomain.AgentsRanBefore.Contains(agentName))
             {
-                rootDomain.AgentsRawBefore = string.Join(", ", rootDomain.AgentsRawBefore, agentName);
+                rootDomain.AgentsRanBefore = string.Join(", ", rootDomain.AgentsRanBefore, agentName);
                 await this.UpdateAsync(rootDomain, cancellationToken);
             }
         }
