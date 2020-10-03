@@ -17,6 +17,13 @@ namespace ReconNess.Core
         public delegate Task BeginHandlerAsync(AgentRunnerProviderResult result);
 
         /// <summary>
+        /// A callback method when the Agent to check if we can skip running
+        /// </summary>
+        /// <param name="result">The result send to the callback method</param>
+        /// <returns>A task </returns>
+        public delegate Task<bool> SkipHandlerAsync(AgentRunnerProviderResult result);
+
+        /// <summary>
         /// A callback method when the Agent parse the terminal output
         /// </summary>
         /// <param name="result">The result send to the callback method</param>

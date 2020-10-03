@@ -7,7 +7,7 @@ const state = {
 
 const getters = {
     subdomainAgents: state => {
-        return state.agents.filter(agent => agent.isBySubdomain)
+        return state.agents.filter(agent => agent.agentType === 'Subdomain')
     },
     installed: state => (agent) => {
         return state.agents.some(a => a.name === agent.name)

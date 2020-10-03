@@ -28,12 +28,13 @@ namespace ReconNess.Core.Services
         Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Register that we run this Agent in the Subdomain
+        /// Register that we run this Agent in the concept
         /// </summary>
         /// <param name="agentRun">The agent</param>
+        /// <param name="agentRunType">The agent run type that was ran</param>
         /// <param name="token">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default);
+        Task UpdateAgentOnScopeAsync(AgentRunner agentRun, string agentRunType, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Send a notification 

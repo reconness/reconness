@@ -22,7 +22,6 @@ namespace ReconNess.Services
         private readonly ISubdomainService subdomainService;
         private readonly IAgentRunnerProvider agentRunnerProvider;
         private readonly IAgentBackgroundService agentBackgroundService;
-
         private readonly INotificationService notificationService;
         private readonly IConnectorService connectorService;
 
@@ -305,27 +304,35 @@ namespace ReconNess.Services
                 return;
             }
 
-            var command = AgentRunnerHelpers.GetCommand(agentRunner);
-            if (AgentRunnerHelpers.NeedToSkipRun(agentRunner, agentRunnerType))
-            {
-                await this.connectorService.SendAsync(channel, $"Skip: {command}");
-                await this.IfLastRunStopProcessAsync(agentRunner, channel, last);
-
-                return;
-            }
-
+            var command = AgentRunnerHelpers.GetCommand(agentRunner); 
             await this.agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
             {
                 Key = agentKey,
                 AgentRunner = agentRunner,
                 Channel = channel,
                 Command = command,
+                AgentRunnerType = agentRunnerType,
                 Last = last,
                 BeginHandlerAsync = BeginHandlerAsync,
+                SkipHandlerAsync = SkipHandlerAsync,
                 ParserOutputHandlerAsync = ParserOutputHandlerAsync,
                 EndHandlerAsync = EndHandlerAsync,
                 ExceptionHandlerAsync = ExceptionHandlerAsync
             });
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunnerProvider.SkipHandlerAsync"/>
+        /// </summary>
+        private async Task<bool> SkipHandlerAsync(AgentRunnerProviderResult result)
+        {
+            if (AgentRunnerHelpers.NeedToSkipRun(result.AgentRunner, result.AgentRunnerType))
+            {
+                await this.connectorService.SendAsync(result.Channel, $"Skip: {result.Command}");
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -334,7 +341,7 @@ namespace ReconNess.Services
         private async Task BeginHandlerAsync(AgentRunnerProviderResult result)
         {
             await this.connectorService.SendAsync(result.Channel, $"RUN: {result.Command}", true, result.CancellationToken);
-        }
+        }        
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.ParserOutputHandlerAsync"/>
@@ -368,18 +375,13 @@ namespace ReconNess.Services
         /// </summary>
         private async Task EndHandlerAsync(AgentRunnerProviderResult result)
         {
-            if (result.AgentRunner.Subdomain != null)
-            {
-                await this.agentBackgroundService.UpdateSubdomainAgentOnScopeAsync(result.AgentRunner, result.CancellationToken);
-            }
+            
+            await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);            
 
-            await this.IfLastRunStopProcessAsync
-            (
-                result.AgentRunner,
-                result.Channel,
-                result.Last,
-                result.CancellationToken
-            );
+            if (result.Last)
+            {
+                await IfLastRunStopProcessAsync(result.AgentRunner, result.Channel, result.CancellationToken);
+            }
         }
 
         /// <summary>
@@ -390,13 +392,10 @@ namespace ReconNess.Services
             await this.connectorService.SendAsync(result.Channel, result.Exception.Message, true, result.CancellationToken);
             await this.connectorService.SendLogsAsync(result.Channel, $"Exception: {result.Exception.StackTrace}", result.CancellationToken);
 
-            await this.IfLastRunStopProcessAsync
-            (
-                result.AgentRunner,
-                result.Channel,
-                result.Last,
-                result.CancellationToken
-            );
+            if (result.Last)
+            {
+                await IfLastRunStopProcessAsync(result.AgentRunner, result.Channel, result.CancellationToken);
+            }
         }
 
         /// <summary>
@@ -407,22 +406,18 @@ namespace ReconNess.Services
         /// <param name="last">If is the last Agent to run</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task IfLastRunStopProcessAsync(AgentRunner agentRunner, string channel, bool last, CancellationToken cancellationToken = default)
-        {
-            if (last)
+        private async Task IfLastRunStopProcessAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken = default)
+        {            
+            try
             {
-                try
-                {
-                    await this.StopAgentAsync(agentRunner, channel, cancellationToken);
-                    await this.agentBackgroundService.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
-                }
-                catch (Exception exx)
-                {
-                    await this.connectorService.SendLogsAsync(channel, $"Exception: {exx.StackTrace}", cancellationToken);
-                }
+                await this.StopAgentAsync(agentRunner, channel, cancellationToken);
+                await this.agentBackgroundService.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
             }
+            catch (Exception exx)
+            {
+                await this.connectorService.SendLogsAsync(channel, $"Exception: {exx.StackTrace}", cancellationToken);
+            }            
         }
-
 
         /// <summary>
         /// Send a msg and a notification when the agent finish
@@ -436,7 +431,7 @@ namespace ReconNess.Services
         {
             if (agentRunner.ActivateNotification)
             {
-                await this.notificationService.SendAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
+                await this.agentBackgroundService.SendNotificationOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
             }
 
             await this.connectorService.SendAsync(channel, "Agent done!", false, cancellationToken);

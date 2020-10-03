@@ -37,6 +37,34 @@ namespace ReconNess.Services
 
                 await targetService.SaveTerminalOutputParseAsync(agentRun, terminalOutputParse, cancellationToken);
             }
+        }        
+
+        /// <summary>
+        /// <see cref="IAgentBackgroundService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, string, CancellationToken)"/>
+        /// </summary>
+        public async Task UpdateAgentOnScopeAsync(AgentRunner agentRun, string agentRunType, CancellationToken cancellationToken = default)
+        {
+            using (var scope = this.serviceProvider.CreateScope())
+            {
+                if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) || 
+                    AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var targetService = scope.ServiceProvider.GetRequiredService<ITargetService>();
+                    await targetService.UpdateAgentRanAsync(agentRun, cancellationToken);
+                }
+                else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) || 
+                        AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var rootDomainService = scope.ServiceProvider.GetRequiredService<IRootDomainService>();
+                    await rootDomainService.UpdateAgentRanAsync(agentRun, cancellationToken);
+                }
+                else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) || 
+                        AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var subdomainService = scope.ServiceProvider.GetRequiredService<ISubdomainService>();
+                    await subdomainService.UpdateAgentRanAsync(agentRun, cancellationToken);
+                }
+            }
         }
 
         /// <summary>
@@ -52,21 +80,6 @@ namespace ReconNess.Services
 
                 agent.LastRun = DateTime.Now;
                 await agentService.UpdateAsync(agent, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IAgentBackgroundService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, CancellationToken)"/>
-        /// </summary>
-        public async Task UpdateSubdomainAgentOnScopeAsync(AgentRunner agentRun, CancellationToken cancellationToken = default)
-        {
-            using (var scope = this.serviceProvider.CreateScope())
-            {
-                var subdomainService =
-                    scope.ServiceProvider
-                        .GetRequiredService<ISubdomainService>();
-
-                await subdomainService.UpdateSubdomainAgentAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
             }
         }
 

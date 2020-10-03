@@ -70,43 +70,54 @@ namespace ReconNess.Worker
             {
                 try
                 {
-                    await providerArgs.BeginHandlerAsync(new AgentRunnerProviderResult
+                    if(!await providerArgs.SkipHandlerAsync(new AgentRunnerProviderResult
                     {
+                        AgentRunner = providerArgs.AgentRunner,
+                        AgentRunnerType = providerArgs.AgentRunnerType,
                         Channel = providerArgs.Channel,
                         Command = providerArgs.Command,
                         CancellationToken = token
-                    });
-
-                    processWrapper.Start(providerArgs.Command);
-
-                    var lineCount = 1;
-                    var script = providerArgs.AgentRunner.Agent.Script;
-
-                    while (!processWrapper.EndOfStream)
+                    }))
                     {
-                        token.ThrowIfCancellationRequested();
-
-                        // Parse the terminal output one line
-                        var terminalLineOutput = processWrapper.TerminalLineOutput();
-                        var scriptOutput = await this.scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
-
-                        await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
+                        await providerArgs.BeginHandlerAsync(new AgentRunnerProviderResult
                         {
-                            AgentRunner = providerArgs.AgentRunner,
                             Channel = providerArgs.Channel,
-                            ScriptOutput = scriptOutput,
-                            LineCount = lineCount,
-                            TerminalLineOutput = terminalLineOutput,
+                            Command = providerArgs.Command,
                             CancellationToken = token
                         });
-                    }
+
+                        processWrapper.Start(providerArgs.Command);
+
+                        var lineCount = 1;
+                        var script = providerArgs.AgentRunner.Agent.Script;
+
+                        while (!processWrapper.EndOfStream)
+                        {
+                            token.ThrowIfCancellationRequested();
+
+                            // Parse the terminal output one line
+                            var terminalLineOutput = processWrapper.TerminalLineOutput();
+                            var scriptOutput = await this.scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
+
+                            await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
+                            {
+                                AgentRunner = providerArgs.AgentRunner,
+                                Channel = providerArgs.Channel,
+                                ScriptOutput = scriptOutput,
+                                LineCount = lineCount,
+                                TerminalLineOutput = terminalLineOutput,
+                                CancellationToken = token
+                            });
+                        }
+                    };
 
                     await providerArgs.EndHandlerAsync(new AgentRunnerProviderResult
                     {
                         Key = providerArgs.Key,
                         AgentRunner = providerArgs.AgentRunner,
+                        AgentRunnerType = providerArgs.AgentRunnerType,
                         Channel = providerArgs.Channel,
-                        Last = providerArgs.Last,
+                        Last = providerArgs.Last,                        
                         CancellationToken = token
                     });
 

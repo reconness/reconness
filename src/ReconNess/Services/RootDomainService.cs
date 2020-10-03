@@ -54,6 +54,28 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(AgentRunner, CancellationToken)"/>
+        /// </summary>
+        public async Task UpdateAgentRanAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var rootDomain = agentRunner.RootDomain;
+            var agentName = agentRunner.Agent.Name;
+
+            if (string.IsNullOrWhiteSpace(rootDomain.AgentsRawBefore))
+            {
+                rootDomain.AgentsRawBefore = agentName;
+                await this.UpdateAsync(rootDomain, cancellationToken);
+            }
+            else if (!rootDomain.AgentsRawBefore.Contains(agentName))
+            {
+                rootDomain.AgentsRawBefore = string.Join(", ", rootDomain.AgentsRawBefore, agentName);
+                await this.UpdateAsync(rootDomain, cancellationToken);
+            }
+        }
+
+        /// <summary>
         /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
         /// </summary>
         public async Task SaveTerminalOutputParseAsync(AgentRunner agentRunner, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)

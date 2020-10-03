@@ -17,5 +17,13 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task SaveTerminalOutputParseAsync(AgentRunner agentRunner, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="agentRunner"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task UpdateAgentRanAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
     }
 }
