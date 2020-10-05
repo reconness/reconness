@@ -37,7 +37,7 @@ namespace ReconNess.Services
 
                 await targetService.SaveTerminalOutputParseAsync(agentRun, terminalOutputParse, cancellationToken);
             }
-        }        
+        }
 
         /// <summary>
         /// <see cref="IAgentBackgroundService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, string, CancellationToken)"/>
@@ -46,19 +46,19 @@ namespace ReconNess.Services
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
-                if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) || 
+                if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                     AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var targetService = scope.ServiceProvider.GetRequiredService<ITargetService>();
                     await targetService.UpdateAgentRanAsync(agentRun, cancellationToken);
                 }
-                else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) || 
+                else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                         AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var rootDomainService = scope.ServiceProvider.GetRequiredService<IRootDomainService>();
                     await rootDomainService.UpdateAgentRanAsync(agentRun, cancellationToken);
                 }
-                else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) || 
+                else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                         AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var subdomainService = scope.ServiceProvider.GetRequiredService<ISubdomainService>();

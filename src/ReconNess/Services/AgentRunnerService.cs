@@ -120,7 +120,7 @@ namespace ReconNess.Services
                 if (!(await this.agentRunnerProvider.IsStoppedAsync(channel)))
                 {
                     await this.agentRunnerProvider.StopAsync(channel);
-                    //await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
+                    await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
                 }
             }
             catch (Exception ex)
