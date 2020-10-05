@@ -108,6 +108,8 @@ namespace ReconNess.Worker
                 }
             }
 
+            this.workItems.Clear();
+
             return Task.CompletedTask;
         }
 
