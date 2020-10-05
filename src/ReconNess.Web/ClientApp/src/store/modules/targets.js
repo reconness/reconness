@@ -2,10 +2,7 @@
 
 const state = {
     targets: [],
-    currentTarget: {
-        subdomains: []
-    },
-    currentRootDomain: {}
+    currentTarget: {}
 }
 
 const actions = {
@@ -23,22 +20,7 @@ const actions = {
                 reject(err)
             }
         })
-    },
-    rootDomain(context, { targetName, rootDomain }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.getById('targets/' + targetName, rootDomain)
-                    .then((res) => {
-                        context.commit('rootDomain', res.data)
-                        resolve(res.data)
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
+    },    
     targets(context) {
         return new Promise((resolve, reject) => {
             try {
@@ -98,107 +80,7 @@ const actions = {
                 reject(err)
             }
         })
-    },
-    deleteAllSubdomains({ commit, state }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.delete('targets', state.currentTarget.name + '/' + state.currentRootDomain.name)
-                    .then(() => {
-                        commit('deleteAllSubdomains')
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
-    createSubdomain(context, { subdomain }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.create('subdomains', { target: state.currentTarget.name, rootDomain: state.currentRootDomain.name, name: subdomain })
-                    .then((res) => {
-                        context.commit('createSubdomain', res.data)
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
-    uploadSubdomains({ commit, state }, { formData }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.upload('subdomains', state.currentTarget.name + '/' + state.currentRootDomain.name, formData)
-                    .then((res) => {
-                        commit('uploadSubdomains', res.data)
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
-    upload({ commit, state }, { formData }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.upload('targets', state.currentTarget.name + '/' + state.currentRootDomain.name, formData)
-                    .then((res) => {
-                        commit('uploadSubdomains', res.data)
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
-    export() {
-        return new Promise((resolve, reject) => {
-            try {
-                api.download('targets/export', state.currentTarget.name + '/' + state.currentRootDomain.name)
-                    .then((res) => {
-                        var fileURL = window.URL.createObjectURL(new Blob([res.data]));
-                        var fileLink = document.createElement('a');
-                        fileLink.href = fileURL;
-                        fileLink.setAttribute('download', 'rootdomain.json');
-                        document.body.appendChild(fileLink);
-                        fileLink.click();
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
-    exportSubdomains() {
-        return new Promise((resolve, reject) => {
-            try {
-                api.download('targets/exportSubdomains', state.currentTarget.name + '/' + state.currentRootDomain.name)
-                    .then((res) => {
-                        var fileURL = window.URL.createObjectURL(new Blob([res.data]));
-                        var fileLink = document.createElement('a');
-                        fileLink.href = fileURL;
-                        fileLink.setAttribute('download', 'subdomains.csv');
-                        document.body.appendChild(fileLink);
-                        fileLink.click();
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    }
+    }    
 }
 
 const mutations = {
@@ -210,10 +92,6 @@ const mutations = {
     },
     targets(state, targets) {
         state.targets = targets
-    },
-    rootDomain(state, target) {
-        state.currentTarget = target
-        state.currentRootDomain = target.rootDomains[0] || []
     },
     createTarget(state, target) {
         state.targets.push(target)
@@ -234,15 +112,6 @@ const mutations = {
         state.targets = state.targets.filter((t) => {
             return t.name !== state.currentTarget.name;
         })
-    },
-    deleteAllSubdomains(state) {
-        state.currentRootDomain.subdomains = []
-    },
-    createSubdomain(state, subdomain) {
-        state.currentRootDomain.subdomains.push(subdomain)
-    },
-    uploadSubdomains(state, subdomains) {
-        subdomains.map(sub => state.currentRootDomain.subdomains.push(sub))
     }
 }
 

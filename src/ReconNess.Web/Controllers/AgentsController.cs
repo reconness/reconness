@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -17,12 +17,14 @@ namespace ReconNess.Web.Controllers
     [ApiController]
     public class AgentsController : ControllerBase
     {
+        private static readonly string ERROR_AGENT_EXIT = "An Agent with that name exist";
+
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
         private readonly IAgentRunnerService agentRunnerService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
-        private readonly ICategoryService categoryService;
+        private readonly IAgentCategoryService categoryService;
         private readonly ISubdomainService subdomainService;
 
         /// <summary>
@@ -33,7 +35,7 @@ namespace ReconNess.Web.Controllers
         /// <param name="agentRunnerService"><see cref="IAgentRunnerService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
-        /// <param name="categoryService"><see cref="ICategoryService"/></param>
+        /// <param name="categoryService"><see cref="IAgentCategoryService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         public AgentsController(
             IMapper mapper,
@@ -41,7 +43,7 @@ namespace ReconNess.Web.Controllers
             IAgentRunnerService agentRunnerService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
-            ICategoryService categoryService,
+            IAgentCategoryService categoryService,
             ISubdomainService subdomainService)
         {
             this.mapper = mapper;
@@ -57,7 +59,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAllAgentsWithCategoryAsync(cancellationToken);
+            var agents = await this.agentService.GetAllWithIncludeAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
             return Ok(agentsDto);
@@ -67,7 +69,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{agentName}")]
         public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetAgentWithCategoryAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await this.agentService.GetWithIncludeAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -76,28 +78,33 @@ namespace ReconNess.Web.Controllers
             return Ok(this.mapper.Map<Agent, AgentDto>(agent));
         }
 
-        // GET api/agents/defaultToInstall
-        [HttpGet("defaultToInstall")]
-        public async Task<IActionResult> GetDefaultToInstall(CancellationToken cancellationToken)
+        // GET api/agents/marketplace
+        [HttpGet("marketplace")]
+        public async Task<IActionResult> Marketplace(CancellationToken cancellationToken)
         {
-            var agentDefaults = await this.agentService.GetDefaultAgentsToInstallAsync(cancellationToken);
+            var marketplaces = await this.agentService.GetMarketplaceAsync(cancellationToken);
 
-            var agentsDto = this.mapper.Map<List<AgentDefault>, List<AgentDefaultDto>>(agentDefaults);
+            var marketplaceDtos = this.mapper.Map<List<AgentMarketplace>, List<AgentMarketplaceDto>>(marketplaces);
 
-            return Ok(agentsDto);
+            return Ok(marketplaceDtos);
         }
 
         // POST api/agents
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (await this.agentService.AnyAsync(t => t.Name == agentDto.Name))
+            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
+            if (agentExist)
             {
-                return BadRequest("There is an Agent with that name in the DB");
+                return BadRequest(ERROR_AGENT_EXIT);
+            }
+
+            if (string.IsNullOrEmpty(agentDto.Script))
+            {
+                agentDto.Script = "return new ReconNess.Core.Models.ScriptOutput();";
             }
 
             var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
-            agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
 
             await this.agentService.AddAsync(agent, cancellationToken);
 
@@ -108,29 +115,51 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetAgentWithCategoryAsync(t => t.Id == id, cancellationToken);
+            var agent = await this.agentService.GetWithIncludeAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            if (agent.Name != agentDto.Name && await this.rootDomainService.AnyAsync(t => t.Name == agentDto.Name))
+            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
+            if (agentExist)
             {
-                return BadRequest("There is an Agent with that name in the DB");
+                return BadRequest(ERROR_AGENT_EXIT);
             }
 
             agent.Name = agentDto.Name;
             agent.Repository = agentDto.Repository;
-            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
             agent.Command = agentDto.Command;
-            agent.IsBySubdomain = agentDto.IsBySubdomain;
-            agent.OnlyIfIsAlive = agentDto.OnlyIfIsAlive;
-            agent.OnlyIfHasHttpOpen = agentDto.OnlyIfHasHttpOpen;
-            agent.SkipIfRanBefore = agentDto.SkipIfRanBefore;
-            agent.NotifyIfAgentDone = agentDto.NotifyIfAgentDone;
-            agent.NotifyNewFound = agentDto.NotifyNewFound;
-
             agent.Script = agentDto.Script;
+            agent.AgentType = agentDto.AgentType;
+            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
+
+            if (agent.AgentTrigger == null)
+            {
+                agent.AgentTrigger = new AgentTrigger();
+            }
+
+            agent.AgentTrigger.SkipIfRunBefore = agentDto.TriggerSkipIfRunBefore;
+            agent.AgentTrigger.TargetHasBounty = agentDto.TriggerTargetHasBounty;
+            agent.AgentTrigger.TargetIncExcName = agentDto.TriggerTargetIncExcName;
+            agent.AgentTrigger.TargetName = agentDto.TriggerTargetName;
+            agent.AgentTrigger.RootdomainHasBounty = agentDto.TriggerRootdomainHasBounty;
+            agent.AgentTrigger.RootdomainIncExcName = agentDto.TriggerRootdomainIncExcName;
+            agent.AgentTrigger.RootdomainName = agentDto.TriggerRootdomainName;
+            agent.AgentTrigger.SubdomainHasBounty = agentDto.TriggerSubdomainHasBounty;
+            agent.AgentTrigger.SubdomainIsAlive = agentDto.TriggerSubdomainIsAlive;
+            agent.AgentTrigger.SubdomainIsMainPortal = agentDto.TriggerSubdomainIsMainPortal;
+            agent.AgentTrigger.SubdomainHasHttpOrHttpsOpen = agentDto.TriggerSubdomainHasHttpOrHttpsOpen;
+            agent.AgentTrigger.SubdomainIncExcName = agentDto.TriggerSubdomainIncExcName;
+            agent.AgentTrigger.SubdomainName = agentDto.TriggerSubdomainName;
+            agent.AgentTrigger.SubdomainIncExcServicePort = agentDto.TriggerSubdomainIncExcServicePort;
+            agent.AgentTrigger.SubdomainServicePort = agentDto.TriggerSubdomainServicePort;
+            agent.AgentTrigger.SubdomainIncExcIP = agentDto.TriggerSubdomainIncExcIP;
+            agent.AgentTrigger.SubdomainIP = agentDto.TriggerSubdomainIP;
+            agent.AgentTrigger.SubdomainIncExcTechnology = agentDto.TriggerSubdomainIncExcTechnology;
+            agent.AgentTrigger.SubdomainTechnology = agentDto.TriggerSubdomainTechnology;
+            agent.AgentTrigger.SubdomainIncExcLabel = agentDto.TriggerSubdomainIncExcLabel;
+            agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
 
             await this.agentService.UpdateAsync(agent, cancellationToken);
 
@@ -154,55 +183,80 @@ namespace ReconNess.Web.Controllers
 
         // POST api/agents/install
         [HttpPost("install")]
-        public async Task<IActionResult> Install([FromBody] AgentDefaultDto agentDefaultDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            if (await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name))
+            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name);
+            if (agentExist)
             {
-                return BadRequest("There is an Agent with that name in the DB");
+                return BadRequest(ERROR_AGENT_EXIT);
             }
 
-            var agent = this.mapper.Map<AgentDefaultDto, Agent>(agentDefaultDto);
+            var agent = this.mapper.Map<AgentMarketplaceDto, Agent>(agentDefaultDto);
 
-            agent.Script = await this.agentService.GetAgentScript(agentDefaultDto.ScriptUrl, cancellationToken);
+            agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
             var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
 
+        // POST api/agents/debug
+        [HttpPost("debug")]
+        public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var scriptOutput = await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken);
+
+                return Ok(scriptOutput);
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
         // POST api/agents/run
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
-            if (target == null)
+            var agent = await agentService.GetWithIncludeAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            if (agent == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
-            if (rootDomain == null)
+            Target target = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                return BadRequest();
+                target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                if (target == null)
+                {
+                    return BadRequest();
+                }
             }
 
-            Subdomain subdomain = null;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
+            RootDomain rootDomain = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
             {
-                subdomain = (await this.subdomainService.GetSubdomainsAsync(rootDomain, agentRunnerDto.Subdomain, cancellationToken)).FirstOrDefault();
+                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
+                if (rootDomain == null)
+                {
+                    return NotFound();
+                }
+            }
+
+            Subdomain subdomain = default;
+            if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
+            {
+                subdomain = await this.subdomainService.GetWithIncludeAsync(target, rootDomain, agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            var agent = await agentService.GetAgentWithCategoryAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
-            if (agent == null)
-            {
-                return BadRequest();
-            }
-
-            await this.agentRunnerService.RunAsync(
+            await this.agentRunnerService.RunAgentAsync(
                 new AgentRunner
                 {
                     Agent = agent,
@@ -220,16 +274,30 @@ namespace ReconNess.Web.Controllers
         [HttpPost("stop")]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
-            if (target == null)
+            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            if (agent == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
-            if (rootDomain == null)
+            Target target = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                return BadRequest();
+                target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                if (target == null)
+                {
+                    return BadRequest();
+                }
+            }
+
+            RootDomain rootDomain = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
+            {
+                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
+                if (rootDomain == null)
+                {
+                    return NotFound();
+                }
             }
 
             Subdomain subdomain = null;
@@ -242,19 +310,16 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
-            if (agent == null)
-            {
-                return BadRequest();
-            }
-
-            var task = this.agentRunnerService.StopAsync(new AgentRunner
+            var agentRunner = new AgentRunner
             {
                 Agent = agent,
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain
-            }, false, false, cancellationToken);
+            };
+
+            var channel = AgentRunnerHelpers.GetChannel(agentRunner);
+            await this.agentRunnerService.StopAgentAsync(agentRunner, channel, cancellationToken);
 
             return NoContent();
         }
@@ -263,16 +328,24 @@ namespace ReconNess.Web.Controllers
         [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
         public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
+            Target target = default;
+            if (!string.IsNullOrWhiteSpace(targetName))
             {
-                return BadRequest();
+                target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+                if (target == null)
+                {
+                    return BadRequest();
+                }
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-            if (rootDomain == null)
+            RootDomain rootDomain = default;
+            if (!string.IsNullOrWhiteSpace(rootDomainName) && !"undefined".Equals(rootDomainName))
             {
-                return BadRequest();
+                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+                if (rootDomain == null)
+                {
+                    return NotFound();
+                }
             }
 
             Subdomain subdomain = null;
@@ -285,7 +358,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agentsRunning = await this.agentRunnerService.RunningAsync(new AgentRunner
+            var agentsRunning = await this.agentRunnerService.RunningAgentsAsync(new AgentRunner
             {
                 Target = target,
                 RootDomain = rootDomain,
@@ -293,20 +366,6 @@ namespace ReconNess.Web.Controllers
             }, cancellationToken);
 
             return Ok(agentsRunning);
-        }
-
-        // POST api/agents/debug
-        [HttpPost("debug")]
-        public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
-        {
-            try
-            {
-                return Ok(await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken));
-            }
-            catch (Exception ex)
-            {
-                return Ok(ex.Message);
-            }
         }
     }
 }

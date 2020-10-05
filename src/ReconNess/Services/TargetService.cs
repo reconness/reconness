@@ -1,8 +1,11 @@
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,6 +35,32 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="ITargetService.GetAllWithIncludeAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Target>> GetAllWithIncludeAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        {
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                        .Include(a => a.RootDomains)
+                        .ToListAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ITargetService.GetWithIncludeAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<Target> GetWithIncludeAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        {
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                       .Include(a => a.RootDomains)
+                           .ThenInclude(a => a.Subdomains)
+                               .ThenInclude(s => s.Services)
+                       .Include(a => a.RootDomains)
+                           .ThenInclude(a => a.Subdomains)
+                               .ThenInclude(s => s.Notes)
+                       .Include(a => a.RootDomains)
+                           .ThenInclude(a => a.Notes)
+                       .FirstOrDefaultAsync(cancellationToken);
+        }
+
         /// <see cref="ITargetService.DeleteTargetAsync(Target, CancellationToken)"/>
         /// </summary>
         public async Task DeleteTargetAsync(Target target, CancellationToken cancellationToken)
@@ -43,14 +72,35 @@ namespace ReconNess.Services
                 this.UnitOfWork.BeginTransaction(cancellationToken);
 
                 this.rootDomainService.DeleteRootDomains(target.RootDomains, cancellationToken);
-                this.UnitOfWork.Repository<Target>().Delete(target, cancellationToken);
 
-                await this.UnitOfWork.CommitAsync(cancellationToken);
+                await this.DeleteAsync(target, cancellationToken);
             }
             catch (Exception ex)
             {
                 this.UnitOfWork.Rollback(cancellationToken);
                 throw ex;
+            }
+        }
+
+        /// <summary>
+        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(AgentRunner, CancellationToken)"/>
+        /// </summary>
+        public async Task UpdateAgentRanAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var target = agentRunner.Target;
+            var agentName = agentRunner.Agent.Name;
+
+            if (string.IsNullOrWhiteSpace(target.AgentsRanBefore))
+            {
+                target.AgentsRanBefore = agentName;
+                await this.UpdateAsync(target, cancellationToken);
+            }
+            else if (!target.AgentsRanBefore.Contains(agentName))
+            {
+                target.AgentsRanBefore = string.Join(", ", target.AgentsRanBefore, agentName);
+                await this.UpdateAsync(target, cancellationToken);
             }
         }
 
@@ -64,7 +114,7 @@ namespace ReconNess.Services
             if (await this.NeedAddNewRootDomain(agentRunner, terminalOutputParse.RootDomain, cancellationToken))
             {
                 agentRunner.RootDomain = await this.AddTargetNewRootDomainAsync(agentRunner.Target, terminalOutputParse.RootDomain, cancellationToken);
-                if (agentRunner.ActivateNotification && agentRunner.Agent.NotifyNewFound)
+                if (agentRunner.ActivateNotification)
                 {
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {
@@ -73,7 +123,10 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+            if (agentRunner.RootDomain != null)
+            {
+                await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+            }
         }
 
         /// <summary>
@@ -90,13 +143,15 @@ namespace ReconNess.Services
                 return false;
             }
 
-            var weHaveRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
-            if (!weHaveRootDomainToAdd)
+            var doWeHaveNewRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
+            if (!doWeHaveNewRootDomainToAdd)
             {
                 return false;
             }
 
-            return !(await this.rootDomainService.AnyAsync(r => r.Name == rootDomain && r.Target == agentRunner.Target, cancellationToken));
+            var existRootDomain = await this.rootDomainService.AnyAsync(r => r.Name == rootDomain && r.Target == agentRunner.Target, cancellationToken);
+
+            return !existRootDomain;
         }
 
         /// <summary>

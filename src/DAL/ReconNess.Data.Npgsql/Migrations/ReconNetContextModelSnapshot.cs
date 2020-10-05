@@ -16,7 +16,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.7")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
@@ -24,6 +24,9 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("AgentType")
+                        .HasColumnType("text");
 
                     b.Property<string>("Command")
                         .HasColumnType("text");
@@ -34,35 +37,17 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsBySubdomain")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("LastRun")
+                    b.Property<DateTime?>("LastRun")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .HasColumnType("text");
-
-                    b.Property<bool>("NotifyIfAgentDone")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("NotifyNewFound")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("OnlyIfHasHttpOpen")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("OnlyIfIsAlive")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Repository")
                         .HasColumnType("text");
 
                     b.Property<string>("Script")
                         .HasColumnType("text");
-
-                    b.Property<bool>("SkipIfRanBefore")
-                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
@@ -94,6 +79,163 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("AgentCategory");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ChangeType")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.ToTable("AgentHistories");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Logs")
+                        .HasColumnType("text");
+
+                    b.Property<int>("Stage")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("TerminalOutput")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.ToTable("AgentRuns");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RootdomainHasBounty")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("RootdomainIncExcName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("RootdomainName")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("SkipIfRunBefore")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubdomainHasBounty")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubdomainHasHttpOrHttpsOpen")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SubdomainIP")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainIncExcIP")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainIncExcLabel")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainIncExcName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainIncExcServicePort")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainIncExcTechnology")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("SubdomainIsAlive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("SubdomainIsMainPortal")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SubdomainLabel")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainServicePort")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubdomainTechnology")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TargetHasBounty")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("TargetIncExcName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TargetName")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId")
+                        .IsUnique();
+
+                    b.ToTable("AgentTriggers");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Category", b =>
@@ -275,6 +417,9 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<string>("TakeoverPayload")
                         .HasColumnType("text");
 
+                    b.Property<string>("TechnologyPayload")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
 
@@ -318,10 +463,16 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AgentsRanBefore")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasBounty")
                         .HasColumnType("boolean");
 
                     b.Property<string>("Name")
@@ -440,14 +591,17 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AgentsRanBefore")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("FromAgents")
-                        .HasColumnType("text");
+                    b.Property<bool?>("HasBounty")
+                        .HasColumnType("boolean");
 
                     b.Property<bool?>("HasHttpOpen")
                         .HasColumnType("boolean");
@@ -473,6 +627,12 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<bool?>("Takeover")
                         .HasColumnType("boolean");
 
+                    b.Property<Guid?>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Technology")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp without time zone");
 
@@ -481,6 +641,8 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasIndex("RootDomainId");
 
                     b.HasIndex("ServiceHttpId");
+
+                    b.HasIndex("TargetId");
 
                     b.ToTable("Subdomains");
                 });
@@ -506,6 +668,9 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AgentsRanBefore")
+                        .HasColumnType("text");
+
                     b.Property<string>("BugBountyProgramUrl")
                         .HasColumnType("text");
 
@@ -513,6 +678,9 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasBounty")
                         .HasColumnType("boolean");
 
                     b.Property<string>("InScope")
@@ -546,6 +714,29 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasOne("ReconNess.Entities.Category", "Category")
                         .WithMany("AgentCategories")
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentHistory", b =>
+                {
+                    b.HasOne("ReconNess.Entities.Agent", "Agent")
+                        .WithMany("AgentHistories")
+                        .HasForeignKey("AgentId");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
+                {
+                    b.HasOne("ReconNess.Entities.Agent", "Agent")
+                        .WithMany("AgentRuns")
+                        .HasForeignKey("AgentId");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
+                {
+                    b.HasOne("ReconNess.Entities.Agent", "Agent")
+                        .WithOne("AgentTrigger")
+                        .HasForeignKey("ReconNess.Entities.AgentTrigger", "AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -591,6 +782,10 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasOne("ReconNess.Entities.ServiceHttp", "ServiceHttp")
                         .WithMany("Subdomains")
                         .HasForeignKey("ServiceHttpId");
+
+                    b.HasOne("ReconNess.Entities.Target", "Target")
+                        .WithMany()
+                        .HasForeignKey("TargetId");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.SubdomainLabel", b =>

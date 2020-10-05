@@ -9,6 +9,8 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
+        public string AgentsRanBefore { get; set; }
+
         public string InScope { get; set; }
 
         public string OutOfScope { get; set; }
@@ -16,6 +18,8 @@ namespace ReconNess.Entities
         public string BugBountyProgramUrl { get; set; }
 
         public bool IsPrivate { get; set; }
+
+        public bool HasBounty { get; set; }
 
         public virtual ICollection<RootDomain> RootDomains { get; set; }
     }

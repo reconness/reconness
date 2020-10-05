@@ -11,7 +11,7 @@
         </nav>
         <div class="tab-content" id="nav-tabContent">
             <div class="tab-pane fade show active" id="nav-subdomains" role="tabpanel" aria-labelledby="nav-subdomains-tab">
-                <target-subdomains-tag v-if="rootDomain.subdomains !== undefined"></target-subdomains-tag>
+                <rootdomain-subdomains-tag v-if="rootDomain.subdomains !== undefined"></rootdomain-subdomains-tag>
             </div>
             <div class="tab-pane fade" id="nav-agents" role="tabpanel" aria-labelledby="nav-agents-tab">
                 <agent-tag v-bind:isTarget="true"></agent-tag>
@@ -20,7 +20,7 @@
                 <notes-tag v-bind:isTarget="true"></notes-tag>
             </div>
             <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
-                <target-general-tag v-if="rootDomain.subdomains !== undefined"></target-general-tag>
+                <rootdomain-general-tag v-if="rootDomain.subdomains !== undefined"></rootdomain-general-tag>
             </div>
         </div>
         <hr />
@@ -34,23 +34,23 @@
 
     import helpers from '../../helpers'
 
-    import TargetSubdomainsTag from '../../components/target/TargetSubdomainsTag'
+    import RootdomainSubdomainsTag from '../../components/rootdomain/RootdomainSubdomainsTag'
     import AgentTag from '../../components/agent/AgentTag'
     import NotesTag from '../../components/NotesTag'
-    import TargetGeneralTag from '../../components/target/TargetGeneralTag'
+    import RootdomainGeneralTag from '../../components/rootdomain/RootdomainGeneralTag'
 
     export default {
         name: 'RootDomainPage',
         components: {
-            TargetSubdomainsTag,
+            RootdomainSubdomainsTag,
             AgentTag,
             NotesTag,
-            TargetGeneralTag
+            RootdomainGeneralTag
         },
         computed: mapState({
             agents: state => state.agents.agents,
             target: state => state.targets.currentTarget,
-            rootDomain: state => state.targets.currentRootDomain
+            rootDomain: state => state.rootdomains.currentRootDomain
         }),
         async mounted() {
             await this.initService()
@@ -61,7 +61,7 @@
         methods: {
             async initService() {
                 try {
-                    await this.$store.dispatch('targets/rootDomain', { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain })
+                    await this.$store.dispatch('rootdomains/rootDomain', { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain })
                 }
                 catch (error) {
                     helpers.errorHandle(error)

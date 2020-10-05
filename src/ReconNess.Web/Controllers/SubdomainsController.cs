@@ -1,14 +1,10 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -64,15 +60,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
-                .Include(s => s.Notes)
-                .Include(s => s.Services)
-                .Include(s => s.ServiceHttp)
-                    .ThenInclude(s => s.Directories)
-                .Include(s => s.Labels)
-                    .ThenInclude(s => s.Label)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(target, rootDomain, subdomainName, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -97,13 +85,15 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            if (await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.RootDomain == rootDomain))
+            var subdomainExist = await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.RootDomain == rootDomain);
+            if (subdomainExist)
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");
             }
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
             {
+                Target = target,
                 RootDomain = rootDomain,
                 Name = subdomainDto.Name
             }, cancellationToken);
@@ -111,55 +101,11 @@ namespace ReconNess.Web.Controllers
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
         }
 
-        // POST api/subdomains/{targetName}/{rootDomainName}
-        [HttpPost("{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
-        {
-            if (file.Length == 0)
-            {
-                return BadRequest();
-            }
-
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
-            }
-
-            var rootDomain = await this.rootDomainService.GetDomainWithSubdomainsAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-            if (rootDomain == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                var path = Path.GetTempFileName();
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
-
-                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         // PUT api/subdomains/{id}
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
-               .Include(a => a.Labels)
-                   .ThenInclude(ac => ac.Label)
-               .FirstOrDefaultAsync();
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -180,11 +126,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("label/{id}")]
         public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(a => a.Id == id, cancellationToken)
-               .Include(a => a.Labels)
-                   .ThenInclude(ac => ac.Label)
-               .FirstOrDefaultAsync();
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -205,11 +147,7 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetAllQueryableByCriteria(s => s.Id == id, cancellationToken)
-                .Include(s => s.Notes)
-                .Include(s => s.Services)
-                .FirstOrDefaultAsync(cancellationToken);
-
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();

@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ReconNess.Core;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,14 +10,14 @@ namespace ReconNess.Worker
     {
         private readonly ILogger<QueuedHostedService> _logger;
 
-        public QueuedHostedService(IAgentRunBackgroundTaskQueue taskQueue,
+        public QueuedHostedService(IBackgroundTaskQueue taskQueue,
             ILogger<QueuedHostedService> logger)
         {
             TaskQueue = taskQueue;
             _logger = logger;
         }
 
-        public IAgentRunBackgroundTaskQueue TaskQueue { get; }
+        public IBackgroundTaskQueue TaskQueue { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -41,7 +40,7 @@ namespace ReconNess.Worker
                 {
                     if (workItem != null)
                     {
-                        await workItem.Process(stoppingToken);
+                        await workItem.ProcessFunc(stoppingToken);
                     }
                 }
                 catch (Exception ex)

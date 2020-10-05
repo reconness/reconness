@@ -11,28 +11,56 @@ namespace ReconNess.Web.Dtos
 
         public string Repository { get; set; }
 
-        public bool IsBySubdomain { get; set; }
-
-        public bool OnlyIfIsAlive { get; set; }
-
-        public bool OnlyIfHasHttpOpen { get; set; }
-
-        public bool SkipIfRanBefore { get; set; }
-
-        public bool NotifyNewFound { get; set; }
-
-        public bool NotifyIfAgentDone { get; set; }
-
-        public List<string> Categories { get; set; }
-
         public string Command { get; set; }
-
-        public string Arguments { get; set; }
 
         public string Script { get; set; }
 
         public DateTime LastRun { get; set; }
 
-        public bool IsRunning { get; set; }
+        public List<string> Categories { get; set; }
+
+        public string AgentType { get; set; }
+
+        public bool TriggerSkipIfRunBefore { get; set; }
+
+        public bool TriggerTargetHasBounty { get; set; }
+
+        public string TriggerTargetIncExcName { get; set; }
+
+        public string TriggerTargetName { get; set; }
+
+        public bool TriggerRootdomainHasBounty { get; set; }
+
+        public string TriggerRootdomainIncExcName { get; set; }
+
+        public string TriggerRootdomainName { get; set; }
+
+        public bool TriggerSubdomainHasBounty { get; set; }
+
+        public bool TriggerSubdomainIsAlive { get; set; }
+
+        public bool TriggerSubdomainIsMainPortal { get; set; }
+
+        public bool TriggerSubdomainHasHttpOrHttpsOpen { get; set; }
+
+        public string TriggerSubdomainIncExcName { get; set; }
+
+        public string TriggerSubdomainName { get; set; }
+
+        public string TriggerSubdomainIncExcServicePort { get; set; }
+
+        public string TriggerSubdomainServicePort { get; set; }
+
+        public string TriggerSubdomainIncExcIP { get; set; }
+
+        public string TriggerSubdomainIP { get; set; }
+
+        public string TriggerSubdomainIncExcTechnology { get; set; }
+
+        public string TriggerSubdomainTechnology { get; set; }
+
+        public string TriggerSubdomainIncExcLabel { get; set; }
+
+        public string TriggerSubdomainLabel { get; set; }
     }
 }

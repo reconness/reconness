@@ -6,7 +6,7 @@ import SettingPage from '@/views/account/SettingPage';
 import LoginPage from '@/views/login/LoginPage'
 
 import TargetPage from '@/views/target/TargetPage';
-import RootDomainPage from '@/views/target/RootDomainPage';
+import RootDomainPage from '@/views/rootdomain/RootDomainPage';
 import TargetCreatePage from '@/views/target/TargetCreatePage';
 
 import AgentCreatePage from '@/views/agent/AgentCreatePage';

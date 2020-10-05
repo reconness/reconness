@@ -25,23 +25,25 @@ namespace ReconNess.Web
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDbContext, ReconNessContext>();
 
-            services.AddScoped<ITargetService, TargetService>();
-            services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAgentRunnerService, AgentRunnerService>();
-            services.AddScoped<ICategoryService, CategoryService>();
-            services.AddScoped<INotesService, NotesService>();
+            services.AddScoped<IAgentCategoryService, AgentCategoryService>();
+            services.AddScoped<ITargetService, TargetService>();
+            services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<ISubdomainService, SubdomainService>();
+            services.AddScoped<INotesService, NotesService>();
             services.AddScoped<ILabelService, LabelService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IReferenceService, ReferenceService>();
+
+            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
+
             services.AddScoped<INotificationService, NotificationService>();
-
-            services.AddScoped<IScriptEngineService, ScriptEngineService>();
             services.AddScoped<IConnectorService, ConnectorService>();
-            services.AddSingleton<IAgentRunBackgroundTaskQueue, AgentRunBackgroundTaskQueue>();
 
-            services.AddSingleton<IAgentScopeService, AgentScopeService>();
+            services.AddSingleton<IScriptEngineService, ScriptEngineService>();
+            services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();
+            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }
 }

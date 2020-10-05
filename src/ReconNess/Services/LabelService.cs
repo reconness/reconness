@@ -37,7 +37,9 @@ namespace ReconNess.Services
                 {
                     continue;
                 }
-                myLabelsName.Add(newLabel); // avoid add new duplicate labels
+
+                // avoid add new duplicate labels
+                myLabelsName.Add(newLabel);
 
                 var label = await GetNewOrExistLabel(newLabel, cancellationToken);
                 myLabels.Add(new SubdomainLabel

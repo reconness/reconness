@@ -23,17 +23,17 @@
     import { mapState } from 'vuex'
 
     export default {
-        name: 'TargetGeneralTag',
+        name: 'RootdomainGeneralTag',
         computed: mapState({
             target: state => state.targets.currentTarget,
-            rootDomain: state => state.targets.currentRootDomain,
-            subdomainsCount: state => state.targets.currentRootDomain.subdomains.length,
+            rootDomain: state => state.rootdomains.currentRootDomain,
+            subdomainsCount: state => state.rootdomains.currentRootDomain.subdomains.length,
             agentsCount: state => state.agents.agents.length
         }),
         methods: {
             async onExportRootDomain() {
                 try {
-                    await this.$store.dispatch('targets/export')
+                    await this.$store.dispatch('rootdomains/export')
                     alert("Root Domain was saved")
                 }
                 catch (error) {
@@ -44,7 +44,7 @@
                 const formData = new FormData();
                 formData.append('file', this.$refs.fileRootdomain.files[0]);
                 try {
-                    await this.$store.dispatch('targets/upload', { formData })
+                    await this.$store.dispatch('rootdomains/upload', { formData })
                     alert("Root Domain was uploaded")
                 }
                 catch (error) {

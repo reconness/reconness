@@ -16,10 +16,13 @@
             <strong>Has HTTP Open: </strong>{{ subdomain.hasHttpOpen }}
         </div>
         <div class="form-group">
-            <strong>Subdomain Takeover: </strong>{{ subdomain.takeover }}
+            <strong>Takeover: </strong>{{ subdomain.takeover }}
         </div>
         <div class="form-group">
-            <strong>Agents: </strong>{{ subdomain.fromAgents }}
+            <strong>Technology: </strong>{{ subdomain.technology }}
+        </div>
+        <div class="form-group">
+            <strong>Agents: </strong>{{ subdomain.agentsRanBefore }}
         </div>
         <div class="form-group" v-if="hasScreenshots()">
             <strong>Screenshots: </strong>
@@ -117,7 +120,7 @@
                 if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) {
                     try {
                         await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: this.subdomain })
-                        this.$router.push({ name: 'target', params: { targetName: this.$route.params.targetName } })
+                        this.$router.push({ name: 'targetRootDomain', params: { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain } })
                     }
                     catch (error) {
                         helpers.errorHandle(error)

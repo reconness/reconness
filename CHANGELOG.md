@@ -1,3 +1,13 @@
+## [1.5.0] - 2020-10-05
+
+### Added
+
+- Add provider layout to separate the worker from the reconnes web app
+- Add Agent Triggers feature
+- Add Agent Types (RootDomain, Subdomain)
+- Refactor
+- Update packages
+
 ## [1.4.1] - 2020-08-31
 
 ### Added

@@ -27,7 +27,7 @@ namespace ReconNess.Web
         /// <summary>
         /// <see cref="IConnectorService.SendAsync(string, string, CancellationToken)"/>
         /// </summary>
-        public async Task SendAsync(string method, string msg, CancellationToken cancellationToken = default, bool includeTime = true)
+        public async Task SendAsync(string method, string msg, bool includeTime = true, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -42,7 +42,7 @@ namespace ReconNess.Web
         /// </summary>
         public async Task SendLogsAsync(string channel, string msg, CancellationToken cancellationToken = default)
         {
-            await this.SendAsync("logs_" + channel, msg, cancellationToken);
+            await this.SendAsync("logs_" + channel, msg, true, cancellationToken);
         }
 
         /// <summary>

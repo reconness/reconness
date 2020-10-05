@@ -9,6 +9,10 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
+        public string AgentsRanBefore { get; set; }
+
+        public bool HasBounty { get; set; }
+
         public virtual ICollection<Subdomain> Subdomains { get; set; }
 
         public virtual Note Notes { get; set; }

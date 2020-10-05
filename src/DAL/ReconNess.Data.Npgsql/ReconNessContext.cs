@@ -19,6 +19,9 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : DbContext, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
+        public DbSet<AgentRun> AgentRuns { get; set; }
+        public DbSet<AgentTrigger> AgentTriggers { get; set; }
+        public DbSet<AgentHistory> AgentHistories { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -50,6 +53,18 @@ namespace ReconNess.Data.Npgsql
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Agent>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentRun>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentHistory>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 

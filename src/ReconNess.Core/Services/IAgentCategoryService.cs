@@ -8,7 +8,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ICategoryService
     /// </summary>
-    public interface ICategoryService : IService<Category>
+    public interface IAgentCategoryService : IService<Category>
     {
         /// <summary>
         /// Obtain the list of categories from database, if does not exist create the category

@@ -7,7 +7,7 @@ const state = {
 
 const getters = {
     subdomainAgents: state => {
-        return state.agents.filter(agent => agent.isBySubdomain)
+        return state.agents.filter(agent => agent.agentType === 'Subdomain')
     },
     installed: state => (agent) => {
         return state.agents.some(a => a.name === agent.name)
@@ -59,10 +59,10 @@ const actions = {
             }
         })
     },
-    agentsDefault() {
+    agentsMarketplace() {
         return new Promise((resolve, reject) => {
             try {
-                api.get('agents/defaultToInstall')
+                api.get('agents/marketplace')
                     .then((res) => {
                         resolve(res.data)
                     })

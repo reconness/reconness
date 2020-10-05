@@ -34,47 +34,48 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAllAgentsWithCategoryAsync(CancellationToken)"/>
+        /// <see cref="IAgentService.GetAllWithIncludeAsync(CancellationToken)"/>
         /// </summary>
-        public async Task<List<Agent>> GetAllAgentsWithCategoryAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Agent>> GetAllWithIncludeAsync(CancellationToken cancellationToken = default)
         {
             var result = await this.GetAllQueryable(cancellationToken)
                 .Include(a => a.AgentCategories)
-                .ThenInclude(c => c.Category)
+                    .ThenInclude(c => c.Category)
                 .ToListAsync();
 
             return result.OrderBy(a => a.AgentCategories.FirstOrDefault()?.Category?.Name).ToList();
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAgentWithCategoryAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// <see cref="IAgentService.GetWithIncludeAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Agent> GetAgentWithCategoryAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<Agent> GetWithIncludeAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(a => a.AgentCategories)
                     .ThenInclude(c => c.Category)
+                .Include(a => a.AgentTrigger)
                 .FirstOrDefaultAsync();
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetDefaultAgentsToInstallAsync(CancellationToken)"/>
+        /// <see cref="IAgentService.GetMarketplaceAsync(CancellationToken)"/>
         /// </summary>
-        public async Task<List<AgentDefault>> GetDefaultAgentsToInstallAsync(CancellationToken cancellationToken = default)
+        public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
-            var request = new RestRequest("/reconness/reconness-agents/master/default-agents.json");
+            var request = new RestRequest("/reconness/reconness-agents/master/default-agents1.5.json");
 
             var response = await client.ExecuteGetAsync(request, cancellationToken);
-            var defaultAgents = JsonConvert.DeserializeObject<AgentDefaultList>(response.Content);
+            var agentMarketplaces = JsonConvert.DeserializeObject<AgentMarketplaces>(response.Content);
 
-            return defaultAgents.Agents;
+            return agentMarketplaces.Agents;
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAgentScript(string, CancellationToken)"/>
+        /// <see cref="IAgentService.GetScriptAsync(string, CancellationToken)"/>
         /// </summary>
-        public async Task<string> GetAgentScript(string scriptUrl, CancellationToken cancellationToken)
+        public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
             var client = new RestClient(scriptUrl);
             var request = new RestRequest();

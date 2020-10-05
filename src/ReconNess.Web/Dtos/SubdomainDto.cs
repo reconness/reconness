@@ -25,7 +25,9 @@ namespace ReconNess.Web.Dtos
 
         public bool? IsAlive { get; set; }
 
-        public string FromAgents { get; set; }
+        public string Technology { get; set; }
+
+        public string AgentsRanBefore { get; set; }
 
         public string Notes { get; set; }
 

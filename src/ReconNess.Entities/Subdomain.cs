@@ -9,6 +9,8 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
+        public virtual Target Target { get; set; }
+
         public virtual RootDomain RootDomain { get; set; }
 
         public bool? HasHttpOpen { get; set; }
@@ -19,9 +21,13 @@ namespace ReconNess.Entities
 
         public bool? IsAlive { get; set; }
 
-        public string FromAgents { get; set; }
+        public string Technology { get; set; }
+
+        public string AgentsRanBefore { get; set; }
 
         public string IpAddress { get; set; }
+
+        public bool? HasBounty { get; set; }
 
         public virtual ICollection<SubdomainLabel> Labels { get; set; }
 

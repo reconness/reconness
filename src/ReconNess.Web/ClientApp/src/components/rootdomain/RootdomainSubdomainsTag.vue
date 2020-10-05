@@ -12,7 +12,7 @@
                 </div>
                 <div class="col-6">
                     <button class="btn btn-primary" v-on:click="onAddNewSubdomain()">Add</button>
-                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteAllSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
+                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
                     <button class="ml-2 btn btn-primary" v-on:click="onExportSubdomains()">Download Subdomains</button>
                 </div>
             </div>
@@ -49,7 +49,7 @@
                 <font-awesome-icon v-if="props.row.isAlive" :icon="['fas', 'heart']" fixed-width title="Alive" />
                 <font-awesome-icon v-if="props.row.hasHttpOpen" :icon="['fas', 'book-open']" fixed-width title="HTTP Open" />
 
-                <div v-if="props.row.fromAgents">Agents: <strong>{{ props.row.fromAgents }} </strong></div>
+                <div v-if="props.row.agentsRanBefore">Agents: <strong>{{ props.row.agentsRanBefore }} </strong></div>
                 <div v-if="props.row.labels.length > 0">Labels: <strong v-for="l in props.row.labels" v-bind:key="l.name"><span :style="{ color: l.color}">{{ l.name }} </span></strong></div>
                 <div v-if="props.row.services.length > 0">Services: <strong>{{props.row.services | joinComma('name') }} </strong></div>
                 <div v-if="props.row.ipAddress">IpAddress: <strong>{{props.row.ipAddress }} </strong></div>
@@ -80,7 +80,7 @@
     import { Event } from 'vue-tables-2';
 
     export default {
-        name: 'TargetSubdomainsTag',
+        name: 'RootdomainSubdomainsTag',
         data: () => {
             return {
                 filter: '',
@@ -104,7 +104,7 @@
                             const labelFilter = row.labels.length > 0 && row.labels.some(l => l.name.indexOf(query) > -1)
                             const serviceFilter = row.services.length > 0 && row.services.some(s => s.name.indexOf(query) > -1)
                             const ipAddressFilter = row.ipAddress !== undefined && row.ipAddress !== null && row.ipAddress.indexOf(query) > -1
-                            const agentsFilter = row.fromAgents !== undefined && row.fromAgents !== null && row.fromAgents.indexOf(query) > -1
+                            const agentsFilter = row.agentsRanBefore !== undefined && row.agentsRanBefore !== null && row.agentsRanBefore.indexOf(query) > -1
 
                             return nameFilter || labelFilter || serviceFilter || ipAddressFilter || agentsFilter;
                         }
@@ -113,7 +113,7 @@
             }
         },
         computed: mapState({
-            subdomains: state => state.targets.currentRootDomain.subdomains
+            subdomains: state => state.rootdomains.currentRootDomain.subdomains
         }),
         async mounted() {
             this.targetName = this.$route.params.targetName
@@ -130,10 +130,10 @@
                     }
                 }
             },
-            async onDeleteAllSubdomains() {
+            async onDeleteSubdomains() {
                 if (confirm('Are you sure to delete all the subdomains')) {
                     try {
-                        await this.$store.dispatch('targets/deleteAllSubdomains')
+                        await this.$store.dispatch('rootdomains/deleteSubdomains')
                     }
                     catch (error) {
                         helpers.errorHandle(error)
@@ -151,7 +151,7 @@
             },
             async onAddNewSubdomain() {
                 try {
-                    await this.$store.dispatch('targets/createSubdomain', { subdomain: this.newSubdomain })
+                    await this.$store.dispatch('rootdomains/createSubdomain', { subdomain: this.newSubdomain })
                     alert("The new Subdomain was added")
                 }
                 catch (error) {
@@ -162,7 +162,7 @@
                 const formData = new FormData();
                 formData.append('file', this.$refs.file.files[0]);
                 try {
-                    await this.$store.dispatch('targets/uploadSubdomains', { formData })
+                    await this.$store.dispatch('rootdomains/uploadSubdomains', { formData })
                     alert("subdomains were uploaded")
                 }
                 catch (error) {
@@ -180,7 +180,7 @@
             },
             async onExportSubdomains() {
                 try {
-                    await this.$store.dispatch('targets/exportSubdomains')
+                    await this.$store.dispatch('rootdomains/exportSubdomains')
                     alert("subdomains were saved")
                 }
                 catch (error) {
