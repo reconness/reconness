@@ -49,7 +49,7 @@ namespace ReconNess.Worker
                     return null;
                 }
 
-            } while (!string.IsNullOrEmpty(this.channelDeleted) && workItem.Channel.Contains(this.channelDeleted));
+            } while (workItem.Channel.Equals(this.channelDeleted));
 
             this.currentRunProcess = workItem;
 
@@ -116,7 +116,7 @@ namespace ReconNess.Worker
         /// </summary>
         public bool IsStopped(string channelDeleted)
         {
-            return !string.IsNullOrEmpty(this.channelDeleted) && channelDeleted.Equals(this.channelDeleted);
+            return channelDeleted.Equals(this.channelDeleted);
         }
 
         /// <summary>
