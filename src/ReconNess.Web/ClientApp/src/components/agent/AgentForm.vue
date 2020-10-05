@@ -17,13 +17,7 @@
             <input name="command" formControlName="command" class="form-control" id="command" v-model="agent.command">
         </div>
         <hr />
-        <h4>Agent Type <span class="text-danger" title="What kind of Agent is this? Run in a Target, RootDomain or Subdomain?">*</span></h4>
-        <div class="form-group form-check">
-            <input type="radio" id="isByTarget" value="Target" v-model="agent.agentType">
-            <label class="form-check-label" for="isByTarget">
-                Target
-            </label>
-        </div>
+        <h4>Agent Type <span class="text-danger" title="What kind of Agent is this? Run in a Target, RootDomain or Subdomain?">*</span></h4>        
         <div class="form-group form-check">
             <input type="radio" id="isByRootDomain" value="RootDomain" v-model="agent.agentType">
             <label class="form-check-label" for="isByRootDomain">
@@ -41,7 +35,6 @@
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <a class="nav-item nav-link active" id="nav-general-tab" data-toggle="tab" href="#nav-general" role="tab" aria-controls="nav-subdomains" aria-selected="true">General</a>
-                <a :class="agent.agentType === 'Target' ? 'nav-item nav-link' : 'nav-item nav-link disabled'"  id="nav-target-tab" data-toggle="tab" href="#nav-target" role="tab" aria-controls="nav-target" aria-selected="false">Target</a>
                 <a :class="agent.agentType === 'RootDomain' ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-rootdomain-tab" data-toggle="tab" href="#nav-rootdomain" role="tab" aria-controls="nav-rootdomain" aria-selected="false">RootDomain</a>
                 <a :class="agent.agentType === 'Subdomain' ? 'nav-item nav-link' : 'nav-item nav-link disabled'" id="nav-subdomain-tab" data-toggle="tab" href="#nav-subdomain" role="tab" aria-controls="nav-subdomain" aria-selected="false">Subdomain</a>
             </div>
@@ -54,36 +47,9 @@
                         Skip if Run Before
                     </label>
                 </div>                
-            </div>
-            <div class="tab-pane fade" id="nav-target" role="tabpanel" aria-labelledby="nav-target-tab">
-                <div class="form-group form-check mt-4">
-                    <input class="form-check-input" type="checkbox" id="triggerTargetHasBounty" v-model="agent.triggerTargetHasBounty">
-                    <label class="form-check-label" for="triggerTargetHasBounty">
-                        Has Bounty
-                    </label>
-                </div>
-                <div class="row">
-                    <div class="form-group col-4">
-                        <label for="triggerTargetIncExcName">Include/Exclude RegExp Target Name</label>
-                        <select class="form-control" id="triggerTargetIncExcName" v-model="agent.triggerTargetIncExcName">
-                            <option>Include</option>
-                            <option>Exclude</option>
-                        </select>
-                    </div>
-                    <div class="form-group col-8">
-                        <label for="triggerTargetName">RegExp Target Name</label>
-                        <input class="form-control" id="triggerTargetName" v-model="agent.triggerTargetName">
-                    </div>
-                </div>
-            </div>
-            <div class="tab-pane fade" id="nav-rootdomain" role="tabpanel" aria-labelledby="nav-rootdomain-tab">
-                <div class="form-group form-check mt-4">
-                    <input class="form-check-input" type="checkbox" id="triggerRootdomainHasBounty" v-model="agent.triggerRootdomainHasBounty">
-                    <label class="form-check-label" for="triggerRootdomainHasBounty">
-                        Has Bounty
-                    </label>
-                </div>
-                <div class="row">
+            </div>            
+            <div class="tab-pane fade" id="nav-rootdomain" role="tabpanel" aria-labelledby="nav-rootdomain-tab">               
+                <div class="row mt-4">
                     <div class="form-group col-4">
                         <label for="triggerRootdomainIncExcName">Include/Exclude RegExp RootDomain</label>
                         <select class="form-control" id="triggerRootdomainIncExcName" v-model="agent.triggerRootdomainIncExcName">
@@ -97,14 +63,8 @@
                     </div>
                 </div>
             </div>
-            <div class="tab-pane fade" id="nav-subdomain" role="tabpanel" aria-labelledby="nav-subdomain-tab">
+            <div class="tab-pane fade" id="nav-subdomain" role="tabpanel" aria-labelledby="nav-subdomain-tab">                
                 <div class="form-group form-check mt-4">
-                    <input class="form-check-input" type="checkbox" id="triggerSubdomainHasBounty" v-model="agent.triggerSubdomainHasBounty">
-                    <label class="form-check-label" for="triggerSubdomainHasBounty">
-                        Has Bounty
-                    </label>
-                </div>
-                <div class="form-group form-check">
                     <input class="form-check-input" type="checkbox" id="triggerSubdomainIsAlive" v-model="agent.triggerSubdomainIsAlive">
                     <label class="form-check-label" for="triggerSubdomainIsAlive">
                         Is Alive
