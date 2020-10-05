@@ -183,7 +183,7 @@
                             `${agent.name}_${this.targetName}_${this.rootDomain}_${this.subdomain}`
 
                         this.$connection.on(channel, (message) => {
-                            if (message === "Agent stopped!" || message === "Agent done!") {
+                            if (message === "Agent done!") {
                                 agent.isRunning = false
                                 this.currentAgent = null
                             }
@@ -219,11 +219,9 @@
                 this.showCommandModal = false
                 this.showTerminalModal = true
 
-                const agentName = agent.name
-
                 try {
                     await this.$store.dispatch('agents/run', {
-                        agent: agentName,
+                        agent: agent.name,
                         command: agent.command,
                         target: this.targetName,
                         rootDomain: this.rootDomain,
@@ -238,18 +236,18 @@
             async onStopAgent(agent) {
                 if (!agent.isRunning) {
                     return
-                }
+                }                
 
-                this.currentAgent = null
-
-                const agentName = agent.name
                 try {
                     await this.$store.dispatch('agents/stop', {
-                        agent: agentName,
+                        agent: agent.name,
                         target: this.targetName,
                         rootDomain: this.rootDomain,
                         subdomain: this.subdomain
                     })
+
+                    agent.isRunning = false
+                    this.currentAgent = null
                 }
                 catch (error) {
                     helpers.errorHandle(error)
