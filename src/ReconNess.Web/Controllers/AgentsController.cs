@@ -280,10 +280,14 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
-            if (target == null)
+            Target target = default;
+            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                return BadRequest();
+                target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                if (target == null)
+                {
+                    return BadRequest();
+                }
             }
 
             RootDomain rootDomain = default;
@@ -324,10 +328,14 @@ namespace ReconNess.Web.Controllers
         [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
         public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
+            Target target = default;
+            if (!string.IsNullOrWhiteSpace(targetName))
             {
-                return BadRequest();
+                target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+                if (target == null)
+                {
+                    return BadRequest();
+                }
             }
 
             RootDomain rootDomain = default;
