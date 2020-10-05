@@ -22,7 +22,6 @@ namespace ReconNess.Services
         private readonly ISubdomainService subdomainService;
         private readonly IAgentRunnerProvider agentRunnerProvider;
         private readonly IAgentBackgroundService agentBackgroundService;
-        private readonly INotificationService notificationService;
         private readonly IConnectorService connectorService;
 
         /// <summary>
@@ -35,7 +34,6 @@ namespace ReconNess.Services
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         /// <param name="agentRunnerProvider"><see cref="IAgentRunnerProvider"/></param>
         /// <param name="agentBackgroundService"><see cref="IAgentBackgroundService"/></param>
-        /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="connectorService"><see cref="IConnectorService"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
             IAgentService agentService,
@@ -44,7 +42,6 @@ namespace ReconNess.Services
             ISubdomainService subdomainService,
             IAgentRunnerProvider agentRunnerProvider,
             IAgentBackgroundService agentBackgroundService,
-            INotificationService notificationService,
             IConnectorService connectorService) : base(unitOfWork)
         {
             this.agentService = agentService;
@@ -54,7 +51,6 @@ namespace ReconNess.Services
             this.agentRunnerProvider = agentRunnerProvider;
             this.agentBackgroundService = agentBackgroundService;
 
-            this.notificationService = notificationService;
             this.connectorService = connectorService;
         }
 
@@ -138,7 +134,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <returns>If we need to run the Agent in each subdomain</returns>
-        public string GetAgentRunnerType(AgentRunner agentRunner)
+        private string GetAgentRunnerType(AgentRunner agentRunner)
         {
             var type = agentRunner.Agent.AgentType;
             return type switch
@@ -146,7 +142,7 @@ namespace ReconNess.Services
                 AgentTypes.TARGET => agentRunner.Target == null ? AgentRunnerTypes.ALL_TARGETS : AgentRunnerTypes.CURRENT_TARGET,
                 AgentTypes.ROOTDOMAIN => agentRunner.RootDomain == null ? AgentRunnerTypes.ALL_ROOTDOMAINS : AgentRunnerTypes.CURRENT_ROOTDOMAIN,
                 AgentTypes.SUBDOMAIN => agentRunner.Subdomain == null ? AgentRunnerTypes.ALL_SUBDOMAINS : AgentRunnerTypes.CURRENT_SUBDOMAIN,
-                _ => throw new ArgumentException("The Agent need a valid Type")
+                _ => throw new ArgumentException("The Agent need to have valid Type")
             };
         }
 
