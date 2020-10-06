@@ -4,7 +4,7 @@
 
 - Fix upload subdomain
 - Add Nlog
-- Allow unistall installed Agents
+- Allow uninstall installed Agents
 - Track latest ReconNess version
 
 ## [1.5.0] - 2020-10-05
