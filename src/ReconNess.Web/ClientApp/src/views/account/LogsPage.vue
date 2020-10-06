@@ -5,7 +5,7 @@
         <div class="form-group">
             <label for="inputName">Log Files</label>
             <select id="method" class="form-control" v-model="logFileSelected" @change="onChange()">
-                <option v-for="log in logs" v-bind:value="log">
+                <option v-for="log in logs" v-bind:value="log" v-bind:key="log">
                     {{ log }}
                 </option>
             </select>

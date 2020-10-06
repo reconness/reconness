@@ -82,7 +82,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("readLogfile/{logFileSelected}")]
         public async Task<IActionResult> ReadLogfile(string logFileSelected, CancellationToken cancellationToken)
         {
-            return Ok(this.logsProvider.ReadLogfile(logFileSelected, cancellationToken));
+            return Ok(await this.logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken));
         }
 
         // POST api/accounts/cleanLogfile

@@ -18,7 +18,7 @@ namespace ReconNess.Providers
         public void CleanLogfile(string logFileSelected, CancellationToken cancellationToken)
         {
             var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs", logFileSelected).Substring(6);
+            var path = Path.Combine(bin, "logs", logFileSelected).Substring(5);
 
             System.IO.File.WriteAllText(path, string.Empty);
         }
@@ -29,7 +29,7 @@ namespace ReconNess.Providers
         public IEnumerable<string> GetLogfiles(CancellationToken cancellationToken)
         {
             var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs").Substring(6);
+            var path = Path.Combine(bin, "logs").Substring(5);
 
             var files = Directory.GetFiles(path);
 
@@ -39,10 +39,10 @@ namespace ReconNess.Providers
         /// <summary>
         /// <see cref="ILogsProvider.ReadLogfile(string, CancellationToken)"/>
         /// </summary>
-        public async Task<string> ReadLogfile(string logFileSelected, CancellationToken cancellationToken)
+        public async Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
             var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs", logFileSelected).Substring(6);
+            var path = Path.Combine(bin, "logs", logFileSelected).Substring(5);
 
             using (FileStream fs = System.IO.File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (BufferedStream bs = new BufferedStream(fs))
