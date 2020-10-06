@@ -1,12 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
-using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,20 +16,19 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly INotificationService notificationService;
         private readonly IVersionProvider currentVersionProvider;
-
-        private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly ILogsProvider logsProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountsController" /> class
         public AccountsController(IMapper mapper,
             INotificationService notificationService,
             IVersionProvider currentVersionProvider,
-            IWebHostEnvironment webHostEnvironment)
+            ILogsProvider logsProvider)
         {
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.currentVersionProvider = currentVersionProvider;
-            this.webHostEnvironment = webHostEnvironment;
+            this.logsProvider = logsProvider;
         }
 
         // GET api/accounts/notification
@@ -79,37 +75,21 @@ namespace ReconNess.Web.Controllers
         [HttpGet("logfiles")]
         public IActionResult Logfiles(CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs").Substring(6);
-
-            var files = Directory.GetFiles(path);
-            
-            return Ok(files.Select(f => Path.GetFileName(f)));
+            return Ok(this.logsProvider.GetLogfiles(cancellationToken));
         }
 
         // GET api/accounts/readLogfile{logFileSelected}
         [HttpGet("readLogfile/{logFileSelected}")]
         public async Task<IActionResult> ReadLogfile(string logFileSelected, CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs", logFileSelected).Substring(6);
-
-            using (FileStream fs = System.IO.File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (BufferedStream bs = new BufferedStream(fs))
-            using (StreamReader sr = new StreamReader(bs))
-            {
-                return Ok(await sr.ReadToEndAsync());               
-            }
+            return Ok(this.logsProvider.ReadLogfile(logFileSelected, cancellationToken));
         }
 
         // POST api/accounts/cleanLogfile
         [HttpPost("cleanLogfile")]
         public IActionResult CleanLogfile([FromBody] AccountLogFileDto accountLogFileDto, CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs", accountLogFileDto.LogFileSelected).Substring(6);
-
-            System.IO.File.WriteAllText(path, string.Empty);
+            this.logsProvider.CleanLogfile(accountLogFileDto.LogFileSelected, cancellationToken);
 
             return NoContent();
         }

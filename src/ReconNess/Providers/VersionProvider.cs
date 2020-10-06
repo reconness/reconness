@@ -33,7 +33,7 @@ namespace ReconNess.Providers
         /// <see cref="IVersionProvider.GetLatestVersionAsync(CancellationToken)"/>
         /// </summary>
         public async Task<string> GetLatestVersionAsync(CancellationToken cancellationToken)
-        {            
+        {
             try
             {
                 var client = new RestClient("https://version.reconness.com/");
