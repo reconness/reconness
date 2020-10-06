@@ -1,4 +1,4 @@
-﻿using static ReconNess.Core.IAgentRunnerProvider;
+﻿using static ReconNess.Core.Providers.IAgentRunnerProvider;
 
 namespace ReconNess.Core.Models
 {

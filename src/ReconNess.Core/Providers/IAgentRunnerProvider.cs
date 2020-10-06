@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ReconNess.Core
+namespace ReconNess.Core.Providers
 {
     /// <summary>
     /// The interface IAgentRunnerProvider

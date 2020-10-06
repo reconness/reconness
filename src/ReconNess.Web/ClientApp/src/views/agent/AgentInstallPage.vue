@@ -15,9 +15,11 @@
                         <th class="w-25" scope="row">{{ agent.name }}</th>
                         <td class="w-25">{{ agent.category}}</td>
                         <td class="w-25">
-                            <button class="btn btn-primary ml-2" :disabled="installed(agent)" v-on:click="onConfirmInstallation(agent)">
-                                <span v-if="installed(agent)">Installed</span>
-                                <span v-else>Install</span>
+                            <button class="btn btn-danger ml-2" v-if="installed(agent)" v-on:click="onUninstallation(agent)">
+                                Uninstall
+                            </button>
+                            <button class="btn btn-primary ml-2" v-else v-on:click="onConfirmInstallation(agent)">
+                                Install
                             </button>
                         </td>
                     </tr>
@@ -76,6 +78,17 @@
             }
         },
         methods: {
+            async onUninstallation(agent) {
+
+                if (confirm('Are you sure to Unistall this Agent: ' + agent.name)) {
+                    try {
+                        await this.$store.dispatch('agents/uninstall', agent)
+                    }
+                    catch (error) {
+                        helpers.errorHandle(error)
+                    }
+                }
+            },
             async onConfirmInstallation(agent) {
 
                 this.showCommandModal = true

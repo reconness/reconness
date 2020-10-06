@@ -1,5 +1,6 @@
 ﻿using ReconNess.Core;
 using ReconNess.Core.Models;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Helpers;

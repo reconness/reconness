@@ -2,8 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Data.Npgsql;
+using ReconNess.Providers;
 using ReconNess.Services;
 using ReconNess.Web.Auth;
 using ReconNess.Worker;
@@ -40,6 +42,8 @@ namespace ReconNess.Web
 
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IConnectorService, ConnectorService>();
+
+            services.AddSingleton<IVersionProvider, VersionProvider>();
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();
             services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();

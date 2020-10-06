@@ -1,3 +1,12 @@
+## [1.5.1] - 2020-10-06
+
+### Added
+
+- Fix upload subdomain
+- Add Nlog
+- Allow unistall installed Agents
+- Track latest ReconNess version
+
 ## [1.5.0] - 2020-10-05
 
 ### Added
