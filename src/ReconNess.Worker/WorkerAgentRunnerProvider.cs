@@ -1,5 +1,5 @@
-﻿using ReconNess.Core;
-using ReconNess.Core.Models;
+﻿using ReconNess.Core.Models;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Worker.Models;
 using System;

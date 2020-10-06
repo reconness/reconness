@@ -3,7 +3,9 @@
         <nav class='navbar navbar-expand-sm navbar-expand-md navbar-dark bg-dark border-bottom box-shadow mb-3'>
             <div class="container">
                 <img src="../assets/logo.png" width="50" height="50" />
-                <a class="navbar-brand" href='/'>ReconNess v1.5.1</a><a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
+                <a class="navbar-brand" href='/'>ReconNess v1.5.0</a>
+                <a class="navbar-brand text-danger" :if="latestVersion" href='https://github.com/reconness/reconness' target="_blank">{{latestVersion}}</a>
+                <a href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
                         aria-expanded="isExpanded" v-on:click="toggle">
                     <span class="navbar-toggler-icon"></span>
@@ -70,7 +72,8 @@
         name: 'NavMenu',
         data: () => {
             return {
-                isExpanded: false
+                isExpanded: false,
+                latestVersion: ''
             }
         },
         computed: mapState({
@@ -96,6 +99,7 @@
         async mounted() {
             this.$store.dispatch('targets/targets')
             this.$store.dispatch('agents/agents')
+            this.latestVersion = await this.$store.dispatch('accounts/latestVersion')
         }
     }
 </script>
