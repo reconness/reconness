@@ -44,6 +44,7 @@ namespace ReconNess.Web
             services.AddScoped<IConnectorService, ConnectorService>();
 
             services.AddSingleton<IVersionProvider, VersionProvider>();
+            services.AddSingleton<ILogsProvider, LogsProvider>();
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();
             services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();
