@@ -33,35 +33,34 @@ namespace ReconNess.Providers
         /// <see cref="IVersionProvider.GetLatestVersionAsync(CancellationToken)"/>
         /// </summary>
         public async Task<string> GetLatestVersionAsync(CancellationToken cancellationToken)
-        {
-            var currentVersion = this.configuration["ReconNess:Version"];
-            if (!string.IsNullOrEmpty(currentVersion))
+        {            
+            try
             {
-                try
-                {
-                    var client = new RestClient("https://version.reconness.com/");
-                    var request = new RestRequest();
+                var client = new RestClient("https://version.reconness.com/");
+                var request = new RestRequest();
 
-                    var response = await client.ExecuteGetAsync(request, cancellationToken);
+                var response = await client.ExecuteGetAsync(request, cancellationToken);
 
-                    var match = Regex.Match(response.Content, @"<body>\n(.*)\n</body>");
-                    if (match.Success && match.Groups.Count == 2)
-                    {
-                        var latestVersion = match.Groups[1].ToString();
-                        int comparison = string.Compare(currentVersion, latestVersion, comparisonType: StringComparison.OrdinalIgnoreCase);
-                        if (comparison < 0)
-                        {
-                            return $"[Latest v{latestVersion}]";
-                        }
-                    }
-                }
-                catch (Exception ex)
+                var match = Regex.Match(response.Content, @"<body>\n(.*)\n</body>");
+                if (match.Success && match.Groups.Count == 2)
                 {
-                    this.logger.LogError(ex, ex.Message);
+                    return match.Groups[1].ToString();
                 }
+            }
+            catch (Exception ex)
+            {
+                this.logger.LogError(ex, ex.Message);
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// <see cref="IVersionProvider.GetCurrentVersionAsync(CancellationToken)"/>
+        /// </summary>
+        public Task<string> GetCurrentVersionAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(this.configuration["ReconNess:Version"]);
         }
     }
 }

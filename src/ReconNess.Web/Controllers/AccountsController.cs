@@ -54,7 +54,16 @@ namespace ReconNess.Web.Controllers
         [HttpGet("latestVersion")]
         public async Task<IActionResult> LatestVersion(CancellationToken cancellationToken)
         {
-            var currentVersion = await this.currentVersionProvider.GetLatestVersionAsync(cancellationToken);
+            var latestVersion = await this.currentVersionProvider.GetLatestVersionAsync(cancellationToken);
+
+            return Ok(latestVersion);
+        }
+
+        // GET api/account/currentVersion
+        [HttpGet("currentVersion")]
+        public async Task<IActionResult> CurrentVersion(CancellationToken cancellationToken)
+        {
+            var currentVersion = await this.currentVersionProvider.GetCurrentVersionAsync(cancellationToken);
 
             return Ok(currentVersion);
         }
