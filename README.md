@@ -12,7 +12,7 @@ With ReconNess you can put all your learning effort only on how to exploit the t
 
 ## Continuous Recon (CR)
 
-The idea with ReconNess is create a platform to allow continuous recon (CR) where you can set up a pipeline of #recon tools (Agents) and trigger it base on schedule or events.
+ReconNess is a platform to allow continuous recon (CR) where you can set up a pipeline of #recon tools (Agents) and trigger it base on schedule or events.
 
 ## Quick Start
 
