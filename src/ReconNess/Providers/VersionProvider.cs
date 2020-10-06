@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using ReconNess.Core.Providers;
 using RestSharp;
 using System;
@@ -13,14 +14,18 @@ namespace ReconNess.Providers
     /// </summary>
     public class VersionProvider : IVersionProvider
     {
+        private readonly ILogger<VersionProvider> logger;
+
         private readonly IConfiguration configuration;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="VersionProvider" /> class
         /// </summary>
+        /// <param name="logger"><see cref="ILogger{TCategoryName}"/></param>
         /// <param name="configuration"><see cref="IConfiguration"/></param>
-        public VersionProvider(IConfiguration configuration)
+        public VersionProvider(ILogger<VersionProvider> logger, IConfiguration configuration)
         {
+            this.logger = logger;
             this.configuration = configuration;
         }
 
@@ -50,9 +55,9 @@ namespace ReconNess.Providers
                         }
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    this.logger.LogError(ex, ex.Message);
                 }
             }
 

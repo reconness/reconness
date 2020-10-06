@@ -88,6 +88,21 @@ const actions = {
             }
         })
     },
+    uninstall(context, agent) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.delete('agents', agent.name)
+                    .then(() => {
+                        context.commit('deleteAgent', agent)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     createAgent(context, agent) {
         return new Promise((resolve, reject) => {
             try {

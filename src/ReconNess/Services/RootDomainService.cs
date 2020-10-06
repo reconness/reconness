@@ -161,6 +161,8 @@ namespace ReconNess.Services
                 {
                     newSubdomains.Add(new Subdomain
                     {
+                        Target = rootDomain.Target,
+                        RootDomain = rootDomain,
                         Name = subdomain
                     });
                 }
@@ -173,7 +175,7 @@ namespace ReconNess.Services
                     rootDomain.Subdomains.Add(subdomain);
                 }
 
-                await this.UpdateAsync(rootDomain);
+                await this.UpdateAsync(rootDomain, cancellationToken);
             }
 
             return newSubdomains;
