@@ -19,7 +19,7 @@ namespace ReconNess.Services
     public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
     {
         protected static readonly ILogger logger = LogManager.GetCurrentClassLogger();
-        ; 
+        
         private readonly IAgentService agentService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
