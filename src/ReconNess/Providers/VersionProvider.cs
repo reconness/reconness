@@ -38,7 +38,7 @@ namespace ReconNess.Providers
             {
                 var client = new RestClient("https://version.reconness.com/");
                 var request = new RestRequest();
-
+                client.UserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.157 Safari/537.36";
                 var response = await client.ExecuteGetAsync(request, cancellationToken);
 
                 var match = Regex.Match(response.Content, @"<body>\n(.*)\n</body>");

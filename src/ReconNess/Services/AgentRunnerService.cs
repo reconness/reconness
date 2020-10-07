@@ -1,4 +1,5 @@
-﻿using ReconNess.Core;
+﻿using NLog;
+using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
@@ -17,6 +18,8 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
     {
+        protected static readonly ILogger logger = LogManager.GetCurrentClassLogger();
+        ; 
         private readonly IAgentService agentService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
@@ -97,6 +100,8 @@ namespace ReconNess.Services
 
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
             await this.agentRunnerProvider.InitializesAsync(channel);
+
+            logger.Info($"Start running {channel}");
 
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.Contains("Current"))
