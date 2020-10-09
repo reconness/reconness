@@ -32,7 +32,7 @@ namespace ReconNess.Worker
                 throw new ArgumentNullException(nameof(workItem));
             }
 
-            _logger.Info($"Enqueue {workItem.ProcessWrapper.}");
+            _logger.Info($"Enqueue {workItem.Channel}");
             this.workItems.Enqueue(workItem);
 
             this.signal.Release();
