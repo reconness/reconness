@@ -1,4 +1,5 @@
-﻿using ReconNess.Core.Providers;
+﻿using NLog;
+using ReconNess.Core.Providers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace ReconNess.Providers
     /// </summary>
     public class LogsProvider : ILogsProvider
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// <see cref="ILogsProvider.CleanLogfile(string, CancellationToken)"/>
         /// </summary>
@@ -20,7 +23,7 @@ namespace ReconNess.Providers
             var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
             var path = Path.Combine(bin, "logs", logFileSelected).Substring(5);
 
-            System.IO.File.WriteAllText(path, string.Empty);
+            File.WriteAllText(path, string.Empty);
         }
 
         /// <summary>
@@ -44,7 +47,7 @@ namespace ReconNess.Providers
             var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
             var path = Path.Combine(bin, "logs", logFileSelected).Substring(5);
 
-            using (FileStream fs = System.IO.File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+            using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             using (BufferedStream bs = new BufferedStream(fs))
             using (StreamReader sr = new StreamReader(bs))
             {

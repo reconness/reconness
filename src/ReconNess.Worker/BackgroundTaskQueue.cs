@@ -1,4 +1,5 @@
-﻿using ReconNess.Worker.Models;
+﻿using NLog;
+using ReconNess.Worker.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace ReconNess.Worker
     /// </summary>
     public class BackgroundTaskQueue : IBackgroundTaskQueue
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private ConcurrentQueue<AgentRunnerProcess> workItems = new ConcurrentQueue<AgentRunnerProcess>();
         private SemaphoreSlim signal = new SemaphoreSlim(0);
         private AgentRunnerProcess currentRunProcess;
@@ -29,6 +32,7 @@ namespace ReconNess.Worker
                 throw new ArgumentNullException(nameof(workItem));
             }
 
+            _logger.Info($"Enqueue {workItem.ProcessWrapper.}");
             this.workItems.Enqueue(workItem);
 
             this.signal.Release();
@@ -46,6 +50,7 @@ namespace ReconNess.Worker
             {
                 if (!this.workItems.TryDequeue(out workItem))
                 {
+                    _logger.Info("Nothing to dequeue");
                     return null;
                 }
 
@@ -68,6 +73,7 @@ namespace ReconNess.Worker
                 {
                     if (!channels.Any(c => c.Equals(this.currentRunProcess.Channel)))
                     {
+                        _logger.Info($"Current process still Running: {this.currentRunProcess.Channel}");
                         channels.Add(this.currentRunProcess.Channel);
                     }
                 }
@@ -105,6 +111,8 @@ namespace ReconNess.Worker
                 {
                     this.currentRunProcess.ProcessWrapper.KillProcess();
                     this.currentRunProcess = null;
+
+                    _logger.Info($"Process Stopped: {channel}");
                 }
             }
 

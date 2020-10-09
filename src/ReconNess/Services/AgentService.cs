@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -19,6 +20,8 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentService : Service<Agent>, IService<Agent>, IAgentService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly IScriptEngineService scriptEngineService;
 
         /// <summary>

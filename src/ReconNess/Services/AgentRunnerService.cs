@@ -18,8 +18,8 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
     {
-        protected static readonly ILogger logger = LogManager.GetCurrentClassLogger();
-        
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly IAgentService agentService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
@@ -101,7 +101,7 @@ namespace ReconNess.Services
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
             await this.agentRunnerProvider.InitializesAsync(channel);
 
-            logger.Info($"Start running {channel}");
+            _logger.Info($"Start running: {channel}");
 
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.Contains("Current"))
@@ -123,14 +123,20 @@ namespace ReconNess.Services
 
             try
             {
+                _logger.Info($"Stop: {channel}");
+
                 if (!(await this.agentRunnerProvider.IsStoppedAsync(channel)))
                 {
                     await this.agentRunnerProvider.StopAsync(channel);
                     await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
+
+                    _logger.Info($"Stopped: {channel}");
                 }
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, ex.Message);
+
                 await this.connectorService.SendAsync(channel, ex.Message, true, cancellationToken);
                 await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
             }
@@ -337,6 +343,7 @@ namespace ReconNess.Services
         /// </summary>
         private async Task BeginHandlerAsync(AgentRunnerProviderResult result)
         {
+            _logger.Info($"Start command {result.Command}");
             await this.connectorService.SendAsync(result.Channel, $"RUN: {result.Command}", true, result.CancellationToken);
         }
 
@@ -372,7 +379,7 @@ namespace ReconNess.Services
         /// </summary>
         private async Task EndHandlerAsync(AgentRunnerProviderResult result)
         {
-
+            _logger.Info($"End command {result.Command}");
             await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);
 
             if (result.Last)
@@ -386,6 +393,8 @@ namespace ReconNess.Services
         /// </summary>
         private async Task ExceptionHandlerAsync(AgentRunnerProviderResult result)
         {
+            _logger.Error(result.Exception, $"Exception running command {result.Command}");
+
             await this.connectorService.SendAsync(result.Channel, result.Exception.Message, true, result.CancellationToken);
             await this.connectorService.SendLogsAsync(result.Channel, $"Exception: {result.Exception.StackTrace}", result.CancellationToken);
 

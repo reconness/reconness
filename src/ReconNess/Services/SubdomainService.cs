@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -18,6 +19,8 @@ namespace ReconNess.Services
     /// </summary>
     public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService, ISaveTerminalOutputParseService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly ILabelService labelService;
         private readonly INotesService notesService;
         private readonly INotificationService notificationService;
@@ -456,9 +459,9 @@ namespace ReconNess.Services
                         }, cancellationToken);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    _logger.Error(ex, ex.Message);
                 }
             }
 
@@ -485,9 +488,9 @@ namespace ReconNess.Services
                         }, cancellationToken);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-
+                    _logger.Error(ex, ex.Message);
                 }
             }
         }
