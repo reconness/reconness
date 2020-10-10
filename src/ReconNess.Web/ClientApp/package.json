@@ -17,11 +17,11 @@
     "bootstrap": "4.5.2",
     "core-js": "2.6.11",
     "jquery": "3.5.1",
-    "moment": "2.29.0",
+    "moment": "2.29.1",
     "popper.js": "1.16.1",
     "vue": "2.6.12",
-    "vue-axios": "2.1.5",
-    "vue-router": "3.4.5",
+    "vue-axios": "3.0.1",
+    "vue-router": "3.4.6",
     "vue-tables-2": "1.5.46",
     "vuex": "3.5.1",
     "xterm": "4.9.0"
@@ -32,7 +32,7 @@
     "@vue/cli-plugin-eslint": "3.12.1",
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.1.0",
-    "eslint": "7.10.0",
+    "eslint": "7.11.0",
     "eslint-plugin-vue": "6.2.2",
     "vue-template-compiler": "2.6.12",
     "vue2-ace-editor": "0.0.15"
