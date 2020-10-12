@@ -45,9 +45,12 @@ namespace ReconNess.Worker
         {
             await this.signal.WaitAsync(cancellationToken);
 
+            _logger.Info("Try to Dequeue");
+
             AgentRunnerProcess workItem;
             do
             {
+               
                 if (!this.workItems.TryDequeue(out workItem))
                 {
                     _logger.Info("Nothing to dequeue");
@@ -56,6 +59,7 @@ namespace ReconNess.Worker
 
             } while (workItem.Channel.Equals(this.channelDeleted));
 
+            _logger.Info($"Dequeue {workItem.Channel}");
             this.currentRunProcess = workItem;
 
             return workItem;
@@ -114,6 +118,14 @@ namespace ReconNess.Worker
 
                     _logger.Info($"Process Stopped: {channel}");
                 }
+                else
+                {
+                    _logger.Info($"Process wrapper was not running: {channel}");
+                }
+            }
+            else
+            {
+                _logger.Info($"Current Process was not running: {channel}");
             }
 
             this.workItems.Clear();

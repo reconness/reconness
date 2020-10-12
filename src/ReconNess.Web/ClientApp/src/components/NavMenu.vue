@@ -5,7 +5,7 @@
                 <img src="../assets/logo.png" width="50" height="50" />
                 <a class="navbar-brand" href='/'>ReconNess v{{currentVersion}}</a>
                 <a class="navbar-brand text-primary" href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
-                <a class="navbar-brand text-danger" href='https://github.com/reconness/reconness' target="_blank">[Latest v{{latestVersion}}]</a>
+                <a class="navbar-brand text-danger" href='https://github.com/reconness/reconness/releases/latest' target="_blank">[Latest v{{latestVersion}}]</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
                         aria-expanded="isExpanded" v-on:click="toggle">
                     <span class="navbar-toggler-icon"></span>
