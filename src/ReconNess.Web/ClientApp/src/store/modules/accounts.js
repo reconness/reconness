@@ -28,21 +28,7 @@ const actions = {
                 reject(err)
             }
         })
-    },
-    latestVersion() {
-        return new Promise((resolve, reject) => {
-            try {
-                api.get('accounts/latestVersion')
-                    .then((res) => {
-                        resolve(res.data)
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
+    },   
     currentVersion() {
         return new Promise((resolve, reject) => {
             try {

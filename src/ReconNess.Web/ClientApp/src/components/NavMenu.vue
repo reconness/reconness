@@ -5,7 +5,7 @@
                 <img src="../assets/logo.png" width="50" height="50" />
                 <a class="navbar-brand" href='/'>ReconNess v{{currentVersion}}</a>
                 <a class="navbar-brand text-primary" href="https://github.com/reconness/reconness/blob/master/CHANGELOG.md" target="_blank">[CHANGELOG]</a>
-                <a class="navbar-brand text-danger" href='https://github.com/reconness/reconness' target="_blank">[Latest v{{latestVersion}}]</a>
+                <iframe src="https://version.reconness.com/" title="Latest Version"></iframe>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-label="Toggle navigation"
                         aria-expanded="isExpanded" v-on:click="toggle">
                     <span class="navbar-toggler-icon"></span>
@@ -74,8 +74,7 @@
         data: () => {
             return {
                 isExpanded: false,
-                currentVersion: '',
-                latestVersion: ''
+                currentVersion: ''
             }
         },
         computed: mapState({
@@ -101,13 +100,18 @@
         async mounted() {
             this.$store.dispatch('targets/targets')
             this.$store.dispatch('agents/agents')
-            this.latestVersion = await this.$store.dispatch('accounts/latestVersion')
             this.currentVersion = await this.$store.dispatch('accounts/currentVersion')
         }
     }
 </script>
 
 <style scoped>
+    iframe {
+        border: none;
+        padding: 0;
+        margin: 0;
+        height: 40px;
+    }
     a.navbar-brand {
         white-space: normal;
         text-align: center;
