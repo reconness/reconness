@@ -96,7 +96,11 @@ namespace ReconNess.Worker
 
                         while (!processWrapper.EndOfStream)
                         {
-                            _logger.Info("Processing output");
+                            if (processWrapper.Stopped)
+                            {
+                                break;
+                            }
+                            
                             token.ThrowIfCancellationRequested();
 
                             // Parse the terminal output one line

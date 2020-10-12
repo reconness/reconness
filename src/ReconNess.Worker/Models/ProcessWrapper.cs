@@ -10,6 +10,8 @@ namespace ReconNess.Worker.Models
 
         private Process process;
 
+        public bool Stopped { get; set; } = false;        
+
         public void Start(string command)
         {
             this.process = new Process()
@@ -57,8 +59,11 @@ namespace ReconNess.Worker.Models
             {
                 try
                 {
-                    process.Kill();
+                    Stopped = true;
+
+                    //process.Kill();
                     process.WaitForExit();
+                    _logger.Info("Stopped");
                 }
                 catch (Exception ex)
                 {
@@ -69,6 +74,7 @@ namespace ReconNess.Worker.Models
                 {
                     process = null;
                 }
+                _logger.Info("Stopped All fine");
             }
         }
     }

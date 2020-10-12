@@ -104,7 +104,7 @@ namespace ReconNess.Worker
         {
             this.channelDeleted = channel;
             if (this.currentRunProcess != null && this.currentRunProcess.Channel.Equals(channel))
-            {
+            {               
                 if (this.currentRunProcess.ProcessWrapper != null)
                 {
                     this.currentRunProcess.ProcessWrapper.KillProcess();
