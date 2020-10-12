@@ -31,28 +31,25 @@ namespace ReconNess.Worker
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                _logger.Info("Checking workItem");
 
                 var workItem =
                     await TaskQueue.DequeueAgentRunAsync(stoppingToken);
 
                 try
                 {
-                    _logger.Info("Checking workItem after get workItem");
                     if (workItem != null)
                     {
-                        _logger.Info("WorkItem ready");
+                        _logger.Info("WorkItem Started");
                         await workItem.ProcessFunc(stoppingToken);
+                        _logger.Info("WorkItem finished");
                     }
                 }
                 catch (Exception ex)
                 {
                     _logger.Error(ex,
-                        "Error occurred executing {WorkItem}.", nameof(workItem));
+                        $"Error occurred executing {workItem}.", nameof(workItem));
                 }
             }
-
-            _logger.Info("BackgroundProcessing out");
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)

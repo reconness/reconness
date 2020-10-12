@@ -101,8 +101,6 @@ namespace ReconNess.Services
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
             await this.agentRunnerProvider.InitializesAsync(channel);
 
-            _logger.Info($"Start running: {channel}");
-
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.Contains("Current"))
             {
@@ -123,14 +121,11 @@ namespace ReconNess.Services
 
             try
             {
-                _logger.Info($"Stop: {channel}");
 
                 if (!(await this.agentRunnerProvider.IsStoppedAsync(channel)))
                 {
                     await this.agentRunnerProvider.StopAsync(channel);
                     await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
-
-                    _logger.Info($"Stopped: {channel}");
                 }
             }
             catch (Exception ex)

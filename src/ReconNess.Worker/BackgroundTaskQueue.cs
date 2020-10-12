@@ -32,11 +32,9 @@ namespace ReconNess.Worker
                 throw new ArgumentNullException(nameof(workItem));
             }
 
-            _logger.Info($"Enqueue {workItem.Channel}");
             this.workItems.Enqueue(workItem);
 
             this.signal.Release();
-            _logger.Info($"Enqueued and release the signal");
         }
 
         /// <summary>
@@ -44,11 +42,7 @@ namespace ReconNess.Worker
         /// </summary>
         public async Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
         {
-            _logger.Info("Before wait for the signal");
-
             await this.signal.WaitAsync(cancellationToken);
-
-            _logger.Info("Try to Dequeue");
 
             AgentRunnerProcess workItem;
             do
@@ -56,13 +50,11 @@ namespace ReconNess.Worker
                
                 if (!this.workItems.TryDequeue(out workItem))
                 {
-                    _logger.Info("Nothing to dequeue");
                     return null;
                 }
 
             } while (workItem.Channel.Equals(this.channelDeleted));
 
-            _logger.Info($"Dequeue {workItem.Channel}");
             this.currentRunProcess = workItem;
 
             return workItem;
@@ -80,7 +72,6 @@ namespace ReconNess.Worker
                 {
                     if (!channels.Any(c => c.Equals(this.currentRunProcess.Channel)))
                     {
-                        _logger.Info($"Current process still Running: {this.currentRunProcess.Channel}");
                         channels.Add(this.currentRunProcess.Channel);
                     }
                 }
@@ -118,19 +109,9 @@ namespace ReconNess.Worker
                 {
                     this.currentRunProcess.ProcessWrapper.KillProcess();
                     this.currentRunProcess = null;
-
-                    _logger.Info($"Process Stopped: {channel}");
-                }
-                else
-                {
-                    _logger.Info($"Process wrapper was not running: {channel}");
-                }
+                }                
             }
-            else
-            {
-                _logger.Info($"Current Process was not running: {channel}");
-            }
-
+            
             this.workItems.Clear();
 
             return Task.CompletedTask;

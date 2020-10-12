@@ -96,6 +96,7 @@ namespace ReconNess.Worker
 
                         while (!processWrapper.EndOfStream)
                         {
+                            _logger.Info("Processing output");
                             token.ThrowIfCancellationRequested();
 
                             // Parse the terminal output one line
@@ -112,6 +113,8 @@ namespace ReconNess.Worker
                                 CancellationToken = token
                             });
                         }
+
+                        _logger.Info("Stop Processing output");
                     };
 
                     await providerArgs.EndHandlerAsync(new AgentRunnerProviderResult
@@ -123,7 +126,6 @@ namespace ReconNess.Worker
                         Last = providerArgs.Last,
                         CancellationToken = token
                     });
-
                 }
                 catch (Exception ex)
                 {
@@ -139,6 +141,7 @@ namespace ReconNess.Worker
                 }
             }));
 
+            _logger.Info("Task completed");
             return Task.CompletedTask;
         }
     }
