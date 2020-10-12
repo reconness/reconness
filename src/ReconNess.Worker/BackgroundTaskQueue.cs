@@ -107,7 +107,7 @@ namespace ReconNess.Worker
             {               
                 if (this.currentRunProcess.ProcessWrapper != null)
                 {
-                    this.currentRunProcess.ProcessWrapper.KillProcess();
+                    this.currentRunProcess.ProcessWrapper.StopProcess();
                     this.currentRunProcess = null;
                 }                
             }

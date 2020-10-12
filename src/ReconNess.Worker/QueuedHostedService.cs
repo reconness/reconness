@@ -39,9 +39,7 @@ namespace ReconNess.Worker
                 {
                     if (workItem != null)
                     {
-                        _logger.Info("WorkItem Started");
                         await workItem.ProcessFunc(stoppingToken);
-                        _logger.Info("WorkItem finished");
                     }
                 }
                 catch (Exception ex)

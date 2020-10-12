@@ -117,8 +117,6 @@ namespace ReconNess.Worker
                                 CancellationToken = token
                             });
                         }
-
-                        _logger.Info("Stop Processing output");
                     };
 
                     await providerArgs.EndHandlerAsync(new AgentRunnerProviderResult
@@ -145,7 +143,6 @@ namespace ReconNess.Worker
                 }
             }));
 
-            _logger.Info("Task completed");
             return Task.CompletedTask;
         }
     }

@@ -53,7 +53,7 @@ namespace ReconNess.Worker.Models
             return string.Empty;
         }
 
-        public void KillProcess()
+        public void StopProcess()
         {
             if (process != null)
             {
@@ -61,9 +61,7 @@ namespace ReconNess.Worker.Models
                 {
                     Stopped = true;
 
-                    //process.Kill();
                     process.WaitForExit();
-                    _logger.Info("Stopped");
                 }
                 catch (Exception ex)
                 {
@@ -74,7 +72,6 @@ namespace ReconNess.Worker.Models
                 {
                     process = null;
                 }
-                _logger.Info("Stopped All fine");
             }
         }
     }
