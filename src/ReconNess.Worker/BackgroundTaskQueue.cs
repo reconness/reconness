@@ -36,6 +36,7 @@ namespace ReconNess.Worker
             this.workItems.Enqueue(workItem);
 
             this.signal.Release();
+            _logger.Info($"Enqueued and release the signal");
         }
 
         /// <summary>
