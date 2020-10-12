@@ -31,14 +31,17 @@ namespace ReconNess.Worker
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+                _logger.Info("Checking workItem");
+
                 var workItem =
                     await TaskQueue.DequeueAgentRunAsync(stoppingToken);
 
                 try
                 {
+                    _logger.Info("Checking workItem after get workItem");
                     if (workItem != null)
                     {
-                        _logger.Info("workItem ready");
+                        _logger.Info("WorkItem ready");
                         await workItem.ProcessFunc(stoppingToken);
                     }
                 }

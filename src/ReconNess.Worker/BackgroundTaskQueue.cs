@@ -44,6 +44,8 @@ namespace ReconNess.Worker
         /// </summary>
         public async Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
         {
+            _logger.Info("Before wait for the signal");
+
             await this.signal.WaitAsync(cancellationToken);
 
             _logger.Info("Try to Dequeue");
