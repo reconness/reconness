@@ -61,6 +61,7 @@ namespace ReconNess.Worker.Models
                 {
                     Stopped = true;
 
+                    process.Kill(true);
                     process.WaitForExit();
                 }
                 catch (Exception ex)
