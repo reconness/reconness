@@ -44,15 +44,26 @@ namespace ReconNess.Providers
         /// </summary>
         public async Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs", logFileSelected).Substring(5);
-
-            using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-            using (BufferedStream bs = new BufferedStream(fs))
-            using (StreamReader sr = new StreamReader(bs))
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
             {
-                return await sr.ReadToEndAsync();
+                logFileSelected = logFileSelected.Replace(c.ToString(), "");
             }
+
+            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(5);
+            var path = Path.Combine(bin, "logs", logFileSelected);
+
+            if (path.StartsWith(Path.Combine(bin, "logs")))
+            {
+                using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                using (BufferedStream bs = new BufferedStream(fs))
+                using (StreamReader sr = new StreamReader(bs))
+                {
+                    return await sr.ReadToEndAsync();
+                }
+            }
+
+            return string.Empty;
         }
     }
 }
