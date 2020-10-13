@@ -100,7 +100,7 @@ namespace ReconNess.Worker
                             {
                                 break;
                             }
-                            
+
                             token.ThrowIfCancellationRequested();
 
                             // Parse the terminal output one line

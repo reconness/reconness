@@ -13,6 +13,8 @@ namespace ReconNess.Providers
     /// </summary>
     public class LogsProvider : ILogsProvider
     {
+        private const int INDEX = 5;
+
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
@@ -20,8 +22,8 @@ namespace ReconNess.Providers
         /// </summary>
         public void CleanLogfile(string logFileSelected, CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs", logFileSelected).Substring(5);
+            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
+            var path = Path.Combine(bin, "logs", logFileSelected);
 
             File.WriteAllText(path, string.Empty);
         }
@@ -31,8 +33,8 @@ namespace ReconNess.Providers
         /// </summary>
         public IEnumerable<string> GetLogfiles(CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase);
-            var path = Path.Combine(bin, "logs").Substring(5);
+            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
+            var path = Path.Combine(bin, "logs");
 
             var files = Directory.GetFiles(path);
 
@@ -50,7 +52,7 @@ namespace ReconNess.Providers
                 logFileSelected = logFileSelected.Replace(c.ToString(), "");
             }
 
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(5);
+            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
             var path = Path.Combine(bin, "logs", logFileSelected);
 
             if (path.StartsWith(Path.Combine(bin, "logs")))

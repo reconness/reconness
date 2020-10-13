@@ -47,7 +47,7 @@ namespace ReconNess.Worker
             AgentRunnerProcess workItem;
             do
             {
-               
+
                 if (!this.workItems.TryDequeue(out workItem))
                 {
                     return null;
@@ -104,14 +104,14 @@ namespace ReconNess.Worker
         {
             this.channelDeleted = channel;
             if (this.currentRunProcess != null && this.currentRunProcess.Channel.Equals(channel))
-            {               
+            {
                 if (this.currentRunProcess.ProcessWrapper != null)
                 {
                     this.currentRunProcess.ProcessWrapper.StopProcess();
                     this.currentRunProcess = null;
-                }                
+                }
             }
-            
+
             this.workItems.Clear();
 
             return Task.CompletedTask;

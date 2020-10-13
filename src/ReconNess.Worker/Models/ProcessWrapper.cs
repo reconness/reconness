@@ -10,7 +10,7 @@ namespace ReconNess.Worker.Models
 
         private Process process;
 
-        public bool Stopped { get; set; } = false;        
+        public bool Stopped { get; set; } = false;
 
         public void Start(string command)
         {
