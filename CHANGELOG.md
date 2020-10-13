@@ -1,3 +1,11 @@
+## [1.5.2] - 2020-10-13
+
+### Added
+
+- Fix Stop Agent big bug (leak memory)
+- Add Logs Page 
+- Update packages
+
 ## [1.5.1] - 2020-10-06
 
 ### Added
