@@ -14,7 +14,7 @@
     "@fortawesome/vue-fontawesome": "2.0.0",
     "@johmun/vue-tags-input": "2.1.0",
     "axios": "0.20.0",
-    "bootstrap": "4.5.2",
+    "bootstrap": "4.5.3",
     "core-js": "2.6.11",
     "jquery": "3.5.1",
     "moment": "2.29.1",
