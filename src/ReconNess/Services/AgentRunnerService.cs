@@ -106,7 +106,7 @@ namespace ReconNess.Services
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.Contains("Current"))
             {
-                await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true);
+                await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true, allowSkip: false);
             }
             else
             {
@@ -213,7 +213,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last);
+                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last, allowSkip: true);
 
                 targetsCount--;
             }
@@ -249,7 +249,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last);
+                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last, allowSkip: true);
 
                 rootdomainsCount--;
             }
@@ -285,7 +285,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last);
+                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last, allowSkip: true);
 
                 subdomainsCount--;
             }
@@ -299,7 +299,7 @@ namespace ReconNess.Services
         /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="last">If is the last bash to run</param>
         /// <returns>A task</returns>
-        private async Task RunAgentAsync(AgentRunner agentRunner, string channel, string agentRunnerType, bool last)
+        private async Task RunAgentAsync(AgentRunner agentRunner, string channel, string agentRunnerType, bool last, bool allowSkip)
         {
             if (await this.agentRunnerProvider.IsStoppedAsync(channel))
             {
@@ -314,6 +314,7 @@ namespace ReconNess.Services
                 Command = command,
                 AgentRunnerType = agentRunnerType,
                 Last = last,
+                AllowSkip = allowSkip,
                 BeginHandlerAsync = BeginHandlerAsync,
                 SkipHandlerAsync = SkipHandlerAsync,
                 ParserOutputHandlerAsync = ParserOutputHandlerAsync,

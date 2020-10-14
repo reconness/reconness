@@ -73,7 +73,7 @@ namespace ReconNess.Worker
             {
                 try
                 {
-                    if (!await providerArgs.SkipHandlerAsync(new AgentRunnerProviderResult
+                    if (!providerArgs.AllowSkip || !await providerArgs.SkipHandlerAsync(new AgentRunnerProviderResult
                     {
                         AgentRunner = providerArgs.AgentRunner,
                         Channel = providerArgs.Channel,
