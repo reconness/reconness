@@ -2,6 +2,10 @@
 
 [![Build Status](https://dev.azure.com/reconness/reconness/_apis/build/status/reconness.reconness?branchName=master)](https://dev.azure.com/reconness/reconness/_build/latest?definitionId=1&branchName=master)
 
+<p align="center">
+  <img width="300" height="300" src="logo.png">
+</p>
+
 ## Why ReconNess?
 
 Well, we have seen a lot of #bugbounty hackers organizing his #recon using txt and doing a lot of bash scripts to filter the output to keep everything organized with the intention to focus only on the potentially vulnerable targets. But realistically this demands a lot of bash skill and strong folders/files organization process to avoid the feeling of chaos.
