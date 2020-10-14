@@ -1,8 +1,6 @@
 <template>
     <div class="pt-2">
-        <h1>Settings</h1>
-        <hr />
-        <h3>Notification Settings</h3>
+        <h1>Notification</h1>
         <p class="font-italic"><ins>To know more about settings the notification check the <a href="https://docs.reconness.com/account/settings" target="_blank">documentation</a></ins><p />
         <div class="form-group">
             <label for="inputName">URL</label>
@@ -75,7 +73,7 @@
     import helpers from '../../helpers'
 
     export default {
-        name: 'SettingPage',
+        name: 'NotificatinoPage',
         data: () => {
             return {
                 notification: { url: '', method: '', payload: '' }

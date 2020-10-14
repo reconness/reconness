@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -14,6 +15,8 @@ namespace ReconNess.Services
     /// </summary>
     public class ReferenceService : Service<Reference>, IReferenceService, IService<Reference>
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="IReferenceService" /> class
         /// </summary>

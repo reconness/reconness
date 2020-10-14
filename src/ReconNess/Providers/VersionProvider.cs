@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using NLog;
 using ReconNess.Core.Providers;
 using RestSharp;
 using System;
@@ -14,7 +14,7 @@ namespace ReconNess.Providers
     /// </summary>
     public class VersionProvider : IVersionProvider
     {
-        private readonly ILogger<VersionProvider> logger;
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IConfiguration configuration;
 
@@ -23,45 +23,42 @@ namespace ReconNess.Providers
         /// </summary>
         /// <param name="logger"><see cref="ILogger{TCategoryName}"/></param>
         /// <param name="configuration"><see cref="IConfiguration"/></param>
-        public VersionProvider(ILogger<VersionProvider> logger, IConfiguration configuration)
+        public VersionProvider(IConfiguration configuration)
         {
-            this.logger = logger;
             this.configuration = configuration;
         }
 
-        /// <summary>
-        /// <see cref="IVersionProvider.GetLatestVersionAsync(CancellationToken)"/>
-        /// </summary>
+        /// <summary>	
+        /// <see cref="IVersionProvider.GetLatestVersionAsync(CancellationToken)"/>	
+        /// </summary>	
         public async Task<string> GetLatestVersionAsync(CancellationToken cancellationToken)
         {
-            var currentVersion = this.configuration["ReconNess:Version"];
-            if (!string.IsNullOrEmpty(currentVersion))
+            try
             {
-                try
-                {
-                    var client = new RestClient("https://version.reconness.com/");
-                    var request = new RestRequest();
+                var client = new RestClient("https://version.reconness.com/");
+                var request = new RestRequest();
+                var response = await client.ExecuteGetAsync(request, cancellationToken);
 
-                    var response = await client.ExecuteGetAsync(request, cancellationToken);
-
-                    var match = Regex.Match(response.Content, @"<body>\n(.*)\n</body>");
-                    if (match.Success && match.Groups.Count == 2)
-                    {
-                        var latestVersion = match.Groups[1].ToString();
-                        int comparison = string.Compare(currentVersion, latestVersion, comparisonType: StringComparison.OrdinalIgnoreCase);
-                        if (comparison < 0)
-                        {
-                            return $"[Latest v{latestVersion}]";
-                        }
-                    }
-                }
-                catch (Exception ex)
+                var match = Regex.Match(response.Content, @"<body>\n(.*)\n</body>");
+                if (match.Success && match.Groups.Count == 2)
                 {
-                    this.logger.LogError(ex, ex.Message);
+                    return match.Groups[1].ToString();
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, ex.Message);
             }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// <see cref="IVersionProvider.GetCurrentVersionAsync(CancellationToken)"/>
+        /// </summary>
+        public Task<string> GetCurrentVersionAsync(CancellationToken cancellationToken)
+        {
+            return Task.FromResult(this.configuration["ReconNess:Version"]);
         }
     }
 }

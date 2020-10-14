@@ -43,6 +43,62 @@ const actions = {
             }
         })
     },
+    currentVersion() {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('accounts/currentVersion')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    logfiles() {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('accounts/logfiles')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    readLogfile(context, logFileSelected) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('accounts/readLogfile/' + logFileSelected)
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    cleanLogfile(context, logFileSelected) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('accounts/cleanLogfile', { "logFileSelected": logFileSelected })
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
 }
 
 

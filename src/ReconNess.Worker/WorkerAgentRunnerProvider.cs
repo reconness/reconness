@@ -1,4 +1,5 @@
-﻿using ReconNess.Core.Models;
+﻿using NLog;
+using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Worker.Models;
@@ -14,6 +15,8 @@ namespace ReconNess.Worker
     /// </summary>
     public class WorkerAgentRunnerProvider : IAgentRunnerProvider
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly IBackgroundTaskQueue backgroundTaskQueue;
         private readonly IScriptEngineService scriptEngineService;
 
@@ -93,6 +96,11 @@ namespace ReconNess.Worker
 
                         while (!processWrapper.EndOfStream)
                         {
+                            if (processWrapper.Stopped)
+                            {
+                                break;
+                            }
+
                             token.ThrowIfCancellationRequested();
 
                             // Parse the terminal output one line
@@ -116,10 +124,10 @@ namespace ReconNess.Worker
                         AgentRunner = providerArgs.AgentRunner,
                         Channel = providerArgs.Channel,
                         AgentRunnerType = providerArgs.AgentRunnerType,
+                        Command = providerArgs.Command,
                         Last = providerArgs.Last,
                         CancellationToken = token
                     });
-
                 }
                 catch (Exception ex)
                 {
@@ -128,6 +136,7 @@ namespace ReconNess.Worker
                         Channel = providerArgs.Channel,
                         AgentRunner = providerArgs.AgentRunner,
                         Last = providerArgs.Last,
+                        Command = providerArgs.Command,
                         Exception = ex,
                         CancellationToken = token
                     });

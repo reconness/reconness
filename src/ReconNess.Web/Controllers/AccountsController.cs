@@ -16,19 +16,22 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly INotificationService notificationService;
         private readonly IVersionProvider currentVersionProvider;
+        private readonly ILogsProvider logsProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountsController" /> class
         public AccountsController(IMapper mapper,
             INotificationService notificationService,
-            IVersionProvider currentVersionProvider)
+            IVersionProvider currentVersionProvider,
+            ILogsProvider logsProvider)
         {
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.currentVersionProvider = currentVersionProvider;
+            this.logsProvider = logsProvider;
         }
 
-        // GET api/account/notification
+        // GET api/accounts/notification
         [HttpGet("notification")]
         public async Task<IActionResult> Notification(CancellationToken cancellationToken)
         {
@@ -39,7 +42,7 @@ namespace ReconNess.Web.Controllers
             return Ok(notificationDto);
         }
 
-        // POST api/account/saveNotification
+        // POST api/accounts/saveNotification
         [HttpPost("saveNotification")]
         public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notificationDto, CancellationToken cancellationToken)
         {
@@ -50,13 +53,45 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // GET api/account/latestVersion
+        // GET api/accounts/latestVersion	
         [HttpGet("latestVersion")]
         public async Task<IActionResult> LatestVersion(CancellationToken cancellationToken)
         {
-            var currentVersion = await this.currentVersionProvider.GetLatestVersionAsync(cancellationToken);
+            var latestVersion = await this.currentVersionProvider.GetLatestVersionAsync(cancellationToken);
+
+            return Ok(latestVersion);
+        }
+
+        // GET api/accounts/currentVersion
+        [HttpGet("currentVersion")]
+        public async Task<IActionResult> CurrentVersion(CancellationToken cancellationToken)
+        {
+            var currentVersion = await this.currentVersionProvider.GetCurrentVersionAsync(cancellationToken);
 
             return Ok(currentVersion);
+        }
+
+        // GET api/accounts/logfiles
+        [HttpGet("logfiles")]
+        public IActionResult Logfiles(CancellationToken cancellationToken)
+        {
+            return Ok(this.logsProvider.GetLogfiles(cancellationToken));
+        }
+
+        // GET api/accounts/readLogfile{logFileSelected}
+        [HttpGet("readLogfile/{logFileSelected}")]
+        public async Task<IActionResult> ReadLogfile(string logFileSelected, CancellationToken cancellationToken)
+        {
+            return Ok(await this.logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken));
+        }
+
+        // POST api/accounts/cleanLogfile
+        [HttpPost("cleanLogfile")]
+        public IActionResult CleanLogfile([FromBody] AccountLogFileDto accountLogFileDto, CancellationToken cancellationToken)
+        {
+            this.logsProvider.CleanLogfile(accountLogFileDto.LogFileSelected, cancellationToken);
+
+            return NoContent();
         }
     }
 }

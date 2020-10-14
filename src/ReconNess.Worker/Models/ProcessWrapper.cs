@@ -1,11 +1,16 @@
-﻿using System;
+﻿using NLog;
+using System;
 using System.Diagnostics;
 
 namespace ReconNess.Worker.Models
 {
     public class ProcessWrapper
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private Process process;
+
+        public bool Stopped { get; set; } = false;
 
         public void Start(string command)
         {
@@ -48,17 +53,21 @@ namespace ReconNess.Worker.Models
             return string.Empty;
         }
 
-        public void KillProcess()
+        public void StopProcess()
         {
             if (process != null)
             {
                 try
                 {
-                    process.Kill();
+                    Stopped = true;
+
+                    process.Kill(true);
                     process.WaitForExit();
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    _logger.Info("Exception stopping the process");
+                    _logger.Error(ex, ex.Message);
                 }
                 finally
                 {

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -16,6 +17,8 @@ namespace ReconNess.Services
     /// </summary>
     public class NotificationService : Service<Notification>, IService<Notification>, INotificationService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="INotificationService" /> class
         /// </summary>
@@ -78,9 +81,9 @@ namespace ReconNess.Services
                 var method = "POST".Equals(notification.Method) ? Method.POST : Method.GET;
                 var response = await client.ExecuteAsync(request, method, cancellationToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // TODO: Add logs
+                _logger.Error(ex, ex.Message);
             }
         }
 

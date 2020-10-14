@@ -1,4 +1,5 @@
-﻿using ReconNess.Worker.Models;
+﻿using NLog;
+using ReconNess.Worker.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace ReconNess.Worker
     /// </summary>
     public class BackgroundTaskQueue : IBackgroundTaskQueue
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private ConcurrentQueue<AgentRunnerProcess> workItems = new ConcurrentQueue<AgentRunnerProcess>();
         private SemaphoreSlim signal = new SemaphoreSlim(0);
         private AgentRunnerProcess currentRunProcess;
@@ -44,6 +47,7 @@ namespace ReconNess.Worker
             AgentRunnerProcess workItem;
             do
             {
+
                 if (!this.workItems.TryDequeue(out workItem))
                 {
                     return null;
@@ -103,7 +107,7 @@ namespace ReconNess.Worker
             {
                 if (this.currentRunProcess.ProcessWrapper != null)
                 {
-                    this.currentRunProcess.ProcessWrapper.KillProcess();
+                    this.currentRunProcess.ProcessWrapper.StopProcess();
                     this.currentRunProcess = null;
                 }
             }

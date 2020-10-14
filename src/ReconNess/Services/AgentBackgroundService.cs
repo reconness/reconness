@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -13,6 +14,8 @@ namespace ReconNess.Services
     /// </summary>
     public class AgentBackgroundService : IAgentBackgroundService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly IServiceProvider serviceProvider;
 
         /// <summary>

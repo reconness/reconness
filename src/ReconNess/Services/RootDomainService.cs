@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -17,6 +18,8 @@ namespace ReconNess.Services
     /// </summary>
     public class RootDomainService : Service<RootDomain>, IService<RootDomain>, IRootDomainService, ISaveTerminalOutputParseService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly ISubdomainService subdomainService;
         private readonly INotificationService notificationService;
 
@@ -137,6 +140,8 @@ namespace ReconNess.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, ex.Message);
+
                 this.UnitOfWork.Rollback(cancellationToken);
                 throw ex;
             }
@@ -210,6 +215,8 @@ namespace ReconNess.Services
             }
             catch (Exception ex)
             {
+                _logger.Error(ex, ex.Message);
+
                 this.UnitOfWork.Rollback(cancellationToken);
                 throw ex;
             }

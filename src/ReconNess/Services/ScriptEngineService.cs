@@ -1,5 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Scripting;
 using Microsoft.CodeAnalysis.Scripting;
+using NLog;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using System;
@@ -14,6 +15,8 @@ namespace ReconNess.Services
     /// </summary>
     public class ScriptEngineService : IScriptEngineService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// <see cref="IScriptEngineService.TerminalOutputParseAsync(string, string, int, CancellationToken)"/>
         /// </summary>

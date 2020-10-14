@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using NLog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,20 +8,18 @@ namespace ReconNess.Worker
 {
     public class QueuedHostedService : BackgroundService
     {
-        private readonly ILogger<QueuedHostedService> _logger;
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        public QueuedHostedService(IBackgroundTaskQueue taskQueue,
-            ILogger<QueuedHostedService> logger)
+        public QueuedHostedService(IBackgroundTaskQueue taskQueue)
         {
             TaskQueue = taskQueue;
-            _logger = logger;
         }
 
         public IBackgroundTaskQueue TaskQueue { get; }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation(
+            _logger.Info(
                 $"Queued Hosted Service is running.{Environment.NewLine}" +
                 $"{Environment.NewLine}Tap W to add a work item to the " +
                 $"background queue.{Environment.NewLine}");
@@ -33,6 +31,7 @@ namespace ReconNess.Worker
         {
             while (!stoppingToken.IsCancellationRequested)
             {
+
                 var workItem =
                     await TaskQueue.DequeueAgentRunAsync(stoppingToken);
 
@@ -45,15 +44,15 @@ namespace ReconNess.Worker
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex,
-                        "Error occurred executing {WorkItem}.", nameof(workItem));
+                    _logger.Error(ex,
+                        $"Error occurred executing {workItem}.", nameof(workItem));
                 }
             }
         }
 
         public override async Task StopAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Queued Hosted Service is stopping.");
+            _logger.Info("Queued Hosted Service is stopping.");
 
             await base.StopAsync(stoppingToken);
         }

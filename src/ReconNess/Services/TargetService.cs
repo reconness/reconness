@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
@@ -16,6 +17,8 @@ namespace ReconNess.Services
     /// </summary>
     public class TargetService : Service<Target>, IService<Target>, ITargetService, ISaveTerminalOutputParseService
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         private readonly IRootDomainService rootDomainService;
         private readonly INotificationService notificationService;
 
