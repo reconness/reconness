@@ -96,8 +96,6 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Thread.Sleep(1000);
-
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
             await this.agentRunnerProvider.InitializesAsync(channel);
 

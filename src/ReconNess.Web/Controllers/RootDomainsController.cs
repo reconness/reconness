@@ -49,9 +49,9 @@ namespace ReconNess.Web.Controllers
             {
                 return NotFound();
             }
-
+            
             var rootDomain = await rootDomainService
-                .GetWithIncludeAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
+                .GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
 
             target.RootDomains = new List<RootDomain> { rootDomain };
 
