@@ -19,6 +19,8 @@
     <Compile Remove="Migrations\20201001173145_FixAgentTypeRelation.Designer.cs" />
     <Compile Remove="Migrations\20201001173231_FixAgentTypeRelation.cs" />
     <Compile Remove="Migrations\20201001173231_FixAgentTypeRelation.Designer.cs" />
+    <Compile Remove="Migrations\20201015205141_AddDeleteCascade.cs" />
+    <Compile Remove="Migrations\20201015205141_AddDeleteCascade.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

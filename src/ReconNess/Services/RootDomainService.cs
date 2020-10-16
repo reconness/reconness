@@ -122,46 +122,14 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.DeleteRootDomains(ICollection<RootDomain>, CancellationToken)(Target, CancellationToken)"/>
-        /// </summary>
-        public void DeleteRootDomains(ICollection<RootDomain> rootDomains, CancellationToken cancellationToken = default)
-        {
-            foreach (var rootDomain in rootDomains)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                this.subdomainService.DeleteSubdomains(rootDomain.Subdomains, cancellationToken);
-                if (rootDomain.Notes != null)
-                {
-                    this.UnitOfWork.Repository<Note>().Delete(rootDomain.Notes, cancellationToken);
-                }
-
-                this.UnitOfWork.Repository<RootDomain>().Delete(rootDomain, cancellationToken);
-            }
-        }
-
-        /// <summary>
         /// <see cref="IRootDomainService.DeleteSubdomainsAsync(RootDomain, CancellationToken)"/>
         /// </summary>
         public async Task DeleteSubdomainsAsync(RootDomain rootDomain, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            try
-            {
-                this.UnitOfWork.BeginTransaction(cancellationToken);
-
-                this.subdomainService.DeleteSubdomains(rootDomain.Subdomains, cancellationToken);
-
-                await this.UnitOfWork.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, ex.Message);
-
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
-            }
+            
+            rootDomain.Subdomains = new List<Subdomain>();
+            await this.UpdateAsync(rootDomain, cancellationToken);            
         }
 
         /// <summary>

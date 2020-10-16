@@ -123,9 +123,8 @@ const actions = {
 }
 
 const mutations = {
-    rootDomain(state, target) {        
-        this.state.targets.currentTarget = target
-        state.currentRootDomain = target.rootDomains[0] || []
+    rootDomain(state, rootDomain) {        
+        state.currentRootDomain = rootDomain || []
     },
     deleteSubdomains(state) {
         state.currentRootDomain.subdomains = []

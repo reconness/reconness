@@ -34,7 +34,7 @@ namespace ReconNess.Services
                 notes = new Note
                 {
                     Notes = notesContent,
-                    Target = rootDomain
+                    RootDomain = rootDomain
                 };
 
                 await this.AddAsync(notes, cancellationToken);

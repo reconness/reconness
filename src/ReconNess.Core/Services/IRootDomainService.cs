@@ -28,13 +28,6 @@ namespace ReconNess.Core.Services
         Task<RootDomain> GetWithIncludeAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Delete the rootdomains with all the subdomains and relations
-        /// </summary>
-        /// <param name="rootDomains">The rootDomains to delete</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        void DeleteRootDomains(ICollection<RootDomain> rootDomains, CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// Delete all the subdomains and relations
         /// </summary>
         /// <param name="rootDomain">Target to delete all the subdomains</param>

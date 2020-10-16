@@ -61,6 +61,7 @@
         methods: {
             async initService() {
                 try {
+                    await this.$store.dispatch('targets/target', this.$route.params.targetName)
                     await this.$store.dispatch('rootdomains/rootDomain', { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain })
                 }
                 catch (error) {

@@ -50,12 +50,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
             
-            var rootDomain = await rootDomainService
-                .GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
+            var rootDomain = await rootDomainService.GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
 
-            target.RootDomains = new List<RootDomain> { rootDomain };
-
-            return Ok(this.mapper.Map<Target, TargetDto>(target));
+            return Ok(this.mapper.Map<RootDomain, RootDomainDto>(rootDomain));
         }
 
         // DELETE api/rootdomains/deleteSubdomians/{targetName}/{rootDomainName}
@@ -69,7 +66,7 @@ namespace ReconNess.Web.Controllers
             }
 
             var rootDomain = await this.rootDomainService
-                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+                .GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
 
             if (rootDomain == null)
             {

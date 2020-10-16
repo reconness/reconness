@@ -54,19 +54,37 @@ namespace ReconNess.Data.Npgsql
 
             modelBuilder.Entity<Agent>()
                 .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
+                .ValueGeneratedOnAdd();            
 
             modelBuilder.Entity<AgentRun>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<AgentRun>()
+                .HasOne(t => t.Agent)
+                .WithMany(r => r.AgentRuns)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<AgentHistory>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<AgentHistory>()
+                .HasOne(t => t.Agent)
+                .WithMany(r => r.AgentHistories)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentTrigger>()
+                .HasOne(t => t.Agent)
+                .WithOne(r => r.AgentTrigger)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Reference>()
                 .Property(i => i.Id)
@@ -84,13 +102,46 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<RootDomain>()
+                .HasOne(t => t.Target)
+                .WithMany(r => r.RootDomains)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Subdomain>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<Subdomain>()
+                .HasOne(t => t.RootDomain)
+                .WithMany(r => r.Subdomains)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subdomain>()
+                .HasOne(t => t.Notes)
+                .WithOne(r => r.Subdomain)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RootDomain>()
+                .HasOne(t => t.Notes)
+                .WithOne(r => r.RootDomain)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subdomain>()
+                .HasOne(t => t.ServiceHttp)
+                .WithMany(r => r.Subdomains)
+                .OnDelete(DeleteBehavior.SetNull);
+
             modelBuilder.Entity<Service>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Service>()
+                .HasOne(t => t.Subdomain)
+                .WithMany(r => r.Services)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<ServiceHttp>()
                 .Property(i => i.Id)
@@ -99,6 +150,12 @@ namespace ReconNess.Data.Npgsql
             modelBuilder.Entity<ServiceHttpDirectory>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<ServiceHttpDirectory>()
+                .HasOne(t => t.ServiceHttp)
+                .WithMany(r => r.Directories)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Label>()
                 .Property(i => i.Id)

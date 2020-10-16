@@ -43,7 +43,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetAllWithIncludeAsync(t => !t.Deleted, cancellationToken);
+            var targets = await this.targetService.GetAllWithRootDomainsAsync(t => !t.Deleted, cancellationToken);
 
             return Ok(this.mapper.Map<List<Target>, List<TargetDto>>(targets));
         }
@@ -52,7 +52,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{targetName}")]
         public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetWithIncludeAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -82,7 +82,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetWithIncludeAsync(t => t.Id == id, cancellationToken);
+            var target = await this.targetService.GetWithRootDomainAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -110,13 +110,13 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{targetName}")]
         public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetWithIncludeAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            await this.targetService.DeleteTargetAsync(target, cancellationToken);
+            await this.targetService.DeleteAsync(target, cancellationToken);
 
             return NoContent();
         }

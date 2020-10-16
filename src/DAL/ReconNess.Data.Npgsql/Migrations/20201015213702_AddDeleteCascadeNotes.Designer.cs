@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -9,9 +10,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20201015213702_AddDeleteCascadeNotes")]
+    partial class AddDeleteCascadeNotes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,7 +89,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AgentId")
+                    b.Property<Guid?>("AgentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ChangeType")
@@ -118,7 +120,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("AgentId")
+                    b.Property<Guid?>("AgentId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -722,18 +724,14 @@ namespace ReconNess.Data.Npgsql.Migrations
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
                         .WithMany("AgentHistories")
-                        .HasForeignKey("AgentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AgentId");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
                         .WithMany("AgentRuns")
-                        .HasForeignKey("AgentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("AgentId");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>

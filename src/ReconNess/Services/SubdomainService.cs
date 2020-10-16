@@ -116,48 +116,6 @@ namespace ReconNess.Services
                 .FirstOrDefaultAsync(cancellationToken);
         }
 
-
-        /// <summary>
-        /// <see cref="ISubdomainService.DeleteSubdomainAsync(Subdomain, CancellationToken)"/>
-        /// </summary>
-        public async Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            try
-            {
-                this.UnitOfWork.BeginTransaction(cancellationToken);
-
-                this.DeleteSubdomains(new Subdomain[] { subdomain }, cancellationToken);
-
-                await this.UnitOfWork.CommitAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
-            }
-        }
-
-        /// <summary>
-        /// <see cref="ISubdomainService.DeleteSubdomains(ICollection{Subdomain}, CancellationToken)"/>
-        /// </summary>
-        public void DeleteSubdomains(ICollection<Subdomain> subdomains, CancellationToken cancellationToken = default)
-        {
-            foreach (var subdomain in subdomains)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                if (subdomain.Notes != null)
-                {
-                    this.UnitOfWork.Repository<Note>().Delete(subdomain.Notes, cancellationToken);
-                }
-
-                this.UnitOfWork.Repository<Service>().DeleteRange(subdomain.Services.ToList(), cancellationToken);
-                this.UnitOfWork.Repository<Subdomain>().Delete(subdomain, cancellationToken);
-            }
-        }
-
         /// <summary>
         /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(AgentRunner, CancellationToken)"/>
         /// </summary>

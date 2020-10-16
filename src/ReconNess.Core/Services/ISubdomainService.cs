@@ -39,20 +39,5 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
         Task<Subdomain> GetWithIncludeAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Delete the subdomain with the services
-        /// </summary>
-        /// <param name="subdomain">Subdomain to delete</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A Task</returns>
-        Task DeleteSubdomainAsync(Subdomain subdomain, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Delete all the subdomains with the services
-        /// </summary>
-        /// <param name="subdomains">The list subdomains to delete</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        void DeleteSubdomains(ICollection<Subdomain> subdomains, CancellationToken cancellationToken = default);
     }
 }

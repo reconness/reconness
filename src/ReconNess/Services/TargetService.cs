@@ -38,51 +38,23 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ITargetService.GetAllWithIncludeAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// <see cref="ITargetService.GetAllWithRootDomainsAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Target>> GetAllWithIncludeAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public Task<List<Target>> GetAllWithRootDomainsAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
-                        .Include(a => a.RootDomains)
+            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                            .Include(a => a.RootDomains)
                         .ToListAsync(cancellationToken);
         }
 
         /// <summary>
-        /// <see cref="ITargetService.GetWithIncludeAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// <see cref="ITargetService.GetWithRootDomainAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Target> GetWithIncludeAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public Task<Target> GetWithRootDomainAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
-                       .Include(a => a.RootDomains)
-                           .ThenInclude(a => a.Subdomains)
-                               .ThenInclude(s => s.Services)
-                       .Include(a => a.RootDomains)
-                           .ThenInclude(a => a.Subdomains)
-                               .ThenInclude(s => s.Notes)
-                       .Include(a => a.RootDomains)
-                           .ThenInclude(a => a.Notes)
+            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                            .Include(a => a.RootDomains)
                        .FirstOrDefaultAsync(cancellationToken);
-        }
-
-        /// <see cref="ITargetService.DeleteTargetAsync(Target, CancellationToken)"/>
-        /// </summary>
-        public async Task DeleteTargetAsync(Target target, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            try
-            {
-                this.UnitOfWork.BeginTransaction(cancellationToken);
-
-                this.rootDomainService.DeleteRootDomains(target.RootDomains, cancellationToken);
-
-                await this.DeleteAsync(target, cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
-            }
         }
 
         /// <summary>

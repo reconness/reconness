@@ -8,9 +8,9 @@ namespace ReconNess.Entities
 
         public string Notes { get; set; }
 
-        public virtual RootDomain Target { get; set; }
+        public virtual RootDomain RootDomain { get; set; }
 
-        public Guid? TargetId { get; set; }
+        public Guid? RootDomainId { get; set; }
 
         public virtual Subdomain Subdomain { get; set; }
 
