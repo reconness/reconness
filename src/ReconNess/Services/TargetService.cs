@@ -15,7 +15,7 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="ITargetService"/>
     /// </summary>
-    public class TargetService : Service<Target>, IService<Target>, ITargetService, ISaveTerminalOutputParseService
+    public class TargetService : Service<Target>, IService<Target>, ITargetService, ISaveTerminalOutputParseService<Target>
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -54,18 +54,15 @@ namespace ReconNess.Services
         {
             return this.GetAllQueryableByCriteria(predicate, cancellationToken)
                             .Include(a => a.RootDomains)
-                       .FirstOrDefaultAsync(cancellationToken);
+                       .SingleAsync(cancellationToken);
         }
 
         /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(AgentRunner, CancellationToken)"/>
+        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(Target, string, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateAgentRanAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        public async Task UpdateAgentRanAsync(Target target, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
-            var target = agentRunner.Target;
-            var agentName = agentRunner.Agent.Name;
 
             if (string.IsNullOrWhiteSpace(target.AgentsRanBefore))
             {
@@ -80,52 +77,46 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
+        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Target, bool, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseAsync(AgentRunner agentRunner, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseAsync(Target target, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (await this.NeedAddNewRootDomain(agentRunner, terminalOutputParse.RootDomain, cancellationToken))
+            RootDomain rootDomain = default;
+            if (await this.NeedAddNewRootDomain(target, terminalOutputParse.RootDomain, cancellationToken))
             {
-                agentRunner.RootDomain = await this.AddTargetNewRootDomainAsync(agentRunner.Target, terminalOutputParse.RootDomain, cancellationToken);
-                if (agentRunner.ActivateNotification)
+                rootDomain = await this.AddTargetNewRootDomainAsync(target, terminalOutputParse.RootDomain, cancellationToken);
+                if (activateNotification)
                 {
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {
-                        ("{{rootDomain}}", agentRunner.RootDomain.Name)
+                        ("{{rootDomain}}", rootDomain.Name)
                     }, cancellationToken);
                 }
             }
 
-            if (agentRunner.RootDomain != null)
+            if (rootDomain != null)
             {
-                await this.rootDomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
+                await this.rootDomainService.SaveTerminalOutputParseAsync(rootDomain, activateNotification, terminalOutputParse, cancellationToken);
             }
         }
 
         /// <summary>
         /// If we need to add a new RootDomain
         /// </summary>
-        /// <param name="agentRunner">The Agent running</param>
+        /// <param name="target">The Target</param>
         /// <param name="rootDomain">The root domain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>If we need to add a new RootDomain</returns>
-        private async Task<bool> NeedAddNewRootDomain(AgentRunner agentRunner, string rootDomain, CancellationToken cancellationToken)
+        private async Task<bool> NeedAddNewRootDomain(Target target, string rootDomain, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(rootDomain))
             {
                 return false;
             }
 
-            var doWeHaveNewRootDomainToAdd = (agentRunner.RootDomain == null || !rootDomain.Equals(agentRunner.RootDomain.Name, StringComparison.OrdinalIgnoreCase));
-            if (!doWeHaveNewRootDomainToAdd)
-            {
-                return false;
-            }
-
-            var existRootDomain = await this.rootDomainService.AnyAsync(r => r.Name == rootDomain && r.Target == agentRunner.Target, cancellationToken);
-
+            var existRootDomain = await this.rootDomainService.AnyAsync(r => r.Target == target && r.Name == rootDomain, cancellationToken);
             return !existRootDomain;
         }
 

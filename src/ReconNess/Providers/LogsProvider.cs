@@ -18,25 +18,13 @@ namespace ReconNess.Providers
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// <see cref="ILogsProvider.CleanLogfile(string, CancellationToken)"/>
-        /// </summary>
-        public void CleanLogfile(string logFileSelected, CancellationToken cancellationToken)
-        {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
-            var path = Path.Combine(bin, "logs", logFileSelected);
-
-            File.WriteAllText(path, string.Empty);
-        }
-
-        /// <summary>
         /// <see cref="ILogsProvider.GetLogfiles(CancellationToken)"/>
         /// </summary>
         public IEnumerable<string> GetLogfiles(CancellationToken cancellationToken)
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
-            var path = Path.Combine(bin, "logs");
+            var logPath = this.GetLogPath();
 
-            var files = Directory.GetFiles(path);
+            var files = Directory.GetFiles(logPath);
 
             return files.Select(f => Path.GetFileName(f));
         }
@@ -46,16 +34,16 @@ namespace ReconNess.Providers
         /// </summary>
         public async Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
+            var logPath = this.GetLogPath();
+
             string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             foreach (char c in invalid)
             {
                 logFileSelected = logFileSelected.Replace(c.ToString(), "");
             }
 
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
-            var path = Path.Combine(bin, "logs", logFileSelected);
-
-            if (path.StartsWith(Path.Combine(bin, "logs")))
+            var path = Path.Combine(logPath, logFileSelected);
+            if (path.StartsWith(logPath))
             {
                 using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (BufferedStream bs = new BufferedStream(fs))
@@ -64,8 +52,48 @@ namespace ReconNess.Providers
                     return await sr.ReadToEndAsync();
                 }
             }
+            else
+            {
+                _logger.Warn($"Invalid Log file path {path}");
+            }
 
             return string.Empty;
+        }
+
+        /// <summary>
+        /// <see cref="ILogsProvider.CleanLogfileAsync(string, CancellationToken)"/>
+        /// </summary>
+        public async Task CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
+        {
+            var logPath = this.GetLogPath();
+
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                logFileSelected = logFileSelected.Replace(c.ToString(), "");
+            }
+
+            var path = Path.Combine(logPath, logFileSelected);
+            if (path.StartsWith(logPath))
+            {
+                await File.WriteAllTextAsync(path, string.Empty);
+            }
+            else
+            {
+                _logger.Warn($"Invalid Log file path {path}");
+            }
+        }
+
+        /// <summary>
+        /// Obtain the log folder path
+        /// </summary>
+        /// <returns>The log folder path</returns>
+        private string GetLogPath()
+        {
+            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).Substring(INDEX);
+            var path = Path.Combine(bin, "logs");
+
+            return path;
         }
     }
 }

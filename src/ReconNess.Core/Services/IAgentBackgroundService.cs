@@ -14,10 +14,11 @@ namespace ReconNess.Core.Services
         /// Save the output that the ScriptEnginer returned on database
         /// </summary>
         /// <param name="agentRun">The agent was ran</param>
+        /// <param name="agentRunType">The agent run type that was ran</param>
         /// <param name="terminalOutputParse">The output that the ScriptEnginer returned</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
+        Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, string agentRunType, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Update the last time that the agent ran

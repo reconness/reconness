@@ -10,7 +10,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ISubdomainService
     /// </summary>
-    public interface ISubdomainService : IService<Subdomain>, ISaveTerminalOutputParseService
+    public interface ISubdomainService : IService<Subdomain>, ISaveTerminalOutputParseService<Subdomain>
     {
         /// <summary>
         /// Obtain the list of subdomains by target order by CreatedAt desc
@@ -23,14 +23,12 @@ namespace ReconNess.Core.Services
         Task<List<Subdomain>> GetAllWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
 
         /// <summary>
-        ///  Obtain a subdomain by target and root domain
+        /// Obtain a subdomain by criteria
         /// </summary>
-        /// <param name="target">The targe</param>
-        /// <param name="rootDomain">The root domain</param>
-        /// <param name="subdomain">The subdomain</param>
+        /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A subdomain</returns>
-        Task<Subdomain> GetWithIncludeAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
+        /// <returns></returns>
+        Task<Subdomain> GetWithIncludeAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a subdomain by criteria
@@ -38,6 +36,6 @@ namespace ReconNess.Core.Services
         /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task<Subdomain> GetWithIncludeAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
     }
 }

@@ -54,7 +54,7 @@ namespace ReconNess.Data.Npgsql
 
             modelBuilder.Entity<Agent>()
                 .Property(i => i.Id)
-                .ValueGeneratedOnAdd();            
+                .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<AgentRun>()
                 .Property(i => i.Id)

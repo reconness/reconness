@@ -27,6 +27,18 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="IReferenceService.GetReferencesAsync(CancellationToken)"/>
+        /// </summary>
+        public async Task<List<Reference>> GetReferencesAsync(CancellationToken cancellationToken)
+        {
+            var references = await this.GetAllQueryable(cancellationToken)
+                    .OrderBy(r => r.Categories)
+                .ToListAsync();
+
+            return references;
+        }
+
+        /// <summary>
         /// <see cref="IReferenceService.GetAllCategoriesAsync(CancellationToken)"/>
         /// </summary>
         public async Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken)

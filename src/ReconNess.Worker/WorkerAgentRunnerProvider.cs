@@ -110,6 +110,7 @@ namespace ReconNess.Worker
                             await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
                             {
                                 AgentRunner = providerArgs.AgentRunner,
+                                AgentRunnerType = providerArgs.AgentRunnerType,
                                 Channel = providerArgs.Channel,
                                 ScriptOutput = scriptOutput,
                                 LineCount = lineCount,

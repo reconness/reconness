@@ -18,8 +18,8 @@ namespace ReconNess.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly ISubdomainService subdomainService;
-        private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
+        private readonly ITargetService targetService;
         private readonly ILabelService labelService;
 
         /// <summary>
@@ -27,20 +27,20 @@ namespace ReconNess.Web.Controllers
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
-        /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
+        /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="labelService"><see cref="ILabelService"/></param>
         public SubdomainsController(
             IMapper mapper,
             ISubdomainService subdomainService,
-            ITargetService targetService,
             IRootDomainService rootDomainService,
+            ITargetService targetService,
             ILabelService labelService)
         {
             this.mapper = mapper;
             this.subdomainService = subdomainService;
-            this.targetService = targetService;
             this.rootDomainService = rootDomainService;
+            this.targetService = targetService;
             this.labelService = labelService;
         }
 
@@ -48,6 +48,11 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{targetName}/{rootDomainName}/{subdomainName}")]
         public async Task<IActionResult> Get(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
@@ -60,7 +65,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetWithIncludeAsync(target, rootDomain, subdomainName, cancellationToken);
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.Target == target && s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -73,6 +78,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
@@ -105,7 +115,12 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -126,7 +141,7 @@ namespace ReconNess.Web.Controllers
         [HttpPut("label/{id}")]
         public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
+            var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -147,7 +162,7 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetWithIncludeAsync(a => a.Id == id, cancellationToken);
+            var subdomain = await this.subdomainService.GetByCriteriaAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();

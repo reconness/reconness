@@ -17,7 +17,7 @@
                 <agent-tag v-bind:isTarget="true"></agent-tag>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
-                <notes-tag v-bind:isTarget="true"></notes-tag>
+                <notes-tag v-bind:isRootDomain="true"></notes-tag>
             </div>
             <div class="tab-pane fade" id="nav-general" role="tabpanel" aria-labelledby="nav-general-tab">
                 <rootdomain-general-tag v-if="rootDomain.subdomains !== undefined"></rootdomain-general-tag>

@@ -52,6 +52,11 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{targetName}")]
         public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
@@ -65,6 +70,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower());
             if (targetExist)
             {
@@ -82,6 +92,11 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetWithRootDomainAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
@@ -110,6 +125,11 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{targetName}")]
         public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {

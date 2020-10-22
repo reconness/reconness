@@ -4,7 +4,7 @@ const actions = {
     saveTargetNote(context, { targetName, rootDomain, notes }) {
         return new Promise((resolve, reject) => {
             try {
-                api.create('notes/target/' + targetName + '/' + rootDomain, { notes: notes })
+                api.create('notes/rootdomain/' + targetName + '/' + rootDomain, { notes: notes })
                     .then(() => {
                         resolve()
                     })
@@ -30,7 +30,6 @@ const actions = {
         })
     }
 }
-
 
 export default {
     namespaced: true,

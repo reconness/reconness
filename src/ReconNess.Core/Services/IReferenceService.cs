@@ -11,10 +11,17 @@ namespace ReconNess.Core.Services
     public interface IReferenceService : IService<Reference>
     {
         /// <summary>
+        /// Obtain the list of references
+        /// </summary>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The list of references</returns>
+        Task<List<Reference>> GetReferencesAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Obtain all the reference categories saved before
         /// </summary>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of all the reference categories saved before</returns>
-        Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken);
+        Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken = default);
     }
 }

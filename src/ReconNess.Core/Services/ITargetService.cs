@@ -10,7 +10,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ILabelService
     /// </summary>
-    public interface ITargetService : IService<Target>, ISaveTerminalOutputParseService
+    public interface ITargetService : IService<Target>, ISaveTerminalOutputParseService<Target>
     {
         /// <summary>
         /// Obtain the list of target with includes
