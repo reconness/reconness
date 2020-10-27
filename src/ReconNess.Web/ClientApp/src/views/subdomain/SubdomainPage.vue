@@ -1,5 +1,8 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h2 class="text-right">
             <router-link :to="{name: 'target', params: { targetName: targetName }}">{{ targetName }}</router-link> | <router-link :to="{name: 'targetRootDomain', params: { targetName: targetName, rootDomain: rootDomain }}">{{ rootDomain }}</router-link> |
             <a :href="'http://'+subdomain.name" target="blank" v-if="subdomain.isAlive === true">{{ subdomain.name }}</a><span v-else>{{ subdomain.name }}</span>
@@ -38,6 +41,11 @@
 
 <script>
 
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+
     import { mapGetters, mapState } from 'vuex'
 
     import helpers from '../../helpers'
@@ -56,7 +64,13 @@
             SubdomainServicesTag,
             AgentTag,
             SubdomainDirectoriesTag,
-            NotesTag
+            NotesTag,
+            Loading
+        },
+        data: () => {
+            return {
+                isLoading: false
+            }
         },
         computed: {
             targetName() {
@@ -82,6 +96,8 @@
         methods: {
             async initService() {
                 try {
+                    this.isLoading = true
+
                     await this.$store.dispatch('targets/target', this.$route.params.targetName)
                     await this.$store.dispatch('rootdomains/rootDomain', { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain })
                     await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, rootDomain: this.rootDomain, subdomain: this.$route.params.subdomain })
@@ -89,6 +105,8 @@
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             }
         }
     }

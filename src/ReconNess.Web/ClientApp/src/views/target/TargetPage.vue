@@ -1,5 +1,8 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h2 class="text-right">{{ target.name }}</h2>
         <target-form v-on:update="onUpdate" v-on:delete="onDelete"></target-form>
         <hr />
@@ -8,6 +11,10 @@
 </template>
 
 <script>
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
 
     import { mapState } from 'vuex'
 
@@ -17,7 +24,13 @@
     export default {
         name: 'TargetPage',
         components: {
-            TargetForm
+            TargetForm,
+            Loading
+        },
+        data: () => {
+            return {
+                isLoading: false
+            }
         },
         computed: mapState({
             target: state => state.targets.currentTarget
@@ -31,14 +44,19 @@
         methods: {
             async initService() {
                 try {
+                    this.isLoading = true
                     await this.$store.dispatch('targets/target', this.$route.params.targetName)
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             },
             async onUpdate() {
                 try {
+                    this.isLoading = true
+
                     await this.$store.dispatch('targets/updateTarget')
 
                     alert("The target was updated")
@@ -50,16 +68,21 @@
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             },
             async onDelete() {
                 if (confirm('Are you sure to delete this Target with all the subdomains and services: ' + this.target.name)) {
                     try {
+                        this.isLoading = true
                         await this.$store.dispatch('targets/deleteTarget')
                         this.$router.push({ name: 'home' })
                     }
                     catch (error) {
                         helpers.errorHandle(error)
                     }
+
+                    this.isLoading = false
                 }
             }
         }

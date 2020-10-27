@@ -1,5 +1,8 @@
 ﻿<template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h3>Install Agents</h3>
         <div class="col-12">
             <table class="table table-striped">
@@ -58,35 +61,51 @@
 
 <script>
 
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+
     import helpers from '../../helpers'
 
     export default {
         name: 'AgentInstallPage',
+        components: {
+            Loading
+        },
         data: () => {
             return {
                 agentMarketplaces: [],
                 currentAgent: null,
-                showCommandModal: false
+                showCommandModal: false,
+                isLoading: false
             }
         },
         async mounted() {
             try {
+                this.isLoading = true
                 this.agentMarketplaces = await this.$store.dispatch('agents/agentsMarketplace')
             }
             catch (error) {
                 helpers.errorHandle(error)
             }
+
+            this.isLoading = false
         },
         methods: {
             async onUninstallation(agent) {
 
                 if (confirm('Are you sure to Unistall this Agent: ' + agent.name)) {
                     try {
+                        this.isLoading = true
+
                         await this.$store.dispatch('agents/uninstall', agent)
                     }
                     catch (error) {
                         helpers.errorHandle(error)
                     }
+
+                    this.isLoading = false
                 }
             },
             async onConfirmInstallation(agent) {
@@ -97,6 +116,8 @@
             async install(agent) {
                 try {
 
+                    this.isLoading = true
+
                     this.showCommandModal = false
 
                     await this.$store.dispatch('agents/install', agent)
@@ -105,6 +126,8 @@
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             },
             installed(agent) {
                 return this.$store.getters['agents/installed'](agent)

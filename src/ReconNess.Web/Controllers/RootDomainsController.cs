@@ -76,7 +76,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Target == target && t.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Target == target && t.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -172,7 +172,7 @@ namespace ReconNess.Web.Controllers
                 var subdomains = System.IO.File.ReadAllLines(path).ToList();
                 var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
 
-                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
+                return Ok(this.mapper.Map<ICollection<Subdomain>, ICollection<SubdomainDto>>(subdomainsAdded));
             }
             catch (Exception ex)
             {

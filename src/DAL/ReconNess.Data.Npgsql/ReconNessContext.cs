@@ -362,7 +362,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(e => this.SetAsAdded<TEntity>(e, cancellationToken));
+            this.SetAsAdded<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
@@ -382,7 +382,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(e => this.SetAsModified<TEntity>(e, cancellationToken));
+            this.SetAsModified<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
@@ -402,7 +402,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(e => this.SetAsDeleted<TEntity>(e, cancellationToken));
+            this.SetAsDeleted<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>

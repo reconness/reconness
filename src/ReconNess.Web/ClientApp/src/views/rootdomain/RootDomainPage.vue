@@ -1,5 +1,8 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h2 class="text-right"> <router-link :to="{name: 'target', params: { targetName: target.name }}">{{ target.name }}</router-link> | {{ rootDomain.name }}</h2>
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
@@ -30,6 +33,11 @@
 
 <script>
 
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+
     import { mapState } from 'vuex'
 
     import helpers from '../../helpers'
@@ -41,11 +49,17 @@
 
     export default {
         name: 'RootDomainPage',
+        data: () => {
+            return {
+                isLoading: false
+            }
+        },
         components: {
             RootdomainSubdomainsTag,
             AgentTag,
             NotesTag,
-            RootdomainGeneralTag
+            RootdomainGeneralTag,
+            Loading
         },
         computed: mapState({
             agents: state => state.agents.agents,
@@ -61,12 +75,16 @@
         methods: {
             async initService() {
                 try {
+                    this.isLoading = true
+
                     await this.$store.dispatch('targets/target', this.$route.params.targetName)
                     await this.$store.dispatch('rootdomains/rootDomain', { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain })
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             }
         }
     }

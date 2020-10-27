@@ -1,5 +1,8 @@
 <template>
     <div class="pt-2">
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h1>Logs</h1>
         <hr />
         <div class="form-group">
@@ -20,27 +23,48 @@
 </template>
 
 <script>
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+
     import helpers from '../../helpers'
 
     export default {
         name: 'LogsPage', 
+        components: {
+            Loading
+        },
         data: () => {
             return {
                 logs: [],
                 logFileSelected: '',
-                logData: ''
+                logData: '',
+                isLoading: false
             }
-        },
+        },        
         async mounted() {
-            this.logs = await this.$store.dispatch('accounts/logfiles')            
+            this.isLoading = true
+            try {
+                this.logs = await this.$store.dispatch('accounts/logfiles') 
+            }
+            catch (error) {
+                helpers.errorHandle(error)
+            }
+
+            this.isLoading = false
         },
         methods: {
             async onChange() {
+                this.isLoading = true
                 this.logData = await this.$store.dispatch('accounts/readLogfile', this.logFileSelected)
+                this.isLoading = false
             },
             async onClean() {
                 if (confirm('Are you sure to clean this Logfile: ' + this.logFileSelected)) {
                     try {
+                        this.isLoading = true
+
                         await this.$store.dispatch('accounts/cleanLogfile', this.logFileSelected)
                         this.logData = ''
                         alert("The log was cleaned")
@@ -48,6 +72,8 @@
                     catch (error) {
                         helpers.errorHandle(error)
                     }
+
+                    this.isLoading = false
                 }
             },
             isValid() {

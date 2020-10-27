@@ -1,5 +1,7 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
         <div class="pt-2">
             <div class="col-12">
                 <input type="file" id="file" ref="file" v-on:change="handleFileUpload()" />
@@ -76,13 +78,23 @@
 <script>
 
     import { mapState } from 'vuex'
-    import helpers from '../../helpers'
     import { Event } from 'vue-tables-2';
+
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+    
+    import helpers from '../../helpers'   
 
     export default {
         name: 'RootdomainSubdomainsTag',
+        components: {
+            Loading
+        },
         data: () => {
             return {
+                isLoading: false,
                 filter: '',
                 filterOnlyScope: false,
                 newSubdomain: null,
@@ -123,21 +135,27 @@
             async onDeleteSubdomain(subdomain) {
                 if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {
                     try {
-                        await this.$store.dispatch('subdomains/deleteSubdomain', { subdomain: subdomain })
+                        this.isLoading = true
+                        await this.$store.dispatch('rootdomains/deleteSubdomain', { subdomain: subdomain })
                     }
                     catch (error) {
                         helpers.errorHandle(error)
                     }
+
+                    this.isLoading = false
                 }
             },
             async onDeleteSubdomains() {
                 if (confirm('Are you sure to delete all the subdomains')) {
                     try {
+                        this.isLoading = true
                         await this.$store.dispatch('rootdomains/deleteSubdomains')
                     }
                     catch (error) {
                         helpers.errorHandle(error)
                     }
+
+                    this.isLoading = false
                 }
             },
             async onAddLabel(subdomain, label) {
@@ -162,12 +180,15 @@
                 const formData = new FormData();
                 formData.append('file', this.$refs.file.files[0]);
                 try {
+                    this.isLoading = true
                     await this.$store.dispatch('rootdomains/uploadSubdomains', { formData })
                     alert("subdomains were uploaded")
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             },
             filterGrid() {
                 Event.$emit('vue-tables.filter::search', this.filter);
@@ -180,12 +201,16 @@
             },
             async onExportSubdomains() {
                 try {
+                    this.isLoading = true
+
                     await this.$store.dispatch('rootdomains/exportSubdomains')
                     alert("subdomains were saved")
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             }
         }
     }

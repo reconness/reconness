@@ -117,31 +117,27 @@ namespace ReconNess.Services
         /// </summary>
         public async Task DeleteSubdomainsAsync(RootDomain rootDomain, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            rootDomain.Subdomains = new List<Subdomain>();
-
+            rootDomain.Subdomains.Clear();
             await this.UpdateAsync(rootDomain, cancellationToken);
         }
 
         /// <summary>
         /// <see cref="IRootDomainService.UploadSubdomainsAsync(RootDomain, IEnumerable<UploadSubdomain>, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
+        public async Task<ICollection<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
         {
             if (rootDomain.Subdomains == null)
             {
                 rootDomain.Subdomains = new List<Subdomain>();
             }
 
-            var newSubdomains = new List<Subdomain>();
+            var currentSubdomains = rootDomain.Subdomains.Select(s => s.Name);
             var subdomains = this.SplitSubdomains(uploadSubdomains);
-
             foreach (var subdomain in subdomains)
             {
-                if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !rootDomain.Subdomains.Any(s => s.Name == subdomain))
+                if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !currentSubdomains.Any(s => s.Equals(subdomain, StringComparison.OrdinalIgnoreCase)))
                 {
-                    newSubdomains.Add(new Subdomain
+                    rootDomain.Subdomains.Add(new Subdomain
                     {
                         Target = rootDomain.Target,
                         RootDomain = rootDomain,
@@ -150,17 +146,9 @@ namespace ReconNess.Services
                 }
             }
 
-            if (newSubdomains.Count > 0)
-            {
-                foreach (var subdomain in newSubdomains)
-                {
-                    rootDomain.Subdomains.Add(subdomain);
-                }
+            await this.UpdateAsync(rootDomain, cancellationToken);
 
-                await this.UpdateAsync(rootDomain, cancellationToken);
-            }
-
-            return newSubdomains;
+            return rootDomain.Subdomains;
         }
 
         /// <summary>
