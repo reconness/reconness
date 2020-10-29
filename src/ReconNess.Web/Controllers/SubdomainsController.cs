@@ -5,6 +5,7 @@ using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,6 +73,34 @@ namespace ReconNess.Web.Controllers
             }
 
             return Ok(this.mapper.Map<Subdomain, SubdomainDto>(subdomain));
+        }
+
+        // GET api/subdomains/{target}/{rootDomainName}
+        [HttpGet("GetPaginate/{targetName}/{rootDomainName}")]
+        public async Task<IActionResult> GetPaginate(string targetName, string rootDomainName, [FromQuery] SubdomainQueryDto subdomainQueryDto, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
+            {
+                return BadRequest();
+            }
+
+            var subdomainResult = await this.subdomainService.GetPaginateAsync(target, rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
+
+            var subdomains = this.mapper.Map<IList<Subdomain>, IList<SubdomainDto>>(subdomainResult.Results);
+
+            return Ok(new { Count = subdomainResult.RowCount, Data = subdomains });
         }
 
         // POST api/subdomains
@@ -147,15 +176,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var myLabels = subdomain.Labels.Select(l => l.Label.Name).ToList();
-            myLabels.Add(subdomainLabelDto.Label);
+            await this.subdomainService.AddLabelAsync(subdomain, subdomainLabelDto.Label, cancellationToken);
 
-            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
-
-            subdomain = await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
-            var newLabel = subdomain.Labels.First(l => l.Label.Name == subdomainLabelDto.Label).Label;
-
-            return Ok(mapper.Map<Label, LabelDto>(newLabel));
+            return NoContent();
         }
 
         // DELETE api/subdomains/{id}

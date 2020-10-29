@@ -68,8 +68,6 @@ const actions = {
             try {
                 api.update('subdomains/label', subdomain.id, { label: label })
                     .then((res) => {
-                        const label = res.data
-                        context.commit('updateLabel', { subdomain, label })
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -83,12 +81,6 @@ const actions = {
 const mutations = {
     subdomain(state, subdomain) {
         state.currentSubdomain = subdomain
-    },
-    updateLabel(state, { subdomain, label }) {
-        const s = this.state.rootdomains.currentRootDomain.subdomains.find(sub => sub.name == subdomain.name)
-        if (!s.labels.some(l => l.name === label.name)) {
-            s.labels.push(label)
-        }
     }
 }
 

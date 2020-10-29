@@ -3,6 +3,7 @@ using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
+using ReconNess.Data.Npgsql.Helpers;
 using ReconNess.Entities;
 using System;
 using System.Collections.Generic;
@@ -91,12 +92,52 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="ISubdomainService.GetPaginateAsync(Target, RootDomain, string, int, int, CancellationToken)"/>
+        /// </summary>
+        public async Task<PagedResult<Subdomain>> GetPaginateAsync(Target target, RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default)
+        {
+            IQueryable<Subdomain> queryable = default;
+            if (string.IsNullOrEmpty(query))
+            {
+                queryable = this.GetAllQueryableByCriteria(s => s.Target == target && s.RootDomain == rootDomain)
+                    .Include(t => t.Services)
+                    .Include(t => t.Labels)
+                        .ThenInclude(ac => ac.Label)
+                    .OrderByDescending(s => s.CreatedAt);
+            }
+            else
+            {
+                queryable = this.GetAllQueryableByCriteria(s => s.Target == target && s.RootDomain == rootDomain && s.Name.Contains(query))
+                    .Include(t => t.Services)
+                    .Include(t => t.Labels)
+                        .ThenInclude(ac => ac.Label)
+                    .OrderByDescending(s => s.CreatedAt);
+            }
+
+            return await queryable.GetPageAsync<Subdomain>(page, limit, cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.AddLabelAsync(Subdomain, string, CancellationToken)"/>
+        /// </summary>
+        public async Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default)
+        {
+            var myLabels = subdomain.Labels.Select(l => l.Label.Name).ToList();
+            myLabels.Add(newLabel);
+
+            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
+
+            await this.UpdateAsync(subdomain, cancellationToken);
+        }
+
+        /// <summary>
         /// <see cref="ISubdomainService.GetWithIncludeAsync(Expression<Func<Subdomain, bool>>, CancellationToken)"/>
         /// </summary>
         public async Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)              
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
                     .Include(t => t.Labels)
+                        .ThenInclude(la => la.Label)
                 .SingleAsync(cancellationToken);
         }
 

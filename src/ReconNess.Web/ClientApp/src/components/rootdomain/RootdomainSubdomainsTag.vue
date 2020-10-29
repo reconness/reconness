@@ -14,30 +14,15 @@
                 </div>
                 <div class="col-6">
                     <button class="btn btn-primary" v-on:click="onAddNewSubdomain()">Add</button>
-                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteSubdomains()" :disabled="subdomains.length === 0">Delete Subdomains</button>
+                    <button class="ml-2 btn btn-danger" v-on:click="onDeleteSubdomains()">Delete Subdomains</button>
                     <button class="ml-2 btn btn-primary" v-on:click="onExportSubdomains()">Download Subdomains</button>
                 </div>
             </div>
         </div>
 
         <hr />
-
-        <div class="mb-2 form-row align-items-center">
-            <div class="col-6">
-                <input class="form-control" id="filter" v-model="filter" placeholder="Query Filter" v-on:keyup.enter="filterGrid" />
-            </div>
-            <div class="col-6">
-                <button class="ml-2  btn btn-primary" v-on:click="filterGrid()">Filter</button>
-            </div>
-        </div>
-
-        <div class="form-group form-check">
-            <input class="form-check-input" type="checkbox" v-on:click="filterOnlyScopeGrid()">
-            <label class="form-check-label">
-                Show only <strong class="text-primary">Scope</strong> subdomains
-            </label>
-        </div>
-        <v-client-table :columns="columns" :data="subdomains" :options="options">
+        
+        <v-server-table ref="table" :url="'/api/subdomains/GetPaginate/' + $route.params.targetName + '/' + $route.params.rootDomain" :columns="columns" :options="options">
             <div slot="name" slot-scope="props" v-if="props.row.isAlive">
                 <a target="_blank" :href="'http://'+props.row.name" class="glyphicon glyphicon-eye-open">{{props.row.name}}</a>
             </div>
@@ -71,14 +56,13 @@
                 <router-link class="btn btn-link" :to="{name: 'subdomain', params: { targetName: $route.params.targetName, rootDomain: $route.params.rootDomain, subdomain: props.row.name}}" target="_blank"><font-awesome-icon :icon="['fas', 'arrow-alt-circle-right']" fixed-width /></router-link>
                 <button type="button" class="btn btn-link" v-on:click="onDeleteSubdomain(props.row)" title="Delete"> <font-awesome-icon :icon="['fas', 'trash-alt']" fixed-width /></button>
             </div>
-        </v-client-table>
+        </v-server-table>
     </div>
 </template>
 
 <script>
 
-    import { mapState } from 'vuex'
-    import { Event } from 'vue-tables-2';
+    window.axios = require('axios');
 
     // Import component
     import Loading from 'vue-loading-overlay';
@@ -95,41 +79,26 @@
         data: () => {
             return {
                 isLoading: false,
-                filter: '',
-                filterOnlyScope: false,
                 newSubdomain: null,
-                targetName: '',
                 columns: ['name', 'details', 'labels', 'actions'],
                 options: {
-                    headings: {
-                        name: 'Subdomain',
-                        details: 'Details',
-                        labels: 'Labels',
-                        actions: 'Actions'
-                    },
-                    sortable: ['name'],
-                    filterable: false,
-                    customFilters: [{
-                        name: 'search',
-                        callback: function (row, query) {
-                            const nameFilter = row.name.indexOf(query) > -1
-                            const labelFilter = row.labels.length > 0 && row.labels.some(l => l.name.indexOf(query) > -1)
-                            const serviceFilter = row.services.length > 0 && row.services.some(s => s.name.indexOf(query) > -1)
-                            const ipAddressFilter = row.ipAddress !== undefined && row.ipAddress !== null && row.ipAddress.indexOf(query) > -1
-                            const agentsFilter = row.agentsRanBefore !== undefined && row.agentsRanBefore !== null && row.agentsRanBefore.indexOf(query) > -1
-
-                            return nameFilter || labelFilter || serviceFilter || ipAddressFilter || agentsFilter;
-                        }
-                    }]
-                }
+                    perPage: 25,
+                    perPageValues: [25,50,100],
+                    filterable: ['name'],
+                    requestFunction(data) {
+                        let user = JSON.parse(localStorage.getItem('user'));
+                        return axios.get(this.url, {
+                            params: data,
+                            headers: {
+                                'Authorization': 'Bearer ' + user.auth_token,
+                                'Content-Type': 'application/json'
+                            }
+                        }).catch(function (e) {
+                            this.dispatch('error', e);
+                        });
+                    }                    
+                }                
             }
-        },
-        computed: mapState({
-            subdomains: state => state.rootdomains.currentRootDomain.subdomains
-        }),
-        async mounted() {
-            this.targetName = this.$route.params.targetName
-            this.rootDomain = this.$route.params.rootDomain
         },
         methods: {
             async onDeleteSubdomain(subdomain) {
@@ -137,6 +106,7 @@
                     try {
                         this.isLoading = true
                         await this.$store.dispatch('rootdomains/deleteSubdomain', { subdomain: subdomain })
+                        this.$refs.table.refresh()
                     }
                     catch (error) {
                         helpers.errorHandle(error)
@@ -150,6 +120,7 @@
                     try {
                         this.isLoading = true
                         await this.$store.dispatch('rootdomains/deleteSubdomains')
+                        this.$refs.table.refresh()
                     }
                     catch (error) {
                         helpers.errorHandle(error)
@@ -162,6 +133,7 @@
                 try {
                     await this.$store.dispatch('subdomains/updateLabel', { subdomain, label })
                     alert("The Label was added")
+                    this.$refs.table.refresh()
                 }
                 catch (error) {
                     helpers.errorHandle(error)
@@ -171,6 +143,7 @@
                 try {
                     await this.$store.dispatch('rootdomains/createSubdomain', { subdomain: this.newSubdomain })
                     alert("The new Subdomain was added")
+                    this.$refs.table.refresh()
                 }
                 catch (error) {
                     helpers.errorHandle(error)
@@ -183,21 +156,13 @@
                     this.isLoading = true
                     await this.$store.dispatch('rootdomains/uploadSubdomains', { formData })
                     alert("subdomains were uploaded")
+                    this.$refs.table.refresh()
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
 
                 this.isLoading = false
-            },
-            filterGrid() {
-                Event.$emit('vue-tables.filter::search', this.filter);
-            },
-            filterOnlyScopeGrid() {
-                this.filterOnlyScope = !this.filterOnlyScope
-                this.filter = this.filterOnlyScope ? "Scope" : ""
-
-                this.filterGrid();
             },
             async onExportSubdomains() {
                 try {
@@ -228,5 +193,11 @@
 
     .subdomain-labels {
         width: 120px;
+    }
+    .VueTables__search-field {
+        background-color: red;
+    }
+    .VuePagination {
+        text-align: center;
     }
 </style>

@@ -124,7 +124,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IRootDomainService.UploadSubdomainsAsync(RootDomain, IEnumerable<UploadSubdomain>, CancellationToken)"/>
         /// </summary>
-        public async Task<ICollection<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
+        public async Task UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
         {
             if (rootDomain.Subdomains == null)
             {
@@ -147,19 +147,15 @@ namespace ReconNess.Services
             }
 
             await this.UpdateAsync(rootDomain, cancellationToken);
-
-            return rootDomain.Subdomains;
         }
 
         /// <summary>
         /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default)
+        public async Task UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default)
         {
             try
             {
-                var subdomainsAddd = new List<Subdomain>();
-
                 if (uploadRootDomain.Subdomains != null)
                 {
                     this.UnitOfWork.BeginTransaction(cancellationToken);
@@ -172,15 +168,11 @@ namespace ReconNess.Services
                             subdomain.Target = rootDomain.Target;
 
                             rootDomain.Subdomains.Add(subdomain);
-
-                            subdomainsAddd.Add(subdomain);
                         }
                     }
 
                     await this.UnitOfWork.CommitAsync(cancellationToken);
                 }
-
-                return subdomainsAddd;
             }
             catch (Exception ex)
             {

@@ -13,7 +13,7 @@ import store from './store'
 import router from './router';
 import connection from './api/signalR'
 
-import { ClientTable } from 'vue-tables-2';
+import { ServerTable } from 'vue-tables-2';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import {
@@ -32,7 +32,7 @@ Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 Vue.use(VueAxios, axios);
 
-Vue.use(ClientTable);
+Vue.use(ServerTable);
 
 Vue.config.productionTip = false
 

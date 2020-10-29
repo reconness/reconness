@@ -6,8 +6,6 @@ using Newtonsoft.Json;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -56,7 +54,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await rootDomainService.GetWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
 
             return Ok(this.mapper.Map<RootDomain, RootDomainDto>(rootDomain));
         }
@@ -113,26 +111,19 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            try
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
             {
-                var path = Path.GetTempFileName();
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
-                var rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
-
-                var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
-                var subdomainsAdded = await this.rootDomainService.UploadRootDomainAsync(rootDomain, uploadRootDomain, cancellationToken);
-
-                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
+                await file.CopyToAsync(stream);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
+            var rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+
+            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+            await this.rootDomainService.UploadRootDomainAsync(rootDomain, uploadRootDomain, cancellationToken);
+
+            return NoContent();
         }
 
         // POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
@@ -161,23 +152,16 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            try
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
             {
-                var path = Path.GetTempFileName();
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
-
-                return Ok(this.mapper.Map<ICollection<Subdomain>, ICollection<SubdomainDto>>(subdomainsAdded));
+                await file.CopyToAsync(stream);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+
+            var subdomains = System.IO.File.ReadAllLines(path).ToList();
+            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
+
+            return NoContent();
         }
 
         // GET api/rootdomains/export/{targetName}/{rootDomainName}

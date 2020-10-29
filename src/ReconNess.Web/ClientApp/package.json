@@ -13,7 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "5.15.1",
     "@fortawesome/vue-fontawesome": "2.0.0",
     "@johmun/vue-tags-input": "2.1.0",
-    "axios": "0.20.0",
+    "axios": "0.21.0",
     "bootstrap": "4.5.3",
     "core-js": "2.6.11",
     "jquery": "3.5.1",
@@ -22,7 +22,7 @@
     "vue": "2.6.12",
     "vue-axios": "2.1.5",
     "vue-loading-overlay": "^3.4.2",
-    "vue-router": "3.4.6",
+    "vue-router": "3.4.8",
     "vue-tables-2": "1.5.46",
     "vuex": "3.5.1",
     "xterm": "4.9.0"
@@ -33,7 +33,7 @@
     "@vue/cli-plugin-eslint": "3.12.1",
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.1.0",
-    "eslint": "7.11.0",
+    "eslint": "7.12.1",
     "eslint-plugin-vue": "6.2.2",
     "vue-template-compiler": "2.6.12",
     "vue2-ace-editor": "0.0.15"

@@ -34,7 +34,7 @@ namespace ReconNess.Core.Services
         /// <param name="uploadSubdomains">Subdomains to upload</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task<ICollection<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default);
+        Task UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///  Obtain the list of rootdomains from database, if does not exist create the rootdomain
@@ -51,7 +51,7 @@ namespace ReconNess.Core.Services
         /// <param name="rootDomain">Current root domain</param>
         /// <param name="uploadRootDomain">root domain upload</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A list of subdomain added</returns>
-        Task<List<Subdomain>> UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default);
+        /// <returns>A task</returns>
+        Task UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default);
     }
 }
