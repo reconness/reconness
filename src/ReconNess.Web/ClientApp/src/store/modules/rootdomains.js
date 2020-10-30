@@ -76,10 +76,10 @@ const actions = {
             }
         })
     },
-    upload({ commit, state }, { formData }) {
+    import({ commit, state }, { formData }) {
         return new Promise((resolve, reject) => {
             try {
-                api.upload('rootdomains/upload', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name, formData)
+                api.upload('rootdomains/import', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name, formData)
                     .then((res) => {
                         resolve()
                     })
@@ -98,7 +98,7 @@ const actions = {
                         var fileURL = window.URL.createObjectURL(new Blob([res.data]));
                         var fileLink = document.createElement('a');
                         fileLink.href = fileURL;
-                        fileLink.setAttribute('download', 'rootdomain.json');
+                        fileLink.setAttribute('download', 'rootdomain-' + state.currentRootDomain.name + '.json');
                         document.body.appendChild(fileLink);
                         fileLink.click();
                         resolve()
