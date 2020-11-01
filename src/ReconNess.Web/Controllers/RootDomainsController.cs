@@ -49,9 +49,9 @@ namespace ReconNess.Web.Controllers
             {
                 return NotFound();
             }
-
+            
             var rootDomain = await rootDomainService
-                .GetWithIncludeAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
+                .GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
 
             target.RootDomains = new List<RootDomain> { rootDomain };
 
@@ -187,9 +187,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var domainDto = this.mapper.Map<RootDomain, RootDomainDto>(rootDomain);
-            var result = JsonConvert.SerializeObject(domainDto, new JsonSerializerSettings());
-            var download = Encoding.UTF8.GetBytes(result); ;
+            var rootdomainDto = this.mapper.Map<RootDomain, RootDomainDto>(rootDomain);
+
+            var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto, targetName, rootDomainName);
 
             return File(download, "application/json", "rootdomain.json");
         }

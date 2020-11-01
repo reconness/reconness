@@ -17,6 +17,13 @@ namespace ReconNess.Core.Services
         /// </summary>
         /// <param name="criteria">The criteria</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain a rootDomain with subdomains
+        /// </summary>
+        /// <param name="criteria">The criteria</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A rootDomain with subdomains</returns>
         Task<RootDomain> GetWithIncludeAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
 
