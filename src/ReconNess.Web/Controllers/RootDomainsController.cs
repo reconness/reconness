@@ -152,9 +152,9 @@ namespace ReconNess.Web.Controllers
 
             var rootdomainDto = this.mapper.Map<RootDomain, RootDomainDto>(rootDomain);
 
-            var donwload = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
+            var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto, targetName, rootDomainName);
 
-            return File(donwload, "application/json", $"rootdomain-{rootDomain.Name}.json");
+            return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }
 
         // POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
