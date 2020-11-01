@@ -110,40 +110,6 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
-        /// </summary>
-        public async Task UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                if (uploadRootDomain.Subdomains != null)
-                {
-                    this.UnitOfWork.BeginTransaction(cancellationToken);
-                    foreach (var subdomain in uploadRootDomain.Subdomains)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        if (!rootDomain.Subdomains.Any(s => s.Name == subdomain.Name))
-                        {
-                            subdomain.RootDomain = rootDomain;
-                            subdomain.Target = rootDomain.Target;
-
-                            rootDomain.Subdomains.Add(subdomain);
-                        }
-                    }
-
-                    await this.UnitOfWork.CommitAsync(cancellationToken);
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, ex.Message);
-
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
-            }
-        }
-
-        /// <summary>
         /// <see cref="IRootDomainService.GetRootDomains(ICollection{RootDomain}, List{string}, CancellationToken)"/>
         /// </summary>
         public ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default)

@@ -18,7 +18,7 @@ namespace ReconNess.Web.Validations
         {
             foreach (var rootDomain in rootDomains)
             {
-                if (Uri.CheckHostName(rootDomain.Name) != UriHostNameType.Unknown)
+                if (Uri.CheckHostName(rootDomain.Name) == UriHostNameType.Unknown)
                 {
                     return false;
                 }

@@ -75,21 +75,7 @@ const actions = {
                 reject(err)
             }
         })
-    },
-    import({ commit, state }, { formData }) {
-        return new Promise((resolve, reject) => {
-            try {
-                api.upload('rootdomains/import', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name, formData)
-                    .then((res) => {
-                        resolve()
-                    })
-                    .catch(err => reject(err))
-            }
-            catch (err) {
-                reject(err)
-            }
-        })
-    },
+    },    
     export() {
         return new Promise((resolve, reject) => {
             try {

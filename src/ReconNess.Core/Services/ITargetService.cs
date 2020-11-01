@@ -27,5 +27,14 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The target with the include references</returns>
         Task<Target> GetWithRootDomainAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Upload root domain data with subdomains, services, port, ips, directories, labels, etc
+        /// </summary>
+        /// <param name="target">Current target</param>
+        /// <param name="newRootdomain">root domain upload</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default);
     }
 }

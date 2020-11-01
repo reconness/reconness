@@ -84,7 +84,7 @@
 
                     this.isLoading = false
                 }
-            }
+            }            
         }
     }
 </script>

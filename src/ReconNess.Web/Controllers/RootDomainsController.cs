@@ -87,48 +87,7 @@ namespace ReconNess.Web.Controllers
 
             return NoContent();
         }
-
-        // POST api/rootdomains/upload/{targetName}/{rootDomainName}
-        [HttpPost("import/{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> Import(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
-            {
-                return BadRequest();
-            }
-
-            if (file.Length == 0)
-            {
-                return BadRequest();
-            }
-
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
-            }
-
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(t => t.Target == target && t.Name == rootDomainName, cancellationToken);
-            if (rootDomain == null)
-            {
-                return NotFound();
-            }
-
-            var path = Path.GetTempFileName();
-            using (var stream = new FileStream(path, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
-
-            var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
-            var rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
-
-            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
-            await this.rootDomainService.UploadRootDomainAsync(rootDomain, uploadRootDomain, cancellationToken);
-
-            return NoContent();
-        }
-
+        
         // GET api/rootdomains/export/{targetName}/{rootDomainName}
         [HttpPost("export/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)

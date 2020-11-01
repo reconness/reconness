@@ -80,7 +80,21 @@ const actions = {
                 reject(err)
             }
         })
-    }    
+    },
+    importRootDomain(context, { formData }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.upload('targets/importRootDomain', this.state.targets.currentTarget.name, formData)
+                    .then((res) => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
 }
 
 const mutations = {

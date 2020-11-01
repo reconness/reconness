@@ -1,11 +1,14 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,6 +140,59 @@ namespace ReconNess.Web.Controllers
             }
 
             await this.targetService.DeleteAsync(target, cancellationToken);
+
+            return NoContent();
+        }
+
+        // POST api/targets/importRootDomain/{targetName}
+        [HttpPost("importRootDomain/{targetName}")]
+        public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            if (file.Length == 0)
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            RootDomainDto rootDomainDto = default;
+            try
+            {
+                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
+                rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Invalid rootdomain json");
+            }
+
+            if (string.IsNullOrEmpty(rootDomainDto.Name))
+            {
+                return BadRequest($"The rootdomain name can not be empty");
+            }
+
+            if (target.RootDomains.Any(r => rootDomainDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest($"The rootdomain: {rootDomainDto.Name} exist in the target");
+            }
+
+            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+            await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
 
             return NoContent();
         }

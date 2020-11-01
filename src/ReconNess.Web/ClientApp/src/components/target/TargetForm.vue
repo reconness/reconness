@@ -1,5 +1,8 @@
 <template>
     <div class="pt-2">
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <div class="form-group">
             <label for="targetName">Target Name</label>
             <input name="targetName" formControlName="targetName" class="form-control" id="targetName" v-model="target.name">
@@ -30,6 +33,12 @@
             <label for="outOfScopeFormControl">Out Of Scope</label>
             <textarea class="form-control" id="outOfScopeFormControl" rows="10" v-model="target.outOfScope"></textarea>
         </div>
+        <div class="form-group" v-if="!isNew">
+            <div class="col-12">
+                <input type="file" id="fileRootdomain" ref="fileRootdomain" v-on:change="onUploadRootDomain()" />
+                <label class="custom-file-label" for="fileRootdomain">Import Root Domain</label>
+            </div>
+        </div>
         <div class="form-group">
             <button class="btn btn-primary" v-if="isNew" v-on:click="$emit('save', target, rootDomains)" :disabled='!isValid()'>Add</button>
             <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="$emit('update')" :disabled='!isValid()'>Update</button>
@@ -39,11 +48,23 @@
 </template>
 
 <script>
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
 
     import { mapState } from 'vuex'
 
     export default {
         name: 'TargetFrom',
+        components: {
+            Loading
+        },
+        data: () => {
+            return {
+                isLoading: false
+            }
+        },
         props: {
             isNew: {
                 type: Boolean,
@@ -59,7 +80,22 @@
                 this.$store.state.targets.currentTarget = { rootDomains: [{ name }] }
             }
         },
-        methods: {
+        methods: {   
+            async onUploadRootDomain() {
+                this.isLoading = true
+
+                const formData = new FormData();
+                formData.append('file', this.$refs.fileRootdomain.files[0]);
+                try {
+                    await this.$store.dispatch('targets/importRootDomain', { formData })
+                    alert("Root Domain was imported")
+                }
+                catch (error) {
+                    helpers.errorHandle(error)
+                }
+
+                this.isLoading = false
+            },
             isValid() {
                 return this.target.name && this.rootDomains[0].name !== ''
             },
