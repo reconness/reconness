@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
@@ -64,24 +63,15 @@ namespace ReconNess.Services
         public async Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
         {
             try
-            {                
-                /*if (uploadRootDomain.Subdomains != null)
+            {
+                foreach (var subdomain in newRootdomain.Subdomains)
                 {
-                    this.UnitOfWork.BeginTransaction(cancellationToken);
-                    foreach (var subdomain in uploadRootDomain.Subdomains)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        if (!rootDomain.Subdomains.Any(s => s.Name == subdomain.Name))
-                        {
-                            subdomain.RootDomain = rootDomain;
-                            subdomain.Target = rootDomain.Target;
+                    subdomain.Target = target;
+                }
 
-                            rootDomain.Subdomains.Add(subdomain);
-                        }
-                    }
+                target.RootDomains.Add(newRootdomain);
 
-                    await this.UnitOfWork.CommitAsync(cancellationToken);
-                }*/
+                await this.UnitOfWork.CommitAsync(cancellationToken);
             }
             catch (Exception ex)
             {

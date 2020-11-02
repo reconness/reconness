@@ -87,8 +87,10 @@
                 const formData = new FormData();
                 formData.append('file', this.$refs.fileRootdomain.files[0]);
                 try {
-                    await this.$store.dispatch('targets/importRootDomain', { formData })
+                    const newRootDomain = await this.$store.dispatch('targets/importRootDomain', { formData })
                     alert("Root Domain was imported")
+
+                    this.rootDomains.push({ name: newRootDomain });
                 }
                 catch (error) {
                     helpers.errorHandle(error)

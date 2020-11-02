@@ -90,7 +90,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
@@ -118,7 +118,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == subdomainDto.RootDomain && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();

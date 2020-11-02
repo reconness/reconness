@@ -194,7 +194,7 @@ namespace ReconNess.Web.Controllers
             var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
             await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
 
-            return NoContent();
+            return Ok(uploadRootDomain.Name);
         }
     }
 }
