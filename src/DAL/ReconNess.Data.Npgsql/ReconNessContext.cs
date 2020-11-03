@@ -27,7 +27,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<RootDomain> RootDomains { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
-        public DbSet<ServiceHttp> ServicesHttp { get; set; }
+        public DbSet<Directory> Directories { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
         /// <summary>
@@ -128,10 +128,10 @@ namespace ReconNess.Data.Npgsql
                 .WithOne(r => r.RootDomain)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Subdomain>()
-                .HasOne(t => t.ServiceHttp)
-                .WithMany(r => r.Subdomains)
-                .OnDelete(DeleteBehavior.SetNull);
+            modelBuilder.Entity<Directory>()
+                .HasOne(t => t.Subdomain)
+                .WithMany(r => r.Directories)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Service>()
                 .Property(i => i.Id)
@@ -143,19 +143,9 @@ namespace ReconNess.Data.Npgsql
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ServiceHttp>()
+            modelBuilder.Entity<Directory>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<ServiceHttpDirectory>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<ServiceHttpDirectory>()
-                .HasOne(t => t.ServiceHttp)
-                .WithMany(r => r.Directories)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Label>()
                 .Property(i => i.Id)

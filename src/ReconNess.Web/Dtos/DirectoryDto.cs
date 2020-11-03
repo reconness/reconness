@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace ReconNess.Entities
+namespace ReconNess.Web.Dtos
 {
-    public class ServiceHttpDirectory : BaseEntity, IEntity
+    public class DirectoryDto
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
 
         public string Directory { get; set; }
 
@@ -16,7 +16,5 @@ namespace ReconNess.Entities
         /// GET, POST, PATCH, DELETE
         /// </summary>
         public string Method { get; set; }
-
-        public virtual ServiceHttp ServiceHttp { get; set; }
     }
 }

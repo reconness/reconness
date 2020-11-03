@@ -66,7 +66,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.Target == target && s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+            var subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -96,7 +96,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomainResult = await this.subdomainService.GetPaginateAsync(target, rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
+            var subdomainResult = await this.subdomainService.GetPaginateAsync(rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
 
             var subdomains = this.mapper.Map<IList<Subdomain>, IList<SubdomainDto>>(subdomainResult.Results);
 
@@ -132,7 +132,6 @@ namespace ReconNess.Web.Controllers
 
             var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
             {
-                Target = target,
                 RootDomain = rootDomain,
                 Name = subdomainDto.Name
             }, cancellationToken);

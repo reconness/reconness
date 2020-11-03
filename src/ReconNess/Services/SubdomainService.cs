@@ -47,9 +47,9 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ISubdomainService.GetAllWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> GetAllWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> GetAllWithIncludesAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
         {
-            if (target == null && rootDomain == null)
+            if (rootDomain == null)
             {
                 return new List<Subdomain>();
             }
@@ -57,18 +57,17 @@ namespace ReconNess.Services
             IQueryable<Subdomain> query;
             if (string.IsNullOrEmpty(subdomain))
             {
-                query = this.GetAllQueryableByCriteria(s => s.Target == target && s.RootDomain == rootDomain, cancellationToken);
+                query = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain, cancellationToken);
             }
             else
             {
-                query = this.GetAllQueryableByCriteria(s => s.Target == target && s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
+                query = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
             }
 
             return await query
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
-                    .Include(t => t.ServiceHttp)
-                        .ThenInclude(sh => sh.Directories)
+                    .Include(t => t.Directories)
                     .Include(t => t.Labels)
                         .ThenInclude(ac => ac.Label)
                     .OrderByDescending(s => s.CreatedAt)
@@ -83,8 +82,7 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
-                    .Include(t => t.ServiceHttp)
-                        .ThenInclude(sh => sh.Directories)
+                    .Include(t => t.Directories)
                     .Include(t => t.Labels)
                         .ThenInclude(ac => ac.Label)
                     .OrderByDescending(s => s.CreatedAt)
@@ -94,12 +92,12 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ISubdomainService.GetPaginateAsync(Target, RootDomain, string, int, int, CancellationToken)"/>
         /// </summary>
-        public async Task<PagedResult<Subdomain>> GetPaginateAsync(Target target, RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default)
+        public async Task<PagedResult<Subdomain>> GetPaginateAsync(RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default)
         {
             IQueryable<Subdomain> queryable = default;
             if (string.IsNullOrEmpty(query))
             {
-                queryable = this.GetAllQueryableByCriteria(s => s.Target == target && s.RootDomain == rootDomain)
+                queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
                     .Include(t => t.Services)
                     .Include(t => t.Labels)
                         .ThenInclude(ac => ac.Label)
@@ -107,7 +105,7 @@ namespace ReconNess.Services
             }
             else
             {
-                queryable = this.GetAllQueryableByCriteria(s => s.Target == target && s.RootDomain == rootDomain && s.Name.Contains(query))
+                queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
                     .Include(t => t.Services)
                     .Include(t => t.Labels)
                         .ThenInclude(ac => ac.Label)
@@ -173,7 +171,6 @@ namespace ReconNess.Services
                 subdomain = new Subdomain
                 {
                     Name = terminalOutputParse.Subdomain,
-                    Target = subdomain.Target,
                     RootDomain = subdomain.RootDomain
                 };
 
@@ -346,30 +343,26 @@ namespace ReconNess.Services
         private async Task UpdateSubdomainDirectoryAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
-            if (subdomain.ServiceHttp == null)
+            if (subdomain.Directories == null)
             {
-                subdomain.ServiceHttp = new ServiceHttp();
+                subdomain.Directories = new List<Entities.Directory>();
             }
 
-            if (subdomain.ServiceHttp.Directories == null)
-            {
-                subdomain.ServiceHttp.Directories = new List<ServiceHttpDirectory>();
-            }
 
-            if (subdomain.ServiceHttp.Directories.Any(d => d.Directory == httpDirectory))
+            if (subdomain.Directories.Any(d => d.Uri == httpDirectory))
             {
                 return;
             }
 
-            var directory = new ServiceHttpDirectory()
+            var directory = new Entities.Directory()
             {
-                Directory = httpDirectory,
+                Uri = httpDirectory,
                 StatusCode = scriptOutput.HttpDirectoryStatusCode,
                 Method = scriptOutput.HttpDirectoryMethod,
                 Size = scriptOutput.HttpDirectorySize
             };
 
-            subdomain.ServiceHttp.Directories.Add(directory);
+            subdomain.Directories.Add(directory);
             await this.UpdateAsync(subdomain, cancellationToken);
 
             if (activateNotification)
@@ -433,13 +426,9 @@ namespace ReconNess.Services
             {
                 try
                 {
-                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));
-                    if (subdomain.ServiceHttp == null)
-                    {
-                        subdomain.ServiceHttp = new ServiceHttp();
-                    }
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));                    
 
-                    subdomain.ServiceHttp.ScreenshotHttpPNGBase64 = fileBase64;
+                    subdomain.ScreenshotHttpPNGBase64 = fileBase64;
                     await this.UpdateAsync(subdomain, cancellationToken);
 
                     if (activateNotification)
@@ -463,12 +452,8 @@ namespace ReconNess.Services
                 try
                 {
                     var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpsScreenshotFilePath));
-                    if (subdomain.ServiceHttp == null)
-                    {
-                        subdomain.ServiceHttp = new ServiceHttp();
-                    }
-
-                    subdomain.ServiceHttp.ScreenshotHttpsPNGBase64 = fileBase64;
+                   
+                    subdomain.ScreenshotHttpsPNGBase64 = fileBase64;
                     await this.UpdateAsync(subdomain, cancellationToken);
 
                     if (activateNotification)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -9,9 +10,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20201103205145_RemoveSubdomainTargetRelation")]
+    partial class RemoveSubdomainTargetRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -259,43 +261,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.Directory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Method")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Size")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StatusCode")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("SubdomainId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Uri")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubdomainId");
-
-                    b.ToTable("Directories");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Label", b =>
@@ -559,6 +524,69 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.ToTable("Services");
                 });
 
+            modelBuilder.Entity("ReconNess.Entities.ServiceHttp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ScreenshotHttpPNGBase64")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ScreenshotHttpsPNGBase64")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServicesHttp");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.ServiceHttpDirectory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Directory")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("ServiceHttpId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Size")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StatusCode")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ServiceHttpId");
+
+                    b.ToTable("ServiceHttpDirectory");
+                });
+
             modelBuilder.Entity("ReconNess.Entities.Subdomain", b =>
                 {
                     b.Property<Guid>("Id")
@@ -595,11 +623,8 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<Guid>("RootDomainId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ScreenshotHttpPNGBase64")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ScreenshotHttpsPNGBase64")
-                        .HasColumnType("text");
+                    b.Property<Guid?>("ServiceHttpId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool?>("Takeover")
                         .HasColumnType("boolean");
@@ -613,6 +638,8 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RootDomainId");
+
+                    b.HasIndex("ServiceHttpId");
 
                     b.ToTable("Subdomains");
                 });
@@ -715,14 +742,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.Directory", b =>
-                {
-                    b.HasOne("ReconNess.Entities.Subdomain", "Subdomain")
-                        .WithMany("Directories")
-                        .HasForeignKey("SubdomainId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
             modelBuilder.Entity("ReconNess.Entities.Note", b =>
                 {
                     b.HasOne("ReconNess.Entities.RootDomain", "RootDomain")
@@ -754,6 +773,15 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ReconNess.Entities.ServiceHttpDirectory", b =>
+                {
+                    b.HasOne("ReconNess.Entities.ServiceHttp", "ServiceHttp")
+                        .WithMany("Directories")
+                        .HasForeignKey("ServiceHttpId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("ReconNess.Entities.Subdomain", b =>
                 {
                     b.HasOne("ReconNess.Entities.RootDomain", "RootDomain")
@@ -761,6 +789,11 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .HasForeignKey("RootDomainId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("ReconNess.Entities.ServiceHttp", "ServiceHttp")
+                        .WithMany("Subdomains")
+                        .HasForeignKey("ServiceHttpId")
+                        .OnDelete(DeleteBehavior.SetNull);
                 });
 
             modelBuilder.Entity("ReconNess.Entities.SubdomainLabel", b =>

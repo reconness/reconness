@@ -16,12 +16,11 @@ namespace ReconNess.Core.Services
         /// <summary>
         /// Obtain the list of subdomains by target order by CreatedAt desc
         /// </summary>
-        /// <param name="target">The targer</param>
         /// <param name="rootDomain">The root domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of subdomains by target order by CreatedAt desc</returns>
-        Task<List<Subdomain>> GetAllWithIncludesAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
+        Task<List<Subdomain>> GetAllWithIncludesAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a subdomain by criteria
@@ -34,14 +33,13 @@ namespace ReconNess.Core.Services
         /// <summary>
         /// Obtain the Subdomains paged and filtered
         /// </summary>
-        /// <param name="target">The target</param>
         /// <param name="rootDomain">The rootdomain</param>
         /// <param name="query">The query to filter</param>
         /// <param name="page">The page</param>
         /// <param name="limit">The limit</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The Subdomains paged and filtered</returns>
-        Task<PagedResult<Subdomain>> GetPaginateAsync(Target target, RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default);
+        Task<PagedResult<Subdomain>> GetPaginateAsync(RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a subdomain by criteria

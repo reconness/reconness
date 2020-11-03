@@ -64,11 +64,6 @@ namespace ReconNess.Services
         {
             try
             {
-                foreach (var subdomain in newRootdomain.Subdomains)
-                {
-                    subdomain.Target = target;
-                }
-
                 target.RootDomains.Add(newRootdomain);
 
                 await this.UnitOfWork.CommitAsync(cancellationToken);

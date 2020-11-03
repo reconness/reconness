@@ -58,8 +58,7 @@ namespace ReconNess.Services
             var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                     .Include(r => r.Notes)
                     .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.ServiceHttp)
-                            .ThenInclude(h => h.Directories)
+                        .ThenInclude(s => s.Directories)
                     .Include(r => r.Subdomains)
                         .ThenInclude(s => s.Services)
                     .Include(r => r.Subdomains)
@@ -99,7 +98,6 @@ namespace ReconNess.Services
                 {
                     rootDomain.Subdomains.Add(new Subdomain
                     {
-                        Target = rootDomain.Target,
                         RootDomain = rootDomain,
                         Name = subdomain
                     });
@@ -204,7 +202,7 @@ namespace ReconNess.Services
                 return false;
             }
 
-            var existSubdomain = await this.subdomainService.AnyAsync(s => s.Target == rootDomain.Target && s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
+            var existSubdomain = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
             return !existSubdomain;
         }
 
@@ -221,7 +219,6 @@ namespace ReconNess.Services
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
-                Target = target,
                 RootDomain = rootDomain
             };
 

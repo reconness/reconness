@@ -25,13 +25,17 @@ namespace ReconNess.Web.Dtos
 
         public bool? IsAlive { get; set; }
 
+        public string ScreenshotHttpPNGBase64 { get; set; }
+
+        public string ScreenshotHttpsPNGBase64 { get; set; }
+
         public string Technology { get; set; }
 
         public string AgentsRanBefore { get; set; }
 
         public string Notes { get; set; }
 
-        public ServiceHttpDto ServiceHttp { get; set; }
+        public List<DirectoryDto> Directories { get; set; }
 
         public List<ServiceDto> Services { get; set; }
 

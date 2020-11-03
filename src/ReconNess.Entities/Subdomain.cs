@@ -9,23 +9,25 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
-        public virtual Target Target { get; set; }
-
         public virtual RootDomain RootDomain { get; set; }
-
-        public bool? HasHttpOpen { get; set; }
-
-        public bool? IsMainPortal { get; set; }
-
-        public bool? Takeover { get; set; }
 
         public bool? IsAlive { get; set; }
 
+        public string IpAddress { get; set; }
+
+        public bool? Takeover { get; set; }
+
+        public bool? HasHttpOpen { get; set; }            
+
+        public bool? IsMainPortal { get; set; }
+
         public string Technology { get; set; }
 
-        public string AgentsRanBefore { get; set; }
+        public string ScreenshotHttpPNGBase64 { get; set; }
 
-        public string IpAddress { get; set; }
+        public string ScreenshotHttpsPNGBase64 { get; set; }             
+
+        public string AgentsRanBefore { get; set; }                
 
         public bool? HasBounty { get; set; }
 
@@ -33,7 +35,7 @@ namespace ReconNess.Entities
 
         public virtual Note Notes { get; set; }
 
-        public virtual ServiceHttp ServiceHttp { get; set; }
+        public virtual ICollection<Directory> Directories { get; set; }
 
         public virtual ICollection<Service> Services { get; set; }
     }

@@ -280,7 +280,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.Target == target && s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
