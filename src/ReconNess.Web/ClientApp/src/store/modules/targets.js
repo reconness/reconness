@@ -81,7 +81,7 @@ const actions = {
             }
         })
     },
-    importRootDomain({ commit, state }, { formData }) {
+    importRootDomain(context, { formData }) {
         return new Promise((resolve, reject) => {
             try {
                 api.upload('targets/importRootDomain', this.state.targets.currentTarget.name, formData)

@@ -49,7 +49,7 @@ const actions = {
             }
         })
     },
-    labels() {
+    labels(context) {
         return new Promise((resolve, reject) => {
             try {
                 api.get('labels')
@@ -67,7 +67,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             try {
                 api.update('subdomains/label', subdomain.id, { label: label })
-                    .then((res) => {
+                    .then(() => {
                         resolve()
                     })
                     .catch(err => reject(err))

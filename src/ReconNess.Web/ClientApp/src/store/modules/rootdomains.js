@@ -52,7 +52,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             try {
                 api.create('subdomains', { target: this.state.targets.currentTarget.name, rootDomain: state.currentRootDomain.name, name: subdomain })
-                    .then((res) => {
+                    .then(() => {
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -66,7 +66,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             try {
                 api.upload('rootdomains/uploadSubdomains', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name, formData)
-                    .then((res) => {
+                    .then(() => {
                         resolve()
                     })
                     .catch(err => reject(err))
@@ -76,7 +76,7 @@ const actions = {
             }
         })
     },    
-    export() {
+    export(context) {
         return new Promise((resolve, reject) => {
             try {
                 api.download('rootdomains/export', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
@@ -96,7 +96,7 @@ const actions = {
             }
         })
     },
-    exportSubdomains() {
+    exportSubdomains(context) {
         return new Promise((resolve, reject) => {
             try {
                 api.download('rootdomains/exportSubdomains', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
