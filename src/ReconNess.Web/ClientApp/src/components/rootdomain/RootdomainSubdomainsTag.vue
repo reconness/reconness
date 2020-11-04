@@ -87,7 +87,7 @@
                     filterable: ['name'],
                     requestFunction(data) {
                         let user = JSON.parse(localStorage.getItem('user'));
-                        return axios.get(this.url, {
+                        return window.axios.get(this.url, {
                             params: data,
                             headers: {
                                 'Authorization': 'Bearer ' + user.auth_token,
