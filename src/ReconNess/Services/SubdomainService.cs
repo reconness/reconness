@@ -426,7 +426,7 @@ namespace ReconNess.Services
             {
                 try
                 {
-                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));                    
+                    var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpScreenshotFilePath));
 
                     subdomain.ScreenshotHttpPNGBase64 = fileBase64;
                     await this.UpdateAsync(subdomain, cancellationToken);
@@ -452,7 +452,7 @@ namespace ReconNess.Services
                 try
                 {
                     var fileBase64 = Convert.ToBase64String(File.ReadAllBytes(scriptOutput.HttpsScreenshotFilePath));
-                   
+
                     subdomain.ScreenshotHttpsPNGBase64 = fileBase64;
                     await this.UpdateAsync(subdomain, cancellationToken);
 

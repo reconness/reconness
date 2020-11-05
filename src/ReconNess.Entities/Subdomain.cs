@@ -17,7 +17,7 @@ namespace ReconNess.Entities
 
         public bool? Takeover { get; set; }
 
-        public bool? HasHttpOpen { get; set; }            
+        public bool? HasHttpOpen { get; set; }
 
         public bool? IsMainPortal { get; set; }
 
@@ -25,9 +25,9 @@ namespace ReconNess.Entities
 
         public string ScreenshotHttpPNGBase64 { get; set; }
 
-        public string ScreenshotHttpsPNGBase64 { get; set; }             
+        public string ScreenshotHttpsPNGBase64 { get; set; }
 
-        public string AgentsRanBefore { get; set; }                
+        public string AgentsRanBefore { get; set; }
 
         public bool? HasBounty { get; set; }
 

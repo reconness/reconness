@@ -1,3 +1,13 @@
+## [2.0.0] - 2020-11-05
+
+### Added
+
+- Add loading animation
+- Add real pagination to improve performance
+- DB schema updated
+- Fix Export/Import RootDomains
+- Update packages
+
 ## [1.5.2] - 2020-10-13
 
 ### Added
