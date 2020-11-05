@@ -40,8 +40,8 @@ namespace ReconNess.Helpers
                 ContractResolver = new SkipEmptyContractResolver()
             });
 
-            result = Regex.Replace(result, @"\""Id\"":\""([0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12})\"",", "");
-            result = Regex.Replace(result, @"\""CreatedAt\"":\""([0-9]{4})\"",", "");
+            result = Regex.Replace(result, @"\""Id\"":\""([0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12})\"",?", "");
+            result = Regex.Replace(result, @"\""CreatedAt\"":\""([0-9]{4})\"",?", "");
             result = Regex.Replace(result, string.Format(@",?\""Target\"":\""{0}\""", target), "");
             result = Regex.Replace(result, string.Format(@",?\""RootDomain\"":\""{0}\""", rootdomain), "");
 

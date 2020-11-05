@@ -57,7 +57,7 @@
                     await this.$store.dispatch('agents/updateAgent')
                     this.isLoading = false
 
-                    alert("The agent script code was saved")
+                    alert("The Agent was saved")
 
                     if (this.$route.params.agentName !== this.agent.name) {
                         this.$router.push({ name: 'agentEdit', params: { agentName: this.agent.name } })

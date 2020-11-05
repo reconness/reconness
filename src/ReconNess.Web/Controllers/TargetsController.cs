@@ -192,6 +192,8 @@ namespace ReconNess.Web.Controllers
             }
 
             var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+
+            var directories = uploadRootDomain.Subdomains.Where(s => s.Directories.Count > 0).ToList();
             await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
 
             return Ok(uploadRootDomain.Name);
