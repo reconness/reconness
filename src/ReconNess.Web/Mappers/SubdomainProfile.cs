@@ -13,7 +13,7 @@ namespace ReconNess.Web.Mappers
             CreateMap<SubdomainDto, Subdomain>()
                 .ForMember(dest => dest.Labels, opt => opt.MapFrom<SubdomainLabelResolver>())
                 .ForMember(dest => dest.RootDomain, opt => opt.Ignore())
-                .ForMember(dest => dest.Notes, opt => opt.Ignore());
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => new Note { Notes = src.Notes }));
 
             CreateMap<Subdomain, SubdomainDto>()
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes.Notes))

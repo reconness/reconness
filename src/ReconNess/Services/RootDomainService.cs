@@ -58,6 +58,8 @@ namespace ReconNess.Services
             var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                     .Include(r => r.Notes)
                     .Include(r => r.Subdomains)
+                        .ThenInclude(s => s.Notes)
+                    .Include(r => r.Subdomains)
                         .ThenInclude(s => s.Directories)
                     .Include(r => r.Subdomains)
                         .ThenInclude(s => s.Services)
