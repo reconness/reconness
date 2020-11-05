@@ -27,7 +27,7 @@
                 <subdomain-services-tag></subdomain-services-tag>
             </div>
             <div class="tab-pane fade" id="nav-directories" role="tabpanel" aria-labelledby="nav-directories-tab">
-                <div class="pt-2" v-if="subdomain.serviceHttp === undefined || subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
+                <div class="pt-2" v-if="subdomain.directories === undefined || subdomain.directories === null">We don't have directories enumerated yet</div>
                 <subdomain-directories-tag></subdomain-directories-tag>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
