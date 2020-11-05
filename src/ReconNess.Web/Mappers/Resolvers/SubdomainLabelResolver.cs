@@ -18,27 +18,30 @@ namespace ReconNess.Web.Mappers.Resolvers
         public ICollection<SubdomainLabel> Resolve(SubdomainDto source, Subdomain destination, ICollection<SubdomainLabel> member, ResolutionContext context)
         {
             var SubdomainLabels = new List<SubdomainLabel>();
-            source.Labels.ForEach(l =>
+            if (source.Labels != null)
             {
-                var label = this.labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
-                if (label != null)
+                source.Labels.ForEach(l =>
                 {
-                    SubdomainLabels.Add(new SubdomainLabel
+                    var label = this.labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
+                    if (label != null)
                     {
-                        LabelId = label.Id
-                    });
-                }
-                else
-                {
-                    SubdomainLabels.Add(new SubdomainLabel
-                    {
-                        Label = new Label
+                        SubdomainLabels.Add(new SubdomainLabel
                         {
-                            Name = label.Name
-                        }
-                    });
-                }
-            });
+                            LabelId = label.Id
+                        });
+                    }
+                    else
+                    {
+                        SubdomainLabels.Add(new SubdomainLabel
+                        {
+                            Label = new Label
+                            {
+                                Name = label.Name
+                            }
+                        });
+                    }
+                });
+            }
 
             return SubdomainLabels;
         }

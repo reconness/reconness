@@ -1,13 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,11 +36,10 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var references = await this.referenceService.GetAllQueryable(cancellationToken)
-                    .OrderBy(r => r.Categories)
-                .ToListAsync();
+            var references = await this.referenceService.GetReferencesAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Reference>, List<ReferenceDto>>(references);
+
             return Ok(agentsDto);
         }
 
@@ -59,6 +56,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] ReferenceDto referenceDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var reference = this.mapper.Map<ReferenceDto, Reference>(referenceDto);
 
             await this.referenceService.AddAsync(reference, cancellationToken);

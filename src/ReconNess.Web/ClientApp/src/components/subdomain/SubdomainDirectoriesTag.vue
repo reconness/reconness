@@ -15,7 +15,7 @@
                     </thead>
                     <tbody>
                         <tr v-for="directory in directories" v-bind:key="directory.id">
-                            <th class="w-25" scope="row">{{ directory.directory }}</th>
+                            <th class="w-25" scope="row">{{ directory.uri }}</th>
                             <th class="w-25" scope="row">{{ directory.method }}</th>
                             <th class="w-25" scope="row">{{ directory.statusCode }}</th>
                             <th class="w-25" scope="row">{{ directory.size }}</th>
@@ -33,13 +33,7 @@
     export default {
         name: 'SubdomainDirectoriesTag',
         computed: mapState({
-            directories: state => {
-                if (state.subdomains.currentSubdomain.serviceHttp !== null && state.subdomains.currentSubdomain.serviceHttp !== undefined) {
-                    return state.subdomains.currentSubdomain.serviceHttp.directories || []
-                }
-
-                return []
-            }
+            directories: state => state.subdomains.currentSubdomain.directories || []
         })
     }
 </script>

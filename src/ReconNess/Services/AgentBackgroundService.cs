@@ -28,17 +28,30 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentBackgroundService.SaveOutputParseOnScopeAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
+        /// <see cref="IAgentBackgroundService.SaveOutputParseOnScopeAsync(AgentRunner, string, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, string agentRunType, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
             {
-                var targetService =
-                    scope.ServiceProvider
-                        .GetRequiredService<ITargetService>();
-
-                await targetService.SaveTerminalOutputParseAsync(agentRun, terminalOutputParse, cancellationToken);
+                if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
+                    AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var targetService = scope.ServiceProvider.GetRequiredService<ITargetService>();
+                    await targetService.SaveTerminalOutputParseAsync(agentRun.Target, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
+                }
+                else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
+                        AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var rootDomainService = scope.ServiceProvider.GetRequiredService<IRootDomainService>();
+                    await rootDomainService.SaveTerminalOutputParseAsync(agentRun.RootDomain, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
+                }
+                else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
+                        AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    var subdomainService = scope.ServiceProvider.GetRequiredService<ISubdomainService>();
+                    await subdomainService.SaveTerminalOutputParseAsync(agentRun.Subdomain, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
+                }
             }
         }
 
@@ -53,19 +66,19 @@ namespace ReconNess.Services
                     AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var targetService = scope.ServiceProvider.GetRequiredService<ITargetService>();
-                    await targetService.UpdateAgentRanAsync(agentRun, cancellationToken);
+                    await targetService.UpdateAgentRanAsync(agentRun.Target, agentRun.Agent.Name, cancellationToken);
                 }
                 else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                         AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var rootDomainService = scope.ServiceProvider.GetRequiredService<IRootDomainService>();
-                    await rootDomainService.UpdateAgentRanAsync(agentRun, cancellationToken);
+                    await rootDomainService.UpdateAgentRanAsync(agentRun.RootDomain, agentRun.Agent.Name, cancellationToken);
                 }
                 else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                         AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var subdomainService = scope.ServiceProvider.GetRequiredService<ISubdomainService>();
-                    await subdomainService.UpdateAgentRanAsync(agentRun, cancellationToken);
+                    await subdomainService.UpdateAgentRanAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
                 }
             }
         }

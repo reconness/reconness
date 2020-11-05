@@ -37,9 +37,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAllWithIncludeAsync(CancellationToken)"/>
+        /// <see cref="IAgentService.GetAllWithCategoriesAsync(CancellationToken)"/>
         /// </summary>
-        public async Task<List<Agent>> GetAllWithIncludeAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Agent>> GetAllWithCategoriesAsync(CancellationToken cancellationToken = default)
         {
             var result = await this.GetAllQueryable(cancellationToken)
                 .Include(a => a.AgentCategories)
@@ -50,9 +50,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetWithIncludeAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// <see cref="IAgentService.GetWithCategoriesAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Agent> GetWithIncludeAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<Agent> GetWithCategoriesAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(a => a.AgentCategories)

@@ -16,7 +16,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.8")
+                .HasAnnotation("ProductVersion", "3.1.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
@@ -87,7 +87,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AgentId")
+                    b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
 
                     b.Property<string>("ChangeType")
@@ -118,7 +118,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("AgentId")
+                    b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
@@ -261,6 +261,43 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("ReconNess.Entities.Directory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Size")
+                        .HasColumnType("text");
+
+                    b.Property<string>("StatusCode")
+                        .HasColumnType("text");
+
+                    b.Property<Guid?>("SubdomainId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Uri")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubdomainId");
+
+                    b.ToTable("Directories");
+                });
+
             modelBuilder.Entity("ReconNess.Entities.Label", b =>
                 {
                     b.Property<Guid>("Id")
@@ -349,10 +386,10 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("SubdomainId")
+                    b.Property<Guid?>("RootDomainId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("TargetId")
+                    b.Property<Guid?>("SubdomainId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -360,10 +397,10 @@ namespace ReconNess.Data.Npgsql.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubdomainId")
+                    b.HasIndex("RootDomainId")
                         .IsUnique();
 
-                    b.HasIndex("TargetId")
+                    b.HasIndex("SubdomainId")
                         .IsUnique();
 
                     b.ToTable("Note");
@@ -478,7 +515,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("TargetId")
+                    b.Property<Guid>("TargetId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -509,7 +546,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<int>("Port")
                         .HasColumnType("integer");
 
-                    b.Property<Guid?>("SubdomainId")
+                    b.Property<Guid>("SubdomainId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTime>("UpdatedAt")
@@ -520,69 +557,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasIndex("SubdomainId");
 
                     b.ToTable("Services");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.ServiceHttp", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("ScreenshotHttpPNGBase64")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ScreenshotHttpsPNGBase64")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ServicesHttp");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.ServiceHttpDirectory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Directory")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Method")
-                        .HasColumnType("text");
-
-                    b.Property<Guid?>("ServiceHttpId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Size")
-                        .HasColumnType("text");
-
-                    b.Property<string>("StatusCode")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ServiceHttpId");
-
-                    b.ToTable("ServiceHttpDirectory");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Subdomain", b =>
@@ -618,17 +592,17 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<Guid?>("RootDomainId")
+                    b.Property<Guid>("RootDomainId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("ServiceHttpId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("ScreenshotHttpPNGBase64")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ScreenshotHttpsPNGBase64")
+                        .HasColumnType("text");
 
                     b.Property<bool?>("Takeover")
                         .HasColumnType("boolean");
-
-                    b.Property<Guid?>("TargetId")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("Technology")
                         .HasColumnType("text");
@@ -639,10 +613,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RootDomainId");
-
-                    b.HasIndex("ServiceHttpId");
-
-                    b.HasIndex("TargetId");
 
                     b.ToTable("Subdomains");
                 });
@@ -722,14 +692,18 @@ namespace ReconNess.Data.Npgsql.Migrations
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
                         .WithMany("AgentHistories")
-                        .HasForeignKey("AgentId");
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
                         .WithMany("AgentRuns")
-                        .HasForeignKey("AgentId");
+                        .HasForeignKey("AgentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
@@ -741,51 +715,52 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.Note", b =>
+            modelBuilder.Entity("ReconNess.Entities.Directory", b =>
                 {
                     b.HasOne("ReconNess.Entities.Subdomain", "Subdomain")
-                        .WithOne("Notes")
-                        .HasForeignKey("ReconNess.Entities.Note", "SubdomainId");
+                        .WithMany("Directories")
+                        .HasForeignKey("SubdomainId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
 
-                    b.HasOne("ReconNess.Entities.RootDomain", "Target")
+            modelBuilder.Entity("ReconNess.Entities.Note", b =>
+                {
+                    b.HasOne("ReconNess.Entities.RootDomain", "RootDomain")
                         .WithOne("Notes")
-                        .HasForeignKey("ReconNess.Entities.Note", "TargetId");
+                        .HasForeignKey("ReconNess.Entities.Note", "RootDomainId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("ReconNess.Entities.Subdomain", "Subdomain")
+                        .WithOne("Notes")
+                        .HasForeignKey("ReconNess.Entities.Note", "SubdomainId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("ReconNess.Entities.RootDomain", b =>
                 {
                     b.HasOne("ReconNess.Entities.Target", "Target")
                         .WithMany("RootDomains")
-                        .HasForeignKey("TargetId");
+                        .HasForeignKey("TargetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Service", b =>
                 {
                     b.HasOne("ReconNess.Entities.Subdomain", "Subdomain")
                         .WithMany("Services")
-                        .HasForeignKey("SubdomainId");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.ServiceHttpDirectory", b =>
-                {
-                    b.HasOne("ReconNess.Entities.ServiceHttp", "ServiceHttp")
-                        .WithMany("Directories")
-                        .HasForeignKey("ServiceHttpId");
+                        .HasForeignKey("SubdomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Subdomain", b =>
                 {
                     b.HasOne("ReconNess.Entities.RootDomain", "RootDomain")
                         .WithMany("Subdomains")
-                        .HasForeignKey("RootDomainId");
-
-                    b.HasOne("ReconNess.Entities.ServiceHttp", "ServiceHttp")
-                        .WithMany("Subdomains")
-                        .HasForeignKey("ServiceHttpId");
-
-                    b.HasOne("ReconNess.Entities.Target", "Target")
-                        .WithMany()
-                        .HasForeignKey("TargetId");
+                        .HasForeignKey("RootDomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ReconNess.Entities.SubdomainLabel", b =>

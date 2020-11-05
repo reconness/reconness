@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using NLog;
 using ReconNess.Data.Npgsql;
 using System;
 
@@ -11,6 +12,8 @@ namespace ReconNess.Web
     /// </summary>
     public static class MigrationManager
     {
+        private static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         /// <summary>
         /// 
         /// </summary>
@@ -28,7 +31,7 @@ namespace ReconNess.Web
                     }
                     catch (Exception ex)
                     {
-                        //Log errors or do anything you think it's needed
+                        _logger.Error(ex);
                         throw ex;
                     }
                 }

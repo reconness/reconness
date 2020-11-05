@@ -1,11 +1,14 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -43,7 +46,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetAllWithIncludeAsync(t => !t.Deleted, cancellationToken);
+            var targets = await this.targetService.GetAllWithRootDomainsAsync(t => !t.Deleted, cancellationToken);
 
             return Ok(this.mapper.Map<List<Target>, List<TargetDto>>(targets));
         }
@@ -52,7 +55,12 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{targetName}")]
         public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetWithIncludeAsync(t => t.Name == targetName, cancellationToken);
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -65,6 +73,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower());
             if (targetExist)
             {
@@ -82,7 +95,12 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetWithIncludeAsync(t => t.Id == id, cancellationToken);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetWithRootDomainAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -110,15 +128,74 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{targetName}")]
         public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetWithIncludeAsync(t => t.Name == targetName, cancellationToken);
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            await this.targetService.DeleteTargetAsync(target, cancellationToken);
+            await this.targetService.DeleteAsync(target, cancellationToken);
 
             return NoContent();
+        }
+
+        // POST api/targets/importRootDomain/{targetName}
+        [HttpPost("importRootDomain/{targetName}")]
+        public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            if (file.Length == 0)
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            RootDomainDto rootDomainDto = default;
+            try
+            {
+                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
+                rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Invalid rootdomain json");
+            }
+
+            if (string.IsNullOrEmpty(rootDomainDto.Name))
+            {
+                return BadRequest($"The rootdomain name can not be empty");
+            }
+
+            if (target.RootDomains.Any(r => rootDomainDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest($"The rootdomain: {rootDomainDto.Name} exist in the target");
+            }
+
+            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+
+            await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
+
+            return Ok(uploadRootDomain.Name);
         }
     }
 }

@@ -22,9 +22,9 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
         private readonly IAgentRunnerService agentRunnerService;
+        private readonly IAgentCategoryService categoryService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
-        private readonly IAgentCategoryService categoryService;
         private readonly ISubdomainService subdomainService;
 
         /// <summary>
@@ -33,25 +33,25 @@ namespace ReconNess.Web.Controllers
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="agentService"><see cref="IAgentService"/></param>
         /// <param name="agentRunnerService"><see cref="IAgentRunnerService"/></param>
+        /// <param name="categoryService"><see cref="IAgentCategoryService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
-        /// <param name="categoryService"><see cref="IAgentCategoryService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         public AgentsController(
             IMapper mapper,
             IAgentService agentService,
             IAgentRunnerService agentRunnerService,
+            IAgentCategoryService categoryService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
-            IAgentCategoryService categoryService,
             ISubdomainService subdomainService)
         {
             this.mapper = mapper;
             this.agentService = agentService;
             this.agentRunnerService = agentRunnerService;
+            this.categoryService = categoryService;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
-            this.categoryService = categoryService;
             this.subdomainService = subdomainService;
         }
 
@@ -59,9 +59,10 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAllWithIncludeAsync(cancellationToken);
+            var agents = await this.agentService.GetAllWithCategoriesAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
+
             return Ok(agentsDto);
         }
 
@@ -69,7 +70,12 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{agentName}")]
         public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetWithIncludeAsync(t => t.Name == agentName, cancellationToken);
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetWithCategoriesAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -93,6 +99,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
             if (agentExist)
             {
@@ -115,7 +126,12 @@ namespace ReconNess.Web.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetWithIncludeAsync(t => t.Id == id, cancellationToken);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetWithCategoriesAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -170,6 +186,11 @@ namespace ReconNess.Web.Controllers
         [HttpDelete("{agentName}")]
         public async Task<IActionResult> Delete(string agentName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
             var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
@@ -185,6 +206,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost("install")]
         public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name);
             if (agentExist)
             {
@@ -204,6 +230,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost("debug")]
         public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             try
             {
                 var scriptOutput = await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken);
@@ -220,7 +251,7 @@ namespace ReconNess.Web.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetWithIncludeAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            var agent = await agentService.GetWithCategoriesAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
@@ -249,7 +280,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetWithIncludeAsync(target, rootDomain, agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
@@ -300,7 +331,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            Subdomain subdomain = null;
+            Subdomain subdomain = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
                 subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
@@ -348,7 +379,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            Subdomain subdomain = null;
+            Subdomain subdomain = default;
             if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
             {
                 subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);

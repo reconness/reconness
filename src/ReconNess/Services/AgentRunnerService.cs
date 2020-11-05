@@ -102,7 +102,7 @@ namespace ReconNess.Services
             _logger.Info($"Start channel {channel}");
 
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
-            if (agentRunnerType.Contains("Current"))
+            if (agentRunnerType.StartsWith("Current"))
             {
                 await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true, allowSkip: false);
             }
@@ -205,8 +205,8 @@ namespace ReconNess.Services
                 {
                     Agent = agentRunner.Agent,
                     Target = target,
-                    RootDomain = null,
-                    Subdomain = null,
+                    RootDomain = default,
+                    Subdomain = default,
                     ActivateNotification = agentRunner.ActivateNotification,
                     Command = agentRunner.Command
                 };
@@ -242,7 +242,7 @@ namespace ReconNess.Services
                     Agent = agentRunner.Agent,
                     Target = agentRunner.Target,
                     RootDomain = rootdomain,
-                    Subdomain = null,
+                    Subdomain = default,
                     ActivateNotification = agentRunner.ActivateNotification,
                     Command = agentRunner.Command
                 };
@@ -262,7 +262,7 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private async Task RunAgentInEachSubdomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
-            var subdomains = await this.subdomainService.GetAllWithIncludesAsync(agentRunner.Target, agentRunner.RootDomain, string.Empty, cancellationToken);
+            var subdomains = await this.subdomainService.GetAllWithIncludesAsync(agentRunner.RootDomain, string.Empty, cancellationToken);
             if (!subdomains.Any())
             {
                 await this.SendAgentDoneNotificationAsync(agentRunner, channel, cancellationToken);
@@ -329,6 +329,7 @@ namespace ReconNess.Services
             if (AgentRunnerHelpers.NeedToSkipRun(result.AgentRunner, result.AgentRunnerType))
             {
                 await this.connectorService.SendAsync(result.Channel, $"Skip: {result.Command}");
+
                 return true;
             }
 
@@ -341,6 +342,7 @@ namespace ReconNess.Services
         private async Task BeginHandlerAsync(AgentRunnerProviderResult result)
         {
             _logger.Info($"Start command {result.Command}");
+
             await this.connectorService.SendAsync(result.Channel, $"RUN: {result.Command}", true, result.CancellationToken);
         }
 
@@ -362,6 +364,7 @@ namespace ReconNess.Services
             await this.agentBackgroundService.SaveOutputParseOnScopeAsync
             (
                 result.AgentRunner,
+                result.AgentRunnerType,
                 result.ScriptOutput,
                 result.CancellationToken
             );
@@ -377,6 +380,7 @@ namespace ReconNess.Services
         private async Task EndHandlerAsync(AgentRunnerProviderResult result)
         {
             _logger.Info($"End command {result.Command}");
+
             await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);
 
             if (result.Last)

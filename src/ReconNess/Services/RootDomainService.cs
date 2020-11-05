@@ -16,7 +16,7 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="IRootDomainService"/>
     /// </summary>
-    public class RootDomainService : Service<RootDomain>, IService<RootDomain>, IRootDomainService, ISaveTerminalOutputParseService
+    public class RootDomainService : Service<RootDomain>, IService<RootDomain>, IRootDomainService, ISaveTerminalOutputParseService<RootDomain>
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
@@ -39,6 +39,18 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="IRootDomainService.GetWithOnlySubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<RootDomain> GetWithOnlySubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
+        {
+            var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                    .Include(r => r.Subdomains)
+                    .SingleOrDefaultAsync();
+
+            return rootDomain;
+        }
+
+        /// <summary>
         /// <see cref="IRootDomainService.GetWithSubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
         /// </summary>
         public async Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
@@ -46,25 +58,9 @@ namespace ReconNess.Services
             var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                     .Include(r => r.Notes)
                     .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.Services)
+                        .ThenInclude(s => s.Notes)
                     .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.Labels)
-                            .ThenInclude(ac => ac.Label)
-                    .FirstOrDefaultAsync();
-
-            return rootDomain;
-        }
-
-        /// <summary>
-        /// <see cref="IRootDomainService.GetWithIncludeAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
-        /// </summary>
-        public async Task<RootDomain> GetWithIncludeAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
-        {
-            var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
-                    .Include(r => r.Notes)
-                    .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.ServiceHttp)
-                            .ThenInclude(h => h.Directories)
+                        .ThenInclude(s => s.Directories)
                     .Include(r => r.Subdomains)
                         .ThenInclude(s => s.Services)
                     .Include(r => r.Subdomains)
@@ -72,79 +68,7 @@ namespace ReconNess.Services
                             .ThenInclude(ac => ac.Label)
                     .SingleOrDefaultAsync();
 
-            if (rootDomain != null)
-            {
-                rootDomain.Subdomains = await this.subdomainService.GetAllWithIncludesAsync(rootDomain.Target, rootDomain, string.Empty, cancellationToken);
-            }
-
             return rootDomain;
-        }
-
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(AgentRunner, CancellationToken)"/>
-        /// </summary>
-        public async Task UpdateAgentRanAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var rootDomain = agentRunner.RootDomain;
-            var agentName = agentRunner.Agent.Name;
-
-            if (string.IsNullOrWhiteSpace(rootDomain.AgentsRanBefore))
-            {
-                rootDomain.AgentsRanBefore = agentName;
-                await this.UpdateAsync(rootDomain, cancellationToken);
-            }
-            else if (!rootDomain.AgentsRanBefore.Contains(agentName))
-            {
-                rootDomain.AgentsRanBefore = string.Join(", ", rootDomain.AgentsRanBefore, agentName);
-                await this.UpdateAsync(rootDomain, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(AgentRunner, ScriptOutput, CancellationToken)"/>
-        /// </summary>
-        public async Task SaveTerminalOutputParseAsync(AgentRunner agentRunner, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            if (await this.NeedAddNewSubdomain(agentRunner, terminalOutputParse.Subdomain, cancellationToken))
-            {
-                agentRunner.Subdomain = await this.AddRootDomainNewSubdomainAsync(agentRunner.Target, agentRunner.RootDomain, terminalOutputParse.Subdomain, cancellationToken);
-
-                if (agentRunner.ActivateNotification)
-                {
-                    await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
-                    {
-                        ("{{domain}}", agentRunner.Subdomain.Name)
-                    }, cancellationToken);
-                }
-            }
-
-            if (agentRunner.Subdomain != null)
-            {
-                await this.subdomainService.SaveTerminalOutputParseAsync(agentRunner, terminalOutputParse, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IRootDomainService.DeleteRootDomains(ICollection<RootDomain>, CancellationToken)(Target, CancellationToken)"/>
-        /// </summary>
-        public void DeleteRootDomains(ICollection<RootDomain> rootDomains, CancellationToken cancellationToken = default)
-        {
-            foreach (var rootDomain in rootDomains)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                this.subdomainService.DeleteSubdomains(rootDomain.Subdomains, cancellationToken);
-                if (rootDomain.Notes != null)
-                {
-                    this.UnitOfWork.Repository<Note>().Delete(rootDomain.Notes, cancellationToken);
-                }
-
-                this.UnitOfWork.Repository<RootDomain>().Delete(rootDomain, cancellationToken);
-            }
         }
 
         /// <summary>
@@ -152,98 +76,37 @@ namespace ReconNess.Services
         /// </summary>
         public async Task DeleteSubdomainsAsync(RootDomain rootDomain, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            rootDomain.Subdomains.Clear();
 
-            try
-            {
-                this.UnitOfWork.BeginTransaction(cancellationToken);
-
-                this.subdomainService.DeleteSubdomains(rootDomain.Subdomains, cancellationToken);
-
-                await this.UnitOfWork.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, ex.Message);
-
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
-            }
+            await this.UpdateAsync(rootDomain, cancellationToken);
         }
 
         /// <summary>
         /// <see cref="IRootDomainService.UploadSubdomainsAsync(RootDomain, IEnumerable<UploadSubdomain>, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
+        public async Task UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
         {
             if (rootDomain.Subdomains == null)
             {
                 rootDomain.Subdomains = new List<Subdomain>();
             }
 
-            var newSubdomains = new List<Subdomain>();
+            var currentSubdomains = rootDomain.Subdomains.Select(s => s.Name);
             var subdomains = this.SplitSubdomains(uploadSubdomains);
-
             foreach (var subdomain in subdomains)
             {
-                if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown && !rootDomain.Subdomains.Any(s => s.Name == subdomain))
+                if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown &&
+                    !currentSubdomains.Any(s => s.Equals(subdomain, StringComparison.OrdinalIgnoreCase)))
                 {
-                    newSubdomains.Add(new Subdomain
+                    rootDomain.Subdomains.Add(new Subdomain
                     {
-                        Target = rootDomain.Target,
                         RootDomain = rootDomain,
                         Name = subdomain
                     });
                 }
             }
 
-            if (newSubdomains.Count > 0)
-            {
-                foreach (var subdomain in newSubdomains)
-                {
-                    rootDomain.Subdomains.Add(subdomain);
-                }
-
-                await this.UpdateAsync(rootDomain, cancellationToken);
-            }
-
-            return newSubdomains;
-        }
-
-        /// <summary>
-        /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
-        /// </summary>
-        public async Task<List<Subdomain>> UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                var subdomainsAddd = new List<Subdomain>();
-
-                if (uploadRootDomain.Subdomains != null)
-                {
-                    this.UnitOfWork.BeginTransaction(cancellationToken);
-                    foreach (var subdomain in uploadRootDomain.Subdomains)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-                        if (!rootDomain.Subdomains.Any(s => s.Name == subdomain.Name))
-                        {
-                            rootDomain.Subdomains.Add(subdomain);
-                            subdomainsAddd.Add(subdomain);
-                        }
-                    }
-
-                    await this.UnitOfWork.CommitAsync(cancellationToken);
-                }
-
-                return subdomainsAddd;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, ex.Message);
-
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
-            }
+            await this.UpdateAsync(rootDomain, cancellationToken);
         }
 
         /// <summary>
@@ -271,33 +134,84 @@ namespace ReconNess.Services
         }
 
         /// <summary>
+        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(RootDomain, string, CancellationToken)"/>
+        /// </summary>
+        public async Task UpdateAgentRanAsync(RootDomain rootDomain, string agentName, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (string.IsNullOrWhiteSpace(rootDomain.AgentsRanBefore))
+            {
+                rootDomain.AgentsRanBefore = agentName;
+                await this.UpdateAsync(rootDomain, cancellationToken);
+            }
+            else if (!rootDomain.AgentsRanBefore.Contains(agentName))
+            {
+                rootDomain.AgentsRanBefore = string.Join(", ", rootDomain.AgentsRanBefore, agentName);
+                await this.UpdateAsync(rootDomain, cancellationToken);
+            }
+        }
+
+        /// <summary>
+        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(RootDomain, bool, ScriptOutput, CancellationToken)"/>
+        /// </summary>
+        public async Task SaveTerminalOutputParseAsync(RootDomain rootDomain, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            // if we have a new rootdomain
+            if (!string.IsNullOrEmpty(terminalOutputParse.RootDomain) && !rootDomain.Name.Equals(terminalOutputParse.RootDomain))
+            {
+                rootDomain = new RootDomain
+                {
+                    Name = terminalOutputParse.RootDomain,
+                    Target = rootDomain.Target
+                };
+
+                await this.AddAsync(rootDomain, cancellationToken);
+            }
+
+            Subdomain subdomain = default;
+            if (await this.NeedAddNewSubdomain(rootDomain, terminalOutputParse.Subdomain, cancellationToken))
+            {
+                subdomain = await this.AddRootDomainNewSubdomainAsync(rootDomain.Target, rootDomain, terminalOutputParse.Subdomain, cancellationToken);
+                if (activateNotification)
+                {
+                    await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
+                    {
+                        ("{{domain}}", subdomain.Name)
+                    }, cancellationToken);
+                }
+            }
+
+            if (subdomain != null)
+            {
+                await this.subdomainService.SaveTerminalOutputParseAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+            }
+        }
+
+        /// <summary>
         /// If we need to add a new subdomain
         /// </summary>
-        /// <param name="agentRunner">The Agent running</param>
+        /// <param name="rootDomain">The root domain</param>
         /// <param name="subdomain">The subdomain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>If we need to add a new RootDomain</returns>
-        private async Task<bool> NeedAddNewSubdomain(AgentRunner agentRunner, string subdomain, CancellationToken cancellationToken)
+        private async Task<bool> NeedAddNewSubdomain(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(subdomain) || Uri.CheckHostName(subdomain) == UriHostNameType.Unknown)
             {
                 return false;
             }
 
-            var weHaveSubdomainToAdd = (agentRunner.Subdomain == null || !subdomain.Equals(agentRunner.Subdomain.Name, StringComparison.OrdinalIgnoreCase));
-            if (!weHaveSubdomainToAdd)
-            {
-                return false;
-            }
-
-            var existSubdomain = await this.subdomainService.AnyAsync(r => r.Name == subdomain && r.RootDomain == agentRunner.RootDomain && r.Target == agentRunner.Target, cancellationToken);
-
+            var existSubdomain = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
             return !existSubdomain;
         }
 
         /// <summary>
         /// Add a new subdomain in the target
         /// </summary>
+        /// <param name="target">The target</param>
         /// <param name="rootDomain">The root domain to add the new subdomain</param>
         /// <param name="subdomain">The new root domain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
@@ -307,7 +221,6 @@ namespace ReconNess.Services
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
-                Target = target,
                 RootDomain = rootDomain
             };
 

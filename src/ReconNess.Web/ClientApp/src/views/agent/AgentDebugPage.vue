@@ -1,5 +1,8 @@
 ﻿<template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h3>Debug Agent</h3>
         <div class="pt-2">
             <div class="form-group">
@@ -24,18 +27,25 @@
 
 <script>
 
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
+
     import helpers from '../../helpers'
 
     export default {
         name: 'AgentDebugPage',
         components: {
-            editor: require('vue2-ace-editor')
+            editor: require('vue2-ace-editor'),
+            Loading
         },
         data: () => {
             return {
                 content: null,
                 output: null,
-                result: null
+                result: null,
+                isLoading: false
             }
         },
         methods: {
@@ -47,11 +57,14 @@
             },
             async onRun() {
                 try {
+                    this.isLoading = true
                     this.result = await this.$store.dispatch('agents/debug', { terminalOutput: this.output, script: this.content })
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             },
             isValid() {
                 return this.output && this.content

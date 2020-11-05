@@ -4,11 +4,11 @@ using ReconNess.Web.Dtos;
 
 namespace ReconNess.Web.Mappers
 {
-    public class ServiceHttpDirectoryProfile : Profile
+    public class DirectoryProfile : Profile
     {
-        public ServiceHttpDirectoryProfile()
+        public DirectoryProfile()
         {
-            CreateMap<ServiceHttpDirectory, ServiceHttpDirectoryDto>()
+            CreateMap<Directory, DirectoryDto>()
                 .ReverseMap();
         }
     }

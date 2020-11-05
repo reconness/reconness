@@ -46,6 +46,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost("saveNotification")]
         public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notificationDto, CancellationToken cancellationToken)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+
             var notification = this.mapper.Map<NotificationDto, Notification>(notificationDto);
 
             await this.notificationService.SaveNotificationAsync(notification, cancellationToken);
@@ -75,21 +80,35 @@ namespace ReconNess.Web.Controllers
         [HttpGet("logfiles")]
         public IActionResult Logfiles(CancellationToken cancellationToken)
         {
-            return Ok(this.logsProvider.GetLogfiles(cancellationToken));
+            var logFiles = this.logsProvider.GetLogfiles(cancellationToken);
+
+            return Ok(logFiles);
         }
 
         // GET api/accounts/readLogfile{logFileSelected}
         [HttpGet("readLogfile/{logFileSelected}")]
         public async Task<IActionResult> ReadLogfile(string logFileSelected, CancellationToken cancellationToken)
         {
-            return Ok(await this.logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken));
+            if (string.IsNullOrEmpty(logFileSelected))
+            {
+                return BadRequest();
+            }
+
+            var readLogFile = await this.logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken);
+
+            return Ok(readLogFile);
         }
 
         // POST api/accounts/cleanLogfile
         [HttpPost("cleanLogfile")]
-        public IActionResult CleanLogfile([FromBody] AccountLogFileDto accountLogFileDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> CleanLogfile([FromBody] AccountLogFileDto accountLogFileDto, CancellationToken cancellationToken)
         {
-            this.logsProvider.CleanLogfile(accountLogFileDto.LogFileSelected, cancellationToken);
+            if (string.IsNullOrEmpty(accountLogFileDto.LogFileSelected))
+            {
+                return BadRequest();
+            }
+
+            await this.logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
 
             return NoContent();
         }

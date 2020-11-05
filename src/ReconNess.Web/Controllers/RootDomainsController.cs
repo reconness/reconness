@@ -2,12 +2,10 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -30,6 +28,7 @@ namespace ReconNess.Web.Controllers
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
+        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         public RootDomainsController(
             IMapper mapper,
             ITargetService targetService,
@@ -44,33 +43,40 @@ namespace ReconNess.Web.Controllers
         [HttpGet("{targetName}/{rootDomainName}")]
         public async Task<IActionResult> Get(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
-            
-            var rootDomain = await rootDomainService
-                .GetWithSubdomainsAsync(r => r.Name == rootDomainName && r.Target == target, cancellationToken);
 
-            target.RootDomains = new List<RootDomain> { rootDomain };
+            var rootDomain = await (rootDomainService.GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName, cancellationToken)
+                    .Include(r => r.Notes))
+                .SingleOrDefaultAsync();
 
-            return Ok(this.mapper.Map<Target, TargetDto>(target));
+            return Ok(this.mapper.Map<RootDomain, RootDomainDto>(rootDomain));
         }
 
         // DELETE api/rootdomains/deleteSubdomians/{targetName}/{rootDomainName}
         [HttpDelete("deleteSubdomians/{targetName}/{rootDomainName}")]
         public async Task<IActionResult> DeleteSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService
-                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-
+            var rootDomain = await this.rootDomainService.GetWithOnlySubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -81,107 +87,22 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // POST api/rootdomains/upload/{targetName}/{rootDomainName}
-        [HttpPost("upload/{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> Upload(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
-        {
-            if (file.Length == 0)
-            {
-                return BadRequest();
-            }
-
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
-            }
-
-            var rootDomain = await this.rootDomainService
-                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-
-            if (rootDomain == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                var path = Path.GetTempFileName();
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
-                var rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
-
-                var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
-
-                var subdomainsAdded = await this.rootDomainService.UploadRootDomainAsync(rootDomain, uploadRootDomain, cancellationToken);
-
-                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
-        // POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
-        [HttpPost("uploadSubdomains/{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
-        {
-            if (file.Length == 0)
-            {
-                return BadRequest();
-            }
-
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
-            }
-
-            var rootDomain = await this.rootDomainService
-                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-
-            if (rootDomain == null)
-            {
-                return NotFound();
-            }
-
-            try
-            {
-                var path = Path.GetTempFileName();
-                using (var stream = new FileStream(path, FileMode.Create))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                var subdomains = System.IO.File.ReadAllLines(path).ToList();
-                var subdomainsAdded = await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
-
-                return Ok(this.mapper.Map<List<Subdomain>, List<SubdomainDto>>(subdomainsAdded));
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
-        }
-
         // GET api/rootdomains/export/{targetName}/{rootDomainName}
         [HttpPost("export/{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> Donwload(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService
-                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
-
+            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -191,22 +112,63 @@ namespace ReconNess.Web.Controllers
 
             var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto, targetName, rootDomainName);
 
-            return File(download, "application/json", "rootdomain.json");
+            return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }
 
-        // GET api/rootdomains/exportSubdomains/{targetName}/{rootDomainName}
-        [HttpPost("exportSubdomains/{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> DonwloadSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        // POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
+        [HttpPost("uploadSubdomains/{targetName}/{rootDomainName}")]
+        public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
+            if (file.Length == 0)
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService
-                .GetWithIncludeAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetWithOnlySubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
+            {
+                return NotFound();
+            }
 
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            var subdomains = System.IO.File.ReadAllLines(path).ToList();
+            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
+
+            return NoContent();
+        }
+
+        // GET api/rootdomains/exportSubdomains/{targetName}/{rootDomainName}
+        [HttpPost("exportSubdomains/{targetName}/{rootDomainName}")]
+        public async Task<IActionResult> DonwloadSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var rootDomain = await this.rootDomainService.GetWithOnlySubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();

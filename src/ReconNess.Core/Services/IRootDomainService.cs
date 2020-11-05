@@ -10,29 +10,23 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ITargetService
     /// </summary>
-    public interface IRootDomainService : IService<RootDomain>, ISaveTerminalOutputParseService
+    public interface IRootDomainService : IService<RootDomain>, ISaveTerminalOutputParseService<RootDomain>
     {
         /// <summary>
+        /// Obtain a rootDomain with subdomains only
+        /// </summary>
+        /// <param name="criteria">The criteria</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A subdomain or null</returns>
+        Task<RootDomain> GetWithOnlySubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Obtain a rootDomain with subdomains
         /// </summary>
         /// <param name="criteria">The criteria</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A subdomain or null</returns>
         Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Obtain a rootDomain with subdomains
-        /// </summary>
-        /// <param name="criteria">The criteria</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A rootDomain with subdomains</returns>
-        Task<RootDomain> GetWithIncludeAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Delete the rootdomains with all the subdomains and relations
-        /// </summary>
-        /// <param name="rootDomains">The rootDomains to delete</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        void DeleteRootDomains(ICollection<RootDomain> rootDomains, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete all the subdomains and relations
@@ -49,7 +43,7 @@ namespace ReconNess.Core.Services
         /// <param name="uploadSubdomains">Subdomains to upload</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task<List<Subdomain>> UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default);
+        Task UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default);
 
         /// <summary>
         ///  Obtain the list of rootdomains from database, if does not exist create the rootdomain
@@ -59,14 +53,5 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken"></param>
         /// <returns>A list of subdomain added</returns>
         ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Upload root domain data with subdomains, services, port, ips, directories, labels, etc
-        /// </summary>
-        /// <param name="rootDomain">Current root domain</param>
-        /// <param name="uploadRootDomain">root domain upload</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A list of subdomain added</returns>
-        Task<List<Subdomain>> UploadRootDomainAsync(RootDomain rootDomain, RootDomain uploadRootDomain, CancellationToken cancellationToken = default);
     }
 }

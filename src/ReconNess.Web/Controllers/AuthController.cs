@@ -34,6 +34,11 @@ namespace ReconNess.Web.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid username or password.");
+            }
+
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
             if (identity == null)
             {
@@ -57,11 +62,6 @@ namespace ReconNess.Web.Controllers
         /// <returns></returns>
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password)
         {
-            if (string.IsNullOrEmpty(userName) || string.IsNullOrEmpty(password))
-            {
-                return await Task.FromResult<ClaimsIdentity>(null);
-            }
-
             // get the user from active directory
             var user = SingInEnv(userName, password);
             if (user != null)

@@ -17,7 +17,7 @@
     export default {
         name: 'NotesTag',
         props: {
-            isTarget: {
+            isRootDomain: {
                 type: Boolean,
                 default: false
             }
@@ -31,7 +31,7 @@
         computed: {
             notes: {
                 get: function () {
-                    if (this.isTarget) {
+                    if (this.isRootDomain) {
                         return this.$store.state.rootdomains.currentRootDomain.notes
                     }
 
@@ -49,7 +49,7 @@
         methods: {
             async onSave() {
                 try {
-                    if (this.isTarget) {
+                    if (this.isRootDomain) {
                         await this.$store.dispatch('notes/saveTargetNote', {
                             targetName: this.targetName,
                             rootDomain: this.rootDomain,

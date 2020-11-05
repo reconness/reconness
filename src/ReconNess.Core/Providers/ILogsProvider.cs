@@ -29,6 +29,6 @@ namespace ReconNess.Core.Providers
         /// </summary>
         /// <param name="logFileSelected">The log file</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        void CleanLogfile(string logFileSelected, CancellationToken cancellationToken);
+        Task CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken);
     }
 }

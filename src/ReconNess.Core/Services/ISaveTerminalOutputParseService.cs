@@ -7,23 +7,24 @@ using System.Threading.Tasks;
 /// </summary>
 namespace ReconNess.Core.Services
 {
-    public interface ISaveTerminalOutputParseService
+    public interface ISaveTerminalOutputParseService<T>
     {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="agentRunner"></param>
+        /// <param name="type"></param>
         /// <param name="terminalOutputParse"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task SaveTerminalOutputParseAsync(AgentRunner agentRunner, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
+        Task SaveTerminalOutputParseAsync(T type, bool activeNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="agentRunner"></param>
+        /// <param name="type"></param>
+        /// <param name="agentName">Agent Name</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task UpdateAgentRanAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        Task UpdateAgentRanAsync(T type, string agentName, CancellationToken cancellationToken = default);
     }
 }

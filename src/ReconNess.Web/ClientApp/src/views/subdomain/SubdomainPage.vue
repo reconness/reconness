@@ -1,5 +1,8 @@
 <template>
     <div>
+        <loading :active.sync="isLoading"
+                 :is-full-page="true"></loading>
+
         <h2 class="text-right">
             <router-link :to="{name: 'target', params: { targetName: targetName }}">{{ targetName }}</router-link> | <router-link :to="{name: 'targetRootDomain', params: { targetName: targetName, rootDomain: rootDomain }}">{{ rootDomain }}</router-link> |
             <a :href="'http://'+subdomain.name" target="blank" v-if="subdomain.isAlive === true">{{ subdomain.name }}</a><span v-else>{{ subdomain.name }}</span>
@@ -24,7 +27,7 @@
                 <subdomain-services-tag></subdomain-services-tag>
             </div>
             <div class="tab-pane fade" id="nav-directories" role="tabpanel" aria-labelledby="nav-directories-tab">
-                <div class="pt-2" v-if="subdomain.serviceHttp === undefined || subdomain.serviceHttp === null">We don't have directories enumerated yet</div>
+                <div class="pt-2" v-if="subdomain.directories === undefined || subdomain.directories === null">We don't have directories enumerated yet</div>
                 <subdomain-directories-tag></subdomain-directories-tag>
             </div>
             <div class="tab-pane fade" id="nav-notes" role="tabpanel" aria-labelledby="nav-notes-tab">
@@ -37,6 +40,11 @@
 </template>
 
 <script>
+
+    // Import component
+    import Loading from 'vue-loading-overlay';
+    // Import stylesheet
+    import 'vue-loading-overlay/dist/vue-loading.css';
 
     import { mapGetters, mapState } from 'vuex'
 
@@ -56,7 +64,13 @@
             SubdomainServicesTag,
             AgentTag,
             SubdomainDirectoriesTag,
-            NotesTag
+            NotesTag,
+            Loading
+        },
+        data: () => {
+            return {
+                isLoading: false
+            }
         },
         computed: {
             targetName() {
@@ -82,11 +96,17 @@
         methods: {
             async initService() {
                 try {
+                    this.isLoading = true
+
+                    await this.$store.dispatch('targets/target', this.$route.params.targetName)
+                    await this.$store.dispatch('rootdomains/rootDomain', { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain })
                     await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, rootDomain: this.rootDomain, subdomain: this.$route.params.subdomain })
                 }
                 catch (error) {
                     helpers.errorHandle(error)
                 }
+
+                this.isLoading = false
             }
         }
     }

@@ -37,10 +37,15 @@ namespace ReconNess.Web.Controllers
             this.subdomainService = subdomainService;
         }
 
-        // GET api/notes/target/{targetName}/{rootDomainName}
-        [HttpPost("target/{targetName}/{rootDomainName}")]
-        public async Task<IActionResult> SaveTargetNotes(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
+        // GET api/notes/rootdomain/{targetName}/{rootDomainName}
+        [HttpPost("rootdomain/{targetName}/{rootDomainName}")]
+        public async Task<IActionResult> SaveRootDomainNotes(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
@@ -50,7 +55,7 @@ namespace ReconNess.Web.Controllers
             var rootDomain = await this.rootDomainService
                 .GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
                     .Include(t => t.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
+                .SingleAsync(cancellationToken);
 
             if (rootDomain == null)
             {
@@ -66,21 +71,27 @@ namespace ReconNess.Web.Controllers
         [HttpPost("subdomain/{targetName}/{rootDomainName}/{subdomainName}")]
         public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomainName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
+            {
+                return BadRequest();
+            }
+
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService
-                .GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
-                    .Include(t => t.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            if (rootDomain == null)
+            {
+                return NotFound();
+            }
 
             var subdomain = await this.subdomainService
                 .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
                     .Include(s => s.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
+                .SingleAsync(cancellationToken);
 
             if (subdomain == null)
             {

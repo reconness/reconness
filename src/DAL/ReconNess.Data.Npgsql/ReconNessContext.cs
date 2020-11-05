@@ -27,7 +27,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<RootDomain> RootDomains { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
-        public DbSet<ServiceHttp> ServicesHttp { get; set; }
+        public DbSet<Directory> Directories { get; set; }
         public DbSet<Notification> Notifications { get; set; }
 
         /// <summary>
@@ -60,13 +60,31 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<AgentRun>()
+                .HasOne(t => t.Agent)
+                .WithMany(r => r.AgentRuns)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<AgentHistory>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<AgentHistory>()
+                .HasOne(t => t.Agent)
+                .WithMany(r => r.AgentHistories)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentTrigger>()
+                .HasOne(t => t.Agent)
+                .WithOne(r => r.AgentTrigger)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Reference>()
                 .Property(i => i.Id)
@@ -84,19 +102,48 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
+            modelBuilder.Entity<RootDomain>()
+                .HasOne(t => t.Target)
+                .WithMany(r => r.RootDomains)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
             modelBuilder.Entity<Subdomain>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<Subdomain>()
+                .HasOne(t => t.RootDomain)
+                .WithMany(r => r.Subdomains)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subdomain>()
+                .HasOne(t => t.Notes)
+                .WithOne(r => r.Subdomain)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RootDomain>()
+                .HasOne(t => t.Notes)
+                .WithOne(r => r.RootDomain)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Directory>()
+                .HasOne(t => t.Subdomain)
+                .WithMany(r => r.Directories)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Service>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<ServiceHttp>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
+            modelBuilder.Entity<Service>()
+                .HasOne(t => t.Subdomain)
+                .WithMany(r => r.Services)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<ServiceHttpDirectory>()
+            modelBuilder.Entity<Directory>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
@@ -305,7 +352,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(e => this.SetAsAdded<TEntity>(e, cancellationToken));
+            this.SetAsAdded<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
@@ -325,7 +372,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(e => this.SetAsModified<TEntity>(e, cancellationToken));
+            this.SetAsModified<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
@@ -345,7 +392,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(e => this.SetAsDeleted<TEntity>(e, cancellationToken));
+            this.SetAsDeleted<TEntity>(entities, cancellationToken);
         }
 
         /// <summary>
