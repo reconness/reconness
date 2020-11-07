@@ -44,10 +44,10 @@
                     this.isLoading = true
 
                     await this.$store.dispatch('rootdomains/export')
-                    alert("Root Domain was exported")
+                    this.$alert('Rootdomain was exported', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false

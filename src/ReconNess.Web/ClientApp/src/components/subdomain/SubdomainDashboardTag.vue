@@ -110,22 +110,22 @@
                 })
                 try {
                     await this.$store.dispatch('subdomains/updateSubdomain')
-                    alert("The subdomain was updated")
+                    this.$alert('The subdomain was updated', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             async onDelete() {
-                if (confirm('Are you sure to delete this subdomain: ' + this.subdomain.name)) {
+                this.$confirm('Are you sure to delete this subdomain: ' + this.subdomain.name, 'Confirm', 'question').then(async () => {
                     try {
                         await this.$store.dispatch('subdomains/deleteSubdomain', { targetName: this.$route.params.targetName, subdomain: this.subdomain })
                         this.$router.push({ name: 'targetRootDomain', params: { targetName: this.$route.params.targetName, rootDomain: this.$route.params.rootDomain } })
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
-                }
+                })
             },
             hasScreenshots() {
                 return this.subdomain.serviceHttp && (this.subdomain.serviceHttp.screenshotHttpPNGBase64 || this.subdomain.serviceHttp.screenshotHttpsPNGBase64)

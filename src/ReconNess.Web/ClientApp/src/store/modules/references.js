@@ -39,8 +39,8 @@ const actions = {
         return new Promise((resolve, reject) => {
             try {
                 api.create('references', reference)
-                    .then(() => {
-                        context.commit('createReference', reference)
+                    .then((res) => {
+                        context.commit('createReference', res.data)
                         resolve()
                     })
                     .catch(err => reject(err))

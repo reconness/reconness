@@ -82,22 +82,22 @@
                     this.newReference = {}
                     this.tags = []
 
-                    alert("The reference was updated")
+                    this.$alert('The reference was updated', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             async onDelete(reference) {
-                if (confirm('Are you sure to delete this reference?')) {
+                this.$confirm('Are you sure to delete this reference?', 'Confirm', 'question').then(async () => {
                     try {
                         await this.$store.dispatch('references/deleteReference', reference)
-                        alert("The Reference was deleted")
+                        this.$alert('The reference was deleted', 'Success', 'success')
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
-                }
+                })
             },
             isValid() {
                 return this.newReference.url && this.tags.length > 0

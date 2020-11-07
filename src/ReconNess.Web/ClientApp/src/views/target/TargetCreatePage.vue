@@ -23,7 +23,7 @@
                     this.$router.push({ name: 'target', params: { targetName: target.name } })
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             }
         }

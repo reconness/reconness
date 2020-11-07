@@ -105,10 +105,10 @@
                     this.isLoading = true
 
                     await this.$store.dispatch('accounts/saveNotification', this.notification)
-                    alert("The settings were saved")
+                    this.$alert('The notifications were saved', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false

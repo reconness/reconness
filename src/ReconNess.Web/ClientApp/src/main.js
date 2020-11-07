@@ -13,6 +13,8 @@ import store from './store'
 import router from './router';
 import connection from './api/signalR'
 
+import VueSimpleAlert from "vue-simple-alert";
+
 import { ServerTable } from 'vue-tables-2';
 
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -30,8 +32,8 @@ library.add(faArrowAltCircleRight, faTrashAlt, faExclamation, faBug,
 
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 
+Vue.use(VueSimpleAlert);
 Vue.use(VueAxios, axios);
-
 Vue.use(ServerTable);
 
 Vue.config.productionTip = false

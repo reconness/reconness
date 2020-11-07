@@ -1,11 +1,11 @@
 
 export default {
-    errorHandle(error) {
+    errorHandle(alert, error) {
         if (error) {
-            alert(JSON.stringify(error))
+            alert(JSON.stringify(error), "Error", 'error')
         }
         else {
-            alert("We had some issues. Try again, please!")
+            alert("We had some issues. Try again, please!", "Error",'error')
         }
     }
 }

@@ -65,10 +65,10 @@
                         })
                     }
 
-                    alert("The notes was saved")
+                    this.$alert('The notes were saved', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             }
         }

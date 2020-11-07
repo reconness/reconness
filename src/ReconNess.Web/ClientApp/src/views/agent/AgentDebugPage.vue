@@ -61,7 +61,7 @@
                     this.result = await this.$store.dispatch('agents/debug', { terminalOutput: this.output, script: this.content })
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false
