@@ -87,7 +87,7 @@
                 this.agentMarketplaces = await this.$store.dispatch('agents/agentsMarketplace')
             }
             catch (error) {
-                helpers.errorHandle(error)
+                helpers.errorHandle(this.$alert, error)
             }
 
             this.isLoading = false
@@ -95,18 +95,18 @@
         methods: {
             async onUninstallation(agent) {
 
-                if (confirm('Are you sure to Unistall this Agent: ' + agent.name)) {
+                this.$confirm('Are you sure to unistall this agent: ' + agent.name, 'Confirm', 'question').then(async () => {
                     try {
                         this.isLoading = true
 
                         await this.$store.dispatch('agents/uninstall', agent)
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
 
                     this.isLoading = false
-                }
+                })
             },
             async onConfirmInstallation(agent) {
 
@@ -121,10 +121,10 @@
                     this.showCommandModal = false
 
                     await this.$store.dispatch('agents/install', agent)
-                    alert("The agent was installed")
+                    this.$alert('The agent was installed', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false

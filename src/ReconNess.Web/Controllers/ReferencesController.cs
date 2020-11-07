@@ -63,9 +63,9 @@ namespace ReconNess.Web.Controllers
 
             var reference = this.mapper.Map<ReferenceDto, Reference>(referenceDto);
 
-            await this.referenceService.AddAsync(reference, cancellationToken);
+            var referenceAdded = await this.referenceService.AddAsync(reference, cancellationToken);
 
-            return NoContent();
+            return Ok(this.mapper.Map<Reference, ReferenceDto>(referenceAdded));
         }
 
         // DELETE api/references/{id}

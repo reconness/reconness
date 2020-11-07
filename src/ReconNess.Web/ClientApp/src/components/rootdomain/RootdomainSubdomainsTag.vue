@@ -102,51 +102,51 @@
         },
         methods: {
             async onDeleteSubdomain(subdomain) {
-                if (confirm('Are you sure to delete this subdomain: ' + subdomain.name)) {
+                this.$confirm('Are you sure to delete this subdomain: ' + subdomain.name, 'Confirm', 'question').then(async () => {
                     try {
                         this.isLoading = true
                         await this.$store.dispatch('rootdomains/deleteSubdomain', { subdomain: subdomain })
                         this.$refs.table.refresh()
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
 
                     this.isLoading = false
-                }
+                })
             },
             async onDeleteSubdomains() {
-                if (confirm('Are you sure to delete all the subdomains')) {
+                this.$confirm('Are you sure to delete all the subdomains', 'Confirm', 'question').then(async () => {
                     try {
                         this.isLoading = true
                         await this.$store.dispatch('rootdomains/deleteSubdomains')
                         this.$refs.table.refresh()
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
 
                     this.isLoading = false
-                }
+                })
             },
             async onAddLabel(subdomain, label) {
                 try {
                     await this.$store.dispatch('subdomains/updateLabel', { subdomain, label })
-                    alert("The Label was added")
+                    this.$alert('The label was added', 'Success', 'success')
                     this.$refs.table.refresh()
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             async onAddNewSubdomain() {
                 try {
                     await this.$store.dispatch('rootdomains/createSubdomain', { subdomain: this.newSubdomain })
-                    alert("The new Subdomain was added")
+                    this.$alert('The new subdomain was added', 'Success', 'success')
                     this.$refs.table.refresh()
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             async handleFileUpload() {
@@ -155,11 +155,11 @@
                 try {
                     this.isLoading = true
                     await this.$store.dispatch('rootdomains/uploadSubdomains', { formData })
-                    alert("subdomains were uploaded")
+                    this.$alert('The subdomains were uploaded', 'Success', 'success')
                     this.$refs.table.refresh()
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false
@@ -169,10 +169,10 @@
                     this.isLoading = true
 
                     await this.$store.dispatch('rootdomains/exportSubdomains')
-                    alert("subdomains were saved")
+                    this.$alert('The subdomains were saved', 'Success', 'success')
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false

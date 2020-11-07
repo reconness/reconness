@@ -230,7 +230,7 @@
                     })
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             async onStopAgent(agent) {
@@ -250,7 +250,7 @@
                     this.currentAgent = null
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             disabledCanRun(agent) {

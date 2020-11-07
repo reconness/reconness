@@ -46,7 +46,7 @@
                     await this.$store.dispatch('agents/agent', this.$route.params.agentName)
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false
@@ -57,29 +57,29 @@
                     await this.$store.dispatch('agents/updateAgent')
                     this.isLoading = false
 
-                    alert("The Agent was saved")
+                    this.$alert('The agent was saved', 'Success', 'success')
 
                     if (this.$route.params.agentName !== this.agent.name) {
                         this.$router.push({ name: 'agentEdit', params: { agentName: this.agent.name } })
                     }
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
             },
             async onDelete() {
-                if (confirm('Are you sure to delete this Agent: ' + this.agent.name)) {
+                this.$confirm('Are you sure to delete this agent: ' + this.agent.name, 'Confirm', 'question').then(async () => {
                     this.isLoading = true
                     try {
                         await this.$store.dispatch('agents/deleteAgent')
                         this.$router.push({ name: 'home' })
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
 
                     this.isLoading = false
-                }
+                })
             }
         }
     }

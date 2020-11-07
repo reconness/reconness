@@ -48,7 +48,7 @@
                     await this.$store.dispatch('targets/target', this.$route.params.targetName)
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false
@@ -59,31 +59,31 @@
 
                     await this.$store.dispatch('targets/updateTarget')
 
-                    alert("The target was updated")
+                    this.$alert('The target was updated', 'Success', 'success')
 
                     if (this.$route.params.targetName !== this.target.name) {
                         this.$router.push({ name: 'target', params: { targetName: this.target.name } })
                     }
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false
             },
             async onDelete() {
-                if (confirm('Are you sure to delete this Target with all the subdomains and services: ' + this.target.name)) {
+                this.$confirm('Are you sure to delete this target with all the subdomains and services: ' + this.target.name, 'Confirm', 'question').then(async () => {
                     try {
                         this.isLoading = true
                         await this.$store.dispatch('targets/deleteTarget')
                         this.$router.push({ name: 'home' })
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
 
                     this.isLoading = false
-                }
+                })
             }            
         }
     }

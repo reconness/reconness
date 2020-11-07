@@ -49,7 +49,7 @@
                 this.logs = await this.$store.dispatch('accounts/logfiles') 
             }
             catch (error) {
-                helpers.errorHandle(error)
+                helpers.errorHandle(this.$alert, error)
             }
 
             this.isLoading = false
@@ -61,20 +61,20 @@
                 this.isLoading = false
             },
             async onClean() {
-                if (confirm('Are you sure to clean this Logfile: ' + this.logFileSelected)) {
+                this.$confirm('Are you sure to clean this log: ' + this.logFileSelected, 'Confirm', 'question').then(async () => {
                     try {
                         this.isLoading = true
 
                         await this.$store.dispatch('accounts/cleanLogfile', this.logFileSelected)
                         this.logData = ''
-                        alert("The log was cleaned")
+                        this.$alert('The log was cleaned', 'Success', 'success')
                     }
                     catch (error) {
-                        helpers.errorHandle(error)
+                        helpers.errorHandle(this.$alert, error)
                     }
 
                     this.isLoading = false
-                }
+                })
             },
             isValid() {
                 return this.logFileSelected

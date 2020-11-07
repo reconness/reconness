@@ -103,7 +103,7 @@
                     await this.$store.dispatch('subdomains/subdomain', { targetName: this.targetName, rootDomain: this.rootDomain, subdomain: this.$route.params.subdomain })
                 }
                 catch (error) {
-                    helpers.errorHandle(error)
+                    helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false

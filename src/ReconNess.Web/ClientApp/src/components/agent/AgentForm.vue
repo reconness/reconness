@@ -222,7 +222,7 @@
                 this.tmpTags = this.tags
             }
             catch (error) {
-                helpers.errorHandle(error)
+                helpers.errorHandle(this.$alert, error)
             }
         },
         methods: {
