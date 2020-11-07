@@ -1,3 +1,10 @@
+## [1.6.1] - 2020-11-07
+
+### Added
+
+- Add simple alert msg
+- Update packages
+
 ## [1.6.0] - 2020-11-05
 
 ### Added
