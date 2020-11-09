@@ -13,7 +13,7 @@ namespace ReconNess.Services
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UserService" /> class
+        /// Initializes a new instance of the <see cref="ServiceService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         public ServiceService(IUnitOfWork unitOfWork)

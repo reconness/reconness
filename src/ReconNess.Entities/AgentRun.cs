@@ -7,6 +7,8 @@ namespace ReconNess.Entities
     {
         public Guid Id { get; set; }
 
+        public string Channel { get; set; }
+
         public string Description { get; set; }
 
         public AgentRunStage Stage { get; set; }

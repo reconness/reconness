@@ -1,9 +1,9 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
-using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace ReconNess.Web.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AgentsController : ControllerBase
@@ -59,7 +59,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAllWithCategoriesAsync(cancellationToken);
+            var agents = await this.agentService.GetAllWithIncludesAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
 
@@ -75,7 +75,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetWithCategoriesAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await this.agentService.GetWithIncludesAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -117,7 +117,8 @@ namespace ReconNess.Web.Controllers
 
             var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
 
-            await this.agentService.AddAsync(agent, cancellationToken);
+            var userName = this.Request.HttpContext.User.Identity.Name;
+            await this.agentService.AddAgentAsync(agent, userName, cancellationToken);
 
             return NoContent();
         }
@@ -131,7 +132,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetWithCategoriesAsync(t => t.Id == id, cancellationToken);
+            var agent = await this.agentService.GetWithIncludesAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -177,7 +178,8 @@ namespace ReconNess.Web.Controllers
             agent.AgentTrigger.SubdomainIncExcLabel = agentDto.TriggerSubdomainIncExcLabel;
             agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
 
-            await this.agentService.UpdateAsync(agent, cancellationToken);
+            var userName = this.Request.HttpContext.User.Identity.Name;
+            await this.agentService.UpdateAgentAsync(agent, userName, cancellationToken);
 
             return NoContent();
         }
@@ -221,7 +223,8 @@ namespace ReconNess.Web.Controllers
 
             agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
-            var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
+            var userName = this.Request.HttpContext.User.Identity.Name;
+            var agentInstalled = await this.agentService.InstallAgentAsync(agent, userName, cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
@@ -251,7 +254,7 @@ namespace ReconNess.Web.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetWithCategoriesAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
@@ -349,8 +352,7 @@ namespace ReconNess.Web.Controllers
                 Subdomain = subdomain
             };
 
-            var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-            await this.agentRunnerService.StopAgentAsync(agentRunner, channel, cancellationToken);
+            await this.agentRunnerService.StopAgentAsync(agentRunner, cancellationToken);
 
             return NoContent();
         }

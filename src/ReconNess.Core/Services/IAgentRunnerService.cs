@@ -23,10 +23,9 @@ namespace ReconNess.Core.Services
         /// Stop the agent if it is running
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
-        /// <param name="channel">the channel to send the notifications</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task StopAgentAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken = default);
+        Task StopAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a list of agents name that still are running

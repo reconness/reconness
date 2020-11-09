@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace ReconNess.Web.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class AccountsController : ControllerBase

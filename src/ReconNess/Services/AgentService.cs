@@ -37,9 +37,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAllWithCategoriesAsync(CancellationToken)"/>
+        /// <see cref="IAgentService.GetAllWithIncludesAsync(CancellationToken)"/>
         /// </summary>
-        public async Task<List<Agent>> GetAllWithCategoriesAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Agent>> GetAllWithIncludesAsync(CancellationToken cancellationToken = default)
         {
             var result = await this.GetAllQueryable(cancellationToken)
                 .Include(a => a.AgentCategories)
@@ -50,9 +50,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetWithCategoriesAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// <see cref="IAgentService.GetWithIncludesAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Agent> GetWithCategoriesAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<Agent> GetWithIncludesAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                 .Include(a => a.AgentCategories)
@@ -94,6 +94,59 @@ namespace ReconNess.Services
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
             return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.AddAgentAsync(Agent, string, CancellationToken)"/>
+        /// </summary>
+        public async Task<Agent> AddAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default)
+        {
+            agent.AgentHistories = new List<AgentHistory>
+            {
+                new AgentHistory
+                {
+                    Username = userName,
+                    ChangeType = "Agent Added"
+                }
+            };
+
+            return await this.AddAsync(agent);
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.UpdateAgentAsync(Agent, string, CancellationToken)"/>
+        /// </summary>
+        public async Task UpdateAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default)
+        {
+            if (agent.AgentHistories == null)
+            {
+                agent.AgentHistories = new List<AgentHistory>();
+            }
+
+            agent.AgentHistories.Add(new AgentHistory
+            {
+                Username = userName,
+                ChangeType = "Agent Updated"
+            });
+
+            await this.UpdateAsync(agent);
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.InstallAgentAsync(Agent, string, CancellationToken)"/>
+        /// </summary>
+        public async Task<Agent> InstallAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default)
+        {
+            agent.AgentHistories = new List<AgentHistory>
+            {
+                new AgentHistory
+                {
+                    Username = userName,
+                    ChangeType = "Agent Installed"
+                }
+            };
+
+            return await this.AddAsync(agent);
         }
     }
 }
