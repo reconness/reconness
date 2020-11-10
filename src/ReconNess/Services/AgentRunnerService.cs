@@ -101,14 +101,7 @@ namespace ReconNess.Services
 
             _logger.Info($"Start channel {channel}");
 
-            agentRunner.Agent.AgentRuns.Add(new AgentRun
-            {
-                Channel = channel,
-                Description = $"Start running the agent {agentRunner.Agent.Name}",
-                Stage = Entities.Enum.AgentRunStage.RUNNING
-            });
-
-            await this.UpdateAsync(agentRunner.Agent);
+            await this.agentRunService.StartOnScopeAsync(agentRunner, channel, cancellationToken);            
 
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.StartsWith("Current"))
