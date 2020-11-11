@@ -254,7 +254,7 @@ namespace ReconNess.Web.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            var agent = await agentService.GetWithIncludesAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();

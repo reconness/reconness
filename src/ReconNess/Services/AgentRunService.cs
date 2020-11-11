@@ -20,14 +20,20 @@ namespace ReconNess.Services
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IServiceProvider serviceProvider;
+        private readonly IConnectorService connectorService;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
+        /// <param name="serviceProvider"><see cref="IServiceProvider"/></param>
+        /// <param name="connectorService"><see cref="IConnectorService"/></param>
         public AgentRunService(
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IConnectorService connectorService)
         {
             this.serviceProvider = serviceProvider;
+            this.connectorService = connectorService;
         }
 
         /// <summary>
@@ -95,15 +101,11 @@ namespace ReconNess.Services
                             .GetRequiredService<IUnitOfWork>();
 
                     unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
-
-                    var connectorService =
-                        scope.ServiceProvider
-                            .GetRequiredService<IConnectorService>();
-
-                    await connectorService.SendAsync(channel, "\nAgent Done", false, cancellationToken);
-                    await connectorService.SendLogsAsync(channel, "\nAgent Done", cancellationToken);
+                    await unitOfWork.CommitAsync();                    
                 }
+
+                await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);
+                await this.connectorService.SendLogsAsync(channel, "Agent Done!", cancellationToken);
             }
         }
 
@@ -112,27 +114,26 @@ namespace ReconNess.Services
         /// </summary>
         public async Task InsertTerminalScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default)
         {
-            //var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            //if (agentRun != null)
-            //{
+            /*var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
+            if (agentRun != null)
+            {
                 using (var scope = this.serviceProvider.CreateScope())
                 {
-                    //var unitOfWork =
-                    //    scope.ServiceProvider
-                    //        .GetRequiredService<IUnitOfWork>();
+                    var unitOfWork =
+                        scope.ServiceProvider
+                            .GetRequiredService<IUnitOfWork>();
 
-                    //agentRun.TerminalOutput += $"\n{terminalOutput}";
+                    agentRun.TerminalOutput += $"\n{terminalOutput}";
 
-                    //unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    //await unitOfWork.CommitAsync();
+                    unitOfWork.Repository<AgentRun>().Update(agentRun);
+                    await unitOfWork.CommitAsync();
 
                     var connectorService =
                         scope.ServiceProvider
                             .GetRequiredService<IConnectorService>();
-
-                    await connectorService.SendAsync(channel, terminalOutput, includeTime, cancellationToken);
-                //}
-            }
+                }
+            }*/
+            await connectorService.SendAsync(channel, terminalOutput, includeTime, cancellationToken);
         }
 
         /// <summary>
@@ -140,27 +141,27 @@ namespace ReconNess.Services
         /// </summary>
         public async Task InsertLogsScopeAsync(AgentRunner agentRunner, string channel, string logs, CancellationToken cancellationToken)
         {
-            //var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            //if (agentRun != null)
-            //{
+            /*var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
+            if (agentRun != null)
+            {
                 using (var scope = this.serviceProvider.CreateScope())
                 {
-                    //var unitOfWork =
-                    //    scope.ServiceProvider
-                    //        .GetRequiredService<IUnitOfWork>();
+                    var unitOfWork =
+                        scope.ServiceProvider
+                            .GetRequiredService<IUnitOfWork>();
 
-                    //agentRun.Logs += $"\n{logs}";
+                    agentRun.Logs += $"\n{logs}";
 
-                    //unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    //await unitOfWork.CommitAsync();
+                    unitOfWork.Repository<AgentRun>().Update(agentRun);
+                    await unitOfWork.CommitAsync();
 
                     var connectorService =
                         scope.ServiceProvider
-                            .GetRequiredService<IConnectorService>();
-
-                    await connectorService.SendLogsAsync(channel, logs, cancellationToken);
+                            .GetRequiredService<IConnectorService>();                    
                 }
-            //}
+            }*/
+
+            await connectorService.SendLogsAsync(channel, logs, cancellationToken);
         }
 
         /// <summary>

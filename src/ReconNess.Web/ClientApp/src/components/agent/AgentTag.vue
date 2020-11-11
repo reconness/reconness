@@ -183,7 +183,7 @@
                             `${agent.name}_${this.targetName}_${this.rootDomain}_${this.subdomain}`
 
                         this.$connection.on(channel, (message) => {
-                            if (message === "Agent done!") {
+                            if (message === "Agent Done!") {
                                 agent.isRunning = false
                                 this.currentAgent = null
                             }
