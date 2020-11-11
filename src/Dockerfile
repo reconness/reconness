@@ -19,7 +19,7 @@ COPY . ./
 WORKDIR /app/ReconNess.Web
 RUN dotnet publish -c Release -o /dist
 
-FROM mcr.microsoft.com/dotnet/runtime:5.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
 WORKDIR /app
 
 ENV ASPNETCORE_URLS http://+:5000

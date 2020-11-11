@@ -101,7 +101,7 @@ namespace ReconNess.Services
                             .GetRequiredService<IUnitOfWork>();
 
                     unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();                    
+                    await unitOfWork.CommitAsync();
                 }
 
                 await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);

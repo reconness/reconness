@@ -1,3 +1,12 @@
+## [1.6.2] - 2020-11-11
+
+### Added
+
+- Migrate DotNet Core 3.1 to DotNet 5
+- Register Agent history change
+- Register Agent Status Run
+- Update packages
+
 ## [1.6.1] - 2020-11-07
 
 ### Added
