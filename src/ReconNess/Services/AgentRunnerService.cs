@@ -101,7 +101,7 @@ namespace ReconNess.Services
 
             _logger.Info($"Start channel {channel}");
 
-            await this.agentRunService.StartOnScopeAsync(agentRunner, channel, cancellationToken);            
+            await this.agentRunService.StartOnScopeAsync(agentRunner, channel, cancellationToken);
 
             var agentRunnerType = this.GetAgentRunnerType(agentRunner);
             if (agentRunnerType.StartsWith("Current"))
@@ -143,7 +143,7 @@ namespace ReconNess.Services
                 {
                     _logger.Info($"Stop channel {channel}");
 
-                    await this.agentRunnerProvider.StopAsync(channel);                    
+                    await this.agentRunnerProvider.StopAsync(channel);
                 }
             }
             catch (Exception ex)
@@ -382,7 +382,7 @@ namespace ReconNess.Services
             await this.agentRunService.InsertTerminalScopeAsync(result.AgentRunner, result.Channel, result.TerminalLineOutput, includeTime: false, result.CancellationToken);
 
             await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, $"OUTPUT: {result.LineCount} processed", result.CancellationToken);
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*", result.CancellationToken);            
+            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*", result.CancellationToken);
         }
 
         /// <summary>

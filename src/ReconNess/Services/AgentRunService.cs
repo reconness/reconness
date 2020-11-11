@@ -15,23 +15,19 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="IAgentRunService"/>
     /// </summary>
-    public class AgentRunService : Service<AgentRun>, IService<AgentRun>, IAgentRunService
+    public class AgentRunService : IAgentRunService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IServiceProvider serviceProvider;
-        private readonly IConnectorService connectorService;
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public AgentRunService(IUnitOfWork unitOfWork,
-            IServiceProvider serviceProvider,
-            IConnectorService connectorService)
-            : base(unitOfWork)
+        public AgentRunService(
+            IServiceProvider serviceProvider)
         {
             this.serviceProvider = serviceProvider;
-            this.connectorService = connectorService;
         }
 
         /// <summary>
@@ -47,7 +43,15 @@ namespace ReconNess.Services
                 Stage = Entities.Enum.AgentRunStage.RUNNING
             };
 
-            await this.UpdateAsync(agentRun);
+            using (var scope = this.serviceProvider.CreateScope())
+            {
+                var unitOfWork =
+                    scope.ServiceProvider
+                        .GetRequiredService<IUnitOfWork>();
+
+                unitOfWork.Repository<AgentRun>().Update(agentRun);
+                await unitOfWork.CommitAsync();
+            }
         }
 
         /// <summary>
@@ -81,8 +85,8 @@ namespace ReconNess.Services
                     agentRun.Description = $"The agent {agentRunner.Agent.Name} ran successfully";
                 }
 
-                agentRun.Logs += "\nAgent Done";
-                agentRun.TerminalOutput += "\nAgent Done";
+                //agentRun.Logs += "\nAgent Done";
+                //agentRun.TerminalOutput += "\nAgent Done";
 
                 using (var scope = this.serviceProvider.CreateScope())
                 {
@@ -92,34 +96,42 @@ namespace ReconNess.Services
 
                     unitOfWork.Repository<AgentRun>().Update(agentRun);
                     await unitOfWork.CommitAsync();
-                }
 
-                await this.connectorService.SendAsync(channel, "\nAgent Done", false, cancellationToken);
-                await this.connectorService.SendLogsAsync(channel, "\nAgent Done", cancellationToken);
+                    var connectorService =
+                        scope.ServiceProvider
+                            .GetRequiredService<IConnectorService>();
+
+                    await connectorService.SendAsync(channel, "\nAgent Done", false, cancellationToken);
+                    await connectorService.SendLogsAsync(channel, "\nAgent Done", cancellationToken);
+                }
             }
-        }        
+        }
 
         /// <summary>
         /// <see cref="IAgentRunService.InsertTerminalScopeAsync(AgentRunner, string, string, bool, CancellationToken)"/>
         /// </summary>
         public async Task InsertTerminalScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default)
         {
-            var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            if (agentRun != null)
-            {
+            //var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
+            //if (agentRun != null)
+            //{
                 using (var scope = this.serviceProvider.CreateScope())
                 {
-                    var unitOfWork =
+                    //var unitOfWork =
+                    //    scope.ServiceProvider
+                    //        .GetRequiredService<IUnitOfWork>();
+
+                    //agentRun.TerminalOutput += $"\n{terminalOutput}";
+
+                    //unitOfWork.Repository<AgentRun>().Update(agentRun);
+                    //await unitOfWork.CommitAsync();
+
+                    var connectorService =
                         scope.ServiceProvider
-                            .GetRequiredService<IUnitOfWork>();
+                            .GetRequiredService<IConnectorService>();
 
-                    agentRun.TerminalOutput += $"\n{terminalOutput}";
-
-                    unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
-                }
-
-                await this.connectorService.SendAsync(channel, terminalOutput, includeTime, cancellationToken);
+                    await connectorService.SendAsync(channel, terminalOutput, includeTime, cancellationToken);
+                //}
             }
         }
 
@@ -128,23 +140,27 @@ namespace ReconNess.Services
         /// </summary>
         public async Task InsertLogsScopeAsync(AgentRunner agentRunner, string channel, string logs, CancellationToken cancellationToken)
         {
-            var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            if (agentRun != null)
-            {
+            //var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
+            //if (agentRun != null)
+            //{
                 using (var scope = this.serviceProvider.CreateScope())
                 {
-                    var unitOfWork =
+                    //var unitOfWork =
+                    //    scope.ServiceProvider
+                    //        .GetRequiredService<IUnitOfWork>();
+
+                    //agentRun.Logs += $"\n{logs}";
+
+                    //unitOfWork.Repository<AgentRun>().Update(agentRun);
+                    //await unitOfWork.CommitAsync();
+
+                    var connectorService =
                         scope.ServiceProvider
-                            .GetRequiredService<IUnitOfWork>();
+                            .GetRequiredService<IConnectorService>();
 
-                    agentRun.Logs += $"\n{logs}";
-
-                    unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
+                    await connectorService.SendLogsAsync(channel, logs, cancellationToken);
                 }
-
-                await this.connectorService.SendLogsAsync(channel, logs, cancellationToken);
-            }
+            //}
         }
 
         /// <summary>
@@ -164,9 +180,9 @@ namespace ReconNess.Services
 
                 return await unitOfWork.Repository<AgentRun>()
                     .GetAllQueryableByCriteria(ar => ar.Agent == agentRunner.Agent && ar.Channel == channel)
-                    .OrderBy(o => o.CreatedAt)
+                    .OrderByDescending(o => o.CreatedAt)
                     .FirstOrDefaultAsync(cancellationToken);
-            }                            
+            }
         }
 
         /// <summary>
@@ -204,6 +220,6 @@ namespace ReconNess.Services
 
                 await notificationService.SendAsync(payload, cancellationToken);
             }
-        }       
+        }
     }
 }

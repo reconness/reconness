@@ -275,10 +275,10 @@ namespace ReconNess.Data.Npgsql
 
                 return saveChanges;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 this.Rollback(cancellationToken);
-                throw ex;
+                throw;
             }
             finally
             {
@@ -301,10 +301,10 @@ namespace ReconNess.Data.Npgsql
 
                 return saveChangesAsync;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 this.Rollback(cancellationToken);
-                throw ex;
+                throw;
             }
             finally
             {

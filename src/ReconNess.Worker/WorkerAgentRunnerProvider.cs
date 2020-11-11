@@ -136,7 +136,7 @@ namespace ReconNess.Worker
                     await providerArgs.ExceptionHandlerAsync(new AgentRunnerProviderResult
                     {
                         AgentRunner = providerArgs.AgentRunner,
-                        Channel = providerArgs.Channel,                        
+                        Channel = providerArgs.Channel,
                         Last = providerArgs.Last,
                         Command = providerArgs.Command,
                         Exception = ex,

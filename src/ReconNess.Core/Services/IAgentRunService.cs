@@ -1,5 +1,4 @@
 using ReconNess.Core.Models;
-using ReconNess.Entities;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -8,7 +7,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface IAgentRunService
     /// </summary>
-    public interface IAgentRunService : IService<AgentRun>
+    public interface IAgentRunService
     {
         /// <summary>
         /// Start agent run status for that channel

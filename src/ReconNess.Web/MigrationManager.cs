@@ -32,7 +32,7 @@ namespace ReconNess.Web
                     catch (Exception ex)
                     {
                         _logger.Error(ex);
-                        throw ex;
+                        throw;
                     }
                 }
             }
