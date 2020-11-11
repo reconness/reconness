@@ -28,9 +28,9 @@ NodeJs Current and LTS Releases
 
 [https://nodejs.org/download/release/](https://nodejs.org/download/release/)
 
-DotNet Core 3.1
+DotNet 5
 
-[https://dotnet.microsoft.com/download/dotnet-core/3.1](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+[https://dotnet.microsoft.com/download/dotnet/5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 
 ## Join us
 
