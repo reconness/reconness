@@ -2,7 +2,6 @@
 using NLog;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
-using ReconNess.Entities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -80,37 +79,6 @@ namespace ReconNess.Services
                     var subdomainService = scope.ServiceProvider.GetRequiredService<ISubdomainService>();
                     await subdomainService.UpdateAgentRanAsync(agentRun.Subdomain, agentRun.Agent.Name, cancellationToken);
                 }
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IAgentBackgroundService.UpdateLastRunAgentOnScopeAsync(Agent, CancellationToken)"/>
-        /// </summary>
-        public async Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default)
-        {
-            using (var scope = this.serviceProvider.CreateScope())
-            {
-                var agentService =
-                    scope.ServiceProvider
-                        .GetRequiredService<IAgentService>();
-
-                agent.LastRun = DateTime.Now;
-                await agentService.UpdateAsync(agent, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IAgentBackgroundService.SendNotificationOnScopeAsync(string, CancellationToken)"/>
-        /// </summary>
-        public async Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default)
-        {
-            using (var scope = this.serviceProvider.CreateScope())
-            {
-                var notificationService =
-                    scope.ServiceProvider
-                        .GetRequiredService<INotificationService>();
-
-                await notificationService.SendAsync(payload, cancellationToken);
             }
         }
     }

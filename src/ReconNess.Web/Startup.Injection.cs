@@ -37,12 +37,11 @@ namespace ReconNess.Web
             services.AddScoped<ILabelService, LabelService>();
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IReferenceService, ReferenceService>();
-
-            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
-
             services.AddScoped<INotificationService, NotificationService>();
-            services.AddScoped<IConnectorService, ConnectorService>();
 
+            services.AddSingleton<IAgentRunService, AgentRunService>();
+            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
+            services.AddSingleton<IConnectorService, ConnectorService>();
             services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ILogsProvider, LogsProvider>();
 

@@ -73,7 +73,7 @@ namespace ReconNess.Services
                 _logger.Error(ex, ex.Message);
 
                 this.UnitOfWork.Rollback(cancellationToken);
-                throw ex;
+                throw;
             }
         }
 

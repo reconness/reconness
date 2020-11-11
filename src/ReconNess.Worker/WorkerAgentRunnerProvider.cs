@@ -84,6 +84,7 @@ namespace ReconNess.Worker
                     {
                         await providerArgs.BeginHandlerAsync(new AgentRunnerProviderResult
                         {
+                            AgentRunner = providerArgs.AgentRunner,
                             Channel = providerArgs.Channel,
                             Command = providerArgs.Command,
                             CancellationToken = token
@@ -134,8 +135,8 @@ namespace ReconNess.Worker
                 {
                     await providerArgs.ExceptionHandlerAsync(new AgentRunnerProviderResult
                     {
-                        Channel = providerArgs.Channel,
                         AgentRunner = providerArgs.AgentRunner,
+                        Channel = providerArgs.Channel,
                         Last = providerArgs.Last,
                         Command = providerArgs.Command,
                         Exception = ex,
