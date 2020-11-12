@@ -251,9 +251,16 @@ namespace ReconNess.Data.Npgsql
             if (transaction != null)
             {
                 var dbTransaction = transaction.GetDbTransaction();
-                if (dbTransaction != null && dbTransaction.Connection != null && dbTransaction.Connection.State == System.Data.ConnectionState.Open)
+                try
                 {
-                    return;
+                    if (dbTransaction != null && dbTransaction?.Connection != null && dbTransaction?.Connection?.State == System.Data.ConnectionState.Open)
+                    {
+                        return;
+                    }
+                }
+                catch (Exception)
+                {
+
                 }
             }
 
