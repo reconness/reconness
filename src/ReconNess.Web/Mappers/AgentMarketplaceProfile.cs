@@ -13,7 +13,7 @@ namespace ReconNess.Web.Mappers
             CreateMap<AgentMarketplace, AgentMarketplaceDto>();
 
             CreateMap<AgentMarketplaceDto, Agent>()
-                .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentMarketplaceCategoryResolver>())
+                .ForMember(dest => dest.Categories, opt => opt.MapFrom<AgentMarketplaceCategoryResolver>())
                 .ForMember(dest => dest.AgentType, opt => opt.MapFrom(src => src.IsByTarget ? AgentTypes.TARGET : src.IsByRootDomain ? AgentTypes.ROOTDOMAIN : AgentTypes.SUBDOMAIN));
         }
     }

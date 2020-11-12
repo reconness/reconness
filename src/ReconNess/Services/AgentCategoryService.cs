@@ -28,7 +28,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IAgentCategoryService.GetCategoriesAsync(List{AgentCategory}, List{string}, CancellationToken)"/>
         /// </summary>
-        public async Task<ICollection<AgentCategory>> GetCategoriesAsync(ICollection<AgentCategory> myCategories, List<string> newCategories, CancellationToken cancellationToken = default)
+        public async Task<ICollection<Category>> GetCategoriesAsync(ICollection<Category> myCategories, List<string> newCategories, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -44,10 +44,7 @@ namespace ReconNess.Services
                 myCategoriesName.Add(newCategory);
 
                 var category = await this.GetNewOrExistCategory(newCategory, cancellationToken);
-                myCategories.Add(new AgentCategory
-                {
-                    CategoryId = category.Id
-                });
+                myCategories.Add(category);
             }
 
             return myCategories;
@@ -59,18 +56,18 @@ namespace ReconNess.Services
         /// <param name="myCategories">The list of my categories</param>
         /// <param name="newCategories">The list of string categories</param>
         /// <returns>The names of the categorias that interset the old and the new categories</returns>
-        private List<string> GetIntersectionCategoriesName(ICollection<AgentCategory> myCategories, List<string> newCategories)
+        private List<string> GetIntersectionCategoriesName(ICollection<Category> myCategories, List<string> newCategories)
         {
-            var myCategoriesName = myCategories.Select(c => c.Category.Name).ToList();
+            var myCategoriesName = myCategories.Select(c => c.Name).ToList();
             foreach (var myCategoryName in myCategoriesName)
             {
                 if (!newCategories.Contains(myCategoryName))
                 {
-                    myCategories.Remove(myCategories.First(c => c.Category.Name == myCategoryName));
+                    myCategories.Remove(myCategories.First(c => c.Name == myCategoryName));
                 }
             }
 
-            return myCategories.Select(c => c.Category.Name).ToList();
+            return myCategories.Select(c => c.Name).ToList();
         }
 
         /// <summary>

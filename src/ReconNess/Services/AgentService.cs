@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using RestSharp;
@@ -23,42 +24,93 @@ namespace ReconNess.Services
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IScriptEngineService scriptEngineService;
+        private readonly IAuthProvider authProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
+        /// <param name="authProvider"><see cref="IAuthProvider"/></param>
         public AgentService(IUnitOfWork unitOfWork,
-            IScriptEngineService scriptEngineService)
+            IScriptEngineService scriptEngineService,
+            IAuthProvider authProvider)
             : base(unitOfWork)
         {
             this.scriptEngineService = scriptEngineService;
+            this.authProvider = authProvider;
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetAllWithIncludesAsync(CancellationToken)"/>
+        /// <see cref="IAgentService.GetAgentsNoTrackingAsync(CancellationToken)"/>
         /// </summary>
-        public async Task<List<Agent>> GetAllWithIncludesAsync(CancellationToken cancellationToken = default)
+        public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
         {
-            var result = await this.GetAllQueryable(cancellationToken)
-                .Include(a => a.AgentCategories)
-                    .ThenInclude(c => c.Category)
-                .ToListAsync();
+            var result = this.GetAllQueryable(cancellationToken)
+                    .Select(agent => new Agent
+                    {
+                        Id = agent.Id,
+                        Name = agent.Name,
+                        LastRun = agent.LastRun,
+                        Categories = agent.Categories.Select(category => new Category
+                        {
+                            Name = category.Name
+                        })
+                        .ToList()
+                    })
+                    .AsNoTracking();
 
-            return result.OrderBy(a => a.AgentCategories.FirstOrDefault()?.Category?.Name).ToList();
+            return await result
+                    .OrderBy(a => a.Categories.Single().Name)
+                    .ToListAsync();
         }
 
         /// <summary>
-        /// <see cref="IAgentService.GetWithIncludesAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// <see cref="IAgentService.GetAgentNoTrackingAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Agent> GetWithIncludesAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
-                .Include(a => a.AgentCategories)
-                    .ThenInclude(c => c.Category)
-                .Include(a => a.AgentTrigger)
-                .FirstOrDefaultAsync();
+                    .Select(agent => new Agent
+                    {
+                        Id = agent.Id,
+                        Name = agent.Name,
+                        Repository = agent.Repository,
+                        Script = agent.Script,
+                        Command = agent.Command,
+                        AgentType = agent.AgentType,
+                        AgentTrigger = agent.AgentTrigger,
+                        Categories = agent.Categories.Select(category => new Category
+                        {
+                            Name = category.Name
+                        })
+                        .ToList()
+                    })
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.GetAgentAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                    .Include(a => a.Categories)
+                    .Include(a => a.AgentTrigger)
+                    .Include(a => a.AgentHistories)
+                .SingleOrDefaultAsync();
+        }
+
+        /// <summary>
+        /// <see cref="IAgentService.GetAgentToRunAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                    .Include(a => a.Categories)
+                    .Include(a => a.AgentTrigger)
+                .SingleOrDefaultAsync();
         }
 
         /// <summary>
@@ -80,12 +132,21 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
-            var client = new RestClient(scriptUrl);
-            var request = new RestRequest();
+            try
+            {
+                var client = new RestClient(scriptUrl);
+                var request = new RestRequest();
 
-            var response = await client.ExecuteGetAsync(request, cancellationToken);
+                var response = await client.ExecuteGetAsync(request, cancellationToken);
 
-            return response.Content;
+                return response.Content;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex);
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -97,16 +158,16 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.AddAgentAsync(Agent, string, CancellationToken)"/>
+        /// <see cref="IAgentService.AddAgentHistoryAsync(Agent, CancellationToken)"/>
         /// </summary>
-        public async Task<Agent> AddAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default)
+        public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
         {
             agent.AgentHistories = new List<AgentHistory>
             {
                 new AgentHistory
                 {
-                    Username = userName,
-                    ChangeType = "Agent Added"
+                    Username = this.authProvider.UserName(),
+                    ChangeType = changeType
                 }
             };
 
@@ -114,9 +175,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IAgentService.UpdateAgentAsync(Agent, string, CancellationToken)"/>
+        /// <see cref="IAgentService.UpdateAgentAsync(Agent, CancellationToken)"/>
         /// </summary>
-        public async Task UpdateAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default)
+        public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             if (agent.AgentHistories == null)
             {
@@ -125,28 +186,11 @@ namespace ReconNess.Services
 
             agent.AgentHistories.Add(new AgentHistory
             {
-                Username = userName,
+                Username = this.authProvider.UserName(),
                 ChangeType = "Agent Updated"
             });
 
             await this.UpdateAsync(agent);
-        }
-
-        /// <summary>
-        /// <see cref="IAgentService.InstallAgentAsync(Agent, string, CancellationToken)"/>
-        /// </summary>
-        public async Task<Agent> InstallAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default)
-        {
-            agent.AgentHistories = new List<AgentHistory>
-            {
-                new AgentHistory
-                {
-                    Username = userName,
-                    ChangeType = "Agent Installed"
-                }
-            };
-
-            return await this.AddAsync(agent);
         }
     }
 }

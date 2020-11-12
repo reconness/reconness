@@ -44,7 +44,9 @@ namespace ReconNess.Web
             }
             services.AddDbContext<ReconNessContext>
             (
-                options => options.UseNpgsql(connectionString)
+                options => options
+                    .UseNpgsql(connectionString)
+                    .LogTo(Console.WriteLine)
             );
 
             // Auth

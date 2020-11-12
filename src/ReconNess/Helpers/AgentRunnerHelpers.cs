@@ -249,7 +249,7 @@ namespace ReconNess.Helpers
                 {
                     foreach (var label in subdomain.Labels)
                     {
-                        var match = Regex.Match(label.Label.Name, agentTrigger.SubdomainLabel);
+                        var match = Regex.Match(label.Name, agentTrigger.SubdomainLabel);
 
                         // if match success label dont skip this subdomain  
                         if (match.Success)
@@ -264,7 +264,7 @@ namespace ReconNess.Helpers
                 {
                     foreach (var label in subdomain.Labels)
                     {
-                        var match = Regex.Match(label.Label.Name, agentTrigger.SubdomainLabel);
+                        var match = Regex.Match(label.Name, agentTrigger.SubdomainLabel);
 
                         // if match success label skip this subdomain  
                         if (match.Success)

@@ -58,15 +58,12 @@ namespace ReconNess.UnitTests
             var myNewLabels = new List<string> { "Brute Force" };
 
             // Arrange       
-            var myLabelsOnDb = new List<SubdomainLabel>
+            var myLabelsOnDb = new List<Label>
             {
-                new SubdomainLabel
+                new Label
                 {
-                    Label = new Label
-                    {
-                        Id = this.labelIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.labelIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -84,15 +81,12 @@ namespace ReconNess.UnitTests
         public void GetLabelsAsync_RemoveLabel()
         {
             // Arrange
-            var myLabelsOnDb = new List<SubdomainLabel>
+            var myLabelsOnDb = new List<Label>
             {
-                new SubdomainLabel
+                new Label
                 {
-                    Label = new Label
-                    {
-                        Id = this.labelIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.labelIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -111,15 +105,12 @@ namespace ReconNess.UnitTests
         public void GetLabelsAsync_AddNewLabel()
         {
             // Arrange
-            var myLabelsOnDb = new List<SubdomainLabel>
+            var myLabelsOnDb = new List<Label>
             {
-                new SubdomainLabel
+                new Label
                 {
-                    Label = new Label
-                    {
-                        Id = this.labelIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.labelIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -138,15 +129,12 @@ namespace ReconNess.UnitTests
         public void GetLabelsAsync_AddAllNewLabel()
         {
             // Arrange
-            var myLabelsOnDb = new List<SubdomainLabel>
+            var myLabelsOnDb = new List<Label>
             {
-                new SubdomainLabel
+                new Label
                 {
-                    Label = new Label
-                    {
-                        Id = this.labelIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.labelIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -165,15 +153,12 @@ namespace ReconNess.UnitTests
         public void GetLabelsAsyncAdd_AllNewDuplicateLabel()
         {
             // Arrange
-            var myLabelsOnDb = new List<SubdomainLabel>
+            var myLabelsOnDb = new List<Label>
             {
-                new SubdomainLabel
+                new Label
                 {
-                    Label = new Label
-                    {
-                        Id = this.labelIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.labelIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 

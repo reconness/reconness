@@ -65,7 +65,6 @@ namespace ReconNess.Services
                         .ThenInclude(s => s.Services)
                     .Include(r => r.Subdomains)
                         .ThenInclude(s => s.Labels)
-                            .ThenInclude(ac => ac.Label)
                     .SingleOrDefaultAsync();
 
             return rootDomain;

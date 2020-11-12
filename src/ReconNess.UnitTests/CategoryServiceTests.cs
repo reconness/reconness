@@ -58,15 +58,12 @@ namespace ReconNess.UnitTests
             var myNewCategories = new List<string> { "Brute Force" };
 
             // Arrange       
-            var myCategoriesOnDb = new List<AgentCategory>
+            var myCategoriesOnDb = new List<Category>
             {
-                new AgentCategory
+                new Category
                 {
-                    Category = new Category
-                    {
-                        Id = this.categoryIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.categoryIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -84,15 +81,12 @@ namespace ReconNess.UnitTests
         public void GetCategoriesAsync_RemoveCategory()
         {
             // Arrange
-            var myCategoriesOnDb = new List<AgentCategory>
+            var myCategoriesOnDb = new List<Category>
             {
-                new AgentCategory
+                new Category
                 {
-                    Category = new Category
-                    {
-                        Id = this.categoryIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.categoryIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -111,15 +105,12 @@ namespace ReconNess.UnitTests
         public void GetCategoriesAsync_AddNewCategory()
         {
             // Arrange
-            var myCategoriesOnDb = new List<AgentCategory>
+            var myCategoriesOnDb = new List<Category>
             {
-                new AgentCategory
+                new Category
                 {
-                    Category = new Category
-                    {
-                        Id = this.categoryIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.categoryIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -138,15 +129,12 @@ namespace ReconNess.UnitTests
         public void GetCategoriesAsync_AddAllNewCategory()
         {
             // Arrange
-            var myCategoriesOnDb = new List<AgentCategory>
+            var myCategoriesOnDb = new List<Category>
             {
-                new AgentCategory
+                new Category
                 {
-                    Category = new Category
-                    {
-                        Id = this.categoryIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.categoryIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 
@@ -165,15 +153,12 @@ namespace ReconNess.UnitTests
         public void GetCategoriesAsyncAdd_AllNewDuplicateCategory()
         {
             // Arrange
-            var myCategoriesOnDb = new List<AgentCategory>
+            var myCategoriesOnDb = new List<Category>
             {
-                new AgentCategory
+                new Category
                 {
-                    Category = new Category
-                    {
-                        Id = this.categoryIdOnDb,
-                        Name = "Brute Force"
-                    }
+                    Id = this.categoryIdOnDb,
+                    Name = "Brute Force"
                 }
             };
 

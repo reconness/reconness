@@ -31,7 +31,7 @@ namespace ReconNess.Entities
 
         public bool? HasBounty { get; set; }
 
-        public virtual ICollection<SubdomainLabel> Labels { get; set; }
+        public virtual ICollection<Label> Labels { get; set; }
 
         public virtual Note Notes { get; set; }
 

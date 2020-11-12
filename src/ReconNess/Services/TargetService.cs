@@ -6,6 +6,7 @@ using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,22 +39,57 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ITargetService.GetAllWithRootDomainsAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// <see cref="ITargetService.GetTargetsNotTrackingAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
         /// </summary>
-        public Task<List<Target>> GetAllWithRootDomainsAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
             return this.GetAllQueryableByCriteria(predicate, cancellationToken)
-                            .Include(a => a.RootDomains)
+                        .Select(target => new Target
+                        {
+                            Id = target.Id,
+                            Name = target.Name,
+                            RootDomains = target.RootDomains.Select(rootDomain => new RootDomain
+                            {
+                                Name = rootDomain.Name
+                            })
+                            .ToList()
+                        })
+                        .AsNoTracking()
                         .ToListAsync(cancellationToken);
         }
 
         /// <summary>
-        /// <see cref="ITargetService.GetWithRootDomainAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// <see cref="ITargetService.GetTargetNotTrackingAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
         /// </summary>
-        public Task<Target> GetWithRootDomainAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
             return this.GetAllQueryableByCriteria(predicate, cancellationToken)
-                            .Include(a => a.RootDomains)
+                        .Select(target => new Target
+                        {
+                            Id = target.Id,
+                            Name = target.Name,
+                            BugBountyProgramUrl = target.BugBountyProgramUrl,
+                            HasBounty = target.HasBounty,
+                            IsPrivate = target.IsPrivate,
+                            InScope = target.InScope,
+                            OutOfScope = target.OutOfScope,
+                            RootDomains = target.RootDomains.Select(rootDomain => new RootDomain
+                            {
+                                Name = rootDomain.Name
+                            })
+                            .ToList()
+                        })
+                        .AsNoTracking()
+                       .SingleAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ITargetService.GetTargetAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
+        /// </summary>
+        public Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        {
+            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                        .Include(t => t.RootDomains)
                        .SingleAsync(cancellationToken);
         }
 
@@ -61,20 +97,10 @@ namespace ReconNess.Services
         /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
         /// </summary>
         public async Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                target.RootDomains.Add(newRootdomain);
+        {            
+            target.RootDomains.Add(newRootdomain);
 
-                await this.UnitOfWork.CommitAsync(cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, ex.Message);
-
-                this.UnitOfWork.Rollback(cancellationToken);
-                throw;
-            }
+            await this.UpdateAsync(target, cancellationToken);            
         }
 
         /// <summary>

@@ -14,20 +14,35 @@ namespace ReconNess.Core.Services
     public interface IAgentService : IService<Agent>
     {
         /// <summary>
-        /// Obtain all the Agents with categories
+        /// Obtain all the Agents with not tracking
         /// </summary>
-        /// <param name="isBySubdomain">If I need to obtain only the agent that run by subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>List of Agents with categories or null</returns>
-        Task<List<Agent>> GetAllWithIncludesAsync(CancellationToken cancellationToken = default);
+        Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Obtain an Agent with categories
+        /// Obtain an Agent with not tracking
         /// </summary>
         /// <param name="criteria"></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Agent or null</returns>
-        Task<Agent> GetWithIncludesAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+        Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain an Agent
+        /// </summary>
+        /// <param name="criteria"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A Agent or null</returns>
+        Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain an Agent to Run
+        /// </summary>
+        /// <param name="criteria"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A Agent or null</returns>
+        Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain default Agents to install
@@ -57,28 +72,17 @@ namespace ReconNess.Core.Services
         /// Add a new agent
         /// </summary>
         /// <param name="agent">The new agent</param>
-        /// <param name="userName">The username adding the new agant</param>
+        /// <param name="changeType">the change type</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A new agent added</returns>
-        Task<Agent> AddAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default);
+        Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Update the agent
         /// </summary>
         /// <param name="agent">The agent</param>
-        /// <param name="userName">The username updating the agent</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task UpdateAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Install a new agent
-        /// </summary>
-        /// <param name="agent">The new agent installed</param>
-        /// <param name="userName">The username installing the agent</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The agent installed</returns>
-        Task<Agent> InstallAgentAsync(Agent agent, string userName, CancellationToken cancellationToken = default);
-
+        Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default);
     }
 }

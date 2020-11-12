@@ -46,7 +46,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetAllWithRootDomainsAsync(t => !t.Deleted, cancellationToken);
+            var targets = await this.targetService.GetTargetsNotTrackingAsync(t => !t.Deleted, cancellationToken);
 
             return Ok(this.mapper.Map<List<Target>, List<TargetDto>>(targets));
         }
@@ -60,7 +60,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -100,7 +100,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetWithRootDomainAsync(t => t.Id == id, cancellationToken);
+            var target = await this.targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -133,7 +133,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -158,7 +158,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetWithRootDomainAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();

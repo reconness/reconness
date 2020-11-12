@@ -180,9 +180,9 @@ namespace ReconNess.Services
                         .GetRequiredService<IUnitOfWork>();
 
                 return await unitOfWork.Repository<AgentRun>()
-                    .GetAllQueryableByCriteria(ar => ar.Agent == agentRunner.Agent && ar.Channel == channel)
-                    .OrderByDescending(o => o.CreatedAt)
-                    .FirstOrDefaultAsync(cancellationToken);
+                        .GetAllQueryableByCriteria(ar => ar.Agent == agentRunner.Agent && ar.Channel == channel)
+                        .OrderByDescending(o => o.CreatedAt)
+                    .SingleOrDefaultAsync(cancellationToken);
             }
         }
 

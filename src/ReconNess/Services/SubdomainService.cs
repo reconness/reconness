@@ -69,7 +69,6 @@ namespace ReconNess.Services
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
                     .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
                     .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync(cancellationToken);
         }
@@ -84,7 +83,6 @@ namespace ReconNess.Services
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
                     .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
                     .OrderByDescending(s => s.CreatedAt)
                 .SingleAsync(cancellationToken);
         }
@@ -100,7 +98,6 @@ namespace ReconNess.Services
                 queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
                     .Include(t => t.Services)
                     .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
                     .OrderByDescending(s => s.CreatedAt);
             }
             else
@@ -108,7 +105,6 @@ namespace ReconNess.Services
                 queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
                     .Include(t => t.Services)
                     .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
                     .OrderByDescending(s => s.CreatedAt);
             }
 
@@ -120,7 +116,7 @@ namespace ReconNess.Services
         /// </summary>
         public async Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default)
         {
-            var myLabels = subdomain.Labels.Select(l => l.Label.Name).ToList();
+            var myLabels = subdomain.Labels.Select(l => l.Name).ToList();
             myLabels.Add(newLabel);
 
             subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
@@ -135,7 +131,6 @@ namespace ReconNess.Services
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
                     .Include(t => t.Labels)
-                        .ThenInclude(la => la.Label)
                 .SingleAsync(cancellationToken);
         }
 
@@ -537,7 +532,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task UpdateSubdomainLabelAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
-            if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
+            if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower(), cancellationToken);
                 if (label == null)
@@ -550,11 +545,7 @@ namespace ReconNess.Services
                     };
                 }
 
-                subdomain.Labels.Add(new SubdomainLabel
-                {
-                    Label = label,
-                    SubdomainId = subdomain.Id
-                });
+                subdomain.Labels.Add(label);
 
                 await this.UpdateAsync(subdomain, cancellationToken);
             }

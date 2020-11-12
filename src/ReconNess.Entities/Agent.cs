@@ -21,7 +21,7 @@ namespace ReconNess.Entities
 
         public virtual AgentTrigger AgentTrigger { get; set; }
 
-        public virtual ICollection<AgentCategory> AgentCategories { get; set; }
+        public virtual ICollection<Category> Categories { get; set; }
 
         public virtual ICollection<AgentHistory> AgentHistories { get; set; }
 

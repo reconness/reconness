@@ -33,6 +33,7 @@ namespace ReconNess.Services
         {
             var references = await this.GetAllQueryable(cancellationToken)
                     .OrderBy(r => r.Categories)
+                    .AsNoTracking()
                 .ToListAsync();
 
             return references;
@@ -43,11 +44,11 @@ namespace ReconNess.Services
         /// </summary>
         public async Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken)
         {
-            var entities = await (this.GetAllQueryable(cancellationToken).Select(r => r.Categories))
-                .ToListAsync();
+            var entities = await (this.GetAllQueryable(cancellationToken).Select(r => r.Categories).AsNoTracking()).ToListAsync();
 
             var categories = new List<string>();
-            entities.ForEach(c => c.Split(',').ToList()
+            entities.ForEach(c => c.Split(',')
+                .ToList()
                 .ForEach(category =>
                 {
                     if (!categories.Contains(category))
