@@ -276,7 +276,7 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private async Task RunAgentInEachSubdomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
-            var subdomains = await this.subdomainService.GetAllWithIncludesAsync(agentRunner.RootDomain, string.Empty, cancellationToken);
+            var subdomains = await this.subdomainService.GetSubdomainsAsync(s => s.RootDomain == agentRunner.RootDomain, cancellationToken);
             if (!subdomains.Any())
             {
                 await this.agentRunService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);

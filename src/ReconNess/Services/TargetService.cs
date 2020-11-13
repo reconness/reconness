@@ -50,6 +50,7 @@ namespace ReconNess.Services
                             Name = target.Name,
                             RootDomains = target.RootDomains.Select(rootDomain => new RootDomain
                             {
+                                Id = rootDomain.Id,
                                 Name = rootDomain.Name
                             })
                             .ToList()
@@ -75,6 +76,7 @@ namespace ReconNess.Services
                             OutOfScope = target.OutOfScope,
                             RootDomains = target.RootDomains.Select(rootDomain => new RootDomain
                             {
+                                Id = rootDomain.Id,
                                 Name = rootDomain.Name
                             })
                             .ToList()

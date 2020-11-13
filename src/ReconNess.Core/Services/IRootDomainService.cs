@@ -13,12 +13,20 @@ namespace ReconNess.Core.Services
     public interface IRootDomainService : IService<RootDomain>, ISaveTerminalOutputParseService<RootDomain>
     {
         /// <summary>
+        /// Obtain a rootDomain with no tracking
+        /// </summary>
+        /// <param name="criteria">The criteria</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A subdomain or null</returns>
+        Task<RootDomain> GetRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Obtain a rootDomain with subdomains only
         /// </summary>
         /// <param name="criteria">The criteria</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A subdomain or null</returns>
-        Task<RootDomain> GetWithOnlySubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+        Task<RootDomain> GetRootDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a rootDomain with subdomains
@@ -26,7 +34,7 @@ namespace ReconNess.Core.Services
         /// <param name="criteria">The criteria</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A subdomain or null</returns>
-        Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+        Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete all the subdomains and relations

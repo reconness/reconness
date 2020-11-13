@@ -14,13 +14,12 @@ namespace ReconNess.Core.Services
     public interface ISubdomainService : IService<Subdomain>, ISaveTerminalOutputParseService<Subdomain>
     {
         /// <summary>
-        /// Obtain the list of subdomains by target order by CreatedAt desc
+        /// Obtain the list of subdomains
         /// </summary>
-        /// <param name="rootDomain">The root domain</param>
-        /// <param name="subdomain">The subdomain</param>
+        /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The list of subdomains by target order by CreatedAt desc</returns>
-        Task<List<Subdomain>> GetAllWithIncludesAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default);
+        /// <returns>The list of subdomains</returns>
+        Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a subdomain by criteria
@@ -28,7 +27,15 @@ namespace ReconNess.Core.Services
         /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task<Subdomain> GetWithIncludeAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain a subdomain by criteria no tracking
+        /// </summary>
+        /// <param name="predicate">The predicate</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain the Subdomains paged and filtered

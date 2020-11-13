@@ -62,7 +62,7 @@ namespace ReconNess.Services
 
             return await result
                     .OrderBy(a => a.Categories.Single().Name)
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
         }
 
         /// <summary>

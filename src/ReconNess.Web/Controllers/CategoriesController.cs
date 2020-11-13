@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
@@ -35,7 +36,10 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var categories = await this.categoryService.GetAllByCriteriaAsync(c => !c.Deleted, cancellationToken);
+            var categories = await this.categoryService
+                        .GetAllQueryable(cancellationToken)
+                        .AsNoTracking()
+                        .ToListAsync(cancellationToken);
 
             return Ok(this.mapper.Map<List<Category>, List<CategoryDto>>(categories));
         }

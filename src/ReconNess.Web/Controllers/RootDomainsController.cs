@@ -48,15 +48,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await (rootDomainService.GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName, cancellationToken)
-                    .Include(r => r.Notes))
-                .SingleOrDefaultAsync();
+            var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
 
             return Ok(this.mapper.Map<RootDomain, RootDomainDto>(rootDomain));
         }
@@ -70,13 +68,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithOnlySubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -96,13 +94,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.ExportRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -110,7 +108,7 @@ namespace ReconNess.Web.Controllers
 
             var rootdomainDto = this.mapper.Map<RootDomain, RootDomainDto>(rootDomain);
 
-            var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto, targetName, rootDomainName);
+            var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
 
             return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }
@@ -129,13 +127,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithOnlySubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -162,13 +160,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetWithOnlySubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
