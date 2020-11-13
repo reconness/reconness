@@ -52,6 +52,7 @@ namespace ReconNess.Services
                         Id = agent.Id,
                         Name = agent.Name,
                         LastRun = agent.LastRun,
+                        AgentType = agent.AgentType,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name

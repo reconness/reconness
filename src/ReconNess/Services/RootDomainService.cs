@@ -60,16 +60,7 @@ namespace ReconNess.Services
         public async Task<RootDomain> GetRootDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
-                    .Select(rootDomain => new RootDomain
-                    {
-                        Id = rootDomain.Id,
-                        Subdomains = rootDomain.Subdomains.Select(subdomain => new Subdomain
-                        {
-                            Id = subdomain.Id,
-                            Name = subdomain.Name
-                        })
-                        .ToList()
-                    })
+                        .Include(r => r.Subdomains)
                     .SingleOrDefaultAsync();
         }
 
