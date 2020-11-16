@@ -85,7 +85,7 @@ namespace ReconNess.Services
                 var agentRun = await unitOfWork.Repository<AgentRun>()
                         .GetAllQueryableByCriteria(ar => ar.Agent == agentRunner.Agent && ar.Channel == channel)
                         .OrderByDescending(o => o.CreatedAt)
-                    .SingleOrDefaultAsync(cancellationToken);
+                    .FirstOrDefaultAsync(cancellationToken);
 
                 if (agentRun != null)
                 {
