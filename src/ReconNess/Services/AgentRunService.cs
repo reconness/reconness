@@ -6,6 +6,7 @@ using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,6 +22,8 @@ namespace ReconNess.Services
 
         private readonly IServiceProvider serviceProvider;
         private readonly IConnectorService connectorService;
+
+        private static ConcurrentDictionary<string, string> terminalOuputs = new ConcurrentDictionary<string, string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunService" /> class
@@ -71,119 +74,66 @@ namespace ReconNess.Services
             }
 
             await this.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
+            
 
-            var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            if (agentRun != null)
-            {
-                if (fromException)
-                {
-                    agentRun.Stage = Entities.Enum.AgentRunStage.FAILED;
-                    agentRun.Description = $"The agent {agentRunner.Agent.Name} failed";
-                }
-                else if (stoppedManually)
-                {
-                    agentRun.Stage = Entities.Enum.AgentRunStage.STOPPED;
-                    agentRun.Description = $"The agent {agentRunner.Agent.Name} was stopped manually";
-                }
-                else
-                {
-                    agentRun.Stage = Entities.Enum.AgentRunStage.SUCCESS;
-                    agentRun.Description = $"The agent {agentRunner.Agent.Name} ran successfully";
-                }
-
-                //agentRun.Logs += "\nAgent Done";
-                //agentRun.TerminalOutput += "\nAgent Done";
-
-                using (var scope = this.serviceProvider.CreateScope())
-                {
-                    var unitOfWork =
-                        scope.ServiceProvider
-                            .GetRequiredService<IUnitOfWork>();
-
-                    unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
-                }
-
-                await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);
-                await this.connectorService.SendLogsAsync(channel, "Agent Done!", cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IAgentRunService.InsertTerminalScopeAsync(AgentRunner, string, string, bool, CancellationToken)"/>
-        /// </summary>
-        public async Task InsertTerminalScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default)
-        {
-            /*var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            if (agentRun != null)
-            {
-                using (var scope = this.serviceProvider.CreateScope())
-                {
-                    var unitOfWork =
-                        scope.ServiceProvider
-                            .GetRequiredService<IUnitOfWork>();
-
-                    agentRun.TerminalOutput += $"\n{terminalOutput}";
-
-                    unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
-
-                    var connectorService =
-                        scope.ServiceProvider
-                            .GetRequiredService<IConnectorService>();
-                }
-            }*/
-            await connectorService.SendAsync(channel, terminalOutput, includeTime, cancellationToken);
-        }
-
-        /// <summary>
-        /// <see cref="IAgentRunService.InsertLogsScopeAsync(AgentRunner, string, string, CancellationToken)"/>
-        /// </summary>
-        public async Task InsertLogsScopeAsync(AgentRunner agentRunner, string channel, string logs, CancellationToken cancellationToken)
-        {
-            /*var agentRun = await this.GetLastAgentRunAsync(agentRunner, channel, cancellationToken);
-            if (agentRun != null)
-            {
-                using (var scope = this.serviceProvider.CreateScope())
-                {
-                    var unitOfWork =
-                        scope.ServiceProvider
-                            .GetRequiredService<IUnitOfWork>();
-
-                    agentRun.Logs += $"\n{logs}";
-
-                    unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
-
-                    var connectorService =
-                        scope.ServiceProvider
-                            .GetRequiredService<IConnectorService>();                    
-                }
-            }*/
-
-            await connectorService.SendLogsAsync(channel, logs, cancellationToken);
-        }
-
-        /// <summary>
-        /// Obtain the last agent running base on the channel
-        /// </summary>
-        /// <param name="agentRunner">The agent running</param>
-        /// <param name="channel">The channel</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The last agent running base on the channel</returns>
-        private async Task<AgentRun> GetLastAgentRunAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
-        {
             using (var scope = this.serviceProvider.CreateScope())
             {
                 var unitOfWork =
                     scope.ServiceProvider
                         .GetRequiredService<IUnitOfWork>();
 
-                return await unitOfWork.Repository<AgentRun>()
+                var agentRun = await unitOfWork.Repository<AgentRun>()
                         .GetAllQueryableByCriteria(ar => ar.Agent == agentRunner.Agent && ar.Channel == channel)
                         .OrderByDescending(o => o.CreatedAt)
                     .SingleOrDefaultAsync(cancellationToken);
+
+                if (agentRun != null)
+                {
+                    if (fromException)
+                    {
+                        agentRun.Stage = Entities.Enum.AgentRunStage.FAILED;
+                        agentRun.Description = $"The agent {agentRunner.Agent.Name} failed";
+                    }
+                    else if (stoppedManually)
+                    {
+                        agentRun.Stage = Entities.Enum.AgentRunStage.STOPPED;
+                        agentRun.Description = $"The agent {agentRunner.Agent.Name} was stopped manually";
+                    }
+                    else
+                    {
+                        agentRun.Stage = Entities.Enum.AgentRunStage.SUCCESS;
+                        agentRun.Description = $"The agent {agentRunner.Agent.Name} ran successfully";
+                    }
+
+                    if (terminalOuputs.ContainsKey(channel))
+                    {
+                        agentRun.TerminalOutput = terminalOuputs[channel];
+                        terminalOuputs[channel] = string.Empty;
+                    }
+
+                    agentRun.TerminalOutput += "\nAgent Done";
+
+                    unitOfWork.Repository<AgentRun>().Update(agentRun);
+                    await unitOfWork.CommitAsync();
+                }
             }
+
+            await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);      
+        }
+
+        /// <summary>
+        /// <see cref="IAgentRunService.TerminalOutputScopeAsync(AgentRunner, string, string, bool, CancellationToken)"/>
+        /// </summary>
+        public async Task TerminalOutputScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default)
+        {            
+            if (!terminalOuputs.ContainsKey(channel))
+            {
+                terminalOuputs.TryAdd(channel, string.Empty);
+            }
+
+            terminalOuputs[channel] += terminalOutput;
+
+            await connectorService.SendAsync(channel, terminalOutput, includeTime, cancellationToken);
         }
 
         /// <summary>

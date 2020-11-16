@@ -34,13 +34,5 @@ namespace ReconNess.Web
             msg = includeTime ? $"[{time}] {msg}" : msg;
             await this.reconnessHub.Clients.All.SendAsync(channel, msg, cancellationToken);
         }
-
-        /// <summary>
-        /// <see cref="IConnectorService.SendLogsAsync(string, string, CancellationToken)"/>
-        /// </summary>
-        public async Task SendLogsAsync(string channel, string msg, CancellationToken cancellationToken = default)
-        {
-            await this.SendAsync("logs_" + channel, msg, true, cancellationToken);
-        }
     }
 }

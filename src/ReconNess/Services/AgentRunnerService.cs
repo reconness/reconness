@@ -342,7 +342,7 @@ namespace ReconNess.Services
         {
             if (AgentRunnerHelpers.NeedToSkipRun(result.AgentRunner, result.AgentRunnerType))
             {
-                await this.agentRunService.InsertTerminalScopeAsync(result.AgentRunner, result.Channel, $"SKIP: {result.Command}", includeTime: true, result.CancellationToken);
+                await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"SKIP: {result.Command}", includeTime: true, result.CancellationToken);
 
                 return true;
             }
@@ -357,7 +357,7 @@ namespace ReconNess.Services
         {
             _logger.Info($"Start command {result.Command}");
 
-            await this.agentRunService.InsertTerminalScopeAsync(result.AgentRunner, result.Channel, $"RUN: {result.Command}", includeTime: true, result.CancellationToken);
+            await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"RUN: {result.Command}", includeTime: true, result.CancellationToken);
         }
 
         /// <summary>
@@ -365,11 +365,6 @@ namespace ReconNess.Services
         /// </summary>
         private async Task ParserOutputHandlerAsync(AgentRunnerProviderResult result)
         {
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*", result.CancellationToken);
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, $"OUTPUT: {result.LineCount}", result.CancellationToken);
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, $"OUTPUT: {result.TerminalLineOutput}", result.CancellationToken);
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, $"OUTPUT: {JsonConvert.SerializeObject(result.TerminalLineOutput)}", result.CancellationToken);
-
             // Save the Terminal Output Parse 
             await this.agentBackgroundService.SaveOutputParseOnScopeAsync
             (
@@ -379,10 +374,7 @@ namespace ReconNess.Services
                 result.CancellationToken
             );
 
-            await this.agentRunService.InsertTerminalScopeAsync(result.AgentRunner, result.Channel, result.TerminalLineOutput, includeTime: false, result.CancellationToken);
-
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, $"OUTPUT: {result.LineCount} processed", result.CancellationToken);
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, "-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*", result.CancellationToken);
+            await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.TerminalLineOutput, includeTime: false, result.CancellationToken);
         }
 
         /// <summary>
@@ -408,8 +400,7 @@ namespace ReconNess.Services
         {
             _logger.Error(result.Exception, $"Exception running command {result.Command}");
 
-            await this.agentRunService.InsertTerminalScopeAsync(result.AgentRunner, result.Channel, result.Exception.Message, includeTime: true, result.CancellationToken);
-            await this.agentRunService.InsertLogsScopeAsync(result.AgentRunner, result.Channel, $"Exception: {result.Exception.StackTrace}", result.CancellationToken);
+            await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.Exception.Message, includeTime: true, result.CancellationToken);
 
             if (result.Last)
             {

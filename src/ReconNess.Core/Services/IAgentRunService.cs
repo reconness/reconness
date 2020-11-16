@@ -38,16 +38,6 @@ namespace ReconNess.Core.Services
         /// <param name="includeTime"></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task InsertTerminalScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Insert the logs
-        /// </summary>
-        /// <param name="agentRunner">The agent running</param>
-        /// <param name="channel">The channel</param>
-        /// <param name="logs">The logs</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        Task InsertLogsScopeAsync(AgentRunner agentRunner, string channel, string logs, CancellationToken cancellationToken = default);
+        Task TerminalOutputScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default);
     }
 }
