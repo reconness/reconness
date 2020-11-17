@@ -197,9 +197,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Subdomain, bool, ScriptOutput, CancellationToken)"/>
+        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Subdomain, string, bool, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseAsync(Subdomain subdomain, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseAsync(Subdomain subdomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -209,6 +209,7 @@ namespace ReconNess.Services
                 subdomain = new Subdomain
                 {
                     Name = terminalOutputParse.Subdomain,
+                    AgentsRanBefore = agentName,
                     RootDomain = subdomain.RootDomain
                 };
 

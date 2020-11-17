@@ -125,9 +125,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Target, bool, ScriptOutput, CancellationToken)"/>
+        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Target, string, bool, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseAsync(Target target, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseAsync(Target target, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -146,7 +146,7 @@ namespace ReconNess.Services
 
             if (rootDomain != null)
             {
-                await this.rootDomainService.SaveTerminalOutputParseAsync(rootDomain, activateNotification, terminalOutputParse, cancellationToken);
+                await this.rootDomainService.SaveTerminalOutputParseAsync(rootDomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
             }
         }
 

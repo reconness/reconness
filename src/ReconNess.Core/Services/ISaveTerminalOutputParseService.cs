@@ -13,10 +13,11 @@ namespace ReconNess.Core.Services
         /// 
         /// </summary>
         /// <param name="type"></param>
+        /// <param name="agentName"></param>
         /// <param name="terminalOutputParse"></param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task SaveTerminalOutputParseAsync(T type, bool activeNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
+        Task SaveTerminalOutputParseAsync(T type, string agentName, bool activeNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// 
