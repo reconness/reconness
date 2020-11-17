@@ -50,10 +50,11 @@ namespace ReconNess.Services
         public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
-                    .Include(t => t.Services)
-                    .Include(t => t.Notes)
-                    .Include(t => t.Directories)
-                    .Include(t => t.Labels)
+                    .Include(s => s.RootDomain)
+                    .Include(s => s.Services)
+                    .Include(s => s.Notes)
+                    .Include(s => s.Directories)
+                    .Include(s => s.Labels)
                 .ToListAsync(cancellationToken);
         }
 

@@ -90,7 +90,7 @@ namespace ReconNess.Providers
         /// <returns>The log folder path</returns>
         private string GetLogPath()
         {
-            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location).Substring(INDEX);
+            var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var path = Path.Combine(bin, "logs");
 
             return path;
