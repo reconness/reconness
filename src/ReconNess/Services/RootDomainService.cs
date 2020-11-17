@@ -81,7 +81,7 @@ namespace ReconNess.Services
                         },
                         Subdomains = rootDomain.Subdomains
                             .Select(subdomain => new Subdomain
-                            {                                
+                            {
                                 Name = subdomain.Name,
                                 AgentsRanBefore = subdomain.AgentsRanBefore,
                                 HasBounty = subdomain.HasBounty,

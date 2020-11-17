@@ -99,10 +99,10 @@ namespace ReconNess.Services
         /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
         /// </summary>
         public async Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
-        {            
+        {
             target.RootDomains.Add(newRootdomain);
 
-            await this.UpdateAsync(target, cancellationToken);            
+            await this.UpdateAsync(target, cancellationToken);
         }
 
         /// <summary>

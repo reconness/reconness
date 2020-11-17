@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using NLog;
+﻿using NLog;
 using ReconNess.Core;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;

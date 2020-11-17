@@ -13,8 +13,6 @@ namespace ReconNess.Providers
     /// </summary>
     public class LogsProvider : ILogsProvider
     {
-        private const int INDEX = 5;
-
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>

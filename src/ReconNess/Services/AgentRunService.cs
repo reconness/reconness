@@ -74,7 +74,7 @@ namespace ReconNess.Services
             }
 
             await this.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
-            
+
 
             using (var scope = this.serviceProvider.CreateScope())
             {
@@ -118,14 +118,14 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);      
+            await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);
         }
 
         /// <summary>
         /// <see cref="IAgentRunService.TerminalOutputScopeAsync(AgentRunner, string, string, bool, CancellationToken)"/>
         /// </summary>
         public async Task TerminalOutputScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default)
-        {            
+        {
             if (!terminalOuputs.ContainsKey(channel))
             {
                 terminalOuputs.TryAdd(channel, string.Empty);

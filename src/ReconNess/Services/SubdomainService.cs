@@ -101,7 +101,7 @@ namespace ReconNess.Services
                             CreatedAt = subdomain.CreatedAt,
                             IpAddress = subdomain.IpAddress,
                             AgentsRanBefore = subdomain.AgentsRanBefore,
-                            HasHttpOpen = subdomain.HasHttpOpen,                            
+                            HasHttpOpen = subdomain.HasHttpOpen,
                             IsAlive = subdomain.IsAlive,
                             IsMainPortal = subdomain.IsMainPortal,
                             Takeover = subdomain.Takeover,
@@ -175,7 +175,7 @@ namespace ReconNess.Services
             subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
 
             await this.UpdateAsync(subdomain, cancellationToken);
-        }       
+        }
 
         /// <summary>
         /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(Subdomain, string, CancellationToken)"/>
