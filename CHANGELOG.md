@@ -1,3 +1,10 @@
+## [1.6.3] - 2020-11-18
+
+### Added
+
+- Register the terminal output
+- Update packages
+
 ## [1.6.2] - 2020-11-11
 
 ### Added
