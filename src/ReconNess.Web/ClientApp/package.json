@@ -15,7 +15,7 @@
     "@johmun/vue-tags-input": "2.1.0",
     "axios": "0.21.0",
     "bootstrap": "4.5.3",
-    "core-js": "2.6.11",
+    "core-js": "2.6.12",
     "jquery": "3.5.1",
     "moment": "2.29.1",
     "popper.js": "1.16.1",
@@ -25,7 +25,7 @@
     "vue-router": "3.4.9",
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
-    "vuex": "3.5.1",
+    "vuex": "3.6.0",
     "xterm": "4.9.0"
   },
   "devDependencies": {
@@ -34,7 +34,7 @@
     "@vue/cli-plugin-eslint": "3.12.1",
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.1.0",
-    "eslint": "7.13.0",
+    "eslint": "7.14.0",
     "eslint-plugin-vue": "7.1.0",
     "vue-template-compiler": "2.6.12",
     "vue2-ace-editor": "0.0.15"
