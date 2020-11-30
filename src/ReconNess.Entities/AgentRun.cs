@@ -15,8 +15,6 @@ namespace ReconNess.Entities
 
         public string TerminalOutput { get; set; }
 
-        public string Logs { get; set; }
-
         public virtual Agent Agent { get; set; }
     }
 }

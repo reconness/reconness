@@ -11,6 +11,6 @@ namespace ReconNess.Entities
 
         public string Color { get; set; }
 
-        public virtual ICollection<SubdomainLabel> Subdomains { get; set; }
+        public virtual ICollection<Subdomain> Subdomains { get; set; }
     }
 }

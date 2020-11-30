@@ -17,6 +17,6 @@ namespace ReconNess.Core.Services
         /// <param name="newCategories">The list of string categories</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of categories</returns>
-        Task<ICollection<AgentCategory>> GetCategoriesAsync(ICollection<AgentCategory> myCategories, List<string> newCategories, CancellationToken cancellationToken = default);
+        Task<ICollection<Category>> GetCategoriesAsync(ICollection<Category> myCategories, List<string> newCategories, CancellationToken cancellationToken = default);
     }
 }

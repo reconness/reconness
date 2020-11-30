@@ -13,20 +13,28 @@ namespace ReconNess.Core.Services
     public interface ITargetService : IService<Target>, ISaveTerminalOutputParseService<Target>
     {
         /// <summary>
-        /// Obtain the list of target with includes
+        /// Obtain the list of targets not tracking
         /// </summary>
         /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The list of target with includes</returns>
-        Task<List<Target>> GetAllWithRootDomainsAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken);
+        /// <returns>The list of target</returns>
+        Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Obtain the target with the include references
+        /// Obtain the target not tracking
         /// </summary>
         /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The target with the include references</returns>
-        Task<Target> GetWithRootDomainAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken = default);
+        /// <returns>The target</returns>
+        Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken = default);
+
+        // <summary>
+        /// Obtain the target
+        /// </summary>
+        /// <param name="predicate">The predicate</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The target</returns>
+        Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Upload root domain data with subdomains, services, port, ips, directories, labels, etc

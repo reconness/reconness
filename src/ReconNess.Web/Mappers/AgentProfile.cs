@@ -11,11 +11,11 @@ namespace ReconNess.Web.Mappers
         public AgentProfile()
         {
             CreateMap<AgentDto, Agent>()
-                .ForMember(dest => dest.AgentCategories, opt => opt.MapFrom<AgentCategoryResolver>())
+                .ForMember(dest => dest.Categories, opt => opt.MapFrom<AgentCategoryResolver>())
                 .ForMember(dest => dest.AgentTrigger, opt => opt.MapFrom<AgentTriggerResolver>());
 
             CreateMap<Agent, AgentDto>()
-                .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.AgentCategories.Select(c => c.Category.Name)))
+                .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.Categories.Select(c => c.Name)))
                 .ForMember(dest => dest.TriggerSkipIfRunBefore, opt => opt.MapFrom(src => src.AgentTrigger.SkipIfRunBefore))
                 .ForMember(dest => dest.TriggerTargetHasBounty, opt => opt.MapFrom(src => src.AgentTrigger.TargetHasBounty))
                 .ForMember(dest => dest.TriggerTargetIncExcName, opt => opt.MapFrom(src => src.AgentTrigger.TargetIncExcName))

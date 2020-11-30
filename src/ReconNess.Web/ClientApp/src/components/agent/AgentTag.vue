@@ -21,7 +21,6 @@
                             <button class="btn btn-primary ml-2" v-on:click="onConfirmCommand(agent)" v-if="!agent.isRunning" :disabled="disabledCanRun(agent)">Run</button>
                             <button class="btn btn-danger ml-2" v-on:click="onStopAgent(agent)" v-if="agent.isRunning">Stop</button>
                             <button class="btn btn-dark ml-2" v-on:click="showTerminalModal = !showTerminalModal" v-if="agent.isRunning">Terminal</button>
-                            <button class="btn btn-dark ml-2" v-on:click="showLogModal = !showLogModal" v-if="agent.isRunning">Logs</button>
                         </td>
                     </tr>
                 </tbody>
@@ -85,26 +84,7 @@
             </transition>
             <div class="modal-backdrop fade d-none" ref="terminalBackdrop"></div>
         </div>
-
-        <div class="logModal">
-            <!-- Modal-->
-            <transition @enter="startTransitionLogModal" @after-enter="endTransitionLogModal" @before-leave="endTransitionLogModal" @after-leave="startTransitionLogModal">
-                <div class="modal fade" v-if="showLogModal" ref="logsModal">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Logs</h5>
-                                <button class="close" type="button" v-on:click="showLogModal = !showLogModal"><span aria-hidden="true">x</span></button>
-                            </div>
-                            <div class="modal-body">
-                                <div id="log"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </transition>
-            <div class="modal-backdrop fade d-none" ref="logsBackdrop"></div>
-        </div>
+        
 
     </div>
 </template>
@@ -126,9 +106,7 @@
             return {
                 showCommandModal: false,
                 showTerminalModal: false,
-                showLogModal: false,
                 term: null,
-                termLog: null,
                 agents: [],
                 currentAgent: null,
                 runningAgents: []
@@ -191,14 +169,7 @@
                             if (this.term !== null) {
                                 this.term.writeln(message)
                             }
-                        });
-
-                        this.$connection.on("logs_" + channel, (message) => {
-
-                            if (this.termLog !== null) {
-                                this.termLog.writeln(message)
-                            }
-                        });
+                        });                        
                     })
                 }
             },
@@ -293,24 +264,7 @@
                 if (this.$refs.terminalModal !== undefined) {
                     this.$refs.terminalModal.classList.toggle("show");
                 }
-            },
-            startTransitionLogModal() {
-                this.$refs.logsBackdrop.classList.toggle("d-block");
-                if (this.$refs.logsModal !== undefined) {
-                    this.$refs.logsModal.classList.toggle("d-block");
-
-                    this.termLog = new Terminal({
-                        disableStdin: true
-                    })
-                    this.termLog.open(document.getElementById('log'))
-                }
-            },
-            endTransitionLogModal() {
-                this.$refs.logsBackdrop.classList.toggle("show");
-                if (this.$refs.logsModal !== undefined) {
-                    this.$refs.logsModal.classList.toggle("show");
-                }
-            }
+            }            
         }
     }
 </script>

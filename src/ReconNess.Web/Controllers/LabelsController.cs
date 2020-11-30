@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
@@ -35,7 +36,9 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var labels = await this.labelService.GetAllByCriteriaAsync(c => !c.Deleted, cancellationToken);
+            var labels = await this.labelService.GetAllQueryable(cancellationToken)
+                .AsNoTracking()
+                .ToListAsync(cancellationToken);
 
             return Ok(this.mapper.Map<List<Label>, List<LabelDto>>(labels));
         }

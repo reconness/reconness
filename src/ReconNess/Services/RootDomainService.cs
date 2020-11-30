@@ -39,36 +39,90 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.GetWithOnlySubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
+        /// <see cref="IRootDomainService.GetRootDomainNoTrackingAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<RootDomain> GetWithOnlySubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<RootDomain> GetRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
-                    .Include(r => r.Subdomains)
-                    .SingleOrDefaultAsync();
-
-            return rootDomain;
+            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                    .Select(rootDomain => new RootDomain
+                    {
+                        Id = rootDomain.Id,
+                        Name = rootDomain.Name,
+                        Notes = rootDomain.Notes
+                    })
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
         /// <summary>
-        /// <see cref="IRootDomainService.GetWithSubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
+        /// <see cref="IRootDomainService.GetRootDomainWithSubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<RootDomain> GetWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<RootDomain> GetRootDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            var rootDomain = await this.GetAllQueryableByCriteria(criteria, cancellationToken)
-                    .Include(r => r.Notes)
-                    .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.Notes)
-                    .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.Directories)
-                    .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.Services)
-                    .Include(r => r.Subdomains)
-                        .ThenInclude(s => s.Labels)
-                            .ThenInclude(ac => ac.Label)
+            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                        .Include(r => r.Subdomains)
                     .SingleOrDefaultAsync();
+        }
 
-            return rootDomain;
+        /// <summary>
+        /// <see cref="IRootDomainService.ExportRootDomainNoTrackingAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+                    .Select(rootDomain => new RootDomain
+                    {
+                        Name = rootDomain.Name,
+                        AgentsRanBefore = rootDomain.AgentsRanBefore,
+                        HasBounty = rootDomain.HasBounty,
+                        Notes = new Note
+                        {
+                            Notes = rootDomain.Notes.Notes
+                        },
+                        Subdomains = rootDomain.Subdomains
+                            .Select(subdomain => new Subdomain
+                            {
+                                Name = subdomain.Name,
+                                AgentsRanBefore = subdomain.AgentsRanBefore,
+                                HasBounty = subdomain.HasBounty,
+                                HasHttpOpen = subdomain.HasHttpOpen,
+                                IpAddress = subdomain.IpAddress,
+                                IsAlive = subdomain.IsAlive,
+                                IsMainPortal = subdomain.IsMainPortal,
+                                Takeover = subdomain.Takeover,
+                                Technology = subdomain.Technology,
+                                ScreenshotHttpPNGBase64 = subdomain.ScreenshotHttpPNGBase64,
+                                ScreenshotHttpsPNGBase64 = subdomain.ScreenshotHttpsPNGBase64,
+                                Notes = new Note
+                                {
+                                    Notes = subdomain.Notes.Notes
+                                },
+                                Labels = subdomain.Labels
+                                    .Select(label => new Label
+                                    {
+                                        Name = label.Name,
+                                        Color = label.Color
+                                    })
+                                    .ToList(),
+                                Services = subdomain.Services
+                                    .Select(service => new Service
+                                    {
+                                        Name = service.Name,
+                                        Port = service.Port
+                                    }).ToList(),
+                                Directories = subdomain.Directories
+                                    .Select(directory => new Directory
+                                    {
+                                        Uri = directory.Uri,
+                                        Method = directory.Method,
+                                        StatusCode = directory.StatusCode,
+                                        Size = directory.Size
+                                    }).ToList()
+                            })
+                            .ToList()
+                    })
+                    .AsNoTracking()
+                    .SingleOrDefaultAsync();
         }
 
         /// <summary>
@@ -153,9 +207,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(RootDomain, bool, ScriptOutput, CancellationToken)"/>
+        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(RootDomain, string, bool, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseAsync(RootDomain rootDomain, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseAsync(RootDomain rootDomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -186,7 +240,7 @@ namespace ReconNess.Services
 
             if (subdomain != null)
             {
-                await this.subdomainService.SaveTerminalOutputParseAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await this.subdomainService.SaveTerminalOutputParseAsync(subdomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
             }
         }
 

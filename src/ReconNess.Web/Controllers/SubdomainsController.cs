@@ -54,19 +54,19 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+            var subdomain = await this.subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -84,13 +84,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
@@ -112,19 +112,19 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == subdomainDto.Target, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
             }
 
-            var subdomainExist = await this.subdomainService.AnyAsync(s => s.Name == subdomainDto.Name && s.RootDomain == rootDomain);
+            var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name);
             if (subdomainExist)
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");

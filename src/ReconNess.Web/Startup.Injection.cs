@@ -19,6 +19,8 @@ namespace ReconNess.Web
             var optionsBuilder = new DbContextOptionsBuilder<ReconNessContext>();
             optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
 
+            services.AddHttpContextAccessor();
+
             services.AddSingleton<IJwtFactory, JwtFactory>();
 
             services.AddScoped<IDbContext>(d => new ReconNessContext(optionsBuilder.Options));
@@ -38,6 +40,7 @@ namespace ReconNess.Web
             services.AddScoped<IServiceService, ServiceService>();
             services.AddScoped<IReferenceService, ReferenceService>();
             services.AddScoped<INotificationService, NotificationService>();
+            services.AddScoped<IAuthProvider, AuthProvider>();
 
             services.AddSingleton<IAgentRunService, AgentRunService>();
             services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();

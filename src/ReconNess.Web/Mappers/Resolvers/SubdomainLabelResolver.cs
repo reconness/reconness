@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ReconNess.Web.Mappers.Resolvers
 {
-    internal class SubdomainLabelResolver : IValueResolver<SubdomainDto, Subdomain, ICollection<SubdomainLabel>>
+    internal class SubdomainLabelResolver : IValueResolver<SubdomainDto, Subdomain, ICollection<Label>>
     {
         private readonly ILabelService labelService;
 
@@ -15,9 +15,9 @@ namespace ReconNess.Web.Mappers.Resolvers
             this.labelService = labelService;
         }
 
-        public ICollection<SubdomainLabel> Resolve(SubdomainDto source, Subdomain destination, ICollection<SubdomainLabel> member, ResolutionContext context)
+        public ICollection<Label> Resolve(SubdomainDto source, Subdomain destination, ICollection<Label> member, ResolutionContext context)
         {
-            var SubdomainLabels = new List<SubdomainLabel>();
+            var labels = new List<Label>();
             if (source.Labels != null)
             {
                 source.Labels.ForEach(l =>
@@ -25,25 +25,19 @@ namespace ReconNess.Web.Mappers.Resolvers
                     var label = this.labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
                     if (label != null)
                     {
-                        SubdomainLabels.Add(new SubdomainLabel
-                        {
-                            LabelId = label.Id
-                        });
+                        labels.Add(label);
                     }
                     else
                     {
-                        SubdomainLabels.Add(new SubdomainLabel
+                        labels.Add(new Label
                         {
-                            Label = new Label
-                            {
-                                Name = label.Name
-                            }
+                            Name = label.Name
                         });
                     }
                 });
             }
 
-            return SubdomainLabels;
+            return labels;
         }
     }
 }

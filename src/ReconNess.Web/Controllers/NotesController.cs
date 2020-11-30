@@ -46,14 +46,14 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
             var rootDomain = await this.rootDomainService
-                .GetAllQueryableByCriteria(t => t.Name == rootDomainName && t.Target == target, cancellationToken)
+                .GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName, cancellationToken)
                     .Include(t => t.Notes)
                 .SingleAsync(cancellationToken);
 
@@ -76,13 +76,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();

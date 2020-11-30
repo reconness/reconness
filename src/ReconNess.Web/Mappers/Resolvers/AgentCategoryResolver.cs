@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace ReconNess.Web.Mappers.Resolvers
 {
-    internal class AgentCategoryResolver : IValueResolver<AgentDto, Agent, ICollection<AgentCategory>>
+    internal class AgentCategoryResolver : IValueResolver<AgentDto, Agent, ICollection<Category>>
     {
         private readonly IAgentCategoryService categoryService;
 
@@ -15,27 +15,21 @@ namespace ReconNess.Web.Mappers.Resolvers
             this.categoryService = categoryService;
         }
 
-        public ICollection<AgentCategory> Resolve(AgentDto source, Agent destination, ICollection<AgentCategory> member, ResolutionContext context)
+        public ICollection<Category> Resolve(AgentDto source, Agent destination, ICollection<Category> member, ResolutionContext context)
         {
-            var agentCategories = new List<AgentCategory>();
+            var agentCategories = new List<Category>();
             source.Categories.ForEach(cat =>
             {
                 var category = this.categoryService.GetByCriteriaAsync(c => c.Name == cat).Result;
                 if (category != null)
                 {
-                    agentCategories.Add(new AgentCategory
-                    {
-                        CategoryId = category.Id
-                    });
+                    agentCategories.Add(category);
                 }
                 else
                 {
-                    agentCategories.Add(new AgentCategory
+                    agentCategories.Add(new Category
                     {
-                        Category = new Category
-                        {
-                            Name = cat
-                        }
+                        Name = cat
                     });
                 }
             });

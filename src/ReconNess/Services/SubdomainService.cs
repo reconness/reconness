@@ -45,47 +45,43 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetAllWithIncludesAsync(Target RootDomain, string, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetSubdomainsAsync(Expression{Func{Subdomain, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<List<Subdomain>> GetAllWithIncludesAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            if (rootDomain == null)
-            {
-                return new List<Subdomain>();
-            }
-
-            IQueryable<Subdomain> query;
-            if (string.IsNullOrEmpty(subdomain))
-            {
-                query = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain, cancellationToken);
-            }
-            else
-            {
-                query = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
-            }
-
-            return await query
-                    .Include(t => t.Services)
-                    .Include(t => t.Notes)
-                    .Include(t => t.Directories)
-                    .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
-                    .OrderByDescending(s => s.CreatedAt)
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                    .Include(s => s.RootDomain)
+                    .Include(s => s.Services)
+                    .Include(s => s.Notes)
+                    .Include(s => s.Directories)
+                    .Include(s => s.Labels)
                 .ToListAsync(cancellationToken);
         }
 
         /// <summary>
-        /// <see cref="ISubdomainService.GetWithIncludeAsync(Expression<Func<Subdomain, bool>>, CancellationToken)"/>
+        /// <see cref="ISubdomainService.GetSubdomainAsync(Expression{Func{Subdomain, bool}}, CancellationToken)"/>
         /// </summary>
-        public async Task<Subdomain> GetWithIncludeAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
                     .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
-                    .OrderByDescending(s => s.CreatedAt)
+                .SingleAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.GetSubdomainNoTrackingAsync(Expression{Func{Subdomain, bool}}, CancellationToken)"/>
+        /// </summary>
+        public async Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
+        {
+            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+                    .Include(t => t.Services)
+                    .Include(t => t.Notes)
+                    .Include(t => t.Directories)
+                    .Include(t => t.Labels)
+                    .AsNoTracking()
                 .SingleAsync(cancellationToken);
         }
 
@@ -98,34 +94,64 @@ namespace ReconNess.Services
             if (string.IsNullOrEmpty(query))
             {
                 queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
-                    .Include(t => t.Services)
-                    .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
-                    .OrderByDescending(s => s.CreatedAt);
+                        .Select(subdomain => new Subdomain
+                        {
+                            Id = subdomain.Id,
+                            Name = subdomain.Name,
+                            CreatedAt = subdomain.CreatedAt,
+                            IpAddress = subdomain.IpAddress,
+                            AgentsRanBefore = subdomain.AgentsRanBefore,
+                            HasHttpOpen = subdomain.HasHttpOpen,
+                            IsAlive = subdomain.IsAlive,
+                            IsMainPortal = subdomain.IsMainPortal,
+                            Takeover = subdomain.Takeover,
+                            Labels = subdomain.Labels
+                                    .Select(label => new Label
+                                    {
+                                        Name = label.Name,
+                                        Color = label.Color
+                                    })
+                                    .ToList(),
+                            Services = subdomain.Services
+                                    .Select(service => new Service
+                                    {
+                                        Name = service.Name
+                                    }).ToList()
+                        })
+                    .OrderByDescending(s => s.CreatedAt)
+                    .AsNoTracking();
             }
             else
             {
                 queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
-                    .Include(t => t.Services)
-                    .Include(t => t.Labels)
-                        .ThenInclude(ac => ac.Label)
-                    .OrderByDescending(s => s.CreatedAt);
+                    .Select(subdomain => new Subdomain
+                    {
+                        Name = subdomain.Name,
+                        CreatedAt = subdomain.CreatedAt,
+                        IpAddress = subdomain.IpAddress,
+                        AgentsRanBefore = subdomain.AgentsRanBefore,
+                        HasHttpOpen = subdomain.HasHttpOpen,
+                        IsAlive = subdomain.IsAlive,
+                        IsMainPortal = subdomain.IsMainPortal,
+                        Takeover = subdomain.Takeover,
+                        Labels = subdomain.Labels
+                                    .Select(label => new Label
+                                    {
+                                        Name = label.Name,
+                                        Color = label.Color
+                                    })
+                                    .ToList(),
+                        Services = subdomain.Services
+                                    .Select(service => new Service
+                                    {
+                                        Name = service.Name
+                                    }).ToList()
+                    })
+                    .OrderByDescending(s => s.CreatedAt)
+                    .AsNoTracking();
             }
 
             return await queryable.GetPageAsync<Subdomain>(page, limit, cancellationToken);
-        }
-
-        /// <summary>
-        /// <see cref="ISubdomainService.AddLabelAsync(Subdomain, string, CancellationToken)"/>
-        /// </summary>
-        public async Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default)
-        {
-            var myLabels = subdomain.Labels.Select(l => l.Label.Name).ToList();
-            myLabels.Add(newLabel);
-
-            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
-
-            await this.UpdateAsync(subdomain, cancellationToken);
         }
 
         /// <summary>
@@ -135,8 +161,20 @@ namespace ReconNess.Services
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
                     .Include(t => t.Labels)
-                        .ThenInclude(la => la.Label)
                 .SingleAsync(cancellationToken);
+        }
+
+        /// <summary>
+        /// <see cref="ISubdomainService.AddLabelAsync(Subdomain, string, CancellationToken)"/>
+        /// </summary>
+        public async Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default)
+        {
+            var myLabels = subdomain.Labels.Select(l => l.Name).ToList();
+            myLabels.Add(newLabel);
+
+            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
+
+            await this.UpdateAsync(subdomain, cancellationToken);
         }
 
         /// <summary>
@@ -159,9 +197,9 @@ namespace ReconNess.Services
         }
 
         /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Subdomain, bool, ScriptOutput, CancellationToken)"/>
+        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Subdomain, string, bool, ScriptOutput, CancellationToken)"/>
         /// </summary>
-        public async Task SaveTerminalOutputParseAsync(Subdomain subdomain, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
+        public async Task SaveTerminalOutputParseAsync(Subdomain subdomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -171,6 +209,7 @@ namespace ReconNess.Services
                 subdomain = new Subdomain
                 {
                     Name = terminalOutputParse.Subdomain,
+                    AgentsRanBefore = agentName,
                     RootDomain = subdomain.RootDomain
                 };
 
@@ -537,7 +576,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task UpdateSubdomainLabelAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
-            if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Label.Name, StringComparison.OrdinalIgnoreCase)))
+            if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Name, StringComparison.OrdinalIgnoreCase)))
             {
                 var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower(), cancellationToken);
                 if (label == null)
@@ -550,11 +589,7 @@ namespace ReconNess.Services
                     };
                 }
 
-                subdomain.Labels.Add(new SubdomainLabel
-                {
-                    Label = label,
-                    SubdomainId = subdomain.Id
-                });
+                subdomain.Labels.Add(label);
 
                 await this.UpdateAsync(subdomain, cancellationToken);
             }

@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -59,7 +60,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAllWithIncludesAsync(cancellationToken);
+            var agents = await this.agentService.GetAgentsNoTrackingAsync(cancellationToken);
 
             var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
 
@@ -75,7 +76,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetWithIncludesAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await this.agentService.GetAgentNoTrackingAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -104,21 +105,19 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
+            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
             }
 
-            if (string.IsNullOrEmpty(agentDto.Script))
+            var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
+            if (string.IsNullOrEmpty(agent.Script))
             {
-                agentDto.Script = "return new ReconNess.Core.Models.ScriptOutput();";
+                agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
             }
 
-            var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
-
-            var userName = this.Request.HttpContext.User.Identity.Name;
-            await this.agentService.AddAgentAsync(agent, userName, cancellationToken);
+            await this.agentService.AddAgentAsync(agent, "Agent Added", cancellationToken);
 
             return NoContent();
         }
@@ -132,7 +131,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetWithIncludesAsync(t => t.Id == id, cancellationToken);
+            var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -149,7 +148,7 @@ namespace ReconNess.Web.Controllers
             agent.Command = agentDto.Command;
             agent.Script = agentDto.Script;
             agent.AgentType = agentDto.AgentType;
-            agent.AgentCategories = await this.categoryService.GetCategoriesAsync(agent.AgentCategories, agentDto.Categories, cancellationToken);
+            agent.Categories = await this.categoryService.GetCategoriesAsync(agent.Categories, agentDto.Categories, cancellationToken);
 
             if (agent.AgentTrigger == null)
             {
@@ -178,8 +177,7 @@ namespace ReconNess.Web.Controllers
             agent.AgentTrigger.SubdomainIncExcLabel = agentDto.TriggerSubdomainIncExcLabel;
             agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
 
-            var userName = this.Request.HttpContext.User.Identity.Name;
-            await this.agentService.UpdateAgentAsync(agent, userName, cancellationToken);
+            await this.agentService.UpdateAgentAsync(agent, cancellationToken);
 
             return NoContent();
         }
@@ -224,7 +222,7 @@ namespace ReconNess.Web.Controllers
             agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
             var userName = this.Request.HttpContext.User.Identity.Name;
-            var agentInstalled = await this.agentService.InstallAgentAsync(agent, userName, cancellationToken);
+            var agentInstalled = await this.agentService.AddAgentAsync(agent, "Agent Installed", cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
@@ -254,7 +252,7 @@ namespace ReconNess.Web.Controllers
         [HttpPost("run")]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetWithIncludesAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
+            var agent = await agentService.GetAgentToRunAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
             if (agent == null)
             {
                 return BadRequest();
@@ -263,7 +261,7 @@ namespace ReconNess.Web.Controllers
             Target target = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
                 if (target == null)
                 {
                     return BadRequest();
@@ -273,7 +271,7 @@ namespace ReconNess.Web.Controllers
             RootDomain rootDomain = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
             {
-                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
+                rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == agentRunnerDto.RootDomain, cancellationToken);
                 if (rootDomain == null)
                 {
                     return NotFound();
@@ -283,7 +281,7 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetWithIncludeAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetSubdomainAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
@@ -317,7 +315,7 @@ namespace ReconNess.Web.Controllers
             Target target = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                target = await this.targetService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
                 if (target == null)
                 {
                     return BadRequest();
@@ -327,7 +325,7 @@ namespace ReconNess.Web.Controllers
             RootDomain rootDomain = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
             {
-                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
+                rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
                 if (rootDomain == null)
                 {
                     return NotFound();
@@ -337,7 +335,11 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken)
+                        .AsNoTracking()
+                        .SingleOrDefaultAsync();
+
                 if (subdomain == null)
                 {
                     return NotFound();
@@ -364,7 +366,7 @@ namespace ReconNess.Web.Controllers
             Target target = default;
             if (!string.IsNullOrWhiteSpace(targetName))
             {
-                target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+                target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
                 if (target == null)
                 {
                     return BadRequest();
@@ -374,7 +376,7 @@ namespace ReconNess.Web.Controllers
             RootDomain rootDomain = default;
             if (!string.IsNullOrWhiteSpace(rootDomainName) && !"undefined".Equals(rootDomainName))
             {
-                rootDomain = await this.rootDomainService.GetByCriteriaAsync(t => t.Name == rootDomainName && t.Target == target, cancellationToken);
+                rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == rootDomainName, cancellationToken);
                 if (rootDomain == null)
                 {
                     return NotFound();
@@ -384,7 +386,10 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
             {
-                subdomain = await this.subdomainService.GetByCriteriaAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+                subdomain = await this.subdomainService
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
+                        .AsNoTracking()
+                        .SingleOrDefaultAsync();
                 if (subdomain == null)
                 {
                     return NotFound();

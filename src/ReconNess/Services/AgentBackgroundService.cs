@@ -37,19 +37,19 @@ namespace ReconNess.Services
                     AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var targetService = scope.ServiceProvider.GetRequiredService<ITargetService>();
-                    await targetService.SaveTerminalOutputParseAsync(agentRun.Target, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
+                    await targetService.SaveTerminalOutputParseAsync(agentRun.Target, agentRun.Agent.Name, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
                 }
                 else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                         AgentRunnerTypes.CURRENT_ROOTDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var rootDomainService = scope.ServiceProvider.GetRequiredService<IRootDomainService>();
-                    await rootDomainService.SaveTerminalOutputParseAsync(agentRun.RootDomain, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
+                    await rootDomainService.SaveTerminalOutputParseAsync(agentRun.RootDomain, agentRun.Agent.Name, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
                 }
                 else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                         AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var subdomainService = scope.ServiceProvider.GetRequiredService<ISubdomainService>();
-                    await subdomainService.SaveTerminalOutputParseAsync(agentRun.Subdomain, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
+                    await subdomainService.SaveTerminalOutputParseAsync(agentRun.Subdomain, agentRun.Agent.Name, agentRun.ActivateNotification, terminalOutputParse, cancellationToken);
                 }
             }
         }

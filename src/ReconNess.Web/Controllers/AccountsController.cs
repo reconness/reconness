@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -37,7 +38,9 @@ namespace ReconNess.Web.Controllers
         [HttpGet("notification")]
         public async Task<IActionResult> Notification(CancellationToken cancellationToken)
         {
-            var notification = await this.notificationService.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+            var notification = await this.notificationService.GetAllQueryableByCriteria(n => !n.Deleted, cancellationToken)
+                    .AsNoTracking()
+                .SingleOrDefaultAsync(cancellationToken);
 
             var notificationDto = this.mapper.Map<Notification, NotificationDto>(notification);
 

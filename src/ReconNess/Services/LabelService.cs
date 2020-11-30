@@ -29,7 +29,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="ILabelService.GetLabelsAsync(ICollection{SubdomainLabel}, List{string}, CancellationToken)"/>
         /// </summary>
-        public async Task<ICollection<SubdomainLabel>> GetLabelsAsync(ICollection<SubdomainLabel> myLabels, List<string> newLabels, CancellationToken cancellationToken = default)
+        public async Task<ICollection<Label>> GetLabelsAsync(ICollection<Label> myLabels, List<string> newLabels, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -45,10 +45,7 @@ namespace ReconNess.Services
                 myLabelsName.Add(newLabel);
 
                 var label = await GetNewOrExistLabel(newLabel, cancellationToken);
-                myLabels.Add(new SubdomainLabel
-                {
-                    LabelId = label.Id
-                });
+                myLabels.Add(label);
             }
 
             return myLabels;
@@ -60,18 +57,18 @@ namespace ReconNess.Services
         /// <param name="myLabels">The list of my Labels</param>
         /// <param name="newLabels">The list of string Labels</param>
         /// <returns>The names of the categorias that interset the old and the new Labels</returns>
-        private List<string> GetIntersectionLabelsName(ICollection<SubdomainLabel> myLabels, List<string> newLabels)
+        private List<string> GetIntersectionLabelsName(ICollection<Label> myLabels, List<string> newLabels)
         {
-            var myLabelsName = myLabels.Select(c => c.Label.Name).ToList();
+            var myLabelsName = myLabels.Select(c => c.Name).ToList();
             foreach (var myLabelName in myLabelsName)
             {
                 if (!newLabels.Contains(myLabelName))
                 {
-                    myLabels.Remove(myLabels.First(c => c.Label.Name == myLabelName));
+                    myLabels.Remove(myLabels.First(c => c.Name == myLabelName));
                 }
             }
 
-            return myLabels.Select(c => c.Label.Name).ToList();
+            return myLabels.Select(c => c.Name).ToList();
         }
 
         /// <summary>

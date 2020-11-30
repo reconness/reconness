@@ -9,6 +9,6 @@ namespace ReconNess.Entities
 
         public string Name { get; set; }
 
-        public virtual ICollection<AgentCategory> AgentCategories { get; set; }
+        public virtual ICollection<Agent> Agents { get; set; }
     }
 }
