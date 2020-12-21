@@ -36,3 +36,4 @@ steps:
       **\*UnitTests*.dll
       !**\*TestAdapter.dll
       !**\obj\**
+  continueOnError: true
