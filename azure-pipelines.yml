@@ -28,12 +28,3 @@ steps:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
 
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-    testAssemblyVer2: | # Required when testSelector == TestAssemblies
-      **\*UnitTests*.dll
-      !**\*TestAdapter.dll
-      !**\obj\**
-  continueOnError: true
