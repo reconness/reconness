@@ -1,4 +1,5 @@
-﻿using RabbitMQ.Client;
+﻿using NLog;
+using RabbitMQ.Client;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using System.Collections.Generic;
@@ -9,13 +10,15 @@ namespace ReconNess.PubSub
 {
     public class QueueAgentRunnerProvider : IAgentRunnerProvider
     {
+        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+
         ConnectionFactory _factory;
         IConnection _conn;
         IModel _channel;
 
         public QueueAgentRunnerProvider()
         {
-            _factory = new ConnectionFactory() { HostName = "localhost", Port = 5672 };
+            _factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
             _factory.UserName = "guest";
             _factory.Password = "guest";
             _conn = _factory.CreateConnection();
@@ -43,6 +46,8 @@ namespace ReconNess.PubSub
 
         public Task RunAsync(AgentRunnerProviderArgs providerArgs)
         {
+            _logger.Info($"Sending command to rabbitmq: {providerArgs.Command}");
+
             var body = Encoding.UTF8.GetBytes("server command: " + providerArgs.Command);
             _channel.BasicPublish(exchange: "",
                                 routingKey: "hello",

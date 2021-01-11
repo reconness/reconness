@@ -10,6 +10,7 @@ services:
       - '80:5000'
     depends_on:
       - 'postgres'
+      - 'rabbitmq'
     networks:
       - reconness-network
     environment:
@@ -41,6 +42,7 @@ services:
       - '5672:5672'
       # HTTP management UI
       - '15672:15672'
+    container_name: 'reconness-rabbitmq'
     environment:
       # The location of the RabbitMQ server.  "amqp" is the protocol;
       # "rabbitmq" is the hostname.  Note that there is not a guarantee
