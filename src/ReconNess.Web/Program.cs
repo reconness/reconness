@@ -36,7 +36,7 @@ namespace ReconNess.Web
             return WebHost.CreateDefaultBuilder(args)
                  .ConfigureServices((hostContext, services) =>
                  {
-                     services.AddHostedService<QueuedHostedService>();
+                     //services.AddHostedService<QueuedHostedService>();
                  })
                  .UseNLog()
                  .UseStartup<Startup>();

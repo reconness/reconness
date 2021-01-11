@@ -6,6 +6,7 @@ using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Data.Npgsql;
 using ReconNess.Providers;
+using ReconNess.PubSub;
 using ReconNess.Services;
 using ReconNess.Web.Auth;
 using ReconNess.Worker;
@@ -49,7 +50,8 @@ namespace ReconNess.Web
             services.AddSingleton<ILogsProvider, LogsProvider>();
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();
-            services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();
+            services.AddSingleton<IAgentRunnerProvider, QueueAgentRunnerProvider>();
+            //services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }

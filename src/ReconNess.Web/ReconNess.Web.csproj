@@ -35,6 +35,7 @@
     <ProjectReference Include="..\DAL\ReconNess.Data.Npgsql\ReconNess.Data.Npgsql.csproj" />
     <ProjectReference Include="..\ReconNess.Core\ReconNess.Core.csproj" />
     <ProjectReference Include="..\ReconNess.Entities\ReconNess.Entities.csproj" />
+    <ProjectReference Include="..\ReconNess.PubSub\ReconNess.PubSub.csproj" />
     <ProjectReference Include="..\ReconNess.Worker\ReconNess.Worker.csproj" />
     <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
   </ItemGroup>
