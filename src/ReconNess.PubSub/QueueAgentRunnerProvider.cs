@@ -41,7 +41,7 @@ namespace ReconNess.PubSub
 
         public Task<bool> IsStoppedAsync(string channel)
         {
-            return Task.FromResult(true);
+            return Task.FromResult(false);
         }
 
         public Task RunAsync(AgentRunnerProviderArgs providerArgs)
