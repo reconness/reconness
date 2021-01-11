@@ -19,6 +19,8 @@ services:
       - PostgresUser=reconness                    # postgres userName
       - PostgresPassword=reconness                # postgres password
       - PostgresDb=reconness                      # postgres database
+      - RabbitMQUser=reconness                    # rabbitmq userName
+      - RabbitMQPassword=reconness                # rabbitmq password
       - SecurityKey=mysecuritykeypleasechangethis # securityKey for the JWT, minimum length is 16 characters
 
   postgres:
@@ -49,8 +51,8 @@ services:
       # that the server will start first!  Telling the pika client library
       # to try multiple times gets around this ordering issue.
       AMQP_URL: 'amqp://rabbitmq?connection_attempts=5&retry_delay=5'
-      RABBITMQ_DEFAULT_USER: "guest"
-      RABBITMQ_DEFAULT_PASS: "guest"
+      RABBITMQ_DEFAULT_USER: "reconness"        # rabbitmq username, needs to be the same defined above 
+      RABBITMQ_DEFAULT_PASS: "reconness"        # rabbitmq password, needs to be the same defined above 
     networks:
       - reconness-network
 

@@ -42,6 +42,7 @@ namespace ReconNess.Web
                                                    .Replace("{{username}}", pgUserName)
                                                    .Replace("{{password}}", pgpassword);
             }
+
             services.AddDbContext<ReconNessContext>
             (
                 options => options

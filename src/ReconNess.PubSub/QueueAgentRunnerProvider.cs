@@ -1,7 +1,9 @@
-﻿using NLog;
+﻿using Microsoft.Extensions.Configuration;
+using NLog;
 using RabbitMQ.Client;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,11 +18,19 @@ namespace ReconNess.PubSub
         IConnection _conn;
         IModel _channel;
 
-        public QueueAgentRunnerProvider()
+        public QueueAgentRunnerProvider(IConfiguration configuration)
         {
-            _factory = new ConnectionFactory() { HostName = "rabbitmq", Port = 5672 };
-            _factory.UserName = "guest";
-            _factory.Password = "guest";
+            var rabbitmqConnectionString = configuration.GetConnectionString("DefaultRabbitmqConnection");
+
+            var rabbitMQUserName = Environment.GetEnvironmentVariable("RabbitMQUser") ??
+                                 Environment.GetEnvironmentVariable("RabbitMQUser", EnvironmentVariableTarget.User);
+            var rabbitMQPassword = Environment.GetEnvironmentVariable("RabbitMQPassword") ??
+                             Environment.GetEnvironmentVariable("RabbitMQPassword", EnvironmentVariableTarget.User);
+
+            rabbitmqConnectionString = rabbitmqConnectionString.Replace("{{username}}", rabbitMQUserName)
+                                                               .Replace("{{password}}", rabbitMQPassword);
+
+            _factory = new ConnectionFactory() { Uri = new Uri(rabbitmqConnectionString) };
             _conn = _factory.CreateConnection();
             _channel = _conn.CreateModel();
             _channel.QueueDeclare(queue: "hello",

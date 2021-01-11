@@ -17,18 +17,12 @@ namespace ReconNess.Web
     {
         private void AddDependencyInjection(IServiceCollection services)
         {
-            var optionsBuilder = new DbContextOptionsBuilder<ReconNessContext>();
-            optionsBuilder.UseNpgsql(Configuration.GetConnectionString("DefaultConnection"));
-
             services.AddHttpContextAccessor();
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
 
-            services.AddScoped<IDbContext>(d => new ReconNessContext(optionsBuilder.Options));
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IDbContext, ReconNessContext>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();            
 
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAgentRunnerService, AgentRunnerService>();
