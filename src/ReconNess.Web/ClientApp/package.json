@@ -22,10 +22,10 @@
     "vue": "2.6.12",
     "vue-axios": "2.1.5",
     "vue-loading-overlay": "3.4.2",
-    "vue-router": "3.4.9",
+    "vue-router": "3.5.1",
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
-    "vuex": "3.6.0",
+    "vuex": "3.6.2",
     "xterm": "4.9.0"
   },
   "devDependencies": {
