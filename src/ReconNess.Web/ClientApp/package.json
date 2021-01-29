@@ -26,7 +26,7 @@
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
     "vuex": "3.6.0",
-    "xterm": "4.9.0"
+    "xterm": "4.10.0"
   },
   "devDependencies": {
     "@aspnet/signalr": "1.1.4",
