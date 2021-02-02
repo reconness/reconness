@@ -1,3 +1,10 @@
+## [1.6.4] - 2021-02-02
+
+### Added
+
+- Fix Dockerfile
+- Update packages
+
 ## [1.6.3] - 2020-11-18
 
 ### Added
