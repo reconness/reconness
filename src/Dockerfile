@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
 WORKDIR /app
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
@@ -11,6 +11,7 @@ COPY ["DAL/ReconNess.Data.Npgsql/ReconNess.Data.Npgsql.csproj", "DAL/ReconNess.D
 COPY ["ReconNess.Web/ReconNess.Web.csproj", "ReconNess.Web/"]
 COPY ["ReconNess.Entities/ReconNess.Entities.csproj", "ReconNess.Entities/"]
 COPY ["ReconNess.Core/ReconNess.Core.csproj", "ReconNess.Core/"]
+COPY ["ReconNess.Worker/ReconNess.Worker.csproj", "ReconNess.Worker/"]
 COPY ["ReconNess/ReconNess.csproj", "ReconNess/"]
 RUN dotnet restore "ReconNess.Web/ReconNess.Web.csproj"
 
