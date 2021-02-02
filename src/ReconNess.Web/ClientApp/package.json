@@ -22,11 +22,11 @@
     "vue": "2.6.12",
     "vue-axios": "2.1.5",
     "vue-loading-overlay": "3.4.2",
-    "vue-router": "3.4.9",
+    "vue-router": "3.5.1",
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
-    "vuex": "3.6.0",
-    "xterm": "4.9.0"
+    "vuex": "3.6.2",
+    "xterm": "4.10.0"
   },
   "devDependencies": {
     "@aspnet/signalr": "1.1.4",
@@ -35,7 +35,7 @@
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.1.0",
     "eslint": "7.18.0",
-    "eslint-plugin-vue": "7.4.1",
+    "eslint-plugin-vue": "7.5.0",
     "vue-template-compiler": "2.6.12",
     "vue2-ace-editor": "0.0.15"
   }
