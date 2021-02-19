@@ -1,3 +1,10 @@
+## [1.6.5] - 2021-02-19
+
+### Added
+
+- Add Swagger
+- Update packages
+
 ## [1.6.4] - 2021-02-02
 
 ### Added
