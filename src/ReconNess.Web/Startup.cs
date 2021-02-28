@@ -9,7 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using ReconNess.Data.Npgsql;
 using System;
+using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using VueCliMiddleware;
 namespace ReconNess.Web
@@ -102,7 +104,12 @@ namespace ReconNess.Web
 
                     }
                 });
-            });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
+            });            
 
             services.AddSignalR();
         }
