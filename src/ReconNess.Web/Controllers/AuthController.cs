@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ReconNess.Web.Auth;
 using ReconNess.Web.Models;
@@ -6,10 +7,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReconNess.Web.Controllers
 {
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
@@ -30,9 +33,24 @@ namespace ReconNess.Web.Controllers
             this.jwtOptions = jwtOptions.Value;
         }
 
-        // POST api/auth/login
+        /// <summary>
+        /// Obtain the notifications configuration.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/auth/login
+        ///
+        /// </remarks>
+        /// <param name="credentials"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The notifications configuration</returns>
+        /// <response code="200">Returns the notifications configuration</response>
+        /// <response code="400">Bad Request</response>
         [HttpPost("[action]")]
-        public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {

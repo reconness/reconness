@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Services;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 namespace ReconNess.Web.Controllers
 {
     [Authorize]
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class NotesController : ControllerBase
@@ -37,8 +39,29 @@ namespace ReconNess.Web.Controllers
             this.subdomainService = subdomainService;
         }
 
-        // GET api/notes/rootdomain/{targetName}/{rootDomainName}
+        /// <summary>
+        /// Obtain the notifications configuration.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/notes/rootdomain/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName"></param>
+        /// <param name="rootDomainName"></param>
+        /// <param name="noteDto"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The notifications configuration</returns>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("rootdomain/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SaveRootDomainNotes(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
@@ -67,8 +90,30 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // GET api/notes/subdomain/{target}/{rootDomainName}/{subdomain}
+        /// <summary>
+        /// Obtain the notifications configuration.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/notes/subdomain/{target}/{rootDomainName}/{subdomain}
+        ///
+        /// </remarks>
+        /// <param name="targetName"></param>
+        /// <param name="rootDomainName"></param>
+        /// <param name="subdomainName"></param>
+        /// <param name="noteDto"></param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The notifications configuration</returns>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("subdomain/{targetName}/{rootDomainName}/{subdomainName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomainName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
