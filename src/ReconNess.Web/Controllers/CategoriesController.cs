@@ -35,7 +35,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the list of agent categories.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -44,8 +44,8 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of agent categories</returns>
+        /// <response code="200">Returns the list of agent categories</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]

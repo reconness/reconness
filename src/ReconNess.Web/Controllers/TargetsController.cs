@@ -42,9 +42,9 @@ namespace ReconNess.Web.Controllers
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
         }
-                
+
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the list of targets.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -53,8 +53,8 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of targets</returns>
+        /// <response code="200">Returns the list of targets</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -67,7 +67,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain a target by name.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -75,10 +75,10 @@ namespace ReconNess.Web.Controllers
         ///     GET api/targets/{targetName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
+        /// <param name="targetName">The target name</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>A target by name</returns>
+        /// <response code="200">Returns a target by name</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("{targetName}")]
@@ -102,17 +102,26 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Save a target.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/targets
+        ///     {
+        ///         "name": "targetname",
+        ///         "inScope": "details about what is in scope",
+        ///         "outOfScope": "details about what is out of scope",
+        ///         "bugBountyProgramUrl": "https://www.hackerone.com/xxxxx",
+        ///         "isPrivate": "true",
+        ///         "rootDomains": [{
+        ///           "name": "xxxxx"  
+        ///         }]
+        ///     }
         ///
         /// </remarks>
-        /// <param name="targetDto"></param>
+        /// <param name="targetDto">The target dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -141,18 +150,27 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Update a target by id.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     PUT api/targets/{id}
+        ///    {
+        ///         "name": "targetname",
+        ///         "inScope": "details about what is in scope updated",
+        ///         "outOfScope": "details about what is out of scope updated",
+        ///         "bugBountyProgramUrl": "https://www.hackerone.com/xxxxx",
+        ///         "isPrivate": "true",
+        ///         "rootDomains": [{
+        ///           "name": "xxxxx"  
+        ///         }]
+        ///     }
         ///
         /// </remarks>
-        /// <param name="id"></param>
-        /// <param name="targetDto"></param>
+        /// <param name="id">The target id</param>
+        /// <param name="targetDto">The target dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -194,7 +212,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Delete the target by name.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -202,9 +220,8 @@ namespace ReconNess.Web.Controllers
         ///     DELETE api/targets/{targetName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
+        /// <param name="targetName">The target name</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -233,7 +250,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Import a rootdomain with all the subdomains in the target.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -241,11 +258,11 @@ namespace ReconNess.Web.Controllers
         ///     POST api/targets/importRootDomain/{targetName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="file"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="file">the rootdomain json with all the subdomains too</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The rootdomain name imported</returns>
+        /// <response code="200">Returns the rootdomain name imported</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>

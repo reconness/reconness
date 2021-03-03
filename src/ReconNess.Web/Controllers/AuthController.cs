@@ -34,19 +34,23 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Do the login.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/auth/login
+        ///     {
+        ///         "userName": "myusername",
+        ///         "password": "mypassword"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="credentials"></param>
+        /// <param name="credentials">The credentials</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
-        /// <response code="400">Bad Request</response>
+        /// <returns>The JWT</returns>
+        /// <response code="200">Returns the JWT</response>
+        /// <response code="400">Bad Request if the credentials are not correct</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

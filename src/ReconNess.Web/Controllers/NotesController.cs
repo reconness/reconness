@@ -40,19 +40,21 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Save a note for the rootdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/notes/rootdomain/{targetName}/{rootDomainName}
+        ///     {
+        ///         "notes": "The new note"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
-        /// <param name="noteDto"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain name</param>
+        /// <param name="noteDto">The Note dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -91,20 +93,22 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Save a note for the subdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/notes/subdomain/{target}/{rootDomainName}/{subdomain}
+        ///     {
+        ///         "notes": "The new note"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
-        /// <param name="subdomainName"></param>
-        /// <param name="noteDto"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain name</param>
+        /// <param name="subdomainName">The subdomain name</param>
+        /// <param name="noteDto">The note dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>

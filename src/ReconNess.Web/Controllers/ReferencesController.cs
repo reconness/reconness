@@ -35,7 +35,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the list of references.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -44,8 +44,8 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of references</returns>
+        /// <response code="200">Returns the list of references</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -60,7 +60,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the list of reference categories.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -69,8 +69,8 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of reference categories</returns>
+        /// <response code="200">Returns the list of reference categories</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("categories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -83,18 +83,22 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Save a new reference.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/references
+        ///     {
+        ///         "url": "wwww.therefernece.com",
+        ///         "categories": "category1, category2"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="referenceDto"></param>
+        /// <param name="referenceDto">The reference dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The new reference</returns>
+        /// <response code="200">Returns the new reference</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
@@ -116,7 +120,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Delete the reference.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -124,9 +128,8 @@ namespace ReconNess.Web.Controllers
         ///     DELETE api/references/{id}
         ///
         /// </remarks>
-        /// <param name="id"></param>
+        /// <param name="id">The reference id</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
