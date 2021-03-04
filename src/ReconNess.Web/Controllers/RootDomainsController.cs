@@ -240,7 +240,7 @@ namespace ReconNess.Web.Controllers
         /// <param name="targetName">The target name</param>
         /// <param name="rootDomainName">The rootdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The csv file with all the subdomains beloing to the rootdomain/returns>
+        /// <returns>The csv file with all the subdomains beloing to the rootdomain</returns>
         /// <response code="200">Returns the csv file with all the subdomains beloing to the rootdomain</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>

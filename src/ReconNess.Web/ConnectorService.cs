@@ -23,7 +23,7 @@ namespace ReconNess.Web
         }
 
         /// <summary>
-        /// <see cref="IConnectorService.SendAsync(string, string, CancellationToken)"/>
+        /// <see cref="IConnectorService.SendAsync(string, string, bool, CancellationToken)"/>
         /// </summary>
         public async Task SendAsync(string channel, string msg, bool includeTime = true, CancellationToken cancellationToken = default)
         {
