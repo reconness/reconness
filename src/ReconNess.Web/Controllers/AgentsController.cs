@@ -59,7 +59,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the list of agents installed.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -68,8 +68,8 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of agents</returns>
+        /// <response code="200">Returns the list of agents</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -84,7 +84,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain an agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -92,10 +92,10 @@ namespace ReconNess.Web.Controllers
         ///     GET api/agents/{agentName}
         ///
         /// </remarks>
-        /// <param name="agentName"></param>
+        /// <param name="agentName">The agent name</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The agent</returns>
+        /// <response code="200">Returns the agent</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -121,7 +121,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the marketplace of agents, with all the agents that we can install on reconness by default.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -130,8 +130,8 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of agents in the marketplace</returns>
+        /// <response code="200">Returns the list of agents in the marketplace</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("marketplace")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -146,17 +146,23 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Save a new agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/agents
+        ///     {
+        ///         "name": "mynewagent",
+        ///         "command": "myagent -h -d {{rootdomain}}",
+        ///         "repository": "www.github.com/myaccount/myproject",
+        ///         "agentType": "subdomain",
+        ///         "categories": "scan subdomains"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="agentDto"></param>
+        /// <param name="agentDto">The agent dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -189,18 +195,25 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Update an agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     PUT api/agents/{id}
+        ///     { 
+        ///         "name": "mynewagent",
+        ///         "command": "myagent -h -d {{rootdomain}}",
+        ///         "repository": "www.github.com/myaccount/myproject",
+        ///         "agentType": "subdomain",
+        ///         "categories": "scan subdomains",
+        ///         "script": "// the script here"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="id"></param>
-        /// <param name="agentDto"></param>
+        /// <param name="id">The agent id</param>
+        /// <param name="agentDto">The agent dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -269,7 +282,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Delete an agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -277,9 +290,8 @@ namespace ReconNess.Web.Controllers
         ///     DELETE api/agents/{agentName}
         ///
         /// </remarks>
-        /// <param name="agentName"></param>
+        /// <param name="agentName">The agent name</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -306,7 +318,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Install a new agent from the marketplace.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -314,10 +326,10 @@ namespace ReconNess.Web.Controllers
         ///     POST api/agents/install
         ///
         /// </remarks>
-        /// <param name="agentDefaultDto"></param>
+        /// <param name="agentDefaultDto">The agent dto from the marketplace</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The agent installed</returns>
+        /// <response code="200">Returns the agent installed</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -343,25 +355,28 @@ namespace ReconNess.Web.Controllers
 
             agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
-            var userName = this.Request.HttpContext.User.Identity.Name;
             var agentInstalled = await this.agentService.AddAgentAsync(agent, "Agent Installed", cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Debug an agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/agents/debug
+        ///     {
+        ///         "terminalOutput": "the terminal output that we want to debug",
+        ///         "script": "// the script that is going to parse and debug the terminal output define above"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="agentDebugDto"></param>
+        /// <param name="agentDebugDto">The agent debug dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The debug output</returns>
+        /// <response code="200">Returns thedebug output</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost("debug")]
@@ -388,17 +403,24 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Run an agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/agents/run
+        ///     {
+        ///         "agent": "myagent",
+        ///         "command": "myagent -h -d {{subdomain}}",
+        ///         "target": "mytarget",
+        ///         "rootdomain": "myrootdomain.com"
+        ///         "subdomain": "www.mysubdomain.com",
+        ///         "activateNotification": true
+        ///     }
         ///
         /// </remarks>
-        /// <param name="agentRunnerDto"></param>
+        /// <param name="agentRunnerDto">The agent dto to run</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -461,15 +483,21 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Stop an agent.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/agents/stop
+        ///     {
+        ///         "agent": "myagent",
+        ///         "target": "mytarget",
+        ///         "rootdomain": "myrootdomain.com"
+        ///         "subdomain": "www.mysubdomain.com"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="agentRunnerDto"></param>
+        /// <param name="agentRunnerDto">The agent dto to stop</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
@@ -537,7 +565,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain if a specific agent is running.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -545,12 +573,12 @@ namespace ReconNess.Web.Controllers
         ///     GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
-        /// <param name="subdomainName"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainName">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>If a specific agent is running</returns>
+        /// <response code="200">Returns if a specific agent is running</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
