@@ -48,7 +48,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain a subdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -56,12 +56,12 @@ namespace ReconNess.Web.Controllers
         ///     GET api/subdomains/{target}/{rootDomainName}/{subdomain}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
-        /// <param name="subdomainName"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainName">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>A subdomain</returns>
+        /// <response code="200">Returns a subdomain</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("{targetName}/{rootDomainName}/{subdomainName}")]
@@ -97,20 +97,27 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain the list of subdomains paginate.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     GET api/subdomains/{target}/{rootDomainName}
+        ///     {
+        ///         "query": "443",
+        ///         "limit": 10,
+        ///         "ascending": 1,
+        ///         "page", 1,
+        ///         "byColumn": 1
+        ///     }
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
-        /// <param name="subdomainQueryDto"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainQueryDto">The subdomain query dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The list of subdomains paginate</returns>
+        /// <response code="200">Returns the list of subdomains paginate</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("GetPaginate/{targetName}/{rootDomainName}")]
@@ -144,18 +151,23 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Save a new subdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     POST api/subdomains
+        ///     {
+        ///         "name": "www.xxxxx.com",
+        ///         "target": "xxxxx",
+        ///         "rootDomain": "xxxxx.com"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="subdomainDto"></param>
+        /// <param name="subdomainDto">The subdomain dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>A new subdomain</returns>
+        /// <response code="200">Returns a new subdomain</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
@@ -197,18 +209,30 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Update a subdomain by id.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     PUT api/subdomains/{id}
+        ///     {
+        ///         "name": "updated.xxxxx.com",
+        ///         "isMainPortal": true,
+        ///         "labels":
+        ///         [
+        ///             {
+        ///                 "name": "bug"
+        ///             },
+        ///             {
+        ///                 "name": "bounty"
+        ///             }
+        ///         ]
+        ///     }
         ///
         /// </remarks>
-        /// <param name="id"></param>
-        /// <param name="subdomainDto"></param>
+        /// <param name="id">The subdomain id</param>
+        /// <param name="subdomainDto">The subdomain dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -243,18 +267,20 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Add a new label to a subdomian.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
         ///     PUT api/subdomains/label/{id}
+        ///     {
+        ///         "label": "newlabel"
+        ///     }
         ///
         /// </remarks>
-        /// <param name="id"></param>
-        /// <param name="subdomainLabelDto"></param>
+        /// <param name="id">The subdomain id</param>
+        /// <param name="subdomainLabelDto">The subdomain label dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -276,7 +302,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Delete a subdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -284,9 +310,8 @@ namespace ReconNess.Web.Controllers
         ///     DELETE api/subdomains/{id}
         ///
         /// </remarks>
-        /// <param name="id"></param>
+        /// <param name="id">The subdomain id</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>

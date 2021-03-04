@@ -40,7 +40,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Obtain a rootdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -48,11 +48,11 @@ namespace ReconNess.Web.Controllers
         ///     GET api/rootdomains/{targetName}/{rootDomainName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>A rootdomain</returns>
+        /// <response code="200">Returns a rootdomain</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("{targetName}/{rootDomainName}")]
@@ -78,7 +78,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Delete all the subdomains belong to the rootdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -86,10 +86,9 @@ namespace ReconNess.Web.Controllers
         ///     DELETE api/rootdomains/deleteSubdomians/{targetName}/{rootDomainName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -124,7 +123,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Export the rootdomian with all the subdomains.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -132,11 +131,11 @@ namespace ReconNess.Web.Controllers
         ///     GET api/rootdomains/export/{targetName}/{rootDomainName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The json file with the rootdomain and the subdomains data</returns>
+        /// <response code="200">Returns the json file with the rootdomain and the subdomains data</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -172,7 +171,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Upload a list of subdomains to the rootdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -180,11 +179,10 @@ namespace ReconNess.Web.Controllers
         ///     POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
-        /// <param name="file"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="file">The file with all the subdomains to be uploaded</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
@@ -231,7 +229,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the notifications configuration.
+        /// Download all the subdomain to a csv file.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -239,11 +237,11 @@ namespace ReconNess.Web.Controllers
         ///     GET api/rootdomains/exportSubdomains/{targetName}/{rootDomainName}
         ///
         /// </remarks>
-        /// <param name="targetName"></param>
-        /// <param name="rootDomainName"></param>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The notifications configuration</returns>
-        /// <response code="200">Returns the notifications configuration</response>
+        /// <returns>The csv file with all the subdomains beloing to the rootdomain/returns>
+        /// <response code="200">Returns the csv file with all the subdomains beloing to the rootdomain</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
