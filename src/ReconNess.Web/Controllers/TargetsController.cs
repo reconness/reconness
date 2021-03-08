@@ -150,7 +150,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Update a target by id.
+        /// Update a target.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -212,7 +212,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Delete the target by name.
+        /// Delete a target.
         /// </summary>
         /// <remarks>
         /// Sample request:

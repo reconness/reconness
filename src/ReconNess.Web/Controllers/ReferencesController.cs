@@ -120,7 +120,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Delete the reference.
+        /// Delete a reference.
         /// </summary>
         /// <remarks>
         /// Sample request:

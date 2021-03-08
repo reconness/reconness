@@ -209,7 +209,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Update a subdomain by id.
+        /// Update a subdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -267,7 +267,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Add a new label to a subdomian.
+        /// Add a new label to the subdomian.
         /// </summary>
         /// <remarks>
         /// Sample request:
