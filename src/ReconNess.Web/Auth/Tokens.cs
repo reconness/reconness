@@ -13,7 +13,6 @@ namespace ReconNess.Web.Auth
         /// <param name="claims"></param>
         /// <param name="jwtFactory"></param>
         /// <param name="jwtOptions"></param>
-        /// <param name="serializerSettings"></param>
         /// <returns></returns>
         public static async Task<object> GenerateJwt(string userName, IList<Claim> claims, IJwtFactory jwtFactory, JwtIssuerOptions jwtOptions)
         {

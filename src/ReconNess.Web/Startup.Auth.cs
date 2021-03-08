@@ -19,6 +19,7 @@ namespace ReconNess.Web
         /// 
         /// </summary>
         /// <param name="services"></param>
+        /// <param name="env"></param>
         private void ConfigureAuth(IServiceCollection services, IWebHostEnvironment env)
         {
             // jwt wire up
