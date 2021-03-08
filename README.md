@@ -32,6 +32,9 @@ DotNet 5
 
 [https://dotnet.microsoft.com/download/dotnet/5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
 
+We are working in the **NEW UI**, you can check here the progress
+[http://134.209.46.128/](http://134.209.46.128/)
+
 ## Join us
 
 If you want to know what is next or you want to help us, please join us.
