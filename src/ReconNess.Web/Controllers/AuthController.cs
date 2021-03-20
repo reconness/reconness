@@ -70,7 +70,8 @@ namespace ReconNess.Web.Controllers
             var defaultUserExistOrWasCreated = await this.CheckOrAddDefaultUser();
             if (!defaultUserExistOrWasCreated)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, "We had issues creating the default user");
+                var errorMsg = "We had an issue creating the default User, please check if you have 'ReconnessUserName' and 'ReconnessPassword' in your local environment variables";
+                return StatusCode(StatusCodes.Status500InternalServerError, errorMsg);
             }
 
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
@@ -94,19 +95,23 @@ namespace ReconNess.Web.Controllers
         /// <returns>If the user exist or was created succefully</returns>
         private async Task<bool> CheckOrAddDefaultUser()
         {
+            if (signInManager.UserManager.Users.Count() != 0)
+            {
+                return true;
+            }
+
             var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
                               Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
 
             var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
                               Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
 
-            var user = await signInManager.UserManager.FindByNameAsync(envUserName);
-            if (user != null)
+            if (string.IsNullOrEmpty(envUserName) || string.IsNullOrEmpty(envPassword))
             {
-                return true;
+                return false;
             }
 
-            user = new User { UserName = envUserName, Email = $"{envUserName}@youremaildomainhere.com" };
+            User user = new User { UserName = envUserName, Email = $"{envUserName}@youremaildomainhere.com" };
             
             var result = await signInManager.UserManager.CreateAsync(user, envPassword);
             if (result.Succeeded)
