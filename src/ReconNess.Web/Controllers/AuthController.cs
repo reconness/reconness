@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using ReconNess.Entities;
 using ReconNess.Web.Auth;
 using ReconNess.Web.Models;
 using System;
@@ -19,18 +21,22 @@ namespace ReconNess.Web.Controllers
     {
         private readonly IJwtFactory jwtFactory;
         private readonly JwtIssuerOptions jwtOptions;
+        private readonly SignInManager<User> signInManager;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthController" /> class
         /// </summary>
         /// <param name="jwtFactory"><see cref="IJwtFactory"/></param>
         /// <param name="jwtOptions"><see cref="JwtIssuerOptions"/></param>
+        /// <param name="signInManager"></param>
         public AuthController(
             IJwtFactory jwtFactory,
-            IOptions<JwtIssuerOptions> jwtOptions)
+            IOptions<JwtIssuerOptions> jwtOptions,
+            SignInManager<User> signInManager)
         {
             this.jwtFactory = jwtFactory;
             this.jwtOptions = jwtOptions.Value;
+            this.signInManager = signInManager;
         }
 
         /// <summary>
@@ -61,6 +67,12 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("Invalid username or password.");
             }
 
+            var defaultUserExistOrWasCreated = await this.CheckOrAddDefaultUser();
+            if (!defaultUserExistOrWasCreated)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "We had issues creating the default user");
+            }
+
             var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
             if (identity == null)
             {
@@ -77,6 +89,36 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
+        /// Check if the default user exist and create it if it is not
+        /// </summary>
+        /// <returns>If the user exist or was created succefully</returns>
+        private async Task<bool> CheckOrAddDefaultUser()
+        {
+            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
+                              Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
+
+            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
+                              Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
+
+            var user = await signInManager.UserManager.FindByNameAsync(envUserName);
+            if (user != null)
+            {
+                return true;
+            }
+
+            user = new User { UserName = envUserName, Email = $"{envUserName}@youremaildomainhere.com" };
+            
+            var result = await signInManager.UserManager.CreateAsync(user, envPassword);
+            if (result.Succeeded)
+            {
+                user = await signInManager.UserManager.FindByNameAsync(envUserName);
+                await signInManager.UserManager.AddToRoleAsync(user, "Admin");
+            }
+
+            return result.Succeeded;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="userName"></param>
@@ -85,14 +127,14 @@ namespace ReconNess.Web.Controllers
         private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password)
         {
             // get the user from active directory
-            var user = SingInEnv(userName, password);
+            var user = await this.SingInAsync(userName, password);
             if (user != null)
             {
-                return await Task.FromResult(jwtFactory.GenerateClaimsIdentity(user.UserName, GetClaims(user)));
+                return jwtFactory.GenerateClaimsIdentity(user.UserName, await GetClaimsAsync(user));
             }
 
             // Credentials are invalid, or account doesn't exist
-            return await Task.FromResult<ClaimsIdentity>(null);
+            return null;
         }
 
         /// <summary>
@@ -100,10 +142,13 @@ namespace ReconNess.Web.Controllers
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        private List<Claim> GetClaims(User user)
+        private async Task<List<Claim>> GetClaimsAsync(User user)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim("userName", user.UserName.ToString()));
+            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName.ToString()));
+
+            var roles = await signInManager.UserManager.GetRolesAsync(user);
+            claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, string.Join(',', roles)));
 
             return claims;
         }
@@ -114,20 +159,12 @@ namespace ReconNess.Web.Controllers
         /// <param name="userName"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        private User SingInEnv(string userName, string password)
+        private async Task<User> SingInAsync(string userName, string password)
         {
-            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
-                              Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
-
-            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
-                              Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
-
-            if (userName.Equals(envUserName) && password.Equals(envPassword))
+            var result = await signInManager.PasswordSignInAsync(userName, password, false, false);
+            if (result.Succeeded)
             {
-                return new User
-                {
-                    UserName = userName
-                };
+                return await signInManager.UserManager.FindByNameAsync(userName);
             }
 
             return null;

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using ReconNess.Core;
@@ -16,7 +17,7 @@ namespace ReconNess.Data.Npgsql
     /// <summary>
     /// This class implement the interface <see cref="IDbContext"/>
     /// </summary>
-    public class ReconNessContext : DbContext, IDbContext
+    public class ReconNessContext : IdentityDbContext<User, Role, Guid>, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
         public DbSet<AgentRun> AgentRuns { get; set; }
@@ -170,6 +171,7 @@ namespace ReconNess.Data.Npgsql
         private void RunSeed(ModelBuilder modelBuilder)
         {
             LabelSeeding.Run(modelBuilder);
+            IdentitySeeding.Run(modelBuilder);
         }
 
         /// <summary>

@@ -10,5 +10,11 @@
         /// </summary>
         /// <returns></returns>
         string UserName();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        string[] Roles();
     }
 }

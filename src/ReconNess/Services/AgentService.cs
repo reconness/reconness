@@ -96,7 +96,7 @@ namespace ReconNess.Services
         /// <see cref="IAgentService.GetAgentAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
         /// </summary>
         public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
-        {
+        {            
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)

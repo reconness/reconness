@@ -2,12 +2,14 @@ using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using ReconNess.Data.Npgsql;
+using ReconNess.Entities;
 using System;
 using System.IO;
 using System.Net;
@@ -44,16 +46,10 @@ namespace ReconNess.Web
                 connectionString = connectionString.Replace("{{database}}", pgDatabase)
                                                    .Replace("{{username}}", pgUserName)
                                                    .Replace("{{password}}", pgpassword);
-            }
-            services.AddDbContext<ReconNessContext>
-            (
-                options => options
-                    .UseNpgsql(connectionString)
-                    .LogTo(Console.WriteLine)
-            );
+            }                       
 
             // Auth
-            this.ConfigureAuth(services, Env);
+            this.ConfigureAuth(services, Env, connectionString);
 
             this.AddDependencyInjection(services);
 

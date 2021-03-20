@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -9,9 +10,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20210320174308_AddIdentity")]
+    partial class AddIdentity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -635,18 +637,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("ade752b1-af9e-4ba8-5706-35ad1c1e94ee"),
-                            ConcurrencyStamp = "644cb7e1-5051-49a8-8c28-f0576ab692d2",
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Deleted = false,
-                            Name = "Admin",
-                            NormalizedName = "ADMIN",
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("ReconNess.Entities.RootDomain", b =>
