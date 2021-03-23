@@ -46,6 +46,7 @@
                                 Account
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <router-link class="dropdown-item" to="/users">Users</router-link>
                                 <router-link class="dropdown-item" to="/notifications">Notifications</router-link>
                                 <router-link class="dropdown-item" to="/logs">Logs</router-link>
                                 <div class="dropdown-divider"></div>

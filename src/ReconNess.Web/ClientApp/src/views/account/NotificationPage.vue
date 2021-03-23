@@ -81,7 +81,7 @@
     import helpers from '../../helpers'
 
     export default {
-        name: 'NotificatinoPage',
+        name: 'NotificationPage',
         components: {
             Loading
         },
