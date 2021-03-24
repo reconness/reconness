@@ -26,9 +26,7 @@ namespace ReconNess.Services
             this.serviceProvider = serviceProvider;
         }
 
-        /// <summary>
-        /// <see cref="IAgentBackgroundService.SaveOutputParseOnScopeAsync(AgentRunner, string, ScriptOutput, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, string agentRunType, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())
@@ -54,9 +52,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="IAgentBackgroundService.UpdateSubdomainAgentOnScopeAsync(AgentRunner, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentOnScopeAsync(AgentRunner agentRun, string agentRunType, CancellationToken cancellationToken = default)
         {
             using (var scope = this.serviceProvider.CreateScope())

@@ -38,9 +38,7 @@ namespace ReconNess.Services
             this.notificationService = notificationService;
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.GetRootDomainNoTrackingAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<RootDomain> GetRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
@@ -54,9 +52,7 @@ namespace ReconNess.Services
                     .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.GetRootDomainWithSubdomainsAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<RootDomain> GetRootDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
@@ -64,9 +60,7 @@ namespace ReconNess.Services
                     .SingleOrDefaultAsync();
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.ExportRootDomainNoTrackingAsync(Expression{Func{RootDomain, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
@@ -125,9 +119,7 @@ namespace ReconNess.Services
                     .SingleOrDefaultAsync();
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.DeleteSubdomainsAsync(RootDomain, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task DeleteSubdomainsAsync(RootDomain rootDomain, CancellationToken cancellationToken)
         {
             rootDomain.Subdomains.Clear();
@@ -135,9 +127,7 @@ namespace ReconNess.Services
             await this.UpdateAsync(rootDomain, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.UploadSubdomainsAsync(RootDomain, IEnumerable<UploadSubdomain>, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UploadSubdomainsAsync(RootDomain rootDomain, IEnumerable<string> uploadSubdomains, CancellationToken cancellationToken = default)
         {
             if (rootDomain.Subdomains == null)
@@ -163,9 +153,7 @@ namespace ReconNess.Services
             await this.UpdateAsync(rootDomain, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.GetRootDomains(ICollection{RootDomain}, List{string}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -187,9 +175,7 @@ namespace ReconNess.Services
             return myRootDomains;
         }
 
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(RootDomain, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentRanAsync(RootDomain rootDomain, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -206,9 +192,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(RootDomain, string, bool, ScriptOutput, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveTerminalOutputParseAsync(RootDomain rootDomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

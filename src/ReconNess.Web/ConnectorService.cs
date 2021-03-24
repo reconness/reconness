@@ -22,9 +22,7 @@ namespace ReconNess.Web
             this.reconnessHub = reconnessHub;
         }
 
-        /// <summary>
-        /// <see cref="IConnectorService.SendAsync(string, string, bool, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SendAsync(string channel, string msg, bool includeTime = true, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

@@ -15,9 +15,7 @@ namespace ReconNess.Providers
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// <see cref="ILogsProvider.GetLogfiles(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public IEnumerable<string> GetLogfiles(CancellationToken cancellationToken)
         {
             var logPath = this.GetLogPath();
@@ -27,9 +25,7 @@ namespace ReconNess.Providers
             return files.Select(f => Path.GetFileName(f));
         }
 
-        /// <summary>
-        /// <see cref="ILogsProvider.ReadLogfile(string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
             var logPath = this.GetLogPath();
@@ -58,9 +54,7 @@ namespace ReconNess.Providers
             return string.Empty;
         }
 
-        /// <summary>
-        /// <see cref="ILogsProvider.CleanLogfileAsync(string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
             var logPath = this.GetLogPath();

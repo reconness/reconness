@@ -41,9 +41,7 @@ namespace ReconNess.Services
             this.authProvider = authProvider;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentsNoTrackingAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
         {
             var result = this.GetAllQueryable(cancellationToken)
@@ -67,9 +65,7 @@ namespace ReconNess.Services
                     .ToListAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentNoTrackingAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
@@ -92,9 +88,7 @@ namespace ReconNess.Services
                     .SingleOrDefaultAsync();
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {            
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
@@ -104,9 +98,7 @@ namespace ReconNess.Services
                 .SingleOrDefaultAsync();
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentToRunAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
@@ -115,9 +107,7 @@ namespace ReconNess.Services
                 .SingleOrDefaultAsync();
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetMarketplaceAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
@@ -129,9 +119,7 @@ namespace ReconNess.Services
             return agentMarketplaces.Agents;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetScriptAsync(string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
             try
@@ -151,17 +139,13 @@ namespace ReconNess.Services
             return string.Empty;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.DebugAsync(string, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
             return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.AddAgentHistoryAsync(Agent, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
         {
             agent.AgentHistories = new List<AgentHistory>
@@ -176,9 +160,7 @@ namespace ReconNess.Services
             return await this.AddAsync(agent);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.UpdateAgentAsync(Agent, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             if (agent.AgentHistories == null)

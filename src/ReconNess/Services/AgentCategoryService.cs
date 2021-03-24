@@ -25,9 +25,7 @@ namespace ReconNess.Services
         {
         }
 
-        /// <summary>
-        /// <see cref="IAgentCategoryService.GetCategoriesAsync(List{AgentCategory}, List{string}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ICollection<Category>> GetCategoriesAsync(ICollection<Category> myCategories, List<string> newCategories, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

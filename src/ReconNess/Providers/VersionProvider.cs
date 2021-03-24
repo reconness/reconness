@@ -28,9 +28,7 @@ namespace ReconNess.Providers
             this.configuration = configuration;
         }
 
-        /// <summary>	
-        /// <see cref="IVersionProvider.GetLatestVersionAsync(CancellationToken)"/>	
-        /// </summary>	
+        /// <inheritdoc/>
         public async Task<string> GetLatestVersionAsync(CancellationToken cancellationToken)
         {
             try
@@ -53,9 +51,7 @@ namespace ReconNess.Providers
             return string.Empty;
         }
 
-        /// <summary>
-        /// <see cref="IVersionProvider.GetCurrentVersionAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<string> GetCurrentVersionAsync(CancellationToken cancellationToken)
         {
             return Task.FromResult(this.configuration["ReconNess:Version"]);

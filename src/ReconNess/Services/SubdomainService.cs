@@ -44,9 +44,7 @@ namespace ReconNess.Services
             this.notificationService = notificationService;
         }
 
-        /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainsAsync(Expression{Func{Subdomain, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
@@ -58,9 +56,7 @@ namespace ReconNess.Services
                 .ToListAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainAsync(Expression{Func{Subdomain, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
@@ -71,9 +67,7 @@ namespace ReconNess.Services
                 .SingleAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISubdomainService.GetSubdomainNoTrackingAsync(Expression{Func{Subdomain, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
@@ -85,9 +79,7 @@ namespace ReconNess.Services
                 .SingleAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISubdomainService.GetPaginateAsync(Target, RootDomain, string, int, int, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<PagedResult<Subdomain>> GetPaginateAsync(RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default)
         {
             IQueryable<Subdomain> queryable = default;
@@ -154,9 +146,7 @@ namespace ReconNess.Services
             return await queryable.GetPageAsync<Subdomain>(page, limit, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISubdomainService.GetWithIncludeAsync(Expression<Func<Subdomain, bool>>, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
             return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
@@ -164,9 +154,7 @@ namespace ReconNess.Services
                 .SingleAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISubdomainService.AddLabelAsync(Subdomain, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default)
         {
             var myLabels = subdomain.Labels.Select(l => l.Name).ToList();
@@ -177,9 +165,7 @@ namespace ReconNess.Services
             await this.UpdateAsync(subdomain, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(Subdomain, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentRanAsync(Subdomain subdomain, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -196,9 +182,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Subdomain, string, bool, ScriptOutput, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveTerminalOutputParseAsync(Subdomain subdomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
