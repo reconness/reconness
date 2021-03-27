@@ -3,7 +3,7 @@
         <loading :active.sync="isLoading"
                  :is-full-page="true"></loading>
 
-        <h1>Users</h1>
+        <h1>User Details</h1>
         
     </div>
 </template>
@@ -17,7 +17,7 @@
     import helpers from '../../helpers'
 
     export default {
-        name: 'UserPage',
+        name: 'UserDetailPage',
         components: {
             Loading
         },

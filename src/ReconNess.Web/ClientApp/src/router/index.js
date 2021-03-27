@@ -3,8 +3,13 @@ import Router from 'vue-router';
 
 import HomePage from '@/views/home/HomePage';
 import NotificationPage from '@/views/account/NotificationPage';
-import UserPage from '@/views/account/UserPage';
 import LogsPage from '@/views/account/LogsPage';
+
+import UserListPage from '@/views/account/UserListPage';
+import UserCreatePage from '@/views/account/UserCreatePage';
+import UserDetailPage from '@/views/account/UserDetailPage';
+
+
 import LoginPage from '@/views/login/LoginPage'
 
 import TargetPage from '@/views/target/TargetPage';
@@ -24,8 +29,11 @@ const router = new Router({
     routes: [
         { path: '/', name: 'home', component: HomePage },
         { path: '/notifications', name: 'notifications', component: NotificationPage },
-        { path: '/users', name: 'notifications', component: UserPage },
         { path: '/logs', name: 'logs', component: LogsPage },
+
+        { path: '/users', name: 'user', component: UserListPage },
+        { path: '/users/:id', name: 'userDetails', component: UserDetailPage },
+        { path: '/users/create', name: 'userCreate', component: UserCreatePage },       
 
         { path: '/login', name: 'login', component: LoginPage },
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
@@ -23,11 +24,13 @@ namespace ReconNess.Web.Controllers
 
         private readonly IMapper mapper;
         private readonly IUserService userService;
+        private readonly IAuthProvider authProvider;
 
-        public UsersController(IMapper mapper, IUserService userService)
+        public UsersController(IMapper mapper, IUserService userService, IAuthProvider authProvider)
         {
             this.mapper = mapper;
             this.userService = userService;
+            this.authProvider = authProvider;
         }
 
         /// <summary>
@@ -202,9 +205,15 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
+            
             if (user == null)
             {
                 return NotFound();
+            }
+
+            if (user.UserName.Equals(this.authProvider.UserName()))
+            {
+                return BadRequest("You can not remove your own user");
             }
 
             await this.userService.DeleteAsync(user, cancellationToken);

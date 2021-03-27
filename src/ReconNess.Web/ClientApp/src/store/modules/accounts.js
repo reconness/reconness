@@ -1,6 +1,34 @@
 ﻿import api from '../../api'
 
 const actions = {
+    users() {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('users')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    deleteUser(context, user) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.delete('users', user.id)
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     notification() {
         return new Promise((resolve, reject) => {
             try {
