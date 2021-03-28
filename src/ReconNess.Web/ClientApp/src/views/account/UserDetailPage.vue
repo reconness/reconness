@@ -4,7 +4,9 @@
                  :is-full-page="true"></loading>
 
         <h1>User Details</h1>
-        
+
+        <user-form v-on:update="onUpdate" v-on:delete="onDelete"></user-form>
+
     </div>
 </template>
 
@@ -14,43 +16,61 @@
     // Import stylesheet
     import 'vue-loading-overlay/dist/vue-loading.css';
 
+    import { mapState } from 'vuex'
+    import UserForm from '../../components/user/UserForm'
     import helpers from '../../helpers'
 
     export default {
         name: 'UserDetailPage',
         components: {
+            UserForm,
             Loading
         },
+        computed: mapState({
+            user: state => state.accounts.currentUser
+        }),
         data: () => {
             return {
-                notification: { url: '', method: '', payload: '' },
                 isLoading: false
             }
         },
         async mounted() {
-            this.isLoading = true
-            const notif = await this.$store.dispatch('accounts/notification')
-            if (notif !== '') {
-                this.notification = notif
+            try {
+                this.isLoading = true
+                await this.$store.dispatch('accounts/user', this.$route.params.id)
             }
+            catch (error) {
+                helpers.errorHandle(this.$alert, error)
+            }
+
             this.isLoading = false
         },
         methods: {
-            async onSave() {
+            async onUpdate() {
                 try {
                     this.isLoading = true
+                    await this.$store.dispatch('accounts/updateUser', this.user)
+                    this.isLoading = false
 
-                    await this.$store.dispatch('accounts/saveNotification', this.notification)
-                    this.$alert('The notifications were saved', 'Success', 'success')
+                    this.$alert('The user was saved', 'Success', 'success')
                 }
                 catch (error) {
                     helpers.errorHandle(this.$alert, error)
                 }
-
-                this.isLoading = false
             },
-            isValid() {
-                return this.notification.url && this.notification.method && this.notification.payload
+            async onDelete() {
+                this.$confirm('Are you sure to delete this user: ' + this.user.userName, 'Confirm', 'question').then(async () => {
+                    this.isLoading = true
+                    try {
+                        await this.$store.dispatch('accounts/deleteUser', this.user)
+                        this.$router.push({ name: 'user' })
+                    }
+                    catch (error) {
+                        helpers.errorHandle(this.$alert, error)
+                    }
+
+                    this.isLoading = false
+                })
             }
         }
     }

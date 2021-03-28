@@ -1,12 +1,59 @@
 ﻿import api from '../../api'
 
+const state = {
+    currentUser: {}
+}
+
 const actions = {
+    user(context, id) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.getById('users', id)
+                    .then((res) => {
+                        context.commit('user', res.data)
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     users() {
         return new Promise((resolve, reject) => {
             try {
                 api.get('users')
                     .then((res) => {
                         resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    createUser(context, user) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.create('users', user)
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    updateUser(context, user) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.update('users', user.id, user)
+                    .then(() => {
+                        resolve()
                     })
                     .catch(err => reject(err))
             }
@@ -128,9 +175,15 @@ const actions = {
         })
     },
 }
-
+const mutations = {
+    user(state, user) {
+        state.currentUser = user
+    }
+}
 
 export default {
     namespaced: true,
-    actions
+    state,
+    actions,
+    mutations
 }

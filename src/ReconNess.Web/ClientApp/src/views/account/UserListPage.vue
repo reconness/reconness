@@ -64,7 +64,9 @@
                     this.isLoading = true
                     try {
                         await this.$store.dispatch('accounts/deleteUser', user)
-                        this.$router.push({ name: 'users' })
+                        this.users = this.users.filter((u) => {
+                            return u.userName !== user.userName;
+                        })
                     }
                     catch (error) {
                         helpers.errorHandle(this.$alert, error)

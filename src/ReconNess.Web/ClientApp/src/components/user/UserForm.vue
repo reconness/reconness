@@ -54,11 +54,11 @@
             }
         },
         computed: mapState({
-            user: state => state.users.currentUser
+            user: state => state.accounts.currentUser
         }),
         mounted() {
             if (this.isNew) {
-                this.$store.state.users.currentUser = { }
+                this.$store.state.accounts.currentUser = { }
             }
         },
         methods: { 
