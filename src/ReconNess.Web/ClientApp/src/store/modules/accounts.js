@@ -34,6 +34,20 @@ const actions = {
             }
         })
     },
+    roles() {
+        return new Promise((resolve, reject) => {
+            try {
+                api.get('users/roles')
+                    .then((res) => {
+                        resolve(res.data)
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     createUser(context, user) {
         return new Promise((resolve, reject) => {
             try {

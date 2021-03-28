@@ -25,5 +25,10 @@ namespace ReconNess.Web.Dtos
         /// 
         /// </summary>
         public string LastName { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string Role { get; set; }
     }
 }

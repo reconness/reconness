@@ -42,6 +42,7 @@ namespace ReconNess.Web
             services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IAuthProvider, AuthProvider>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IRoleService, RoleService>();
             
             services.AddSingleton<IAgentRunService, AgentRunService>();
             services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();

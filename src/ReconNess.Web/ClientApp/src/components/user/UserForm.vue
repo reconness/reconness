@@ -20,6 +20,14 @@
             <input name="lastName" formControlName="lastName" class="form-control" id="lastName" v-model="user.lastName">
         </div>
         <div class="form-group">
+            <label for="inputName">Role</label>
+            <select id="method" class="form-control" v-model="user.role">
+                <option v-for="role in roles" v-bind:value="role" v-bind:key="role">
+                    {{ role }}
+                </option>
+            </select>
+        </div>
+        <div class="form-group">
             <button class="btn btn-primary" v-if="isNew" v-on:click="$emit('save', user)" :disabled='!isValid()'>Add</button>
             <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="$emit('update')" :disabled='!isValid()'>Update</button>
             <button class="mt-2 btn btn-danger" v-if="!isNew" v-on:click="$emit('delete')">Delete</button>
@@ -44,7 +52,8 @@
         },
         data: () => {
             return {
-                isLoading: false
+                isLoading: false,
+                roles: []
             }
         },
         props: {
@@ -56,14 +65,16 @@
         computed: mapState({
             user: state => state.accounts.currentUser
         }),
-        mounted() {
+        async mounted() {
             if (this.isNew) {
                 this.$store.state.accounts.currentUser = { }
             }
+
+            this.roles = await this.$store.dispatch('accounts/roles')
         },
         methods: { 
             isValid() {
-                return this.user.userName && this.user.email
+                return this.user.userName && this.user.email && this.user.role
             }
         }
     }
