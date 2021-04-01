@@ -13,7 +13,7 @@ namespace ReconNess.Web.Mappers.Resolvers
     /// </summary>
     public class UserProfileResolver : IValueResolver<User, UserDto, string>
     {
-        private UserManager<User> userManager;
+        private readonly UserManager<User> userManager;
 
         /// <summary>
         /// 

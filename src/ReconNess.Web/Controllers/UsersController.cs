@@ -155,7 +155,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var userExist = await this.userService.AnyAsync(t => t.UserName.ToLower() == userDto.UserName.ToLower());
+            var userExist = await this.userService.AnyAsync(t => t.UserName.ToLower() == userDto.UserName.ToLower(), cancellationToken);
             if (userExist)
             {
                 return BadRequest(ERROR_USER_EXIT);
@@ -167,7 +167,7 @@ namespace ReconNess.Web.Controllers
             if (result.Succeeded)
             {
                 await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
-                await userManager.AddClaimsAsync(user, this.GetClaims(userDto.Role));
+                await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
 
                 return Ok();
             }
@@ -214,7 +214,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            if (user.UserName != userDto.UserName && await this.userService.AnyAsync(t => t.UserName == userDto.UserName))
+            if (user.UserName != userDto.UserName && await this.userService.AnyAsync(t => t.UserName == userDto.UserName, cancellationToken))
             {
                 return BadRequest(ERROR_USER_EXIT);
             }
@@ -234,7 +234,7 @@ namespace ReconNess.Web.Controllers
             await userManager.RemoveClaimsAsync(user, await userManager.GetClaimsAsync(user));
 
             await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
-            await userManager.AddClaimsAsync(user, this.GetClaims(userDto.Role));
+            await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
 
             return NoContent();
         }
@@ -278,7 +278,7 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        private IEnumerable<Claim> GetClaims(string role)
+        private static IEnumerable<Claim> GetClaims(string role)
         {
             var claims = new List<Claim>();
             

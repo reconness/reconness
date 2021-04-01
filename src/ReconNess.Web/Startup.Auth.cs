@@ -70,7 +70,7 @@ namespace ReconNess.Web
                             Environment.GetEnvironmentVariable("SecurityKey", EnvironmentVariableTarget.User);
             }
 
-            SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+            SymmetricSecurityKey _signingKey = new(Encoding.ASCII.GetBytes(secretKey));
 
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options =>
