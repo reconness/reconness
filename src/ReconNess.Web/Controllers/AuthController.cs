@@ -62,11 +62,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Invalid username or password.");
-            }
-
             var defaultUserExistOrWasCreated = await this.CheckOrAddDefaultUser();
             if (!defaultUserExistOrWasCreated)
             {

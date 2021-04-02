@@ -107,11 +107,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] ReferenceDto referenceDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var reference = this.mapper.Map<ReferenceDto, Reference>(referenceDto);
 
             var referenceAdded = await this.referenceService.AddAsync(reference, cancellationToken);

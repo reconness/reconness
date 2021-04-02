@@ -49,25 +49,28 @@
             async onUpdate() {
                 try {
                     this.isLoading = true
-                    await this.$store.dispatch('accounts/updateUser', this.user)
-                    this.isLoading = false
+                    await this.$store.dispatch('accounts/updateUser', this.user)                    
 
                     this.$alert('The user was saved', 'Success', 'success')
                 }
-                catch (error) {
+                catch (error) {                    
                     helpers.errorHandle(this.$alert, error)
-                }
+                } 
+
+                this.isLoading = false
             },
             async onDelete() {
                 this.$confirm('Are you sure to delete this user: ' + this.user.userName, 'Confirm', 'question').then(async () => {
-                    this.isLoading = true
+                    
                     try {
+                        this.isLoading = true
                         await this.$store.dispatch('accounts/deleteUser', this.user)
+
                         this.$router.push({ name: 'user' })
                     }
-                    catch (error) {
+                    catch (error) {                        
                         helpers.errorHandle(this.$alert, error)
-                    }
+                    }  
 
                     this.isLoading = false
                 })

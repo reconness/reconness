@@ -102,11 +102,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notificationDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var notification = this.mapper.Map<NotificationDto, Notification>(notificationDto);
 
             await this.notificationService.SaveNotificationAsync(notification, cancellationToken);

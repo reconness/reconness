@@ -30,5 +30,20 @@ namespace ReconNess.Web.Dtos
         /// 
         /// </summary>
         public string Role { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string CurrentPassword { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string NewPassword { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public string ConfirmationPassword { get; set; }
     }
 }

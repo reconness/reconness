@@ -1,7 +1,5 @@
 <template>
-    <div class="pt-2">
-        <loading :active.sync="isLoading"
-                 :is-full-page="true"></loading>
+    <div class="pt-2">       
 
         <div class="form-group">
             <label for="userName">UserName</label>
@@ -18,6 +16,18 @@
         <div class="form-group">
             <label for="lastName">Last Name</label>
             <input name="lastName" formControlName="lastName" class="form-control" id="lastName" v-model="user.lastName">
+        </div>
+        <div class="form-group" v-if="!isNew">
+            <label for="currentPassword">Current Password</label>
+            <input type="password" name="currentPassword" formControlName="currentPassword" class="form-control" id="currentPassword" v-model="user.currentPassword">
+        </div>
+        <div class="form-group">
+            <label for="newPassword">New Password</label>
+            <input type="password" name="newPassword" formControlName="newPassword" class="form-control" id="newPassword" v-model="user.newPassword">
+        </div>
+        <div class="form-group">
+            <label for="confirmationPassword">Confirmation Password</label>
+            <input type="password" name="confirmationPassword" formControlName="confirmationPassword" class="form-control" id="confirmationPassword" v-model="user.confirmationPassword">
         </div>
         <div class="form-group">
             <label for="inputName">Role</label>
@@ -36,23 +46,16 @@
 </template>
 
 <script>
-    // Import component
-    import Loading from 'vue-loading-overlay';
+    
     // Import stylesheet
     import 'vue-loading-overlay/dist/vue-loading.css';
 
     import { mapState } from 'vuex'
 
-    import helpers from '../../helpers'
-
     export default {
         name: 'UserForm',
-        components: {
-            Loading
-        },
         data: () => {
-            return {
-                isLoading: false,
+            return {                
                 roles: []
             }
         },

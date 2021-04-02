@@ -150,9 +150,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(userDto.NewPassword))
             {
-                return BadRequest();
+                return BadRequest("Password is required.");
             }
 
             var userExist = await this.userService.AnyAsync(t => t.UserName.ToLower() == userDto.UserName.ToLower(), cancellationToken);
@@ -166,6 +166,7 @@ namespace ReconNess.Web.Controllers
             var result = await userManager.CreateAsync(user);
             if (result.Succeeded)
             {
+                await userManager.AddPasswordAsync(user, userDto.NewPassword);
                 await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
                 await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
 
@@ -203,11 +204,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var user = await userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
@@ -219,6 +215,14 @@ namespace ReconNess.Web.Controllers
                 return BadRequest(ERROR_USER_EXIT);
             }
 
+            if (!string.IsNullOrWhiteSpace(userDto.NewPassword))
+            {
+                if (string.IsNullOrWhiteSpace(userDto.CurrentPassword) || !await userManager.CheckPasswordAsync(user, userDto.CurrentPassword))
+                {
+                    return BadRequest("Current password is not valid.");
+                }
+            }
+
             user.UserName = userDto.UserName;
             user.Email = userDto.Email;
             user.FirstName = userDto.FirstName;
@@ -228,6 +232,11 @@ namespace ReconNess.Web.Controllers
             if (!result.Succeeded)
             {
                 return StatusCode(StatusCodes.Status409Conflict);
+            }
+
+            if (!string.IsNullOrWhiteSpace(userDto.NewPassword))
+            {
+                await userManager.AddPasswordAsync(user, userDto.NewPassword);
             }
 
             await userManager.RemoveFromRolesAsync(user, await userManager.GetRolesAsync(user));
