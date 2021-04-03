@@ -45,5 +45,16 @@ namespace ReconNess.Web.Auth
 
             return new string[] { roles };
         }
+
+        public bool AreYouAdmin()
+        {
+            return this.Roles().Contains("Admin");
+        }
+
+        public bool AreYouOwner()
+        {
+            var onwer = httpContextAccessor.HttpContext.User.Claims.Where(c => c.Type == "Owner").FirstOrDefault().Value ?? string.Empty;
+            return !string.IsNullOrEmpty(onwer);
+        }
     }
 }

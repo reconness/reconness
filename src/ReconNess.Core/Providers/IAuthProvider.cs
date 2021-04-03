@@ -16,5 +16,17 @@
         /// </summary>
         /// <returns></returns>
         string[] Roles();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool AreYouAdmin();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        bool AreYouOwner();
     }
 }

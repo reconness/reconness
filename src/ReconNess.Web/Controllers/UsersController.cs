@@ -150,6 +150,11 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
+            if (!this.authProvider.AreYouAdmin())
+            {
+                return BadRequest("You can not add a new user.");
+            }
+
             if (string.IsNullOrWhiteSpace(userDto.NewPassword))
             {
                 return BadRequest("Password is required.");
@@ -204,10 +209,15 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
-            var user = await userManager.FindByIdAsync(id.ToString());
+            var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
             if (user == null)
             {
                 return NotFound();
+            }
+
+            if (!user.UserName.Equals(this.authProvider.UserName()) && !this.authProvider.AreYouOwner())
+            {
+                return BadRequest("You only can update your own user.");
             }
 
             if (user.UserName != userDto.UserName && await this.userService.AnyAsync(t => t.UserName == userDto.UserName, cancellationToken))
@@ -215,13 +225,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest(ERROR_USER_EXIT);
             }
 
-            if (!string.IsNullOrWhiteSpace(userDto.NewPassword))
+            if (!string.IsNullOrWhiteSpace(userDto.NewPassword) && !this.authProvider.AreYouOwner())
             {
-                if (string.IsNullOrWhiteSpace(userDto.CurrentPassword) || !await userManager.CheckPasswordAsync(user, userDto.CurrentPassword))
+                if (!await userManager.CheckPasswordAsync(user, userDto.CurrentPassword))
                 {
                     return BadRequest("Current password is not valid.");
                 }
-            }
+            }            
 
             user.UserName = userDto.UserName;
             user.Email = userDto.Email;
@@ -270,8 +280,12 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
-            
+            if (!this.authProvider.AreYouOwner())
+            {
+                return BadRequest("You can not remove another user.");
+            }
+
+            var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);            
             if (user == null)
             {
                 return NotFound();
@@ -279,10 +293,10 @@ namespace ReconNess.Web.Controllers
 
             if (user.UserName.Equals(this.authProvider.UserName()))
             {
-                return BadRequest("You can not remove your own user");
+                return BadRequest("You can not remove your own user.");
             }
 
-            await this.userService.DeleteAsync(user, cancellationToken);
+            await this.userManager.DeleteAsync(user);
 
             return NoContent();
         }

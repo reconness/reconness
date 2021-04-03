@@ -101,12 +101,15 @@ namespace ReconNess.Web.Controllers
             var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
                               Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
 
+            var envEmail = Environment.GetEnvironmentVariable("ReconnessEmail") ??
+                              Environment.GetEnvironmentVariable("ReconnessEmail", EnvironmentVariableTarget.User);
+
             if (string.IsNullOrEmpty(envUserName) || string.IsNullOrEmpty(envPassword))
             {
                 return false;
             }
 
-            User user = new User { UserName = envUserName, Email = $"{envUserName}@youremaildomainhere.com" };
+            User user = new User { UserName = envUserName, Email = envEmail, Owner = true };
             
             var result = await signInManager.UserManager.CreateAsync(user, envPassword);
             if (result.Succeeded)
@@ -149,6 +152,11 @@ namespace ReconNess.Web.Controllers
 
             var roles = await signInManager.UserManager.GetRolesAsync(user);
             claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, string.Join(',', roles)));
+
+            if (user.Owner)
+            {
+                claims.Add(new Claim("Owner", "true"));
+            }
 
             return claims;
         }

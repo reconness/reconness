@@ -28,7 +28,7 @@ namespace ReconNess.Web.Auth
         /// <param name="userName"></param>
         /// <param name="claims"></param>
         /// <returns></returns>
-        public async Task<string> GenerateEncodedToken(string userName, IList<Claim> claims)
+        public async Task<string> GenerateEncodedToken(string userName,  IList<Claim> claims)
         {
             ((List<Claim>)claims).AddRange(new[]
             {

@@ -8,6 +8,11 @@ namespace ReconNess.Entities
         /// <summary>
         /// 
         /// </summary>
+        public bool Owner { get; set; } = false;
+
+        /// <summary>
+        /// 
+        /// </summary>
         public string FirstName { get; set; }
 
         /// <summary>

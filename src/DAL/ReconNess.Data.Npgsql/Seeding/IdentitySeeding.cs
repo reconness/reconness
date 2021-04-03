@@ -16,13 +16,15 @@ namespace ReconNess.Data.Npgsql.Seeding
             {
                 Id = Guid.Parse("ade752b1-af9e-4ba8-5706-35ad1c1e94ee"),
                 Name = "Admin",
-                NormalizedName = "ADMIN"
+                NormalizedName = "ADMIN",
+                ConcurrencyStamp = "ade752b1-af9e-4ba8-5706-35ad1c1e94ee"
             },
             new Role
             {
                 Id = Guid.Parse("0de752b1-1f3e-4aa8-571a-15ae1c1e94e5"),
                 Name = "Member",
-                NormalizedName = "MEMBER"
+                NormalizedName = "MEMBER",
+                ConcurrencyStamp = "0de752b1-1f3e-4aa8-571a-15ae1c1e94e5"
             });
 
         }
