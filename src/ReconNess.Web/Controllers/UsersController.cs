@@ -166,7 +166,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Post([FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
             // only the Owner and the Admin user can add new users
-            if (!this.authProvider.AreYouAdmin())
+            if (this.authProvider.AreYouMember())
             {
                 return BadRequest("You can not add a new user.");
             }
@@ -236,13 +236,9 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            // only the Owner can edit other users
-            if (!this.authProvider.AreYouOwner())
+            if (!await this.CanEditAsync(user))
             {
-                if (!user.UserName.Equals(this.authProvider.UserName()))
-                {
-                    return BadRequest("You only can update your own user.");
-                }
+                return BadRequest("You can not edit this user.");
             }
 
             if (user.UserName != userDto.UserName && await this.userService.AnyAsync(t => t.UserName == userDto.UserName, cancellationToken))
@@ -251,7 +247,7 @@ namespace ReconNess.Web.Controllers
             }
 
             // if you want to change your password you only need to enter the currentPassword if you are not the Onwer
-            if (!string.IsNullOrWhiteSpace(userDto.NewPassword) && !this.authProvider.AreYouOwner())
+            if (!string.IsNullOrWhiteSpace(userDto.NewPassword) && await this.NeedCurrentPassword(user))
             {
                 if (string.IsNullOrWhiteSpace(userDto.CurrentPassword) || !await userManager.CheckPasswordAsync(user, userDto.CurrentPassword))
                 {
@@ -310,16 +306,16 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            if (!this.authProvider.AreYouOwner())
-            {
-                return BadRequest("You can not remove another user.");
-            }
-
             var user = await this.userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
                 return NotFound();
             }
+                        
+            if (!await this.CanDeleteAsync(user))
+            {
+                return BadRequest("You can not remove this user.");
+            }            
 
             if (user.UserName.Equals(this.authProvider.UserName()))
             {
@@ -330,6 +326,25 @@ namespace ReconNess.Web.Controllers
 
             return NoContent();
         }
+
+        private async Task<bool> CanEditAsync(User user)
+        {
+            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+            return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")) || user.UserName.Equals(this.authProvider.UserName());
+        }
+
+        private async Task<bool> NeedCurrentPassword(User user)
+        {
+            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+            return !(this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")));
+        }
+
+        private async Task<bool> CanDeleteAsync(User user)
+        {
+            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+            return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member"));
+        }
+        
 
         /// <summary>
         /// Obtain the role claim

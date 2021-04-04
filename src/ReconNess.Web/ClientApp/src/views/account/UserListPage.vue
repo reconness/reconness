@@ -28,7 +28,7 @@
                         <th class="w-25" scope="row">{{ user.role }}</th>
                         <td class="w-25">
                             <router-link class="btn btn-primary ml-2" :to="{name: 'userDetails', params: { id: user.id }}" v-if="canEdit(user)">Edit</router-link>
-                            <button class="btn btn-danger ml-2" v-on:click="onDelete(user)" v-if="isOwner()">Delete</button>
+                            <button class="btn btn-danger ml-2" v-on:click="onDelete(user)" v-if="canDelete(user)">Delete</button>
                         </td>
                     </tr>
                 </tbody>
@@ -85,15 +85,18 @@
             },
             canEdit(user) {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.owner === "True" || currentUser.userName === user.userName
+                return this.isOwner() || (this.isAdmin() && user.role === "Member") || currentUser.userName === user.userName 
             },
-            isOwner() {
-                var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.owner === "True" 
+            canDelete(user) {
+                return this.isOwner() || (this.isAdmin() && user.role === "Member")
             },
             isAdmin() {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
                 return currentUser.roles === "Admin"
+            },
+            isOwner() {
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.owner === "True"
             }
         }
     }
