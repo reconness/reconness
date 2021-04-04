@@ -31,7 +31,7 @@
         </div>
         <div class="form-group">
             <label for="inputName">Role</label>
-            <select id="method" class="form-control" v-model="user.role">
+            <select id="method" class="form-control" v-model="user.role" :disabled='isMember()'>
                 <option v-for="role in roles" v-bind:value="role" v-bind:key="role">
                     {{ role }}
                 </option>
@@ -78,6 +78,10 @@
         methods: { 
             isValid() {
                 return this.user.userName && this.user.email && this.user.role
+            },
+            isMember() {
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.roles === "Member"
             }
         }
     }

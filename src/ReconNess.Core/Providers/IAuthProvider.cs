@@ -21,6 +21,12 @@
         /// 
         /// </summary>
         /// <returns></returns>
+        bool AreYouMember();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         bool AreYouAdmin();
 
         /// <summary>

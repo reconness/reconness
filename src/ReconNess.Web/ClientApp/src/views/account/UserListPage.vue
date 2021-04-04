@@ -5,7 +5,7 @@
 
         <div class="mx-auto"><strong>List of Users</strong></div>
         
-        <div class="col-12 pt-2 pb-2">
+        <div class="col-12 pt-2 pb-2" v-if="canAddNewUser()">
             <router-link class="btn btn-primary ml-2" :to="{name: 'userCreate'}">Add New User</router-link>
         </div>
 
@@ -15,6 +15,7 @@
                     <tr>
                         <th scope="col">UserName</th>
                         <th scope="col">Email</th>
+                        <th scope="col">Role</th>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -22,9 +23,10 @@
                     <tr v-for="user in users" v-bind:key="user.id">
                         <th class="w-25" scope="row">{{ user.userName }}</th>
                         <th class="w-25" scope="row">{{ user.email }}</th>
+                        <th class="w-25" scope="row">{{ user.role }}</th>
                         <td class="w-25">
-                            <router-link class="btn btn-primary ml-2" :to="{name: 'userDetails', params: { id: user.id }}">Edit</router-link>
-                            <button class="btn btn-danger ml-2" v-on:click="onDelete(user)">Delete</button>
+                            <router-link class="btn btn-primary ml-2" :to="{name: 'userDetails', params: { id: user.id }}" v-if="canEdit(user)">Edit</router-link>
+                            <button class="btn btn-danger ml-2" v-on:click="onDelete(user)" v-if="isOwner()">Delete</button>
                         </td>
                     </tr>
                 </tbody>
@@ -74,6 +76,21 @@
 
                     this.isLoading = false
                 })
+            },
+            canAddNewUser() {
+                return this.isOwner() || this.isAdmin()
+            },
+            canEdit(user) {
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.owner === "True" || currentUser.userName === user.userName
+            },
+            isOwner() {
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.owner === "True" 
+            },
+            isAdmin() {
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.roles === "Admin"
             }
         }
     }

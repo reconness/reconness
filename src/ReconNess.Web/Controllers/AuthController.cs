@@ -69,15 +69,16 @@ namespace ReconNess.Web.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, errorMsg);
             }
 
-            var identity = await GetClaimsIdentity(credentials.UserName, credentials.Password);
-            if (identity == null)
+            var user = await this.SingInAsync(credentials.UserName, credentials.Password);
+            if (user == null)
             {
                 return BadRequest("Invalid username or password.");
             }
 
+            var claims = await this.GetClaimsAsync(user);   
             var jwt = await Tokens.GenerateJwt(
                 credentials.UserName,
-                identity.Claims.ToList(),
+                claims,
                 jwtFactory,
                 jwtOptions);
 
@@ -124,39 +125,16 @@ namespace ReconNess.Web.Controllers
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="userName"></param>
-        /// <param name="password"></param>
-        /// <returns></returns>
-        private async Task<ClaimsIdentity> GetClaimsIdentity(string userName, string password)
-        {
-            // get the user from active directory
-            var user = await this.SingInAsync(userName, password);
-            if (user != null)
-            {
-                return jwtFactory.GenerateClaimsIdentity(user.UserName, await GetClaimsAsync(user));
-            }
-
-            // Credentials are invalid, or account doesn't exist
-            return null;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
         private async Task<List<Claim>> GetClaimsAsync(User user)
         {
             var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName.ToString()));
+            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName));
 
             var roles = await signInManager.UserManager.GetRolesAsync(user);
             claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, string.Join(',', roles)));
-
-            if (user.Owner)
-            {
-                claims.Add(new Claim("Owner", "true"));
-            }
+            claims.Add(new Claim("Owner", user.Owner.ToString()));            
 
             return claims;
         }

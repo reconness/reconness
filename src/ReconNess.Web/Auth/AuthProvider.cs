@@ -46,6 +46,11 @@ namespace ReconNess.Web.Auth
             return new string[] { roles };
         }
 
+        public bool AreYouMember()
+        {
+            return this.Roles().Contains("Member");
+        }
+
         public bool AreYouAdmin()
         {
             return this.Roles().Contains("Admin");
@@ -53,8 +58,8 @@ namespace ReconNess.Web.Auth
 
         public bool AreYouOwner()
         {
-            var onwer = httpContextAccessor.HttpContext.User.Claims.Where(c => c.Type == "Owner").FirstOrDefault().Value ?? string.Empty;
-            return !string.IsNullOrEmpty(onwer);
+            var onwer = httpContextAccessor.HttpContext.User.Claims.Where(c => c.Type == "Owner")?.FirstOrDefault().Value ?? "false";
+            return !string.IsNullOrEmpty(onwer) && bool.Parse(onwer);
         }
     }
 }
