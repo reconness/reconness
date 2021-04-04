@@ -1,5 +1,7 @@
 <template>
-    <div class="pt-2">       
+    <div class="pt-2">
+
+
 
         <div class="form-group">
             <label for="userName">UserName</label>
@@ -37,7 +39,8 @@
                 </option>
             </select>
         </div>
-        <div class="form-group">
+        <router-link to="/users">Back</router-link>
+        <div class="form-group mt-4">
             <button class="btn btn-primary" v-if="isNew" v-on:click="$emit('save', user)" :disabled='!isValid()'>Add</button>
             <button class="mr-2 mt-2 btn btn-primary" v-if="!isNew" v-on:click="$emit('update')" :disabled='!isValid()'>Update</button>
             <button class="mt-2 btn btn-danger" v-if="!isNew" v-on:click="$emit('delete')">Delete</button>
