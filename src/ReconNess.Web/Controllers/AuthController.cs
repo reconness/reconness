@@ -75,7 +75,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("Invalid username or password.");
             }
 
-            var claims = await this.GetClaimsAsync(user);   
+            var claims = await this.GetClaimsAsync(user);
             var jwt = await Tokens.GenerateJwt(
                 credentials.UserName,
                 claims,
@@ -111,7 +111,7 @@ namespace ReconNess.Web.Controllers
             }
 
             User user = new User { UserName = envUserName, Email = envEmail, Owner = true };
-            
+
             var result = await signInManager.UserManager.CreateAsync(user, envPassword);
             if (result.Succeeded)
             {
@@ -134,7 +134,7 @@ namespace ReconNess.Web.Controllers
 
             var roles = await signInManager.UserManager.GetRolesAsync(user);
             claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, string.Join(',', roles)));
-            claims.Add(new Claim("Owner", user.Owner.ToString()));            
+            claims.Add(new Claim("Owner", user.Owner.ToString()));
 
             return claims;
         }

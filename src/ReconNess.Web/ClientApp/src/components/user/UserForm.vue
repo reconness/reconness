@@ -1,8 +1,5 @@
 <template>
     <div class="pt-2">
-
-
-
         <div class="form-group">
             <label for="userName">UserName</label>
             <input name="userName" formControlName="userName" class="form-control" id="userName" v-model="user.userName">

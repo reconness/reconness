@@ -1,15 +1,11 @@
-using AutoMapper;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using ReconNess.Data.Npgsql;
-using ReconNess.Entities;
 using System;
 using System.IO;
 using System.Net;
@@ -46,7 +42,7 @@ namespace ReconNess.Web
                 connectionString = connectionString.Replace("{{database}}", pgDatabase)
                                                    .Replace("{{username}}", pgUserName)
                                                    .Replace("{{password}}", pgpassword);
-            }                       
+            }
 
             // Auth
             this.ConfigureAuth(services, Env, connectionString);
@@ -67,9 +63,9 @@ namespace ReconNess.Web
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo 
-                { 
-                    Title = "Swagger Reconness", 
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "Swagger Reconness",
                     Version = "v1",
                     Description = "ReconNess API, all the methods need authorization, for that use <b>/api/Auth/Login</b> method first to obtain the <b>Token</b>. \r\n\r\nAnd then use the <b>Authorize</b> button to insert the <b>Token</b>.",
                     TermsOfService = new Uri("https://www.reconness.com/terms"),
@@ -105,7 +101,7 @@ namespace ReconNess.Web
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 c.IncludeXmlComments(xmlPath);
-            });            
+            });
 
             services.AddSignalR();
         }
@@ -115,7 +111,7 @@ namespace ReconNess.Web
         {
             if ("Development".Equals(Env.EnvironmentName))
             {
-                app.UseDeveloperExceptionPage();                
+                app.UseDeveloperExceptionPage();
             }
             else
             {

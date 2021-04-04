@@ -31,7 +31,7 @@ namespace ReconNess.Web.Controllers
         private readonly IAuthProvider authProvider;
         private readonly UserManager<User> userManager;
 
-        public UsersController(IMapper mapper, 
+        public UsersController(IMapper mapper,
             IUserService userService,
             IRoleService roleService,
             IAuthProvider authProvider,
@@ -39,7 +39,7 @@ namespace ReconNess.Web.Controllers
         {
             this.mapper = mapper;
             this.userService = userService;
-            this.roleService= roleService;
+            this.roleService = roleService;
             this.authProvider = authProvider;
             this.userManager = userManager;
         }
@@ -118,7 +118,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
         {
-            var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);            
+            var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
             if (user == null)
             {
                 return NotFound();
@@ -189,10 +189,10 @@ namespace ReconNess.Web.Controllers
             {
                 return StatusCode(StatusCodes.Status409Conflict);
             }
-            
+
             await userManager.AddPasswordAsync(user, userDto.NewPassword);
             await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
-            await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));  
+            await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
 
             return NoContent();
         }
@@ -257,7 +257,7 @@ namespace ReconNess.Web.Controllers
                 {
                     return BadRequest("Current password is not valid.");
                 }
-            }            
+            }
 
             user.UserName = userDto.UserName;
             user.Email = userDto.Email;
@@ -339,7 +339,7 @@ namespace ReconNess.Web.Controllers
         private static IEnumerable<Claim> GetClaims(string role)
         {
             var claims = new List<Claim>();
-            
+
             if (role.ToLower() == "admin")
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Admin"));
@@ -347,7 +347,7 @@ namespace ReconNess.Web.Controllers
             else if (role.ToLower() == "member")
             {
                 claims.Add(new Claim(ClaimTypes.Role, "Member"));
-            }        
+            }
 
             return claims;
         }
