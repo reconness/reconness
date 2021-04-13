@@ -53,14 +53,13 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="credentials">The credentials</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The JWT</returns>
         /// <response code="200">Returns the JWT</response>
         /// <response code="400">Bad Request if the credentials are not correct</response>
         [HttpPost("[action]")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials, CancellationToken cancellationToken)
+        public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials)
         {
             var defaultUserExistOrWasCreated = await this.CheckOrAddDefaultUser();
             if (!defaultUserExistOrWasCreated)
@@ -91,7 +90,7 @@ namespace ReconNess.Web.Controllers
         /// <returns>If the user exist or was created succefully</returns>
         private async Task<bool> CheckOrAddDefaultUser()
         {
-            if (signInManager.UserManager.Users.Count() != 0)
+            if (signInManager.UserManager.Users.Any())
             {
                 return true;
             }
@@ -110,7 +109,7 @@ namespace ReconNess.Web.Controllers
                 return false;
             }
 
-            User user = new User { UserName = envUserName, Email = envEmail, Owner = true };
+            var user = new User { UserName = envUserName, Email = envEmail, Owner = true };
 
             var result = await signInManager.UserManager.CreateAsync(user, envPassword);
             if (result.Succeeded)
@@ -129,8 +128,10 @@ namespace ReconNess.Web.Controllers
         /// <returns></returns>
         private async Task<List<Claim>> GetClaimsAsync(User user)
         {
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName));
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName)
+            };
 
             var roles = await signInManager.UserManager.GetRolesAsync(user);
             claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, string.Join(',', roles)));

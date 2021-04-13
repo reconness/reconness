@@ -4,9 +4,7 @@
                  :is-full-page="true"></loading>
 
         <div class="mx-auto"><strong>List of Users</strong></div>
-        <div class="col-12">
-            <p>Only the <strong>Owner</strong> can edit different users or delete users</p>
-        </div>
+        
         <div class="col-12 pt-2 pb-2" v-if="canAddNewUser()">
             <router-link class="btn btn-primary ml-2" :to="{name: 'userCreate'}">Add New User</router-link>
         </div>

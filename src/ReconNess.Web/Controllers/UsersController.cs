@@ -294,7 +294,6 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="id">The user id</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate or is not admin</response>
@@ -304,7 +303,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete(Guid id)
         {
             var user = await this.userManager.FindByIdAsync(id.ToString());
             if (user == null)
