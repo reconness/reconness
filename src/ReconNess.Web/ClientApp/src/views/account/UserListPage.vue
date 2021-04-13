@@ -27,6 +27,7 @@
                         <td class="w-25">
                             <router-link class="btn btn-primary ml-2" :to="{name: 'userDetails', params: { id: user.id }}" v-if="canEdit(user)">Edit</router-link>
                             <button class="btn btn-danger ml-2" v-on:click="onDelete(user)" v-if="canDelete(user)">Delete</button>
+                            <button class="btn btn-warning ml-2" v-on:click="onOwner(user)" v-if="canOwner(user)">Owner</button>
                         </td>
                     </tr>
                 </tbody>
@@ -78,6 +79,22 @@
                     this.isLoading = false
                 })
             },
+            async onOwner(user) {
+                this.$confirm('Are you sure to assign this user: ' + user.userName + ' as the new Owner, you will be remove as Owner and sign out.', 'Confirm', 'question').then(async () => {
+                    this.isLoading = true
+                    try {
+                        await this.$store.dispatch('accounts/assignOwner', user)
+
+                        localStorage.removeItem('user');
+                        this.$router.push({ name: 'login' })
+                    }
+                    catch (error) {
+                        helpers.errorHandle(this.$alert, error)
+                    }
+
+                    this.isLoading = false
+                })
+            },
             canAddNewUser() {
                 return this.isOwner() || this.isAdmin()
             },
@@ -87,6 +104,10 @@
             },
             canDelete(user) {
                 return this.isOwner() || (this.isAdmin() && user.role === "Member")
+            },
+            canOwner(user) {
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.owner === "True" && currentUser.userName !== user.userName && user.role === "Admin"
             },
             isAdmin() {
                 var currentUser = JSON.parse(localStorage.getItem('user'))

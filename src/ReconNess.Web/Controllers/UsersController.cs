@@ -326,10 +326,66 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Update an user.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/users/assignOnwer/{id}
+        ///     {
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="id">The user id</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPut("assignOwner/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AssignOwner(Guid id, CancellationToken cancellationToken)
+        {
+            var user = await this.userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName(), cancellationToken);               
+            if (currentUser == null || !await this.CanAssignOwnerAsync(user))
+            {
+                return BadRequest("You can not assign owner to this user.");
+            }
+
+            user.Owner = true;
+            var result = await userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return StatusCode(StatusCodes.Status409Conflict);
+            }
+
+            currentUser.Owner = false;
+
+            await this.userService.UpdateAsync(currentUser, cancellationToken);
+
+            return NoContent();
+        }        
+
         private async Task<bool> CanEditAsync(User user)
         {
             var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")) || user.UserName.Equals(this.authProvider.UserName());
+        }
+
+        private async Task<bool> CanAssignOwnerAsync(User user)
+        {
+            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
+            return this.authProvider.AreYouOwner() && userRole.Equals("Admin") && !user.UserName.Equals(this.authProvider.UserName());
         }
 
         private async Task<bool> NeedCurrentPassword(User user)

@@ -90,6 +90,20 @@ const actions = {
             }
         })
     },
+    assignOwner(context, user) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.update('users/assignOwner', user.id, user)
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     notification() {
         return new Promise((resolve, reject) => {
             try {
