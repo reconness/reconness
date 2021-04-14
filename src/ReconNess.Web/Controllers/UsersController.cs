@@ -187,7 +187,7 @@ namespace ReconNess.Web.Controllers
             var result = await userManager.CreateAsync(user);
             if (!result.Succeeded)
             {
-                return StatusCode(StatusCodes.Status409Conflict);
+                return StatusCode(StatusCodes.Status409Conflict, result.Errors);
             }
 
             await userManager.AddPasswordAsync(user, userDto.NewPassword);
