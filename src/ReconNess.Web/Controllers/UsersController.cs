@@ -376,30 +376,49 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }        
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         private async Task<bool> CanEditAsync(User user)
         {
             var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")) || user.UserName.Equals(this.authProvider.UserName());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         private async Task<bool> CanAssignOwnerAsync(User user)
         {
             var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             return this.authProvider.AreYouOwner() && userRole.Equals("Admin") && !user.UserName.Equals(this.authProvider.UserName());
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         private async Task<bool> NeedCurrentPassword(User user)
         {
             var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             return !(this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")));
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         private async Task<bool> CanDeleteAsync(User user)
         {
             var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member"));
-        }
-        
+        }        
 
         /// <summary>
         /// Obtain the role claim

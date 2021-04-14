@@ -73,10 +73,11 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("Invalid username or password.");
             }
 
-            var claims = await this.GetClaimsAsync(user);
+            var roles = await signInManager.UserManager.GetRolesAsync(user);
+
             var jwt = await Tokens.GenerateJwt(
-                credentials.UserName,
-                claims,
+                user,
+                roles,
                 jwtFactory,
                 jwtOptions);
 
@@ -118,25 +119,6 @@ namespace ReconNess.Web.Controllers
             }
 
             return result.Succeeded;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private async Task<List<Claim>> GetClaimsAsync(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimsIdentity.DefaultNameClaimType, user.UserName)
-            };
-
-            var roles = await signInManager.UserManager.GetRolesAsync(user);
-            claims.Add(new Claim(ClaimsIdentity.DefaultRoleClaimType, string.Join(',', roles)));
-            claims.Add(new Claim("Owner", user.Owner.ToString()));
-
-            return claims;
         }
 
         /// <summary>

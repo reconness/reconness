@@ -6,7 +6,7 @@
         <div class="mx-auto"><strong>List of Users</strong></div>
         
         <div class="col-12 pt-2 pb-2" v-if="canAddNewUser()">
-            <router-link class="btn btn-primary ml-2" :to="{name: 'userCreate'}">Add New User</router-link>
+            <router-link class="btn btn-primary " :to="{name: 'userCreate'}">Add New User</router-link>
         </div>
 
         <div class="col-12">
@@ -96,26 +96,22 @@
                 })
             },
             canAddNewUser() {
-                return this.isOwner() || this.isAdmin()
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                return currentUser.owner || currentUser.role === "Admin"
             },
             canEdit(user) {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
-                return this.isOwner() || (this.isAdmin() && user.role === "Member") || currentUser.userName === user.userName 
+                return currentUser.owner || (currentUser.role === "Admin" && user.role === "Member") || currentUser.userName === user.userName 
             },
             canDelete(user) {
-                return this.isOwner() || (this.isAdmin() && user.role === "Member")
+                var currentUser = JSON.parse(localStorage.getItem('user'))
+                var isNotMe = currentUser.userName !== user.userName
+                return (currentUser.owner && isNotMe) || (currentUser.role === "Admin" && user.role === "Member")
             },
             canOwner(user) {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.owner === "True" && currentUser.userName !== user.userName && user.role === "Admin"
-            },
-            isAdmin() {
-                var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.roles === "Admin"
-            },
-            isOwner() {
-                var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.owner === "True"
+                var isNotMe = currentUser.userName !== user.userName
+                return currentUser.owner && isNotMe && user.role === "Admin"
             }
         }
     }
