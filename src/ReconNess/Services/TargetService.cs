@@ -41,7 +41,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return this.GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -60,7 +60,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return this.GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -84,7 +84,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return this.GetAllQueryableByCriteria(predicate)
                         .Include(t => t.RootDomains)
                        .SingleAsync(cancellationToken);
         }

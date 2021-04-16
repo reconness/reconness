@@ -98,7 +98,7 @@ namespace ReconNess.Services
 
             await this.agentRunService.StartOnScopeAsync(agentRunner, channel, cancellationToken);
 
-            var agentRunnerType = this.GetAgentRunnerType(agentRunner);
+            var agentRunnerType = GetAgentRunnerType(agentRunner);
             if (agentRunnerType.StartsWith("Current"))
             {
                 await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true, allowSkip: false);
@@ -150,7 +150,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <returns>If we need to run the Agent in each subdomain</returns>
-        private string GetAgentRunnerType(AgentRunner agentRunner)
+        private static string GetAgentRunnerType(AgentRunner agentRunner)
         {
             var type = agentRunner.Agent.AgentType;
             return type switch

@@ -59,7 +59,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Notification(CancellationToken cancellationToken)
         {
-            var notification = await this.notificationService.GetAllQueryableByCriteria(n => !n.Deleted, cancellationToken)
+            var notification = await this.notificationService.GetAllQueryableByCriteria(n => !n.Deleted)
                     .AsNoTracking()
                 .SingleOrDefaultAsync(cancellationToken);
 

@@ -47,7 +47,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return await this.GetAllQueryableByCriteria(predicate)
                     .Include(s => s.RootDomain)
                     .Include(s => s.Services)
                     .Include(s => s.Notes)
@@ -59,7 +59,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return await this.GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
@@ -70,7 +70,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return await this.GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
@@ -149,7 +149,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return await this.GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Labels)
                 .SingleAsync(cancellationToken);
         }
@@ -242,12 +242,12 @@ namespace ReconNess.Services
 
             if (!string.IsNullOrEmpty(terminalOutputParse.HttpScreenshotFilePath) || !string.IsNullOrEmpty(terminalOutputParse.HttpsScreenshotFilePath))
             {
-                await this.UpdateSubdomainScreenshotAsync(subdomain, activateNotification, terminalOutputParse);
+                await this.UpdateSubdomainScreenshotAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrWhiteSpace(terminalOutputParse.Label))
             {
-                await this.UpdateSubdomainLabelAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await this.UpdateSubdomainLabelAsync(subdomain, terminalOutputParse, cancellationToken);
             }
         }
 
@@ -554,11 +554,10 @@ namespace ReconNess.Services
         /// Update the subdomain label
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainLabelAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async Task UpdateSubdomainLabelAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Name, StringComparison.OrdinalIgnoreCase)))
             {

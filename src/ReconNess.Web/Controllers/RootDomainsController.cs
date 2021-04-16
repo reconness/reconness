@@ -219,11 +219,11 @@ namespace ReconNess.Web.Controllers
             var path = Path.GetTempFileName();
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(stream, cancellationToken);
             }
 
             var subdomains = System.IO.File.ReadAllLines(path).ToList();
-            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
+            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains, cancellationToken);
 
             return NoContent();
         }

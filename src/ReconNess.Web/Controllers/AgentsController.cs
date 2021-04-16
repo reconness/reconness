@@ -226,7 +226,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
+            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -330,7 +330,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name);
+            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -521,9 +521,9 @@ namespace ReconNess.Web.Controllers
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
                 subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken)
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefaultAsync(cancellationToken);
 
                 if (subdomain == null)
                 {
@@ -593,9 +593,9 @@ namespace ReconNess.Web.Controllers
             if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
             {
                 subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefaultAsync(cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();

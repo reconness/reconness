@@ -63,7 +63,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var users = await this.userService
-                        .GetAllQueryable(cancellationToken)
+                        .GetAllQueryable()
                         .AsNoTracking()
                         .ToListAsync(cancellationToken);
 
@@ -89,7 +89,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
         {
             var roles = await this.roleService
-                        .GetAllQueryable(cancellationToken)
+                        .GetAllQueryable()
                         .AsNoTracking()
                         .Select(r => r.Name)
                         .ToListAsync(cancellationToken);

@@ -44,7 +44,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
         {
-            var result = this.GetAllQueryable(cancellationToken)
+            var result = this.GetAllQueryable()
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -68,7 +68,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -85,26 +85,26 @@ namespace ReconNess.Services
                         .ToList()
                     })
                     .AsNoTracking()
-                    .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
                     .Include(a => a.AgentHistories)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -142,7 +142,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
-            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
+            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -157,7 +157,7 @@ namespace ReconNess.Services
                 }
             };
 
-            return await this.AddAsync(agent);
+            return await this.AddAsync(agent, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -174,7 +174,7 @@ namespace ReconNess.Services
                 ChangeType = "Agent Updated"
             });
 
-            await this.UpdateAsync(agent);
+            await this.UpdateAsync(agent, cancellationToken);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace ReconNess.Providers
         /// <inheritdoc/>
         public IEnumerable<string> GetLogfiles(CancellationToken cancellationToken)
         {
-            var logPath = this.GetLogPath();
+            var logPath = GetLogPath();
 
             var files = Directory.GetFiles(logPath);
 
@@ -28,7 +28,7 @@ namespace ReconNess.Providers
         /// <inheritdoc/>
         public async Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
-            var logPath = this.GetLogPath();
+            var logPath = GetLogPath();
 
             string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             foreach (char c in invalid)
@@ -39,12 +39,11 @@ namespace ReconNess.Providers
             var path = Path.Combine(logPath, logFileSelected);
             if (path.StartsWith(logPath))
             {
-                using (FileStream fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (BufferedStream bs = new BufferedStream(fs))
-                using (StreamReader sr = new StreamReader(bs))
-                {
-                    return await sr.ReadToEndAsync();
-                }
+                using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var bs = new BufferedStream(fs);
+                using var sr = new StreamReader(bs);
+
+                return await sr.ReadToEndAsync();
             }
             else
             {
@@ -57,7 +56,7 @@ namespace ReconNess.Providers
         /// <inheritdoc/>
         public async Task CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
-            var logPath = this.GetLogPath();
+            var logPath = GetLogPath();
 
             string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
             foreach (char c in invalid)
@@ -68,7 +67,7 @@ namespace ReconNess.Providers
             var path = Path.Combine(logPath, logFileSelected);
             if (path.StartsWith(logPath))
             {
-                await File.WriteAllTextAsync(path, string.Empty);
+                await File.WriteAllTextAsync(path, string.Empty, cancellationToken);
             }
             else
             {
@@ -80,7 +79,7 @@ namespace ReconNess.Providers
         /// Obtain the log folder path
         /// </summary>
         /// <returns>The log folder path</returns>
-        private string GetLogPath()
+        private static string GetLogPath()
         {
             var bin = Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location);
             var path = Path.Combine(bin, "logs");

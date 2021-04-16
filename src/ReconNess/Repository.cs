@@ -37,11 +37,9 @@
         }
 
         /// <inheritdoc/>
-        public IQueryable<TEntity> GetAllQueryable(CancellationToken cancellationToken = default)
+        public IQueryable<TEntity> GetAllQueryable()
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return this.context.ToQueryable<TEntity>(cancellationToken);
+            return this.context.ToQueryable<TEntity>();
         }
 
         /// <inheritdoc/>
@@ -61,11 +59,9 @@
         }
 
         /// <inheritdoc/>
-        public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return this.context.ToQueryableByCriteria<TEntity>(predicate, cancellationToken);
+            return this.context.ToQueryableByCriteria<TEntity>(predicate);
         }
 
         /// <inheritdoc/>

@@ -41,7 +41,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<RootDomain> GetRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Select(rootDomain => new RootDomain
                     {
                         Id = rootDomain.Id,
@@ -55,15 +55,15 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<RootDomain> GetRootDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                         .Include(r => r.Subdomains)
-                    .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Select(rootDomain => new RootDomain
                     {
                         Name = rootDomain.Name,
@@ -116,7 +116,7 @@ namespace ReconNess.Services
                             .ToList()
                     })
                     .AsNoTracking()
-                    .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -136,7 +136,7 @@ namespace ReconNess.Services
             }
 
             var currentSubdomains = rootDomain.Subdomains.Select(s => s.Name);
-            var subdomains = this.SplitSubdomains(uploadSubdomains);
+            var subdomains = SplitSubdomains(uploadSubdomains);
             foreach (var subdomain in subdomains)
             {
                 if (Uri.CheckHostName(subdomain) != UriHostNameType.Unknown &&
@@ -158,7 +158,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            myRootDomains = this.GetIntersectionRootDomainsName(myRootDomains, newRootDomains, cancellationToken);
+            myRootDomains = GetIntersectionRootDomainsName(myRootDomains, newRootDomains, cancellationToken);
             foreach (var newRootDomain in newRootDomains)
             {
                 if (myRootDomains.Any(r => r.Name == newRootDomain))
@@ -212,7 +212,7 @@ namespace ReconNess.Services
             Subdomain subdomain = default;
             if (await this.NeedAddNewSubdomain(rootDomain, terminalOutputParse.Subdomain, cancellationToken))
             {
-                subdomain = await this.AddRootDomainNewSubdomainAsync(rootDomain.Target, rootDomain, terminalOutputParse.Subdomain, cancellationToken);
+                subdomain = await this.AddRootDomainNewSubdomainAsync(rootDomain, terminalOutputParse.Subdomain, cancellationToken);
                 if (activateNotification)
                 {
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
@@ -254,7 +254,7 @@ namespace ReconNess.Services
         /// <param name="subdomain">The new root domain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>The new subdomain added</returns>
-        private Task<Subdomain> AddRootDomainNewSubdomainAsync(Target target, RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
+        private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
         {
             var newSubdomain = new Subdomain
             {
@@ -271,7 +271,7 @@ namespace ReconNess.Services
         /// <param name="myRootDomains">The list of my RootDomains</param>
         /// <param name="newRootDomains">The list of string RootDomains</param>
         /// <returns>The names of the categorias that interset the old and the new RootDomains</returns>
-        private ICollection<RootDomain> GetIntersectionRootDomainsName(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken)
+        private static ICollection<RootDomain> GetIntersectionRootDomainsName(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken)
         {
             var myRootDomainsName = myRootDomains.Select(c => c.Name).ToList();
             foreach (var myRootDomainName in myRootDomainsName)
@@ -292,7 +292,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="uploadSubdomains"></param>
         /// <returns></returns>
-        private List<string> SplitSubdomains(IEnumerable<string> uploadSubdomains)
+        private static List<string> SplitSubdomains(IEnumerable<string> uploadSubdomains)
         {
             var subdomains = new List<string>();
             foreach (var subdomain in uploadSubdomains)
