@@ -125,18 +125,13 @@ namespace ReconNess.Web.Controllers
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
-        [HttpPost]        
+        [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower());
+            var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower(), cancellationToken);
             if (targetExist)
             {
                 return BadRequest(ERROR_TARGET_EXIT);
@@ -177,23 +172,18 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            if (target.Name != targetDto.Name && await this.targetService.AnyAsync(t => t.Name == targetDto.Name))
+            if (target.Name != targetDto.Name && await this.targetService.AnyAsync(t => t.Name == targetDto.Name, cancellationToken))
             {
                 return BadRequest(ERROR_TARGET_EXIT);
             }
@@ -268,7 +258,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("importRootDomain/{targetName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
@@ -292,7 +282,7 @@ namespace ReconNess.Web.Controllers
             var path = Path.GetTempFileName();
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(stream, cancellationToken);
             }
 
             RootDomainDto rootDomainDto = default;

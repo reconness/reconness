@@ -176,11 +176,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
@@ -239,16 +234,11 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
@@ -285,7 +275,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
         [HttpPut("label/{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]        
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
@@ -316,7 +306,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
         [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]        
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)

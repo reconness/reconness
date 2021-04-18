@@ -57,9 +57,7 @@ namespace ReconNess.Services
             this.agentRunService = agentRunService;
         }
 
-        /// <summary>
-        /// <see cref="IAgentRunnerService.RunningAgentsAsync(AgentRunner, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
             if ((await this.agentRunnerProvider.RunningCountAsync) == 0)
@@ -88,9 +86,7 @@ namespace ReconNess.Services
             return agentsRunning;
         }
 
-        /// <summary>
-        /// <see cref="IAgentRunnerService.RunAgentAsync(AgentRunner, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task RunAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -102,7 +98,7 @@ namespace ReconNess.Services
 
             await this.agentRunService.StartOnScopeAsync(agentRunner, channel, cancellationToken);
 
-            var agentRunnerType = this.GetAgentRunnerType(agentRunner);
+            var agentRunnerType = GetAgentRunnerType(agentRunner);
             if (agentRunnerType.StartsWith("Current"))
             {
                 await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true, allowSkip: false);
@@ -113,9 +109,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="IAgentRunnerService.StopAgentAsync(AgentRunner,  CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task StopAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -156,7 +150,7 @@ namespace ReconNess.Services
         /// </summary>
         /// <param name="agentRunner">The agent run parameters</param>
         /// <returns>If we need to run the Agent in each subdomain</returns>
-        private string GetAgentRunnerType(AgentRunner agentRunner)
+        private static string GetAgentRunnerType(AgentRunner agentRunner)
         {
             var type = agentRunner.Agent.AgentType;
             return type switch

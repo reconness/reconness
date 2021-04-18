@@ -54,8 +54,7 @@
             async onUpdate() {
                 try {
                     this.isLoading = true
-                    await this.$store.dispatch('agents/updateAgent')
-                    this.isLoading = false
+                    await this.$store.dispatch('agents/updateAgent')                    
 
                     this.$alert('The agent was saved', 'Success', 'success')
 
@@ -65,16 +64,20 @@
                 }
                 catch (error) {
                     helpers.errorHandle(this.$alert, error)
-                }
+                } 
+
+                this.isLoading = false
             },
             async onDelete() {
                 this.$confirm('Are you sure to delete this agent: ' + this.agent.name, 'Confirm', 'question').then(async () => {
-                    this.isLoading = true
+                    
                     try {
+                        this.isLoading = true
                         await this.$store.dispatch('agents/deleteAgent')
+
                         this.$router.push({ name: 'home' })
                     }
-                    catch (error) {
+                    catch (error) {                        
                         helpers.errorHandle(this.$alert, error)
                     }
 

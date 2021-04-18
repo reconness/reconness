@@ -28,7 +28,7 @@ namespace ReconNess.Web.Auth
         /// <param name="userName"></param>
         /// <param name="claims"></param>
         /// <returns></returns>
-        public async Task<string> GenerateEncodedToken(string userName, IList<Claim> claims)
+        public async Task<string> GenerateEncodedToken(string userName, IEnumerable<Claim> claims)
         {
             ((List<Claim>)claims).AddRange(new[]
             {
@@ -57,7 +57,7 @@ namespace ReconNess.Web.Auth
         /// <param name="userName"></param>
         /// <param name="claims"></param>
         /// <returns></returns>
-        public ClaimsIdentity GenerateClaimsIdentity(string userName, IList<Claim> claims)
+        public ClaimsIdentity GenerateClaimsIdentity(string userName, IEnumerable<Claim> claims)
         {
             return new ClaimsIdentity(new GenericIdentity(userName, "Token"), claims);
         }

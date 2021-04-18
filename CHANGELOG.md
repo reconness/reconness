@@ -1,3 +1,11 @@
+## [1.7.0] - 2021-04-17
+
+- Add multiple users feature, now we can have more than one user using the platform
+- Add Owner user, the user that we use by default in the Dockerfile in the login
+- Add Admin and Member users
+- Change the Owner user to other Admin user
+- Update packages
+
 ## [1.6.5] - 2021-02-19
 
 ### Added

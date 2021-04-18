@@ -30,9 +30,7 @@
             this.context = context;
         }
 
-        /// <summary>
-        /// <see cref="IUnitOfWork.Repository{TEntity}(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public IRepository<TEntity> Repository<TEntity>(CancellationToken cancellationToken = default)
             where TEntity : class
         {
@@ -57,9 +55,7 @@
             return (IRepository<TEntity>)this.repositories[type];
         }
 
-        /// <summary>
-        /// <see cref="IUnitOfWork.BeginTransaction(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void BeginTransaction(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -67,9 +63,7 @@
             this.context.BeginTransaction(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IUnitOfWork.Commit(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public int Commit(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -77,9 +71,7 @@
             return this.context.Commit(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IUnitOfWork.CommitAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<int> CommitAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -87,9 +79,7 @@
             return this.context.CommitAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IUnitOfWork.Rollback(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void Rollback(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

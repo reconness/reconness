@@ -26,9 +26,7 @@ namespace ReconNess.Services
         {
         }
 
-        /// <summary>
-        /// <see cref="ILabelService.GetLabelsAsync(ICollection{SubdomainLabel}, List{string}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ICollection<Label>> GetLabelsAsync(ICollection<Label> myLabels, List<string> newLabels, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

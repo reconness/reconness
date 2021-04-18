@@ -95,7 +95,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpDelete("deleteSubdomians/{targetName}/{rootDomainName}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
@@ -141,7 +141,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("export/{targetName}/{rootDomainName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)
@@ -189,7 +189,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("uploadSubdomains/{targetName}/{rootDomainName}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
@@ -219,11 +219,11 @@ namespace ReconNess.Web.Controllers
             var path = Path.GetTempFileName();
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(stream, cancellationToken);
             }
 
             var subdomains = System.IO.File.ReadAllLines(path).ToList();
-            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
+            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains, cancellationToken);
 
             return NoContent();
         }
@@ -247,7 +247,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("exportSubdomains/{targetName}/{rootDomainName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DonwloadSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)

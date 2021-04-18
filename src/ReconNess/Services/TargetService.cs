@@ -38,12 +38,10 @@ namespace ReconNess.Services
             this.notificationService = notificationService;
         }
 
-        /// <summary>
-        /// <see cref="ITargetService.GetTargetsNotTrackingAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return this.GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -59,12 +57,10 @@ namespace ReconNess.Services
                         .ToListAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ITargetService.GetTargetNotTrackingAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return this.GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -85,19 +81,15 @@ namespace ReconNess.Services
                        .SingleAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ITargetService.GetTargetAsync(Expression{Func{Target, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate, cancellationToken)
+            return this.GetAllQueryableByCriteria(predicate)
                         .Include(t => t.RootDomains)
                        .SingleAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRootDomainService.UploadRootDomainAsync(RootDomain, RootDomain, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
         {
             target.RootDomains.Add(newRootdomain);
@@ -105,9 +97,7 @@ namespace ReconNess.Services
             await this.UpdateAsync(target, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.UpdateAgentRanAsync(Target, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentRanAsync(Target target, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -124,9 +114,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="ISaveTerminalOutputParseService.SaveTerminalOutputParseAsync(Target, string, bool, ScriptOutput, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveTerminalOutputParseAsync(Target target, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

@@ -28,9 +28,7 @@ namespace ReconNess.Services
         {
         }
 
-        /// <summary>
-        /// <see cref="INotificationService.SaveNotificationAsync(Notification, CancellationToken)
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveNotificationAsync(Notification newNotification, CancellationToken cancellationToken)
         {
             var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
@@ -58,9 +56,7 @@ namespace ReconNess.Services
             await this.UpdateAsync(notification, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="INotificationService.SendAsync(string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SendAsync(string agentPayload, CancellationToken cancellationToken)
         {
             var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
@@ -87,9 +83,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="INotificationService.SendNotificationIfActive(NotificationType, (string, string)[], CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SendAsync(NotificationType notificationType, (string, string)[] replaces, CancellationToken cancellationToken = default)
         {
             var payload = await this.GetPayloadAsync(notificationType, cancellationToken);

@@ -39,9 +39,7 @@ namespace ReconNess.Services
             this.connectorService = connectorService;
         }
 
-        /// <summary>
-        /// <see cref="IAgentRunService.StartOnScopeAsync(AgentRunner, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task StartOnScopeAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken = default)
         {
             var agentRun = new AgentRun
@@ -63,9 +61,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="IAgentRunService.UpdateAgentRunDoneOnScopeAsync(Agent, string, bool, bool, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task DoneOnScopeAsync(AgentRunner agentRunner, string channel, bool stoppedManually, bool fromException, CancellationToken cancellationToken)
         {
             if (agentRunner.ActivateNotification)
@@ -121,9 +117,7 @@ namespace ReconNess.Services
             await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentRunService.TerminalOutputScopeAsync(AgentRunner, string, string, bool, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task TerminalOutputScopeAsync(AgentRunner agentRunner, string channel, string terminalOutput, bool includeTime = true, CancellationToken cancellationToken = default)
         {
             if (!terminalOuputs.ContainsKey(channel))

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using ReconNess.Core;
@@ -16,7 +17,7 @@ namespace ReconNess.Data.Npgsql
     /// <summary>
     /// This class implement the interface <see cref="IDbContext"/>
     /// </summary>
-    public class ReconNessContext : DbContext, IDbContext
+    public class ReconNessContext : IdentityDbContext<User, Role, Guid>, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
         public DbSet<AgentRun> AgentRuns { get; set; }
@@ -161,20 +162,19 @@ namespace ReconNess.Data.Npgsql
 
             modelBuilder.Ignore<BaseEntity>();
 
-            this.RunSeed(modelBuilder);
+            RunSeed(modelBuilder);
         }
 
         /// <summary>
         /// Run seeding
         /// </summary>
-        private void RunSeed(ModelBuilder modelBuilder)
+        private static void RunSeed(ModelBuilder modelBuilder)
         {
             LabelSeeding.Run(modelBuilder);
+            IdentitySeeding.Run(modelBuilder);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <inheritdoc/>
         public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             var changes = ChangeTracker.Entries<BaseEntity>()
@@ -193,9 +193,7 @@ namespace ReconNess.Data.Npgsql
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
+        /// <inheritdoc/>
         public override int SaveChanges()
         {
             var changes = ChangeTracker.Entries<BaseEntity>()
@@ -215,9 +213,7 @@ namespace ReconNess.Data.Npgsql
 
         #region IDbContext
 
-        /// <summary>
-        /// <see cref="IDbContext.BeginTransaction(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void BeginTransaction(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -241,9 +237,7 @@ namespace ReconNess.Data.Npgsql
             this.transaction = this.Database.BeginTransaction();
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.Commit(CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public int Commit(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -267,9 +261,7 @@ namespace ReconNess.Data.Npgsql
             }
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.CommitAsync(CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<int> CommitAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -277,7 +269,7 @@ namespace ReconNess.Data.Npgsql
             try
             {
                 this.BeginTransaction(cancellationToken);
-                var saveChangesAsync = await this.SaveChangesAsync();
+                var saveChangesAsync = await this.SaveChangesAsync(cancellationToken);
                 this.EndTransaction(cancellationToken);
 
                 return saveChangesAsync;
@@ -293,9 +285,7 @@ namespace ReconNess.Data.Npgsql
             }
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.Rollback(CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void Rollback(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -306,9 +296,7 @@ namespace ReconNess.Data.Npgsql
             }
         }
 
-        /// <summary>
-        /// Finish the transaction
-        /// </summary>
+        /// <inheritdoc/>
         private void EndTransaction(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -316,9 +304,7 @@ namespace ReconNess.Data.Npgsql
             this.transaction.Commit();
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.SetAsAdded{TEntity}(TEntity, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void SetAsAdded<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -326,9 +312,7 @@ namespace ReconNess.Data.Npgsql
             this.UpdateEntityState<TEntity>(entity, EntityState.Added, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.SetAsAdded{TEntity}(List{TEntity}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void SetAsAdded<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -336,9 +320,7 @@ namespace ReconNess.Data.Npgsql
             entities.ForEach(entity => this.SetAsAdded<TEntity>(entity, cancellationToken));
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.SetAsModified{TEntity}(TEntity, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void SetAsModified<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -346,9 +328,7 @@ namespace ReconNess.Data.Npgsql
             this.UpdateEntityState<TEntity>(entity, EntityState.Modified, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.SetAsModified{TEntity}(List{TEntity}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void SetAsModified<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -356,9 +336,7 @@ namespace ReconNess.Data.Npgsql
             entities.ForEach(entity => this.SetAsModified<TEntity>(entity, cancellationToken));
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.SetAsDeleted{TEntity}(TEntity, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void SetAsDeleted<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -366,9 +344,7 @@ namespace ReconNess.Data.Npgsql
             this.UpdateEntityState<TEntity>(entity, EntityState.Deleted, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.SetAsDeleted{TEntity}(List{TEntity}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public void SetAsDeleted<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -376,19 +352,15 @@ namespace ReconNess.Data.Npgsql
             entities.ForEach(entity => this.SetAsDeleted<TEntity>(entity, cancellationToken));
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.FindAsync{TEntity}(Guid, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<TEntity> FindAsync<TEntity>(Guid id, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().FindAsync(id).AsTask();
+            return this.Set<TEntity>().FindAsync(id, cancellationToken).AsTask();
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.FindByCriteriaAsync{TEntity}(Expression{Func{TEntity, bool}}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<TEntity> FindByCriteriaAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -396,9 +368,7 @@ namespace ReconNess.Data.Npgsql
             return this.Set<TEntity>().Local.AsQueryable().FirstOrDefaultAsync(predicate, cancellationToken) ?? this.FirstOrDefaultAsync<TEntity>(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.FirstOrDefaultAsync{TEntity}(Expression{Func{TEntity, bool}}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<TEntity> FirstOrDefaultAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -406,9 +376,7 @@ namespace ReconNess.Data.Npgsql
             return this.Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.ToListAsync{TEntity}(CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<List<TEntity>> ToListAsync<TEntity>(CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -416,9 +384,7 @@ namespace ReconNess.Data.Npgsql
             return this.Set<TEntity>().ToListAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.ToListByCriteriaAsync{TEntity}(Expression{Func{TEntity, bool}}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<List<TEntity>> ToListByCriteriaAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -426,9 +392,7 @@ namespace ReconNess.Data.Npgsql
             return this.Set<TEntity>().Where(predicate).ToListAsync<TEntity>(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.AnyAsync{TEntity}(Expression{Func{TEntity, bool}}, CancellationToken)"></see>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<bool> AnyAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -436,23 +400,15 @@ namespace ReconNess.Data.Npgsql
             return this.Set<TEntity>().AnyAsync(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.ToQueryable{TEntity}(CancellationToken)"></see>
-        /// </summary>
-        public IQueryable<TEntity> ToQueryable<TEntity>(CancellationToken cancellationToken = default) where TEntity : class
+        /// <inheritdoc/>
+        public IQueryable<TEntity> ToQueryable<TEntity>() where TEntity : class
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             return this.Set<TEntity>().AsQueryable();
         }
 
-        /// <summary>
-        /// <see cref="IDbContext.ToQueryableByCriteria{TEntity}(Expression{Func{TEntity, bool}}, CancellationToken)"></see>
-        /// </summary>
-        public IQueryable<TEntity> ToQueryableByCriteria<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class
+        /// <inheritdoc/>
+        public IQueryable<TEntity> ToQueryableByCriteria<TEntity>(Expression<Func<TEntity, bool>> predicate) where TEntity : class
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
             return this.Set<TEntity>().Where(predicate).AsQueryable();
         }
 
@@ -485,6 +441,7 @@ namespace ReconNess.Data.Npgsql
 
             return entityEntry;
         }
+
         #endregion IDbContext
     }
 }

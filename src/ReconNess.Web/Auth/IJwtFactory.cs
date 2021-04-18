@@ -15,7 +15,7 @@ namespace ReconNess.Web.Auth
         /// <param name="userName"></param>
         /// <param name="claims"></param>
         /// <returns></returns>
-        Task<string> GenerateEncodedToken(string userName, IList<Claim> claims);
+        Task<string> GenerateEncodedToken(string userName, IEnumerable<Claim> claims);
 
         /// <summary>
         /// 
@@ -23,6 +23,6 @@ namespace ReconNess.Web.Auth
         /// <param name="userName"></param>
         /// <param name="claims"></param>
         /// <returns></returns>
-        ClaimsIdentity GenerateClaimsIdentity(string userName, IList<Claim> claims);
+        ClaimsIdentity GenerateClaimsIdentity(string userName, IEnumerable<Claim> claims);
     }
 }

@@ -101,7 +101,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpGet("{agentName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
@@ -172,11 +172,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
@@ -220,23 +215,18 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
+            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -297,7 +287,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="401">If the user is not authenticate</response>
         [HttpDelete("{agentName}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Delete(string agentName, CancellationToken cancellationToken)
         {
@@ -340,12 +330,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name);
+            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -385,11 +370,6 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             try
             {
                 var scriptOutput = await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken);
@@ -427,7 +407,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("run")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
@@ -506,7 +486,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("stop")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
@@ -541,9 +521,9 @@ namespace ReconNess.Web.Controllers
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
                 subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken)
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefaultAsync(cancellationToken);
 
                 if (subdomain == null)
                 {
@@ -584,7 +564,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
@@ -613,9 +593,9 @@ namespace ReconNess.Web.Controllers
             if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
             {
                 subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefaultAsync(cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();

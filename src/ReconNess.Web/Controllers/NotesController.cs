@@ -61,7 +61,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("rootdomain/{targetName}/{rootDomainName}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SaveRootDomainNotes(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
@@ -78,7 +78,7 @@ namespace ReconNess.Web.Controllers
             }
 
             var rootDomain = await this.rootDomainService
-                .GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName, cancellationToken)
+                .GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName)
                     .Include(t => t.Notes)
                 .SingleAsync(cancellationToken);
 
@@ -115,7 +115,7 @@ namespace ReconNess.Web.Controllers
         /// <response code="404">Not Found</response>
         [HttpPost("subdomain/{targetName}/{rootDomainName}/{subdomainName}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]        
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomainName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
@@ -138,7 +138,7 @@ namespace ReconNess.Web.Controllers
             }
 
             var subdomain = await this.subdomainService
-                .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
+                .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
                     .Include(s => s.Notes)
                 .SingleAsync(cancellationToken);
 

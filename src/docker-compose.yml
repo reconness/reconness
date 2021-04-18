@@ -15,6 +15,7 @@ services:
     environment:
       - ReconnessUserName=reconness               # login username
       - ReconnessPassword=reconness               # login password
+      - ReconnessEmail=xxxx@youremail.com         # login email
       - PostgresUser=reconness                    # postgres userName
       - PostgresPassword=reconness                # postgres password
       - PostgresDb=reconness                      # postgres database

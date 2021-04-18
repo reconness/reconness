@@ -41,12 +41,10 @@ namespace ReconNess.Services
             this.authProvider = authProvider;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentsNoTrackingAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
         {
-            var result = this.GetAllQueryable(cancellationToken)
+            var result = this.GetAllQueryable()
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -67,12 +65,10 @@ namespace ReconNess.Services
                     .ToListAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentNoTrackingAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -89,35 +85,29 @@ namespace ReconNess.Services
                         .ToList()
                     })
                     .AsNoTracking()
-                    .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
                     .Include(a => a.AgentHistories)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentToRunAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetMarketplaceAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
@@ -129,9 +119,7 @@ namespace ReconNess.Services
             return agentMarketplaces.Agents;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetScriptAsync(string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
             try
@@ -151,17 +139,13 @@ namespace ReconNess.Services
             return string.Empty;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.DebugAsync(string, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
-            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
+            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.AddAgentHistoryAsync(Agent, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
         {
             agent.AgentHistories = new List<AgentHistory>
@@ -173,12 +157,10 @@ namespace ReconNess.Services
                 }
             };
 
-            return await this.AddAsync(agent);
+            return await this.AddAsync(agent, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.UpdateAgentAsync(Agent, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             if (agent.AgentHistories == null)
@@ -192,7 +174,7 @@ namespace ReconNess.Services
                 ChangeType = "Agent Updated"
             });
 
-            await this.UpdateAsync(agent);
+            await this.UpdateAsync(agent, cancellationToken);
         }
     }
 }

@@ -53,7 +53,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var categories = await this.categoryService
-                        .GetAllQueryable(cancellationToken)
+                        .GetAllQueryable()
                         .AsNoTracking()
                         .ToListAsync(cancellationToken);
 
