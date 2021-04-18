@@ -70,8 +70,8 @@
         }),
         async mounted() {
             if (this.isNew) {
-                this.$store.state.accounts.currentUser = { }
-            }
+                this.$store.state.accounts.currentUser = {}
+            }            
 
             this.roles = await this.$store.dispatch('accounts/roles')
         },
@@ -81,12 +81,13 @@
             },
             isMember() {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.roles === "Member"
+                return currentUser.roles[0] === "Member"
             },
             showDelete() {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
                 var isNotMe = currentUser.userName !== this.user.userName
-                return !this.isNew && (!currentUser.owner || isNotMe)
+
+                return !this.isNew && isNotMe
             }
         }
     }

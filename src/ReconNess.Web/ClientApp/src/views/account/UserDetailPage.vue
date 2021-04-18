@@ -55,7 +55,7 @@
                     this.isLoading = true
                     await this.$store.dispatch('accounts/updateUser', this.user)                    
 
-                    this.$alert('The user was saved, please if you changed your username or your role, sign out and sign in again', 'Success', 'success')
+                    this.$alert('Please if you changed your username or your role, sign out and sign in again', 'Success', 'success')
                 }
                 catch (error) {                    
                     helpers.errorHandle(this.$alert, error)

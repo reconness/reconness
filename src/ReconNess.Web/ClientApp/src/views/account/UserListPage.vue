@@ -97,16 +97,16 @@
             },
             canAddNewUser() {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.owner || currentUser.role === "Admin"
+                return currentUser.owner || currentUser.roles[0] === "Admin"
             },
             canEdit(user) {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
-                return currentUser.owner || (currentUser.role === "Admin" && user.role === "Member") || currentUser.userName === user.userName 
+                return currentUser.owner || (currentUser.roles[0] === "Admin" && user.role === "Member") || currentUser.userName === user.userName 
             },
             canDelete(user) {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
                 var isNotMe = currentUser.userName !== user.userName
-                return (currentUser.owner && isNotMe) || (currentUser.role === "Admin" && user.role === "Member")
+                return (currentUser.owner && isNotMe) || (currentUser.roles[0] === "Admin" && user.role === "Member")
             },
             canOwner(user) {
                 var currentUser = JSON.parse(localStorage.getItem('user'))
