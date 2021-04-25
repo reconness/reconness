@@ -44,6 +44,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Content\Resolvers\default.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Content\Worklists\deafult.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
