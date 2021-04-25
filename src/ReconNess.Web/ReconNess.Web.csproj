@@ -44,16 +44,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="content\configurations\.gitkeep">
+    <None Update="Content\configurations\.gitkeep">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="content\wordlists\dns_resolver_enum\default.txt">
+    <None Update="Content\wordlists\dns_resolver_enum\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="content\wordlists\subdomain_enum\default.txt">
+    <None Update="Content\wordlists\subdomain_enum\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="content\wordlists\dir_enum\default.txt">
+    <None Update="Content\wordlists\dir_enum\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
