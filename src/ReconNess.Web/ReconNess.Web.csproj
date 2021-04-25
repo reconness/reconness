@@ -44,13 +44,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Content\Configurations\.gitkeep">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Content\Resolvers\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Content\Worklists\deafult.txt">
+    <None Update="Content\Wordlists\deafult.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Content\Worklists\default_content_discovery.txt">
+    <None Update="Content\Wordlists\default_content_discovery.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
