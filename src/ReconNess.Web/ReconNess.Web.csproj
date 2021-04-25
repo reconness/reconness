@@ -50,7 +50,7 @@
     <None Update="content\wordlists\dns_resolver_enum\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="content\wordlists\subdomain_enum\deafult.txt">
+    <None Update="content\wordlists\subdomain_enum\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="content\wordlists\dir_enum\default.txt">
