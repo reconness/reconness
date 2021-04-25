@@ -43,6 +43,15 @@
     <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Content\Worklists\deafult.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Content\Worklists\default_content_discovery.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">
     <!-- Ensure Node.js is installed -->
     <Exec Command="node --version" ContinueOnError="true">
