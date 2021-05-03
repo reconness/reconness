@@ -9,6 +9,7 @@ import subdomains from './modules/subdomains'
 import references from './modules/references'
 import notes from './modules/notes'
 import login from './modules/login'
+import wordlists from './modules/wordlists'
 
 Vue.use(Vuex)
 
@@ -21,6 +22,7 @@ export default new Vuex.Store({
         subdomains,
         references,
         notes,
-        login
+        login,
+        wordlists
     }
 })

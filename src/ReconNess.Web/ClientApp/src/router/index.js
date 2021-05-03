@@ -20,6 +20,8 @@ import AgentCreatePage from '@/views/agent/AgentCreatePage';
 import AgentEditPage from '@/views/agent/AgentEditPage';
 import AgentDebugPage from '@/views/agent/AgentDebugPage';
 import WordlistPage from '@/views/agent/WordlistPage';
+import WordlistsEditPage from '@/views/agent/WordlistsEditPage';
+
 import AgentInstallPage from '@/views/agent/AgentInstallPage';
 
 import SubdomainPage from '@/views/subdomain/SubdomainPage';
@@ -45,6 +47,7 @@ const router = new Router({
         { path: '/agents/create', name: 'agentCreate', component: AgentCreatePage },
         { path: '/agents/debug', name: 'agentDebug', component: AgentDebugPage },
         { path: '/agents/wordlists', name: 'wordlist', component: WordlistPage },
+        { path: '/agents/wordlists/:type/:filename', name: 'wordlistEdit', component: WordlistsEditPage },
         { path: '/agents/install', name: 'installDebug', component: AgentInstallPage },
         { path: '/agents/:agentName', name: 'agentEdit', component: AgentEditPage },
 
