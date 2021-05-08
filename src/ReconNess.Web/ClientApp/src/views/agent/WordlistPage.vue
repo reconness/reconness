@@ -21,7 +21,7 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Filename</th>
-                                <th scope="col">Count of Words</th>
+                                <th scope="col">Count</th>
                                 <th scope="col">Size</th>
                                 <th scope="col">Path</th>
                                 <th scope="col">Action</th>
@@ -51,7 +51,7 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Filename</th>
-                                <th scope="col">Count of Words</th>
+                                <th scope="col">Count</th>
                                 <th scope="col">Size</th>
                                 <th scope="col">Path</th>
                                 <th scope="col">Action</th>
@@ -81,7 +81,7 @@
                         <thead class="thead-dark">
                             <tr>
                                 <th scope="col">Filename</th>
-                                <th scope="col">Count of Words</th>
+                                <th scope="col">Count</th>
                                 <th scope="col">Size</th>
                                 <th scope="col">Path</th>
                                 <th scope="col">Action</th>
@@ -140,7 +140,35 @@
 
             this.isLoading = false
         },
-        methods: {       
+        methods: { 
+            async handleFileUpload(type, formData) {
+
+                try {
+                    this.isLoading = true
+                    await this.$store.dispatch('wordlists/upload', { type: type, formData: formData })
+                    this.$alert('The file were uploaded', 'Success', 'success')
+                }
+                catch (error) {
+                    helpers.errorHandle(this.$alert, error)
+                }
+
+                this.isLoading = false
+            },
+            async handleSubdomainFileUpload() {
+                const formData = new FormData();
+                formData.append('file', this.$refs.file_subdomain.files[0]);
+                await this.handleFileUpload('subdomain_enum', formData)
+            },
+            async handleDirectoryFileUpload() {
+                const formData = new FormData();
+                formData.append('file', this.$refs.file_directory.files[0]);
+                await this.handleFileUpload('dir_enum', formData)
+            },
+            async handleResolverFileUpload() {
+                const formData = new FormData();
+                formData.append('file', this.$refs.file_resolver.files[0]);
+                await this.handleFileUpload('dns_resolver_enum', formData)
+            },
             async onDelete(type, filename) {
                 this.$confirm('Are you sure to delete ' + filename + '?', 'Confirm', 'question').then(async () => {
                     this.isLoading = true
@@ -173,35 +201,7 @@
             },
             async onDeleteResolver(filename) {
                 await this.onDelete('dns_resolver_enum', filename)
-            },
-            async handleFileUpload(type, formData) {
-                
-                try {
-                    this.isLoading = true
-                    await this.$store.dispatch('wordlists/upload', { type: type, formData: formData })
-                    this.$alert('The file were uploaded', 'Success', 'success')
-                }
-                catch (error) {
-                    helpers.errorHandle(this.$alert, error)
-                }
-
-                this.isLoading = false
-            },
-            async handleSubdomainFileUpload() {                
-                const formData = new FormData();
-                formData.append('file', this.$refs.file_subdomain.files[0]);
-                await this.handleFileUpload('subdomain_enum', formData)
-            },
-            async handleDirectoryFileUpload() {
-                const formData = new FormData();
-                formData.append('file', this.$refs.file_directory.files[0]);
-                await this.handleFileUpload('dir_enum', formData)
-            },
-            async handleResolverFileUpload() {
-                const formData = new FormData();
-                formData.append('file', this.$refs.file_resolver.files[0]);
-                await this.handleFileUpload('dns_resolver_enum', formData)
-            }
+            }            
         }
     }
 </script>

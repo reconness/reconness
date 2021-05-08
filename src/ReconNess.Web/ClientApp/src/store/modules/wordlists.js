@@ -15,10 +15,10 @@ const actions = {
             }
         })
     },
-    getData(context, wordlist) {
+    getContent(context, wordlist) {
         return new Promise((resolve, reject) => {
             try {
-                api.get('wordlists/data?type=' + wordlist.type + '&filename=' + wordlist.filename)
+                api.get('wordlists/content?type=' + wordlist.type + '&filename=' + wordlist.filename)
                     .then((res) => {
                         resolve(res.data)
                     })

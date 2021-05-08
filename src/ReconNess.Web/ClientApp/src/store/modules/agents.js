@@ -203,7 +203,35 @@ const actions = {
                 reject(err)
             }
         })
-    }
+    },
+    upload(context, { agent, formData } ) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.upload('agents/upload', agent.id, formData)
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
+    deleteConfigurationAgent({ commit, state }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.delete('agents/configuration', state.currentAgent.name)
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
 }
 
 const mutations = {

@@ -611,5 +611,68 @@ namespace ReconNess.Web.Controllers
 
             return Ok(agentsRunning);
         }
+
+        /// <summary>
+        /// Upload the configuration file, that is going to be save inside the folder
+        /// /app/Content/configurations.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/upload/{id}
+        ///
+        /// </remarks>
+        /// <param name="id">The agent id</param>
+        /// <param name="file">The file with the agent configuration</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("upload/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Upload(Guid id, IFormFile file, CancellationToken cancellationToken)
+        {
+            await Task.Delay(500);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Delete an agent configuration file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/agents/configuration/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpDelete("configuration/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteConfiguration(string agentName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
+        }
     }
 }

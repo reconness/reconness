@@ -109,22 +109,25 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain the list of wordlist, content discovery and resolvers.
+        /// Obtain the content of the wordlist based in the type, can be [subdomain_enum, dir_enum, dns_resolver_enum].
+        /// That allow us know what folder we need to look for the file. /app/Content/wordlist/[type]/[filename]
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     GET api/wordlists
+        ///     GET api/wordlists/data/{type}/{filename}
         ///
         /// </remarks>
+        /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
+        /// <param name="filename">The filename</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="200">Returns the list of wordlist, content discovery and resolvers</response>
         /// <response code="401">If the user is not authenticate</response>
-        [HttpGet("data")]
+        [HttpGet("content")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetData(string type, string filename, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetContent(string type, string filename, CancellationToken cancellationToken)
         {
             await Task.Delay(500);
 
@@ -132,24 +135,21 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Update an agent.
+        /// Update the wordlist content based in the type [subdomain_enum, dir_enum, dns_resolver_enum].
+        /// That allow us know what folder we need to look for the file. /app/Content/wordlist/[type]/[filename]
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     PUT api/agents/{id}
+        ///     PUT api/wordlists/{type}/{filename}
         ///     { 
-        ///         "name": "mynewagent",
-        ///         "command": "myagent -h -d {{rootdomain}}",
-        ///         "repository": "www.github.com/myaccount/myproject",
-        ///         "agentType": "subdomain",
-        ///         "categories": "scan subdomains",
-        ///         "script": "// the script here"
+        ///         "data": "...data..."
         ///     }
         ///
         /// </remarks>
-        /// <param name="id">The agent id</param>
-        /// <param name="agentDto">The agent dto</param>
+        /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
+        /// <param name="filename">The filename</param>
+        /// <param name="wordlistInputDto">The data to save</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
@@ -168,15 +168,18 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Delete a filename.
+        /// Delete a file based in the type [subdomain_enum, dir_enum, dns_resolver_enum].
+        /// That allow us know what folder we need to look for the file. /app/Content/wordlist/[type]/[filename]
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     DELETE api/users/{id}
+        ///     DELETE api/wordlists/{type}/{filename}
         ///
         /// </remarks>
-        /// <param name="id">The user id</param>
+        /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
+        /// <param name="filename">The filename</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate or is not admin</response>
@@ -194,17 +197,17 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Upload a list of subdomains to the rootdomain.
+        /// Upload the file with the wordlist based in the type [subdomain_enum, dir_enum, dns_resolver_enum].
+        /// That allow us know what folder we need to look for the file. /app/Content/wordlist/[type]/[filename]
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
+        ///     POST api/wordlists/upload/{type}
         ///
         /// </remarks>
-        /// <param name="targetName">The target name</param>
-        /// <param name="rootDomainName">The rootdomain</param>
-        /// <param name="file">The file with all the subdomains to be uploaded</param>
+        /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
+        /// <param name="file">The file with all the wordlist</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>

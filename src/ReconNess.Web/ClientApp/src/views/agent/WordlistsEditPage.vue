@@ -36,7 +36,7 @@
         async mounted() {
             this.isLoading = true
             try {
-                this.data = await this.$store.dispatch('wordlists/getData', { type: this.$route.params.type, filename: this.$route.params.filename }) 
+                this.data = await this.$store.dispatch('wordlists/getContent', { type: this.$route.params.type, filename: this.$route.params.filename }) 
             }
             catch (error) {
                 helpers.errorHandle(this.$alert, error)

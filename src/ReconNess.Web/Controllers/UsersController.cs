@@ -310,11 +310,11 @@ namespace ReconNess.Web.Controllers
             {
                 return NotFound();
             }
-                        
+
             if (!await this.CanDeleteAsync(user))
             {
                 return BadRequest("You can not remove this user.");
-            }            
+            }
 
             if (user.UserName.Equals(this.authProvider.UserName()))
             {
@@ -356,7 +356,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName(), cancellationToken);               
+            var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName(), cancellationToken);
             if (currentUser == null || !await this.CanAssignOwnerAsync(user))
             {
                 return BadRequest("You can not assign owner to this user.");
@@ -374,7 +374,7 @@ namespace ReconNess.Web.Controllers
             await this.userService.UpdateAsync(currentUser, cancellationToken);
 
             return NoContent();
-        }        
+        }
 
         /// <summary>
         /// 
@@ -418,7 +418,7 @@ namespace ReconNess.Web.Controllers
         {
             var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
             return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member"));
-        }        
+        }
 
         /// <summary>
         /// Obtain the role claim

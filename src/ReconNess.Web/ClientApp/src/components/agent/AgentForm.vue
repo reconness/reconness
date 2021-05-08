@@ -159,15 +159,19 @@
         <h4>Configuration</h4>
         <label for="inputArguments"><a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
         <div class="row">
-            <div class="form-group col-4 ml-3">
-                <input type="file" id="file" ref="file" v-on:change="handleFileUpload()" />
+            <div class="form-group col-4">
+                <input class="form-control" id="triggerSubdomainServicePort" placeholder="File Name" v-model="agent.configurationFileName" />
+            </div>
+            <div class="form-group col-6">
+                <button class="btn btn-danger" :disabled='!hasConfiguration()' v-on:click="onDeleteConfiguration()">Delete</button>
+            </div>
+            <div class="form-group col-4 ml-3 mb-4">
+                <input type="file" id="file" ref="file"  v-on:change="handleFileUpload()" />
                 <label class="custom-file-label" for="file">Import Configuration File</label>
             </div>
-            <div class="form-group col-4">
-                <input class="form-control" id="triggerSubdomainServicePort" placeholder="File Name" />
-            </div>
+
             <div class="form-group col-10">
-                <editor @init="editorConfigInit" lang="yaml" theme="dracula" width="800" height="600"></editor>
+                <editor v-model="agent.configurationContent" @init="editorConfigInit" lang="yaml" theme="dracula" width="800" height="600"></editor>
             </div>
         </div>
 
@@ -267,8 +271,41 @@
                 require('brace/theme/dracula')
                 require('brace/snippets/yaml')
             },
+            async onDeleteConfiguration() {
+                this.$confirm('Are you sure to delete the configuration for this agent: ' + this.agent.name, 'Confirm', 'question').then(async () => {
+
+                    try {
+                        this.isLoading = true
+                        await this.$store.dispatch('agents/deleteConfigurationAgent')
+                        this.$alert('The configuration file were deleted', 'Success', 'success')
+                    }
+                    catch (error) {
+                        helpers.errorHandle(this.$alert, error)
+                    }
+
+                    this.isLoading = false
+                })
+            },
+            async handleFileUpload() {
+                try {
+                    this.isLoading = true
+                    const formData = new FormData();
+                    formData.append('file', this.$refs.file.files[0]);
+
+                    await this.$store.dispatch('agents/upload', { agent: this.agent, formData })
+                    this.$alert('The configuration file were uploaded', 'Success', 'success')
+                }
+                catch (error) {
+                    helpers.errorHandle(this.$alert, error)
+                }
+
+                this.isLoading = false
+            },
             isValid() {
                 return this.agent.name && this.agent.command && this.agent.agentType
+            },
+            hasConfiguration() {
+                return this.agent.configurationFileName !== undefined && this.agent.configurationFileName !== null && this.agent.configurationFileName !== ''
             }
         }
     }
