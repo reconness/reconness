@@ -9,8 +9,10 @@ using ReconNess.Entities;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -78,6 +80,7 @@ namespace ReconNess.Services
                         Command = agent.Command,
                         AgentType = agent.AgentType,
                         AgentTrigger = agent.AgentTrigger,
+                        ConfigurationFileName = agent.ConfigurationFileName,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
@@ -176,5 +179,61 @@ namespace ReconNess.Services
 
             await this.UpdateAsync(agent, cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public async Task<string> ReadConfigurationFileAsync(string configurationFileName, CancellationToken cancellationToken)
+        {
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                configurationFileName = configurationFileName.Replace(c.ToString(), "");
+            }
+
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var path = Path.Combine(configPath, configurationFileName);
+            if (path.StartsWith(configPath))
+            {
+                using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var bs = new BufferedStream(fs);
+                using var sr = new StreamReader(bs);
+
+                return await sr.ReadToEndAsync();
+            }
+            else
+            {
+                _logger.Warn($"Invalid file path {path}");
+            }
+
+            return string.Empty;
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateConfigurationFileAsync(Agent agent, string configurationContent, CancellationToken cancellationToken)
+        {
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var path = Path.Combine(configPath, agent.ConfigurationFileName);
+
+            if (path.StartsWith(configPath))
+            {
+                await File.WriteAllTextAsync(path, configurationContent);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteConfigurationFileAsync(Agent agent, CancellationToken cancellationToken)
+        {
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var path = Path.Combine(configPath, agent.ConfigurationFileName);
+
+            if (path.StartsWith(configPath))
+            {
+                File.Delete(path);
+
+                agent.ConfigurationFileName = string.Empty;
+                await this.UpdateAsync(agent, cancellationToken);
+            }
+        }
+
+        
     }
 }

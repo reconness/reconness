@@ -157,24 +157,27 @@
         </div>
 
         <h4>Configuration</h4>
-        <label for="inputArguments"><a href="https://docs.reconness.com/agents/script-agent">Learn more</a></label>
+        <label for="inputArguments"><a href="https://docs.reconness.com/agents/configuration-agent">Learn more</a></label>
         <div class="row">
-            <div class="form-group col-4">
-                <input class="form-control" id="triggerSubdomainServicePort" placeholder="File Name" v-model="agent.configurationFileName" />
-            </div>
-            <div class="form-group col-6">
-                <button class="btn btn-danger" :disabled='!hasConfiguration()' v-on:click="onDeleteConfiguration()">Delete</button>
-            </div>
+
             <div class="form-group col-4 ml-3 mb-4">
-                <input type="file" id="file" ref="file"  v-on:change="handleFileUpload()" />
+                <input type="file" id="file" ref="file" v-on:change="handleFileUpload()" />
                 <label class="custom-file-label" for="file">Import Configuration File</label>
             </div>
 
-            <div class="form-group col-10">
+            <div class="form-group col-12" v-if="hasConfiguration()">
+                <strong>Path: {{agent.configurationPath}}\{{agent.configurationFileName}}</strong>
+            </div>
+
+            <div class="form-group col-10" v-if="hasConfiguration()">
                 <editor v-model="agent.configurationContent" @init="editorConfigInit" lang="yaml" theme="dracula" width="800" height="600"></editor>
             </div>
+            <div class="form-group col-6" v-if="hasConfiguration()">
+                <button class="btn btn-primary" v-on:click="onSaveConfiguration()">Save</button>
+                <button class="btn btn-danger ml-2" v-on:click="onDeleteConfiguration()">Delete</button>
+            </div>
         </div>
-
+        <hr />
         <div class="form-group">
             <button class="btn btn-primary" v-if="isNew" v-on:click="onSave" :disabled='!isValid()'>Add</button>
             <button class="mt-2 btn btn-primary" v-if="!isNew" v-on:click="onUpdate()" :disabled='!isValid()'>Update</button>
@@ -271,6 +274,21 @@
                 require('brace/theme/dracula')
                 require('brace/snippets/yaml')
             },
+            async handleFileUpload() {
+                try {
+                    this.isLoading = true
+                    const formData = new FormData();
+                    formData.append('file', this.$refs.file.files[0]);
+
+                    await this.$store.dispatch('agents/upload', formData)
+                    this.$alert('The configuration file were uploaded', 'Success', 'success')
+                }
+                catch (error) {
+                    helpers.errorHandle(this.$alert, error)
+                }
+
+                this.isLoading = false
+            },
             async onDeleteConfiguration() {
                 this.$confirm('Are you sure to delete the configuration for this agent: ' + this.agent.name, 'Confirm', 'question').then(async () => {
 
@@ -286,21 +304,18 @@
                     this.isLoading = false
                 })
             },
-            async handleFileUpload() {
+            async onSaveConfiguration() {                
                 try {
                     this.isLoading = true
-                    const formData = new FormData();
-                    formData.append('file', this.$refs.file.files[0]);
-
-                    await this.$store.dispatch('agents/upload', { agent: this.agent, formData })
-                    this.$alert('The configuration file were uploaded', 'Success', 'success')
+                    await this.$store.dispatch('agents/updateConfigurationAgent')
+                    this.$alert('The configuration file were saved', 'Success', 'success')
                 }
                 catch (error) {
                     helpers.errorHandle(this.$alert, error)
                 }
 
                 this.isLoading = false
-            },
+            },            
             isValid() {
                 return this.agent.name && this.agent.command && this.agent.agentType
             },

@@ -204,10 +204,10 @@ const actions = {
             }
         })
     },
-    upload(context, { agent, formData } ) {
+    upload(context, formData ) {
         return new Promise((resolve, reject) => {
             try {
-                api.upload('agents/upload', agent.id, formData)
+                api.upload('agents/upload', state.currentAgent.name, formData)
                     .then(() => {
                         resolve()
                     })
@@ -232,6 +232,20 @@ const actions = {
             }
         })
     },
+    updateConfigurationAgent({ commit, state }) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.update('agents/configuration', state.currentAgent.name, state.currentAgent)
+                    .then(() => {
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    }
 }
 
 const mutations = {

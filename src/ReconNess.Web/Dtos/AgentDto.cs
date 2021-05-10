@@ -66,5 +66,7 @@ namespace ReconNess.Web.Dtos
         public string ConfigurationFileName { get; set; }
 
         public string ConfigurationContent { get; set; } = "";
+
+        public string ConfigurationPath { get; set; }
     }
 }
