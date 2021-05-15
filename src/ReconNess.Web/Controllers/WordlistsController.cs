@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Models;
 using ReconNess.Web.Dtos;
-using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -43,69 +45,59 @@ namespace ReconNess.Web.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Get(CancellationToken cancellationToken)
+        public IActionResult Get(CancellationToken cancellationToken)
         {
-            return Ok(new WordlistsDto
+            var subdomainEnumPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "subdomain_enum");
+            DirectoryInfo subdomainEnumDirectory = new DirectoryInfo(subdomainEnumPath);//Assuming Test is your Folder
+            FileInfo[] subdomainEnumFiles = subdomainEnumDirectory.GetFiles("*.*"); //Getting Text files
+
+            var dirEnumPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "dir_enum");
+            DirectoryInfo dirEnumDirectory = new DirectoryInfo(dirEnumPath);//Assuming Test is your Folder
+            FileInfo[] dirEnumFiles = dirEnumDirectory.GetFiles("*.*"); //Getting Text files
+
+            var dnsResolverEnumPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "dns_resolver_enum");
+            DirectoryInfo dnsResolverEnumDirectory = new DirectoryInfo(dnsResolverEnumPath);//Assuming Test is your Folder
+            FileInfo[] dnsResolverEnumFiles = dnsResolverEnumDirectory.GetFiles("*.*"); //Getting Text files
+
+            var result = new WordlistsDto();
+
+            foreach (var subdomainEnumFile in subdomainEnumFiles)
             {
-                SubdomainsEnum = new List<Wordlist>
+                var path = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "subdomain_enum", subdomainEnumFile.Name);
+                result.SubdomainsEnum.Add(new Wordlist
                 {
-                    new Wordlist
-                    {
-                        Filename = "Default.txt",
-                        Count = 18484,
-                        Size = "2.5mb",
-                        Path = "/app/Content/wordlists/subdomain_enum/Default.txt"
-                    },
-                    new Wordlist
-                    {
-                        Filename = "Default1.txt",
-                        Count = 34484,
-                        Size = "5.1mb",
-                        Path = "/app/Content/wordlists/subdomain_enum/Default1.txt"
-                    },
-                    new Wordlist
-                    {
-                        Filename = "Default2.txt",
-                        Count = 2484,
-                        Size = "504kb",
-                        Path = "/app/Content/wordlists/subdomain_enum/Default2.txt"
-                    }
-                },
-                DirectoriesEnum = new List<Wordlist>
-                {
-                    new Wordlist
-                    {
-                        Filename = "Default.txt",
-                        Count = 18484,
-                        Size = "2.5mb",
-                        Path = "/app/Content/wordlists/dir_enum/Default.txt"
-                    },
-                    new Wordlist
-                    {
-                        Filename = "Default1.txt",
-                        Count = 34484,
-                        Size = "5.1mb",
-                        Path = "/app/Content/wordlists/dir_enum/Default1.txt"
-                    }
-                },
-                DNSResolvers = new List<Wordlist>
-                {
-                    new Wordlist
-                    {
-                        Filename = "Default.txt",
-                        Count = 18484,
-                        Size = "2.5mb",
-                        Path = "/app/Content/wordlists/dns_resolver_enum/Default.txt"
-                    },
-                    new Wordlist
-                    {
-                        Filename = "Default1.txt",
-                        Count = 34484,
-                        Size = "5.1mb",
-                        Path = "/app/Content/wordlists/dns_resolver_enum/Default1.txt"
-                    }
-                }
+                    Filename = subdomainEnumFile.Name,
+                    Path = path,
+                    Size = subdomainEnumFile.Length.ToString(),
+                    Count = System.IO.File.ReadLines(path).Count()
             });
+            }
+
+            foreach (var dirEnumFile in dirEnumFiles)
+            {
+                var path = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "dir_enum", dirEnumFile.Name);
+                result.DirectoriesEnum.Add(new Wordlist
+                {
+                    Filename = dirEnumFile.Name,
+                    Path = path,
+                    Size = dirEnumFile.Length.ToString(),
+                    Count = System.IO.File.ReadLines(path).Count()
+                });
+            }
+
+            foreach (var dnsResolverEnumFile in dnsResolverEnumFiles)
+            {
+                var path = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "dns_resolver_enum", dnsResolverEnumFile.Name);
+                result.DNSResolvers.Add(new Wordlist
+                {
+                    Filename = dnsResolverEnumFile.Name,
+                    Path = path,
+                    Size = dnsResolverEnumFile.Length.ToString(),
+                    Count = System.IO.File.ReadLines(path).Count()
+                });
+            }
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -129,9 +121,71 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetContent(string type, string filename, CancellationToken cancellationToken)
         {
-            await Task.Delay(500);
+            if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
+            {
+                return BadRequest();
+            }
 
-            return Ok("Hello Word!");
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                filename = filename.Replace(c.ToString(), "");
+            }
+
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", type);
+            var path = Path.Combine(configPath, filename);
+            if (!path.StartsWith(configPath))
+            {
+                return BadRequest();
+            }
+
+            using var fs = System.IO.File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var bs = new BufferedStream(fs);
+            using var sr = new StreamReader(bs);
+
+            return Ok(new { Data = await sr.ReadToEndAsync(), Path = path });
+        }
+
+        /// <summary>
+        /// Obtain the content of the wordlist based in the type, can be [subdomain_enum, dir_enum, dns_resolver_enum].
+        /// That allow us know what folder we need to look for the file. /app/Content/wordlist/[type]/[filename]
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/wordlists/data/{type}/{filename}
+        ///
+        /// </remarks>
+        /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
+        /// <param name="filename">The filename</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The notifications configuration</returns>
+        /// <response code="200">Returns the list of wordlist, content discovery and resolvers</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpGet("download")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public IActionResult Download(string type, string filename, CancellationToken cancellationToken)
+        {
+            if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
+            {
+                return BadRequest();
+            }
+
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                filename = filename.Replace(c.ToString(), "");
+            }
+
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", type);
+            var path = Path.Combine(configPath, filename);
+            if (!path.StartsWith(configPath))
+            {
+                return BadRequest();
+            }
+
+            return PhysicalFile(path, "application/text");
         }
 
         /// <summary>
@@ -162,7 +216,29 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(string type, string filename, [FromBody] WordlistInputDto wordlistInputDto, CancellationToken cancellationToken)
         {
-            await Task.Delay(500);
+            if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
+            {
+                return BadRequest();
+            }
+
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                filename = filename.Replace(c.ToString(), "");
+            }
+
+            var wordlistPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", type);
+            var path = Path.Combine(wordlistPath, filename);
+
+            if (!System.IO.File.Exists(path))
+            {
+                return BadRequest();
+            }
+
+            if (path.StartsWith(wordlistPath))
+            {
+                await System.IO.File.WriteAllTextAsync(path, wordlistInputDto.Data);
+            }
 
             return NoContent();
         }
@@ -189,9 +265,31 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string type, string filename, CancellationToken cancellationToken)
+        public IActionResult Delete(string type, string filename, CancellationToken cancellationToken)
         {
-            await Task.Delay(500);
+            if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
+            {
+                return BadRequest();
+            }
+
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                filename = filename.Replace(c.ToString(), "");
+            }
+
+            var wordlistPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", type);
+            var path = Path.Combine(wordlistPath, filename);
+
+            if (!System.IO.File.Exists(path))
+            {
+                return BadRequest();
+            }
+
+            if (path.StartsWith(wordlistPath))
+            {
+                System.IO.File.Delete(path);
+            }
 
             return NoContent();
         }
@@ -220,7 +318,39 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Upload(string type, IFormFile file, CancellationToken cancellationToken)
         {
-            await Task.Delay(500);
+            if (file.Length == 0)
+            {
+                return BadRequest();
+            }
+                      
+            if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
+            {
+                return BadRequest();
+            }
+
+            var filename = file.FileName;
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                filename = filename.Replace(c.ToString(), "");
+            }
+
+            var wordlistPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", type);
+            var fileNamePath = Path.Combine(wordlistPath, filename);
+            if (!fileNamePath.StartsWith(wordlistPath))
+            {
+                return BadRequest("The path to save the file is invalid.");
+            }
+
+            if (System.IO.File.Exists(fileNamePath))
+            {
+                return BadRequest($"We have a file with that name inside the folder {type}, please change the filename and try again.");
+            }
+
+            using (var stream = new FileStream(fileNamePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }            
 
             return NoContent();
         }

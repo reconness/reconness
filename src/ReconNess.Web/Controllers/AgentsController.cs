@@ -656,8 +656,15 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
+            var configurationFileName = string.Empty;
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                configurationFileName = file.FileName.Replace(c.ToString(), "");
+            }
+
             var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
-            var fileNamePath = Path.Combine(configPath, file.FileName);
+            var fileNamePath = Path.Combine(configPath, configurationFileName);
             if (!fileNamePath.StartsWith(configPath))
             {
                 return BadRequest("The path to save the file is invalid.");

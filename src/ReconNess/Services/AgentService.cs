@@ -232,8 +232,6 @@ namespace ReconNess.Services
                 agent.ConfigurationFileName = string.Empty;
                 await this.UpdateAsync(agent, cancellationToken);
             }
-        }
-
-        
+        }       
     }
 }

@@ -29,6 +29,26 @@ const actions = {
             }
         })
     },
+    download(context, wordlist) {
+        return new Promise((resolve, reject) => {
+            try {
+                api.download('wordlists/download?type=' + wordlist.type + '&filename=' + wordlist.filename)
+                    .then((res) => {
+                        var fileURL = window.URL.createObjectURL(new Blob([res.data]));
+                        var fileLink = document.createElement('a');
+                        fileLink.href = fileURL;
+                        fileLink.setAttribute('download', wordlist.filename);
+                        document.body.appendChild(fileLink);
+                        fileLink.click();
+                        resolve()
+                    })
+                    .catch(err => reject(err))
+            }
+            catch (err) {
+                reject(err)
+            }
+        })
+    },
     save(context, wordlist) {
         return new Promise((resolve, reject) => {
             try {

@@ -59,6 +59,15 @@ export default {
             .post(`${resource}/${id}`)
             .catch(this.handleResponse)
     },
+    download(resource) {
+        return axios.create({
+            baseURL: '/api/',
+            headers: authHeader(),
+            responseType: 'blob'
+        })
+            .get(`${resource}`)
+            .catch(this.handleResponse)
+    },
     delete(resource, id) {
         return axios.create({
             baseURL: '/api/',

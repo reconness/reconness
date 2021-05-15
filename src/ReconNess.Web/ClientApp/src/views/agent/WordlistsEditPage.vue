@@ -3,10 +3,13 @@
         <loading :active.sync="isLoading"
                  :is-full-page="true"></loading>
 
-        <h1>{{$route.params.type}}/{{$route.params.filename}}</h1>
-        <div class="form-group">
-            <textarea class="form-control" id="noteFormControl" ref="input" rows="30" v-model="data"></textarea>
+        <div class="form-group" >
+            <strong>Path: </strong><label>{{path}}</label>
         </div>
+        <div class="form-group" >
+            <editor v-model="data" @init="editorWordlistInit" lang="yaml" theme="dracula" width="800" height="600"></editor>
+        </div>
+
         <router-link to="/agents/wordlists">Back</router-link>
         <div class="form-group mt-4">
             <button class="btn btn-primary" v-on:click="onSave">Save</button>
@@ -25,18 +28,23 @@
     export default {
         name: 'WordlistsEditPage', 
         components: {
+            editor: require('vue2-ace-editor'),
             Loading
         },
         data: () => {
             return {
                 data: '',
+                path: '',
                 isLoading: false
             }
         },        
         async mounted() {
             this.isLoading = true
             try {
-                this.data = await this.$store.dispatch('wordlists/getContent', { type: this.$route.params.type, filename: this.$route.params.filename }) 
+                var result = await this.$store.dispatch('wordlists/getContent', { type: this.$route.params.type, filename: this.$route.params.filename }) 
+
+                this.data = result.data
+                this.path = result.path
             }
             catch (error) {
                 helpers.errorHandle(this.$alert, error)
@@ -59,6 +67,12 @@
 
                     this.isLoading = false
                 })
+            },
+            editorWordlistInit: function () {
+                require('brace/ext/language_tools')
+                require('brace/mode/yaml')
+                require('brace/theme/dracula')
+                require('brace/snippets/yaml')
             }
         }
     }

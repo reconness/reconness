@@ -1,5 +1,5 @@
 ﻿<template>
-    <div>
+    <div class="row">
         <loading :active.sync="isLoading"
                  :is-full-page="true"></loading>
 
@@ -31,10 +31,11 @@
                             <tr v-for="subdomain in subdomains" v-bind:key="subdomain.filename">
                                 <th class="w-25" scope="row">{{ subdomain.filename }}</th>
                                 <th class="w-25" scope="row">{{ subdomain.count }}</th>
-                                <th class="w-25" scope="row">{{ subdomain.size }}</th>
+                                <th class="w-25" scope="row">{{ niceBytes(subdomain.size) }}</th>
                                 <th class="w-25" scope="row">{{ subdomain.path }}</th>
                                 <td class="w-25">
-                                    <router-link class="btn btn-primary mb-2" :to="{name: 'wordlistEdit', params: { type: 'subdomain_enum', filename: subdomain.filename }}">Edit</router-link>
+                                    <router-link class="btn btn-primary mb-2" :to="{name: 'wordlistEdit', params: { type: 'subdomain_enum', filename: subdomain.filename }}" v-if="canEditInline(subdomain.size)">Edit</router-link>
+                                    <button class="btn btn-primary mb-2" v-on:click="onDownloadSubdomain(subdomain.filename)" v-else>Download</button>
                                     <button class="btn btn-danger mb-2" v-on:click="onDeleteSubdomain(subdomain.filename)">Delete</button>
                                 </td>
                             </tr>
@@ -61,10 +62,11 @@
                             <tr v-for="directory in directories" v-bind:key="directory.filename">
                                 <th class="w-25" scope="row">{{ directory.filename }}</th>
                                 <th class="w-25" scope="row">{{ directory.count }}</th>
-                                <th class="w-25" scope="row">{{ directory.size }}</th>
+                                <th class="w-25" scope="row">{{ niceBytes(directory.size) }}</th>
                                 <th class="w-25" scope="row">{{ directory.path }}</th>
                                 <td class="w-25">
-                                    <router-link class="btn btn-primary mb-2" :to="{name: 'wordlistEdit', params: { type: 'dir_enum', filename: directory.filename }}">Edit</router-link>
+                                    <router-link class="btn btn-primary mb-2" :to="{name: 'wordlistEdit', params: { type: 'dir_enum', filename: directory.filename }}" v-if="canEditInline(directory.size)">Edit</router-link>
+                                    <button class="btn btn-primary mb-2" v-on:click="onDownloadDirectory(directory.filename)" v-else>Download</button>
                                     <button class="btn btn-danger mb-2" v-on:click="onDeleteDirectory(directory.filename)">Delete</button>
                                 </td>
                             </tr>
@@ -91,11 +93,12 @@
                             <tr v-for="resolver in resolvers" v-bind:key="resolver.filename">
                                 <th class="w-25" scope="row">{{ resolver.filename }}</th>
                                 <th class="w-25" scope="row">{{ resolver.count }}</th>
-                                <th class="w-25" scope="row">{{ resolver.size }}</th>
+                                <th class="w-25" scope="row">{{ niceBytes(resolver.size) }}</th>
                                 <th class="w-25" scope="row">{{ resolver.path }}</th>
                                 <td class="w-25">
                                     <div>
-                                        <router-link class="btn btn-primary mb-2" :to="{name: 'wordlistEdit', params: { type: 'dns_resolver_enum', filename: resolver.filename }}">Edit</router-link>
+                                        <router-link class="btn btn-primary mb-2" :to="{name: 'wordlistEdit', params: { type: 'dns_resolver_enum', filename: resolver.filename }}" v-if="canEditInline(resolver.size)">Edit</router-link>
+                                        <button class="btn btn-primary mb-2" v-on:click="onDownloadResolver(resolver.filename)" v-else>Download</button>
                                         <button class="btn btn-danger mb-2" v-on:click="onDeleteResolver(resolver.filename)">Delete</button>
                                     </div>
                                 </td>
@@ -201,7 +204,42 @@
             },
             async onDeleteResolver(filename) {
                 await this.onDelete('dns_resolver_enum', filename)
-            }            
+            },
+            async onDownload(type, filename) {
+                this.isLoading = true
+                try {
+                    await this.$store.dispatch('wordlists/download', { type: type, filename: filename })
+                    this.$alert('The file was downloaded', 'Success', 'success')
+                }
+                catch (error) {
+                    helpers.errorHandle(this.$alert, error)
+                }
+
+                this.isLoading = false
+            },
+            async onDownloadSubdomain(filename) {
+                await this.onDownload('subdomain_enum', filename)
+            },
+            async onDownloadDirectory(filename) {
+                await this.onDownload('dir_enum', filename)
+            },
+            async onDownloadResolver(filename) {
+                await this.onDownload('dns_resolver_enum', filename)
+            },
+            canEditInline(size) {
+                return size < 5000000
+            },
+            niceBytes(x) {
+                const units = ['bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+                let l = 0, n = parseInt(x, 10) || 0
+
+                while (n >= 1024 && ++l) {
+                    n = n / 1024
+                }
+                //include a decimal point and a tenths-place digit if presenting 
+                //less than ten of KB or greater units
+                return (n.toFixed(n < 10 && l > 0 ? 1 : 0) + units[l])
+            }
         }
     }
 </script>
