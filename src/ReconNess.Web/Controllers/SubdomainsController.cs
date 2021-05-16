@@ -188,7 +188,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name);
+            var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name, cancellationToken);
             if (subdomainExist)
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");

@@ -26,7 +26,7 @@
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
     "vuex": "3.6.2",
-    "xterm": "4.11.0"
+    "xterm": "4.12.0"
   },
   "devDependencies": {
     "@aspnet/signalr": "1.1.4",
@@ -34,7 +34,7 @@
     "@vue/cli-plugin-eslint": "3.12.1",
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.1.0",
-    "eslint": "7.25.0",
+    "eslint": "7.26.0",
     "eslint-plugin-vue": "7.9.0",
     "vue-template-compiler": "2.6.12",
     "vue2-ace-editor": "0.0.15"

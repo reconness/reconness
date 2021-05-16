@@ -79,7 +79,7 @@ const actions = {
     export(context) {
         return new Promise((resolve, reject) => {
             try {
-                api.download('rootdomains/export', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
+                api.downloadById('rootdomains/export', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
                     .then((res) => {
                         var fileURL = window.URL.createObjectURL(new Blob([res.data]));
                         var fileLink = document.createElement('a');
@@ -99,7 +99,7 @@ const actions = {
     exportSubdomains(context) {
         return new Promise((resolve, reject) => {
             try {
-                api.download('rootdomains/exportSubdomains', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
+                api.downloadById('rootdomains/exportSubdomains', this.state.targets.currentTarget.name + '/' + state.currentRootDomain.name)
                     .then((res) => {
                         var fileURL = window.URL.createObjectURL(new Blob([res.data]));
                         var fileLink = document.createElement('a');
