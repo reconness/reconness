@@ -672,7 +672,7 @@ namespace ReconNess.Web.Controllers
 
             if (System.IO.File.Exists(fileNamePath))
             {
-                return BadRequest("We have a file with that name inside the configurations folder, please change the filename and try again.");
+                return BadRequest("We have a file with that name inside the configuration folder, please change the filename and try again.");
             }
 
             using (var stream = new FileStream(fileNamePath, FileMode.Create))

@@ -50,7 +50,7 @@ export default {
             .post(`${resource}/${id}`, formData)
             .catch(this.handleResponse)
     },
-    downloadbyId(resource, id) {
+    downloadById(resource, id) {
         return axios.create({
             baseURL: '/api/',
             headers: authHeader(),
