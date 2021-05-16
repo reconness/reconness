@@ -166,7 +166,7 @@
             </div>
 
             <div class="form-group col-12" v-if="hasConfiguration()">
-                <strong>Path: {{agent.configurationPath}}\{{agent.configurationFileName}}</strong>
+                <strong>Path: {{agent.configurationPath}}/{{agent.configurationFileName}}</strong>
             </div>
 
             <div class="form-group col-10" v-if="hasConfiguration()">
