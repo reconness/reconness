@@ -1,3 +1,11 @@
+## [1.7.1] - 2021-04-16
+
+- Add Agents configurations
+- Add Wordlist for subdomain enumeration
+- Add Wordlist for directory enumeration
+- Add Wordlist for DNS resolvers
+- Update packages
+
 ## [1.7.0] - 2021-04-17
 
 - Add multiple users feature, now we can have more than one user using the platform
