@@ -10,6 +10,8 @@ services:
       - '80:5000'
     depends_on:
       - 'postgres'
+    volumes:
+      - shared-folder-volume:/app/Content
     networks:
       - reconness-network
     environment:
@@ -37,6 +39,7 @@ services:
 
 volumes:
     reconness-postgresql-volume:
+    shared-folder-volume:
 
 networks:
     reconness-network:
