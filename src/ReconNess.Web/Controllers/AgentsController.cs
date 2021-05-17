@@ -9,6 +9,8 @@ using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -117,7 +119,14 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            return Ok(this.mapper.Map<Agent, AgentDto>(agent));
+            var agentDto = this.mapper.Map<Agent, AgentDto>(agent);
+            if (!string.IsNullOrEmpty(agentDto.ConfigurationFileName))
+            {
+                agentDto.ConfigurationContent = await this.agentService.ReadConfigurationFileAsync(agentDto.ConfigurationFileName, cancellationToken);
+                agentDto.ConfigurationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            }
+
+            return Ok(agentDto);
         }
 
         /// <summary>
@@ -610,6 +619,158 @@ namespace ReconNess.Web.Controllers
             }, cancellationToken);
 
             return Ok(agentsRunning);
+        }
+
+        /// <summary>
+        /// Upload the configuration file, that is going to be save inside the folder
+        /// /app/Content/configurations.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/upload/{id}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="file">The file with the agent configuration</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("upload/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UploadConfiguration(string agentName, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file.Length == 0 || string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            var configurationFileName = string.Empty;
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                configurationFileName = file.FileName.Replace(c.ToString(), "");
+            }
+
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var fileNamePath = Path.Combine(configPath, configurationFileName);
+            if (!fileNamePath.StartsWith(configPath))
+            {
+                return BadRequest("The path to save the file is invalid.");
+            }
+
+            if (System.IO.File.Exists(fileNamePath))
+            {
+                return BadRequest("We have a file with that name inside the configuration folder, please change the filename and try again.");
+            }
+
+            using (var stream = new FileStream(fileNamePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            if (!string.IsNullOrEmpty(agent.ConfigurationFileName))
+            {
+                var removeFile = Path.Combine(configPath, agent.ConfigurationFileName);
+                if (removeFile.StartsWith(configPath))
+                {
+                    System.IO.File.Delete(removeFile);
+                }
+            }
+
+            agent.ConfigurationFileName = file.FileName;
+            await this.agentService.UpdateAsync(agent, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// save an agent configuration file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/agents/configuration/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="agentDto">The agent dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpPut("configuration/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateConfiguration(string agentName, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            if (!agent.Name.Equals(agentDto.Name))
+            {
+                return BadRequest();
+            }
+
+            await this.agentService.UpdateConfigurationFileAsync(agent, agentDto.ConfigurationContent, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Delete an agent configuration file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/agents/configuration/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpDelete("configuration/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteConfiguration(string agentName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            await this.agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
+
+            return NoContent();
         }
     }
 }

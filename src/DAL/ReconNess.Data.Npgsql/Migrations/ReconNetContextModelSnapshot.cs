@@ -16,7 +16,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("ProductVersion", "5.0.4")
+                .HasAnnotation("ProductVersion", "5.0.5")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
             modelBuilder.Entity("AgentCategory", b =>
@@ -160,6 +160,9 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Command")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ConfigurationFileName")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
