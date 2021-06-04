@@ -1,7 +1,7 @@
 # ReconNess Web App
 
 [![Build Status](https://dev.azure.com/reconness/reconness/_apis/build/status/reconness.reconness?branchName=master)](https://dev.azure.com/reconness/reconness/_build/latest?definitionId=1&branchName=master)
-
+<a href="https://twitter.com/reconness"><img src="https://img.shields.io/twitter/follow/reconness?logo=twitter&??style=flat-square&logo=appveyor"></a>
 <p align="center">
   <img width="300" height="300" src="logo.png">
 </p>
