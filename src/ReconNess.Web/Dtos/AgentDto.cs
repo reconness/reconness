@@ -62,5 +62,11 @@ namespace ReconNess.Web.Dtos
         public string TriggerSubdomainIncExcLabel { get; set; }
 
         public string TriggerSubdomainLabel { get; set; }
+
+        public string ConfigurationFileName { get; set; }
+
+        public string ConfigurationContent { get; set; } = "";
+
+        public string ConfigurationPath { get; set; }
     }
 }
