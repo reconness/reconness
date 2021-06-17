@@ -19,7 +19,7 @@
     "jquery": "3.6.0",
     "moment": "2.29.1",
     "popper.js": "1.16.1",
-    "vue": "2.6.13",
+    "vue": "2.6.14",
     "vue-axios": "2.1.5",
     "vue-loading-overlay": "3.4.2",
     "vue-router": "3.5.1",
@@ -36,7 +36,7 @@
     "babel-eslint": "10.1.0",
     "eslint": "7.28.0",
     "eslint-plugin-vue": "7.11.1",
-    "vue-template-compiler": "2.6.13",
+    "vue-template-compiler": "2.6.14",
     "vue2-ace-editor": "0.0.15"
   }
 }
