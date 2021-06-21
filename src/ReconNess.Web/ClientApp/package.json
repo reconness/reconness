@@ -22,7 +22,7 @@
     "vue": "2.6.14",
     "vue-axios": "2.1.5",
     "vue-loading-overlay": "3.4.2",
-    "vue-router": "3.5.1",
+    "vue-router": "3.5.2",
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
     "vuex": "3.6.2",
