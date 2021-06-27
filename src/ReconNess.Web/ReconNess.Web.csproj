@@ -50,6 +50,9 @@
     <None Update="Content\screenshots\.gitkeep">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Content\screenshots\test.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Content\wordlists\dns_resolver_enum\default.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
