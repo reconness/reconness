@@ -85,8 +85,6 @@ namespace ReconNess.Services
                                 IsMainPortal = subdomain.IsMainPortal,
                                 Takeover = subdomain.Takeover,
                                 Technology = subdomain.Technology,
-                                ScreenshotHttpPNGBase64 = subdomain.ScreenshotHttpPNGBase64,
-                                ScreenshotHttpsPNGBase64 = subdomain.ScreenshotHttpsPNGBase64,
                                 Notes = new Note
                                 {
                                     Notes = subdomain.Notes.Notes

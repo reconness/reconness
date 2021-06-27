@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
@@ -146,9 +147,14 @@ namespace ReconNess.Web.Controllers
             var subdomainResult = await this.subdomainService.GetPaginateAsync(rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
 
             var subdomains = this.mapper.Map<IList<Subdomain>, IList<SubdomainDto>>(subdomainResult.Results);
+            
+            foreach (var subdomain in subdomains)
+            {
+                subdomain.Screenshot = SubdomainHelpers.GetBase64Image(targetName, rootDomainName, subdomain.Name);
+            }
 
             return Ok(new { Count = subdomainResult.RowCount, Data = subdomains });
-        }
+        }       
 
         /// <summary>
         /// Save a new subdomain.

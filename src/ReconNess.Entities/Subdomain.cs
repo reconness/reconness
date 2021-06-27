@@ -23,10 +23,6 @@ namespace ReconNess.Entities
 
         public string Technology { get; set; }
 
-        public string ScreenshotHttpPNGBase64 { get; set; }
-
-        public string ScreenshotHttpsPNGBase64 { get; set; }
-
         public string AgentsRanBefore { get; set; }
 
         public bool? HasBounty { get; set; }
