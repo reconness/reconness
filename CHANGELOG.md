@@ -1,3 +1,8 @@
+## [1.7.2] - 2021-06-16
+
+- Add screenshots folder inside /app/Content following the path target/rootdomain/subdomain by subdomain screenshot
+- Update packages
+
 ## [1.7.1] - 2021-04-16
 
 - Add Agents configurations
