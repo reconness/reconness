@@ -215,7 +215,7 @@ namespace ReconNess.Services
 
             if (path.StartsWith(configPath))
             {
-                await File.WriteAllTextAsync(path, configurationContent);
+                await File.WriteAllTextAsync(path, configurationContent, cancellationToken);
             }
         }
 
