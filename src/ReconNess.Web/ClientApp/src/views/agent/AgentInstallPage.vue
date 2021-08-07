@@ -43,7 +43,7 @@
                             <div class="modal-body">
                                 <div class="form-group">
                                     <p>Remember you need to have the Dockerfile with the Agent installation instruction.</p>
-                                    <a href="https://raw.githubusercontent.com/reconness/reconness-agents/master/Dockerfile" target="_blank">Donwload Dockerfile</a>
+                                    <a href="https://raw.githubusercontent.com/reconness/reconness-agents/master/Dockerfile" target="_blank">Download Dockerfile</a>
                                 </div>
                                 <div class="form-group">
                                     <button class="btn btn-primary ml-2" v-on:click="install(currentAgent)">Install</button>
