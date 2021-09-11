@@ -13,7 +13,7 @@
     "@fortawesome/free-solid-svg-icons": "5.15.4",
     "@fortawesome/vue-fontawesome": "2.0.2",
     "@johmun/vue-tags-input": "2.1.0",
-    "axios": "0.21.3",
+    "axios": "0.21.4",
     "bootstrap": "4.6.0",
     "core-js": "2.6.12",
     "jquery": "3.6.0",
@@ -26,7 +26,7 @@
     "vue-simple-alert": "1.1.1",
     "vue-tables-2": "1.5.46",
     "vuex": "3.6.2",
-    "xterm": "4.13.0"
+    "xterm": "4.14.1"
   },
   "devDependencies": {
     "@aspnet/signalr": "1.1.4",
