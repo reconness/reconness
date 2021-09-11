@@ -1,3 +1,8 @@
+## [1.7.3] - 2021-09-11
+
+- Fix axios
+- Update packages
+
 ## [1.7.2] - 2021-06-16
 
 - Add screenshots folder inside /app/Content following the path target/rootdomain/subdomain by subdomain screenshot
