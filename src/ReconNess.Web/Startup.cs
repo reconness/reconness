@@ -124,7 +124,7 @@ namespace ReconNess.Web
 
             app.UseRouting();
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();
