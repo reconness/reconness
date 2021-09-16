@@ -210,7 +210,7 @@ namespace ReconNess.Services
             Subdomain subdomain = default;
             if (await this.NeedAddNewSubdomain(rootDomain, terminalOutputParse.Subdomain, cancellationToken))
             {
-                subdomain = await this.AddRootDomainNewSubdomainAsync(rootDomain, terminalOutputParse.Subdomain, cancellationToken);
+                subdomain = await this.AddRootDomainNewSubdomainAsync(rootDomain, terminalOutputParse.Subdomain, agentName, cancellationToken);
                 if (activateNotification)
                 {
                     await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
@@ -252,11 +252,12 @@ namespace ReconNess.Services
         /// <param name="subdomain">The new root domain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>The new subdomain added</returns>
-        private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
+        private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, string agentName, CancellationToken cancellationToken)
         {
             var newSubdomain = new Subdomain
             {
                 Name = subdomain,
+                AgentsRanBefore = agentName,
                 RootDomain = rootDomain
             };
 
