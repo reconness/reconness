@@ -21,7 +21,7 @@ namespace ReconNess.Core.Providers
         /// </summary>
         /// <param name="result">The result send to the callback method</param>
         /// <returns>A task </returns>
-        public delegate Task<bool> SkipHandlerAsync(AgentRunnerProviderResult result);
+        public delegate ValueTask<bool> SkipHandlerAsync(AgentRunnerProviderResult result);
 
         /// <summary>
         /// A callback method when the Agent parse the terminal output

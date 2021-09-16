@@ -39,9 +39,9 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public async Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate)
+            return await this.GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -58,9 +58,9 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public async Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate)
+            return await this.GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -82,9 +82,9 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
+        public async Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return this.GetAllQueryableByCriteria(predicate)
+            return await this.GetAllQueryableByCriteria(predicate)
                         .Include(t => t.RootDomains)
                        .SingleAsync(cancellationToken);
         }
@@ -145,7 +145,7 @@ namespace ReconNess.Services
         /// <param name="rootDomain">The root domain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>If we need to add a new RootDomain</returns>
-        private async Task<bool> NeedAddNewRootDomain(Target target, string rootDomain, CancellationToken cancellationToken)
+        private async ValueTask<bool> NeedAddNewRootDomain(Target target, string rootDomain, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(rootDomain))
             {

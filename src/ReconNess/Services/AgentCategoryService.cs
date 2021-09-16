@@ -30,7 +30,7 @@ namespace ReconNess.Services
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var myCategoriesName = this.GetIntersectionCategoriesName(myCategories, newCategories);
+            var myCategoriesName = GetIntersectionCategoriesName(myCategories, newCategories);
             foreach (var newCategory in newCategories)
             {
                 if (myCategoriesName.Contains(newCategory))
@@ -54,7 +54,7 @@ namespace ReconNess.Services
         /// <param name="myCategories">The list of my categories</param>
         /// <param name="newCategories">The list of string categories</param>
         /// <returns>The names of the categorias that interset the old and the new categories</returns>
-        private List<string> GetIntersectionCategoriesName(ICollection<Category> myCategories, List<string> newCategories)
+        private static List<string> GetIntersectionCategoriesName(ICollection<Category> myCategories, List<string> newCategories)
         {
             var myCategoriesName = myCategories.Select(c => c.Name).ToList();
             foreach (var myCategoryName in myCategoriesName)
@@ -74,7 +74,7 @@ namespace ReconNess.Services
         /// <param name="newCategory">The new categories assign to the agent</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        private async Task<Category> GetNewOrExistCategory(string newCategory, CancellationToken cancellationToken)
+        private async ValueTask<Category> GetNewOrExistCategory(string newCategory, CancellationToken cancellationToken)
         {
             var category = await this.GetByCriteriaAsync(c => c.Name == newCategory, cancellationToken);
             if (category == null)

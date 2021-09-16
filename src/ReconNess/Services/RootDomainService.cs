@@ -233,7 +233,7 @@ namespace ReconNess.Services
         /// <param name="subdomain">The subdomain</param>
         /// <param name="cancellationToken">Cancellation Token</param>
         /// <returns>If we need to add a new RootDomain</returns>
-        private async Task<bool> NeedAddNewSubdomain(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
+        private async ValueTask<bool> NeedAddNewSubdomain(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(subdomain) || Uri.CheckHostName(subdomain) == UriHostNameType.Unknown)
             {
