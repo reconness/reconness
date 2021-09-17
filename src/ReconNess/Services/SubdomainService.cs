@@ -188,8 +188,10 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             // if we have a new subdomain
-            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && !subdomain.Name.Equals(terminalOutputParse.Subdomain))
-            {
+            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && 
+                !subdomain.Name.Equals(terminalOutputParse.Subdomain) && 
+                !await this.AnyAsync(s => s.Name == terminalOutputParse.Subdomain))
+            {                
                 subdomain = new Subdomain
                 {
                     Name = terminalOutputParse.Subdomain,
@@ -197,7 +199,7 @@ namespace ReconNess.Services
                     RootDomain = subdomain.RootDomain
                 };
 
-                await this.AddAsync(subdomain, cancellationToken);
+                await this.AddAsync(subdomain, cancellationToken);                
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Ip))
