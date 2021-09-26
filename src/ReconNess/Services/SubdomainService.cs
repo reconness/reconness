@@ -190,7 +190,7 @@ namespace ReconNess.Services
             // if we have a new subdomain
             if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && 
                 !subdomain.Name.Equals(terminalOutputParse.Subdomain) && 
-                !await this.AnyAsync(s => s.Name == terminalOutputParse.Subdomain))
+                !await this.AnyAsync(s => s.Name == terminalOutputParse.Subdomain, cancellationToken))
             {                
                 subdomain = new Subdomain
                 {
