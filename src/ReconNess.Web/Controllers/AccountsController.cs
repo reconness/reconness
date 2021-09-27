@@ -141,16 +141,15 @@ namespace ReconNess.Web.Controllers
         ///     GET api/accounts/currentVersion	
         ///
         /// </remarks>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The current ReconNess Version</returns>
         /// <response code="200">Returns the current ReconNess Version</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("currentVersion")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> CurrentVersion(CancellationToken cancellationToken)
+        public IActionResult CurrentVersion()
         {
-            var currentVersion = await this.currentVersionProvider.GetCurrentVersionAsync(cancellationToken);
+            var currentVersion = this.currentVersionProvider.GetCurrentVersion();
 
             return Ok(currentVersion);
         }

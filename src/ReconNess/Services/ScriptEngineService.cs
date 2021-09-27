@@ -29,7 +29,7 @@ namespace ReconNess.Services
                     Assembly.GetAssembly(typeof(ScriptOutput)),
                     Assembly.GetAssembly(typeof(Exception)),
                     Assembly.GetAssembly(typeof(System.Text.RegularExpressions.Regex)))
-                , globals: globals);
+                , globals: globals, cancellationToken: cancellationToken);
         }
     }
 

@@ -18,17 +18,6 @@ namespace ReconNess.Web.Controllers
     [ApiController]
     public class WordlistsController : ControllerBase
     {
-        private readonly IMapper mapper;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="WordlistsController" /> class
-        /// </summary>
-        /// <param name="mapper"><see cref="IMapper"/></param>
-        public WordlistsController(IMapper mapper)
-        {
-            this.mapper = mapper;
-        }
-
         /// <summary>
         /// Obtain the list of wordlist, content discovery and resolvers.
         /// </summary>
@@ -38,25 +27,24 @@ namespace ReconNess.Web.Controllers
         ///     GET api/wordlists
         ///
         /// </remarks>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="200">Returns the list of wordlist, content discovery and resolvers</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult Get(CancellationToken cancellationToken)
+        public IActionResult Get()
         {
             var subdomainEnumPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "subdomain_enum");
-            DirectoryInfo subdomainEnumDirectory = new DirectoryInfo(subdomainEnumPath);//Assuming Test is your Folder
+            var subdomainEnumDirectory = new DirectoryInfo(subdomainEnumPath);//Assuming Test is your Folder
             FileInfo[] subdomainEnumFiles = subdomainEnumDirectory.GetFiles("*.*"); //Getting Text files
 
             var dirEnumPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "dir_enum");
-            DirectoryInfo dirEnumDirectory = new DirectoryInfo(dirEnumPath);//Assuming Test is your Folder
+            var dirEnumDirectory = new DirectoryInfo(dirEnumPath);//Assuming Test is your Folder
             FileInfo[] dirEnumFiles = dirEnumDirectory.GetFiles("*.*"); //Getting Text files
 
             var dnsResolverEnumPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "wordlists", "dns_resolver_enum");
-            DirectoryInfo dnsResolverEnumDirectory = new DirectoryInfo(dnsResolverEnumPath);//Assuming Test is your Folder
+            var dnsResolverEnumDirectory = new DirectoryInfo(dnsResolverEnumPath);//Assuming Test is your Folder
             FileInfo[] dnsResolverEnumFiles = dnsResolverEnumDirectory.GetFiles("*.*"); //Getting Text files
 
             var result = new WordlistsDto();
@@ -112,14 +100,13 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
         /// <param name="filename">The filename</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="200">Returns the list of wordlist, content discovery and resolvers</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("content")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetContent(string type, string filename, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetContent(string type, string filename)
         {
             if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
             {
@@ -158,14 +145,13 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
         /// <param name="filename">The filename</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="200">Returns the list of wordlist, content discovery and resolvers</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("download")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult Download(string type, string filename, CancellationToken cancellationToken)
+        public IActionResult Download(string type, string filename)
         {
             if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
             {
@@ -237,7 +223,7 @@ namespace ReconNess.Web.Controllers
 
             if (path.StartsWith(wordlistPath))
             {
-                await System.IO.File.WriteAllTextAsync(path, wordlistInputDto.Data);
+                await System.IO.File.WriteAllTextAsync(path, wordlistInputDto.Data, cancellationToken);
             }
 
             return NoContent();
@@ -255,7 +241,6 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
         /// <param name="filename">The filename</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate or is not admin</response>
@@ -265,7 +250,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Delete(string type, string filename, CancellationToken cancellationToken)
+        public IActionResult Delete(string type, string filename)
         {
             if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
             {

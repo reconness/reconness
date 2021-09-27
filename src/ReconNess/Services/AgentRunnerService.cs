@@ -58,7 +58,7 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        public async ValueTask<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
             if ((await this.agentRunnerProvider.RunningCountAsync) == 0)
             {
@@ -126,7 +126,7 @@ namespace ReconNess.Services
         /// <param name="channel">The channel</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task StopAgentAsync(string channel, CancellationToken cancellationToken = default)
+        private async ValueTask StopAgentAsync(string channel, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
@@ -331,7 +331,7 @@ namespace ReconNess.Services
         /// <summary>
         /// <see cref="IAgentRunnerProvider.SkipHandlerAsync"/>
         /// </summary>
-        private async Task<bool> SkipHandlerAsync(AgentRunnerProviderResult result)
+        private async ValueTask<bool> SkipHandlerAsync(AgentRunnerProviderResult result)
         {
             if (AgentRunnerHelpers.NeedToSkipRun(result.AgentRunner, result.AgentRunnerType))
             {

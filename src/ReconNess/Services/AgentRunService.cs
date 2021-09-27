@@ -23,7 +23,7 @@ namespace ReconNess.Services
         private readonly IServiceProvider serviceProvider;
         private readonly IConnectorService connectorService;
 
-        private static ConcurrentDictionary<string, string> terminalOuputs = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> terminalOuputs = new();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunService" /> class
@@ -50,15 +50,14 @@ namespace ReconNess.Services
                 Stage = Entities.Enum.AgentRunStage.RUNNING
             };
 
-            using (var scope = this.serviceProvider.CreateScope())
-            {
-                var unitOfWork =
-                    scope.ServiceProvider
-                        .GetRequiredService<IUnitOfWork>();
+            using var scope = this.serviceProvider.CreateScope();
 
-                unitOfWork.Repository<AgentRun>().Update(agentRun);
-                await unitOfWork.CommitAsync();
-            }
+            var unitOfWork =
+                scope.ServiceProvider
+                    .GetRequiredService<IUnitOfWork>();
+
+            unitOfWork.Repository<AgentRun>(cancellationToken).Update(agentRun, cancellationToken);
+            await unitOfWork.CommitAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -78,7 +77,7 @@ namespace ReconNess.Services
                     scope.ServiceProvider
                         .GetRequiredService<IUnitOfWork>();
 
-                var agentRun = await unitOfWork.Repository<AgentRun>()
+                var agentRun = await unitOfWork.Repository<AgentRun>(cancellationToken)
                         .GetAllQueryableByCriteria(ar => ar.Agent == agentRunner.Agent && ar.Channel == channel)
                         .OrderByDescending(o => o.CreatedAt)
                     .FirstOrDefaultAsync(cancellationToken);
@@ -109,8 +108,8 @@ namespace ReconNess.Services
 
                     agentRun.TerminalOutput += "\nAgent Done";
 
-                    unitOfWork.Repository<AgentRun>().Update(agentRun);
-                    await unitOfWork.CommitAsync();
+                    unitOfWork.Repository<AgentRun>(cancellationToken).Update(agentRun, cancellationToken);
+                    await unitOfWork.CommitAsync(cancellationToken);
                 }
             }
 
@@ -138,15 +137,14 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default)
         {
-            using (var scope = this.serviceProvider.CreateScope())
-            {
-                var agentService =
-                    scope.ServiceProvider
-                        .GetRequiredService<IAgentService>();
+            using var scope = this.serviceProvider.CreateScope();
 
-                agent.LastRun = DateTime.Now;
-                await agentService.UpdateAsync(agent, cancellationToken);
-            }
+            var agentService =
+                scope.ServiceProvider
+                    .GetRequiredService<IAgentService>();
+
+            agent.LastRun = DateTime.Now;
+            await agentService.UpdateAsync(agent, cancellationToken);
         }
 
         /// <summary>
@@ -157,14 +155,13 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default)
         {
-            using (var scope = this.serviceProvider.CreateScope())
-            {
-                var notificationService =
-                    scope.ServiceProvider
-                        .GetRequiredService<INotificationService>();
+            using var scope = this.serviceProvider.CreateScope();
 
-                await notificationService.SendAsync(payload, cancellationToken);
-            }
+            var notificationService =
+                scope.ServiceProvider
+                    .GetRequiredService<INotificationService>();
+
+            await notificationService.SendAsync(payload, cancellationToken);
         }
     }
 }
