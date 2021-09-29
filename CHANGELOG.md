@@ -1,3 +1,11 @@
+## [1.7.4] - 2021-09-29
+
+- Add https by default
+- Add agentName
+- Refactor and improve performance using ValueTask instead Task
+- Validate if the subdomain exist before add a new one
+- Update packages
+
 ## [1.7.3] - 2021-09-11
 
 - Fix axios

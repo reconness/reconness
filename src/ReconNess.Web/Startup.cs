@@ -119,12 +119,12 @@ namespace ReconNess.Web
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
+
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Reconness v1"));
 
-            app.UseRouting();
-
-            //app.UseHttpsRedirection();
+            app.UseRouting();            
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();

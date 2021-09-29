@@ -18,6 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Web", "ReconNess.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{493C9949-BAA6-4D9C-829E-2BC9F8D2CD9E}"
 	ProjectSection(SolutionItems) = preProject
+		aspnetapp.pfx = aspnetapp.pfx
 		..\azure-pipelines.yml = ..\azure-pipelines.yml
 		..\CHANGELOG.md = ..\CHANGELOG.md
 		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
@@ -28,7 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconNess.Worker", "ReconNess.Worker\ReconNess.Worker.csproj", "{0D483CB0-3394-45BC-8387-A130F203EF30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Worker", "ReconNess.Worker\ReconNess.Worker.csproj", "{0D483CB0-3394-45BC-8387-A130F203EF30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
