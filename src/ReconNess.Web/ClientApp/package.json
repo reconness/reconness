@@ -11,9 +11,9 @@
     "@fortawesome/fontawesome-svg-core": "1.2.36",
     "@fortawesome/free-regular-svg-icons": "5.15.4",
     "@fortawesome/free-solid-svg-icons": "5.15.4",
-    "@fortawesome/vue-fontawesome": "2.0.2",
+    "@fortawesome/vue-fontawesome": "2.0.6",
     "@johmun/vue-tags-input": "2.1.0",
-    "axios": "0.21.4",
+    "axios": "0.23.0",
     "bootstrap": "4.6.0",
     "core-js": "2.6.12",
     "jquery": "3.6.0",
@@ -34,8 +34,8 @@
     "@vue/cli-plugin-eslint": "3.12.1",
     "@vue/cli-service": "3.12.1",
     "babel-eslint": "10.1.0",
-    "eslint": "7.32.0",
-    "eslint-plugin-vue": "7.18.0",
+    "eslint": "8.0.1",
+    "eslint-plugin-vue": "7.20.0",
     "vue-template-compiler": "2.6.14",
     "vue2-ace-editor": "0.0.15"
   }
