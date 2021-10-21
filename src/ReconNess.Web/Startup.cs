@@ -92,8 +92,7 @@ namespace ReconNess.Web
                                     Id = "Bearer"
                                 }
                             },
-                            new string[] {}
-
+                            Array.Empty<string>()
                     }
                 });
 
