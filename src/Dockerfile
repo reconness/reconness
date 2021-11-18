@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0.100-bullseye-slim AS build
 WORKDIR /app
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
@@ -20,7 +20,7 @@ COPY . ./
 WORKDIR /app/ReconNess.Web
 RUN dotnet publish -c Release -o /dist
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS runtime
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
 WORKDIR /app
 
 #####################################################################################################################
