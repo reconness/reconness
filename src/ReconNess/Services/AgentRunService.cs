@@ -143,7 +143,7 @@ namespace ReconNess.Services
                 scope.ServiceProvider
                     .GetRequiredService<IAgentService>();
 
-            agent.LastRun = DateTime.Now;
+            agent.LastRun = DateTime.UtcNow;
             await agentService.UpdateAsync(agent, cancellationToken);
         }
 

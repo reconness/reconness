@@ -182,11 +182,11 @@ namespace ReconNess.Data.Npgsql
 
             foreach (var item in changes)
             {
-                item.Property(p => p.UpdatedAt).CurrentValue = DateTime.Now;
+                item.Property(p => p.UpdatedAt).CurrentValue = DateTime.UtcNow;
 
                 if (item.State == EntityState.Added)
                 {
-                    item.Property(p => p.CreatedAt).CurrentValue = DateTime.Now;
+                    item.Property(p => p.CreatedAt).CurrentValue = DateTime.UtcNow;
                 }
             }
 
@@ -201,10 +201,10 @@ namespace ReconNess.Data.Npgsql
 
             foreach (var item in changes)
             {
-                item.Property(p => p.UpdatedAt).CurrentValue = DateTime.Now;
+                item.Property(p => p.UpdatedAt).CurrentValue = DateTime.UtcNow;
                 if (item.State == EntityState.Added)
                 {
-                    item.Property(p => p.CreatedAt).CurrentValue = DateTime.Now;
+                    item.Property(p => p.CreatedAt).CurrentValue = DateTime.UtcNow;
                 }
             }
 
