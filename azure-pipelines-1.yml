@@ -22,5 +22,5 @@ steps:
     version: '6.0.x'
     performMultiLevelLookup: true
 
-- script: dotnet build --configuration $(buildConfiguration) 
+- script: dotnet build  $(solution)  --configuration $(buildConfiguration) 
 
