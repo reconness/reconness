@@ -52,7 +52,6 @@ namespace ReconNess.Web
             services.AddAutoMapper(typeof(Startup));
 
             services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Latest)
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             // In production, the Angular files will be served from this directory
