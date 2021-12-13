@@ -28,9 +28,9 @@ NodeJs Current and LTS Releases
 
 [https://nodejs.org/download/release/](https://nodejs.org/download/release/)
 
-DotNet 5
+DotNet 6
 
-[https://dotnet.microsoft.com/download/dotnet/5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
+[https://dotnet.microsoft.com/download/dotnet/6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
 
 We are working in the **NEW UI**, you can check here the progress
 [http://134.209.46.128/](http://134.209.46.128/)
