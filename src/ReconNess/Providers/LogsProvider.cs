@@ -26,7 +26,7 @@ namespace ReconNess.Providers
         }
 
         /// <inheritdoc/>
-        public async Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
+        public async ValueTask<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
             var logPath = GetLogPath();
 
@@ -54,7 +54,7 @@ namespace ReconNess.Providers
         }
 
         /// <inheritdoc/>
-        public async Task CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
+        public async ValueTask CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken)
         {
             var logPath = GetLogPath();
 

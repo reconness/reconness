@@ -188,8 +188,10 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             // if we have a new subdomain
-            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && !subdomain.Name.Equals(terminalOutputParse.Subdomain))
-            {
+            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && 
+                !subdomain.Name.Equals(terminalOutputParse.Subdomain) && 
+                !await this.AnyAsync(s => s.Name == terminalOutputParse.Subdomain, cancellationToken))
+            {                
                 subdomain = new Subdomain
                 {
                     Name = terminalOutputParse.Subdomain,
@@ -197,7 +199,7 @@ namespace ReconNess.Services
                     RootDomain = subdomain.RootDomain
                 };
 
-                await this.AddAsync(subdomain, cancellationToken);
+                await this.AddAsync(subdomain, cancellationToken);                
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Ip))
@@ -254,7 +256,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainIpAddressAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainIpAddressAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
             {
@@ -280,7 +282,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainIsAliveAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainIsAliveAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (subdomain.IsAlive != scriptOutput.IsAlive)
             {
@@ -306,7 +308,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainHasHttpOpenAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainHasHttpOpenAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
@@ -332,7 +334,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainTakeoverAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainTakeoverAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (subdomain.Takeover != scriptOutput.Takeover.Value)
             {
@@ -358,7 +360,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainDirectoryAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainDirectoryAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
             if (subdomain.Directories == null)
@@ -401,7 +403,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainServiceAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainServiceAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (subdomain.Services == null)
             {
@@ -467,7 +469,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainTechnologyAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken)
+        private async ValueTask UpdateSubdomainTechnologyAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken)
         {
             if (!string.IsNullOrEmpty(scriptOutput.Technology) && !scriptOutput.Technology.Equals(subdomain.Technology, StringComparison.OrdinalIgnoreCase))
             {
@@ -492,7 +494,7 @@ namespace ReconNess.Services
         /// <param name="scriptOutput">The terminal output one line</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task UpdateSubdomainLabelAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
+        private async ValueTask UpdateSubdomainLabelAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
         {
             if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Name, StringComparison.OrdinalIgnoreCase)))
             {

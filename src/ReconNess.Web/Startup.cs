@@ -54,8 +54,7 @@ namespace ReconNess.Web
             services.AddCors();
 
             services.AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Latest)
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());            
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
 
             services.AddSwaggerGen(c =>
             {
@@ -80,15 +79,15 @@ namespace ReconNess.Web
                 c.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
+                          new OpenApiSecurityScheme
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        Array.Empty<string>()
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme,
+                                    Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
                     }
                 });
 
@@ -114,10 +113,12 @@ namespace ReconNess.Web
                 app.UseHsts();
             }
 
+            app.UseHttpsRedirection();
+
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Reconness v1"));
 
-            app.UseRouting();
+            app.UseRouting();            
 
             // global cors policy
             app.UseCors(x => x
@@ -125,8 +126,6 @@ namespace ReconNess.Web
                 .AllowAnyHeader()
                 .SetIsOriginAllowed(origin => true) // allow any origin
                 .AllowCredentials()); // allow credentials
-
-            app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 

@@ -52,9 +52,9 @@ namespace ReconNess.Providers
         }
 
         /// <inheritdoc/>
-        public Task<string> GetCurrentVersionAsync(CancellationToken cancellationToken)
+        public string GetCurrentVersion()
         {
-            return Task.FromResult(this.configuration["ReconNess:Version"]);
+            return this.configuration["ReconNess:Version"];
         }
     }
 }

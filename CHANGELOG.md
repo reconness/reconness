@@ -1,3 +1,22 @@
+
+## [1.8.0] - 2021-12-13
+
+- Migrate to DotNet 6
+- Update packages
+
+## [1.7.4] - 2021-09-29
+
+- Add https by default
+- Add agentName
+- Refactor and improve performance using ValueTask instead Task
+- Validate if the subdomain exist before add a new one
+- Update packages
+
+## [1.7.3] - 2021-09-11
+
+- Fix axios
+- Update packages
+
 ## [1.7.2] - 2021-06-16
 
 - Add screenshots folder inside /app/Content following the path target/rootdomain/subdomain by subdomain screenshot

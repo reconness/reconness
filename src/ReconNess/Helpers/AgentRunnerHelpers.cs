@@ -325,9 +325,12 @@ namespace ReconNess.Helpers
             var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
                               Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
 
-            return $"{command.Replace("{{domain}}", agentRunner.Subdomain == null ? agentRunner.RootDomain.Name : agentRunner.Subdomain.Name)}"
+            return command
                 .Replace("{{target}}", agentRunner.Target.Name)
                 .Replace("{{rootDomain}}", agentRunner.RootDomain.Name)
+                .Replace("{{rootdomain}}", agentRunner.RootDomain.Name)
+                .Replace("{{domain}}", agentRunner.Subdomain == null ? agentRunner.RootDomain.Name : agentRunner.Subdomain.Name)
+                .Replace("{{subdomain}}", agentRunner.Subdomain == null ? agentRunner.RootDomain.Name : agentRunner.Subdomain.Name)
                 .Replace("{{userName}}", envUserName)
                 .Replace("{{password}}", envPassword)
                 .Replace("\"", "\\\"");
