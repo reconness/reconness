@@ -1,3 +1,9 @@
+
+## [1.8.0] - 2021-12-13
+
+- Migrate to DotNet 6
+- Update packages
+
 ## [1.7.4] - 2021-09-29
 
 - Add https by default
