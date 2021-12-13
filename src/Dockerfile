@@ -1,10 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0.100-bullseye-slim AS build
 WORKDIR /app
 
-RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
-RUN apt-get install -y nodejs
-RUN npm install -g @vue/cli
-
 # copy csproj and restore as distinct layers
 COPY *.sln .
 COPY ["DAL/ReconNess.Data.Npgsql/ReconNess.Data.Npgsql.csproj", "DAL/ReconNess.Data.Npgsql/"]
