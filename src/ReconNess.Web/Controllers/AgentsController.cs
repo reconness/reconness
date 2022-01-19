@@ -172,11 +172,11 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="agentDto">The agent dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Ok</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
@@ -193,9 +193,10 @@ namespace ReconNess.Web.Controllers
                 agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
             }
 
-            await this.agentService.AddAgentAsync(agent, "Agent Added", cancellationToken);
+            var insertedAgent = await this.agentService.AddAgentAsync(agent, "Agent Added", cancellationToken);
+            var insertedAgentDto = this.mapper.Map<Agent, AgentDto>(insertedAgent);
 
-            return NoContent();
+            return Ok(insertedAgentDto);
         }
 
         /// <summary>
