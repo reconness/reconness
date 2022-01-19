@@ -21,6 +21,12 @@ namespace ReconNess.Entities
 
         public virtual string AgentType { get; set; }
 
+        public string PrimaryColor { get; set; }
+
+        public string SecondaryColor { get; set; }
+
+        public string CreatedBy { get; set; }
+
         public virtual AgentTrigger AgentTrigger { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }

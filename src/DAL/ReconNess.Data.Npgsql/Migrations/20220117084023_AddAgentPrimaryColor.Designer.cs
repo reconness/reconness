@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -11,9 +12,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20220117084023_AddAgentPrimaryColor")]
+    partial class AddAgentPrimaryColor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,9 +175,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
@@ -192,9 +191,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Script")
-                        .HasColumnType("text");
-
-                    b.Property<string>("SecondaryColor")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
