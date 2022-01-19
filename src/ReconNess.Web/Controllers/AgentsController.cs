@@ -247,6 +247,8 @@ namespace ReconNess.Web.Controllers
             agent.Command = agentDto.Command;
             agent.Script = agentDto.Script;
             agent.AgentType = agentDto.AgentType;
+            agent.PrimaryColor = agentDto.PrimaryColor;
+            agent.SecondaryColor = agentDto.SecondaryColor;
             agent.Categories = await this.categoryService.GetCategoriesAsync(agent.Categories, agentDto.Categories, cancellationToken);
 
             if (agent.AgentTrigger == null)

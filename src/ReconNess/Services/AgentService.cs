@@ -57,6 +57,9 @@ namespace ReconNess.Services
                         CreatedBy = agent.CreatedBy,
                         PrimaryColor = agent.PrimaryColor,
                         SecondaryColor = agent.SecondaryColor,
+                        Repository = agent.Repository,
+                        AgentTrigger = agent.AgentTrigger,
+                        Script = agent.Script,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
