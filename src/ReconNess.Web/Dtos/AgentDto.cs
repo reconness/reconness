@@ -27,6 +27,8 @@ namespace ReconNess.Web.Dtos
 
         public string CreatedBy { get; set; }
 
+        public string Target { get; set; }
+
         public bool TriggerSkipIfRunBefore { get; set; }
 
         public bool TriggerTargetHasBounty { get; set; }

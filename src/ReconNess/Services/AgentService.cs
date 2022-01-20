@@ -60,6 +60,7 @@ namespace ReconNess.Services
                         Repository = agent.Repository,
                         AgentTrigger = agent.AgentTrigger,
                         Script = agent.Script,
+                        Target = agent.Target,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name

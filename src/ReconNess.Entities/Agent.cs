@@ -27,6 +27,8 @@ namespace ReconNess.Entities
 
         public string CreatedBy { get; set; }
 
+        public string Target { get; set; }
+
         public virtual AgentTrigger AgentTrigger { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }
