@@ -21,6 +21,12 @@ namespace ReconNess.Web.Dtos
 
         public string AgentType { get; set; }
 
+        public string PrimaryColor { get; set; }
+
+        public string SecondaryColor { get; set; }
+
+        public string CreatedBy { get; set; }
+
         public bool TriggerSkipIfRunBefore { get; set; }
 
         public bool TriggerTargetHasBounty { get; set; }
