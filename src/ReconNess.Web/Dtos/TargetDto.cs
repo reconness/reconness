@@ -19,6 +19,10 @@ namespace ReconNess.Web.Dtos
 
         public bool IsPrivate { get; set; }
 
+        public string PrimaryColor { get; set; }
+
+        public string SecondaryColor { get; set; }
+
         public List<RootDomainDto> RootDomains { get; set; }
     }
 }
