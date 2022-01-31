@@ -122,11 +122,11 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="targetDto">The target dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Return the created target</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
@@ -139,9 +139,10 @@ namespace ReconNess.Web.Controllers
 
             var target = this.mapper.Map<TargetDto, Target>(targetDto);
 
-            await this.targetService.AddAsync(target, cancellationToken);
+            var insertedTarget = await this.targetService.AddAsync(target, cancellationToken);
+            var insertedTargetDto = this.mapper.Map<Target, TargetDto>(insertedTarget);
 
-            return NoContent();
+            return Ok(insertedTargetDto);
         }
 
         /// <summary>

@@ -172,7 +172,7 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="agentDto">The agent dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">Return the created agent</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
