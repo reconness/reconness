@@ -241,6 +241,48 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
+        /// Delete a target.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/targets/batch
+        ///     ["target1", "target2", target3]
+        ///
+        /// </remarks>
+        /// <param name="targetNames">The target name list</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("batch")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteBatch([FromBody] List<String> targetNames, CancellationToken cancellationToken)
+        {
+            if (targetNames == null || targetNames.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            List<Target> targetsEntities = new List<Target>();
+            foreach (String targetName in targetNames)
+            {
+              Target target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+              if (target != null)
+              {
+                targetsEntities.Add(target);
+              }   
+            }
+
+            await this.targetService.DeleteRangeAsync(targetsEntities, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
         /// Import a rootdomain with all the subdomains in the target.
         /// </summary>
         /// <remarks>
