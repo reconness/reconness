@@ -54,6 +54,12 @@ namespace ReconNess.Services
                         LastRun = agent.LastRun,
                         Command = agent.Command,
                         AgentType = agent.AgentType,
+                        CreatedBy = agent.CreatedBy,
+                        PrimaryColor = agent.PrimaryColor,
+                        SecondaryColor = agent.SecondaryColor,
+                        Repository = agent.Repository,
+                        AgentTrigger = agent.AgentTrigger,
+                        Script = agent.Script,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
