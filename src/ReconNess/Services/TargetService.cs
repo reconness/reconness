@@ -46,6 +46,12 @@ namespace ReconNess.Services
                         {
                             Id = target.Id,
                             Name = target.Name,
+                            PrimaryColor = target.PrimaryColor,
+                            SecondaryColor = target.SecondaryColor,
+                            BugBountyProgramUrl = target.BugBountyProgramUrl,
+                            InScope = target.InScope,
+                            OutOfScope = target.OutOfScope,
+                            IsPrivate = target.IsPrivate,
                             RootDomains = target.RootDomains.Select(rootDomain => new RootDomain
                             {
                                 Id = rootDomain.Id,

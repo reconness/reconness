@@ -172,7 +172,7 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="agentDto">The agent dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="200">Ok</response>
+        /// <response code="200">Return the created agent</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
@@ -249,6 +249,7 @@ namespace ReconNess.Web.Controllers
             agent.AgentType = agentDto.AgentType;
             agent.PrimaryColor = agentDto.PrimaryColor;
             agent.SecondaryColor = agentDto.SecondaryColor;
+            agent.Target = agentDto.Target;
             agent.Categories = await this.categoryService.GetCategoriesAsync(agent.Categories, agentDto.Categories, cancellationToken);
 
             if (agent.AgentTrigger == null)
@@ -315,6 +316,47 @@ namespace ReconNess.Web.Controllers
             }
 
             await this.agentService.DeleteAsync(agent, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Delete multiple agents.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/agents/batch
+        ///     ["agente1", "agente2", agente3]
+        ///
+        /// </remarks>
+        /// <param name="agentNames">The agent name list</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpDelete("batch")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteBatch([FromBody] List<String> agentNames, CancellationToken cancellationToken)
+        {
+            if (agentNames == null || agentNames.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            List<Agent> agentsEntities = new List<Agent>();
+            foreach (String agentName in agentNames)
+            {
+              Agent agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+              if (agent != null)
+              {
+                agentsEntities.Add(agent);
+              }   
+            }
+
+            await this.agentService.DeleteRangeAsync(agentsEntities, cancellationToken);
 
             return NoContent();
         }
