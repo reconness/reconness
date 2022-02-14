@@ -192,11 +192,6 @@ namespace ReconNess.Web.Controllers
             {
                 agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
             }
-            if (!string.IsNullOrEmpty(agent.ImageName))
-            {
-                string imageExtension = agent.ImageName;
-                agent.ImageName = System.Guid.NewGuid().ToString() + '.' + imageExtension;
-            }
 
             var insertedAgent = await this.agentService.AddAgentAsync(agent, "Agent Added", cancellationToken);
             var insertedAgentDto = this.mapper.Map<Agent, AgentDto>(insertedAgent);
@@ -255,17 +250,12 @@ namespace ReconNess.Web.Controllers
             agent.PrimaryColor = agentDto.PrimaryColor;
             agent.SecondaryColor = agentDto.SecondaryColor;
             agent.Target = agentDto.Target;
+            agent.Image = agentDto.Image;
             agent.Categories = await this.categoryService.GetCategoriesAsync(agent.Categories, agentDto.Categories, cancellationToken);
 
             if (agent.AgentTrigger == null)
             {
                 agent.AgentTrigger = new AgentTrigger();
-            }
-
-            if (!string.IsNullOrEmpty(agentDto.ImageName))
-            {
-                string imageExtension = agentDto.ImageName;
-                agent.ImageName = System.Guid.NewGuid().ToString() + '.' + imageExtension;
             }
 
             agent.AgentTrigger.SkipIfRunBefore = agentDto.TriggerSkipIfRunBefore;
@@ -291,59 +281,6 @@ namespace ReconNess.Web.Controllers
             agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
 
             await this.agentService.UpdateAgentAsync(agent, cancellationToken);
-
-            return NoContent();
-        }
-
-        /// <summary>
-        /// Upload the image that will identify the agent with the given id.
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     POST api/agents/uploadimage/{id}
-        ///       { 
-        ///         "data": "...data..."
-        ///       }
-        ///
-        /// </remarks>
-        /// <param name="id">The agent id</param>
-        /// <param name="file">The image with whom the agent will be associated</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
-        /// <response code="400">Bad Request</response>
-        /// <response code="401">If the user is not authenticate</response>
-        /// <response code="404">Not Found</response>
-        [HttpPost("uploadimage/{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UploadAndUpdateImage(Guid id, IFormFile file, CancellationToken cancellationToken)
-        {
-            var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
-            if (agent == null)
-            {
-                return NotFound();
-            }
-
-            if (file.Length == 0)
-            {
-                return BadRequest();
-            }
-
-            var imagePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "agentImages");
-            var fileNamePath = Path.Combine(imagePath, agent.ImageName);
-            
-            if (!fileNamePath.StartsWith(imagePath))
-            {
-                return BadRequest("The path to save the image is invalid.");
-            }
-
-            using (var stream = new FileStream(fileNamePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream, cancellationToken);
-            }            
 
             return NoContent();
         }

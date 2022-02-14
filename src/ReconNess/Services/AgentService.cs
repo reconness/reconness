@@ -61,6 +61,7 @@ namespace ReconNess.Services
                         AgentTrigger = agent.AgentTrigger,
                         Script = agent.Script,
                         Target = agent.Target,
+                        Image = agent.Image,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name

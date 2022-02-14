@@ -29,7 +29,7 @@ namespace ReconNess.Entities
 
         public string Target { get; set; }
 
-        public string ImageName { get; set; }
+        public string Image { get; set; }
 
         public virtual AgentTrigger AgentTrigger { get; set; }
 

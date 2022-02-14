@@ -29,7 +29,7 @@ namespace ReconNess.Web.Dtos
 
         public string Target { get; set; }
 
-        public string ImageName { get; set; }
+        public string Image { get; set; }
 
         public bool TriggerSkipIfRunBefore { get; set; }
 
