@@ -29,6 +29,8 @@ namespace ReconNess.Web.Dtos
 
         public string Target { get; set; }
 
+        public string Image { get; set; }
+
         public bool TriggerSkipIfRunBefore { get; set; }
 
         public bool TriggerTargetHasBounty { get; set; }

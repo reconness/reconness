@@ -194,6 +194,8 @@ namespace ReconNess.Web.Controllers
             target.IsPrivate = targetDto.IsPrivate;
             target.InScope = targetDto.InScope;
             target.OutOfScope = targetDto.OutOfScope;
+            target.PrimaryColor = targetDto.PrimaryColor;
+            target.SecondaryColor = targetDto.SecondaryColor;
 
             target.RootDomains = this.rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
 

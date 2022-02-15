@@ -29,6 +29,8 @@ namespace ReconNess.Entities
 
         public string Target { get; set; }
 
+        public string Image { get; set; }
+
         public virtual AgentTrigger AgentTrigger { get; set; }
 
         public virtual ICollection<Category> Categories { get; set; }
