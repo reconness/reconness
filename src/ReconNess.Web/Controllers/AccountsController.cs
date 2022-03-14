@@ -59,11 +59,11 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Notification(CancellationToken cancellationToken)
         {
-            var notification = await this.notificationService.GetAllQueryableByCriteria(n => !n.Deleted)
+            var notification = await notificationService.GetAllQueryableByCriteria(n => !n.Deleted)
                     .AsNoTracking()
                 .SingleOrDefaultAsync(cancellationToken);
 
-            var notificationDto = this.mapper.Map<Notification, NotificationDto>(notification);
+            var notificationDto = mapper.Map<Notification, NotificationDto>(notification);
 
             return Ok(notificationDto);
         }
@@ -102,9 +102,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notificationDto, CancellationToken cancellationToken)
         {
-            var notification = this.mapper.Map<NotificationDto, Notification>(notificationDto);
+            var notification = mapper.Map<NotificationDto, Notification>(notificationDto);
 
-            await this.notificationService.SaveNotificationAsync(notification, cancellationToken);
+            await notificationService.SaveNotificationAsync(notification, cancellationToken);
 
             return NoContent();
         }
@@ -127,7 +127,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LatestVersion(CancellationToken cancellationToken)
         {
-            var latestVersion = await this.currentVersionProvider.GetLatestVersionAsync(cancellationToken);
+            var latestVersion = await currentVersionProvider.GetLatestVersionAsync(cancellationToken);
 
             return Ok(latestVersion);
         }
@@ -149,7 +149,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult CurrentVersion()
         {
-            var currentVersion = this.currentVersionProvider.GetCurrentVersion();
+            var currentVersion = currentVersionProvider.GetCurrentVersion();
 
             return Ok(currentVersion);
         }
@@ -172,7 +172,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Logfiles(CancellationToken cancellationToken)
         {
-            var logFiles = this.logsProvider.GetLogfiles(cancellationToken);
+            var logFiles = logsProvider.GetLogfiles(cancellationToken);
 
             return Ok(logFiles);
         }
@@ -201,7 +201,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var readLogFile = await this.logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken);
+            var readLogFile = await logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken);
 
             return Ok(readLogFile);
         }
@@ -232,7 +232,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
+            await logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
 
             return NoContent();
         }

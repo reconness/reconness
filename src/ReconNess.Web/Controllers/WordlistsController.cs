@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Models;
@@ -58,7 +57,7 @@ namespace ReconNess.Web.Controllers
                     Path = path,
                     Size = subdomainEnumFile.Length.ToString(),
                     Count = System.IO.File.ReadLines(path).Count()
-            });
+                });
             }
 
             foreach (var dirEnumFile in dirEnumFiles)
@@ -307,7 +306,7 @@ namespace ReconNess.Web.Controllers
             {
                 return BadRequest();
             }
-                      
+
             if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
             {
                 return BadRequest();
@@ -335,7 +334,7 @@ namespace ReconNess.Web.Controllers
             using (var stream = new FileStream(fileNamePath, FileMode.Create))
             {
                 await file.CopyToAsync(stream, cancellationToken);
-            }            
+            }
 
             return NoContent();
         }

@@ -58,14 +58,14 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] CredentialsViewModel credentials)
         {
-            var defaultUserExistOrWasCreated = await this.CheckOrAddDefaultUser();
+            var defaultUserExistOrWasCreated = await CheckOrAddDefaultUser();
             if (!defaultUserExistOrWasCreated)
             {
                 var errorMsg = "We had an issue creating the default User, please check if you have 'ReconnessUserName' and 'ReconnessPassword' in your local environment variables";
                 return StatusCode(StatusCodes.Status500InternalServerError, errorMsg);
             }
 
-            var user = await this.SingInAsync(credentials.UserName, credentials.Password);
+            var user = await SingInAsync(credentials.UserName, credentials.Password);
             if (user == null)
             {
                 return BadRequest("Invalid username or password.");

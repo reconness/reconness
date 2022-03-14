@@ -1,11 +1,11 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using ReconNess.Data.Npgsql;
 using System;
 using System.IO;
 using System.Net;
@@ -52,9 +52,9 @@ namespace ReconNess.Web
             );
 
             // Auth
-            this.ConfigureAuth(services, Env, connectionString);
+            ConfigureAuth(services, Env, connectionString);
 
-            this.AddDependencyInjection(services);
+            AddDependencyInjection(services);
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -129,7 +129,7 @@ namespace ReconNess.Web
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Reconness v1"));
 
-            app.UseRouting();            
+            app.UseRouting();
 
             app.UseStaticFiles();
             app.UseSpaStaticFiles();

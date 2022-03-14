@@ -23,7 +23,7 @@ namespace ReconNess.Services
         private readonly IServiceProvider serviceProvider;
         private readonly IConnectorService connectorService;
 
-        private static ConcurrentDictionary<string, string> terminalOuputs = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<string, string> terminalOuputs = new ConcurrentDictionary<string, string>();
 
         /// <summary>
         ///  Initializes a new instance of the <see cref="AgentBackgroundService" /> class
@@ -39,7 +39,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task SaveOutputParseOnScopeAsync(AgentRunner agentRun, string agentRunType, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
         {
-            using var scope = this.serviceProvider.CreateScope();
+            using var scope = serviceProvider.CreateScope();
 
             if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                 AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
@@ -64,7 +64,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task UpdateAgentOnScopeAsync(AgentRunner agentRun, string agentRunType, CancellationToken cancellationToken = default)
         {
-            using var scope = this.serviceProvider.CreateScope();
+            using var scope = serviceProvider.CreateScope();
 
             if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase) ||
                 AgentRunnerTypes.CURRENT_TARGET.Equals(agentRunType, StringComparison.CurrentCultureIgnoreCase))
@@ -99,7 +99,7 @@ namespace ReconNess.Services
                 Stage = Entities.Enum.AgentRunStage.RUNNING
             };
 
-            using (var scope = this.serviceProvider.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var unitOfWork =
                     scope.ServiceProvider
@@ -117,13 +117,13 @@ namespace ReconNess.Services
         {
             if (agentRunner.ActivateNotification)
             {
-                await this.SendNotificationOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
+                await SendNotificationOnScopeAsync($"Agent {agentRunner.Agent.Name} is done!", cancellationToken);
             }
 
-            await this.UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
+            await UpdateLastRunAgentOnScopeAsync(agentRunner.Agent, cancellationToken);
 
 
-            using (var scope = this.serviceProvider.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var unitOfWork =
                     scope.ServiceProvider
@@ -165,7 +165,7 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);
+            await connectorService.SendAsync(channel, "Agent Done!", false, cancellationToken);
         }
 
         /// <summary>
@@ -191,7 +191,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task UpdateLastRunAgentOnScopeAsync(Agent agent, CancellationToken cancellationToken = default)
         {
-            using (var scope = this.serviceProvider.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var agentService =
                     scope.ServiceProvider
@@ -210,7 +210,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task SendNotificationOnScopeAsync(string payload, CancellationToken cancellationToken = default)
         {
-            using (var scope = this.serviceProvider.CreateScope())
+            using (var scope = serviceProvider.CreateScope())
             {
                 var notificationService =
                     scope.ServiceProvider

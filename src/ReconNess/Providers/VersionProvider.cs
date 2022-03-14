@@ -54,7 +54,7 @@ namespace ReconNess.Providers
         /// <inheritdoc/>
         public string GetCurrentVersion()
         {
-            return this.configuration["ReconNess:Version"];
+            return configuration["ReconNess:Version"];
         }
     }
 }

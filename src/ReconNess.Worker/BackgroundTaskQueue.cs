@@ -16,8 +16,8 @@ namespace ReconNess.Worker
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private ConcurrentQueue<AgentRunnerProcess> workItems = new ConcurrentQueue<AgentRunnerProcess>();
-        private SemaphoreSlim signal = new SemaphoreSlim(0);
+        private readonly ConcurrentQueue<AgentRunnerProcess> workItems = new ConcurrentQueue<AgentRunnerProcess>();
+        private readonly SemaphoreSlim signal = new SemaphoreSlim(0);
         private AgentRunnerProcess currentRunProcess;
 
         private string channelDeleted;
@@ -32,9 +32,9 @@ namespace ReconNess.Worker
                 throw new ArgumentNullException(nameof(workItem));
             }
 
-            this.workItems.Enqueue(workItem);
+            workItems.Enqueue(workItem);
 
-            this.signal.Release();
+            signal.Release();
         }
 
         /// <summary>
@@ -42,20 +42,20 @@ namespace ReconNess.Worker
         /// </summary>
         public async Task<AgentRunnerProcess> DequeueAgentRunAsync(CancellationToken cancellationToken)
         {
-            await this.signal.WaitAsync(cancellationToken);
+            await signal.WaitAsync(cancellationToken);
 
             AgentRunnerProcess workItem;
             do
             {
 
-                if (!this.workItems.TryDequeue(out workItem))
+                if (!workItems.TryDequeue(out workItem))
                 {
                     return null;
                 }
 
-            } while (workItem.Channel.Equals(this.channelDeleted));
+            } while (workItem.Channel.Equals(channelDeleted));
 
-            this.currentRunProcess = workItem;
+            currentRunProcess = workItem;
 
             return workItem;
         }
@@ -68,11 +68,11 @@ namespace ReconNess.Worker
             get
             {
                 var channels = workItems.Select(a => a.Channel).Distinct().ToList();
-                if (this.currentRunProcess != null)
+                if (currentRunProcess != null)
                 {
-                    if (!channels.Any(c => c.Equals(this.currentRunProcess.Channel)))
+                    if (!channels.Any(c => c.Equals(currentRunProcess.Channel)))
                     {
-                        channels.Add(this.currentRunProcess.Channel);
+                        channels.Add(currentRunProcess.Channel);
                     }
                 }
 
@@ -87,8 +87,8 @@ namespace ReconNess.Worker
         {
             get
             {
-                var count = this.workItems.Count();
-                if (this.currentRunProcess != null)
+                var count = workItems.Count();
+                if (currentRunProcess != null)
                 {
                     count++;
                 }
@@ -102,17 +102,17 @@ namespace ReconNess.Worker
         /// </summary>
         public Task StopAsync(string channel)
         {
-            this.channelDeleted = channel;
-            if (this.currentRunProcess != null && this.currentRunProcess.Channel.Equals(channel))
+            channelDeleted = channel;
+            if (currentRunProcess != null && currentRunProcess.Channel.Equals(channel))
             {
-                if (this.currentRunProcess.ProcessWrapper != null)
+                if (currentRunProcess.ProcessWrapper != null)
                 {
-                    this.currentRunProcess.ProcessWrapper.StopProcess();
-                    this.currentRunProcess = null;
+                    currentRunProcess.ProcessWrapper.StopProcess();
+                    currentRunProcess = null;
                 }
             }
 
-            this.workItems.Clear();
+            workItems.Clear();
 
             return Task.CompletedTask;
         }
@@ -130,7 +130,7 @@ namespace ReconNess.Worker
         /// </summary>
         public void Initializes(string channel)
         {
-            this.channelDeleted = string.Empty;
+            channelDeleted = string.Empty;
         }
     }
 }

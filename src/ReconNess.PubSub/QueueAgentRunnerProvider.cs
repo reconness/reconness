@@ -18,10 +18,9 @@ namespace ReconNess.PubSub
         private readonly IScriptEngineService scriptEngineService;
 
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        ConnectionFactory _factory;
-        IConnection _conn;
-        IModel _channel;
+        private readonly ConnectionFactory _factory;
+        private readonly IConnection _conn;
+        private readonly IModel _channel;
 
         public QueueAgentRunnerProvider(IConfiguration configuration, IScriptEngineService scriptEngineService)
         {
@@ -80,7 +79,7 @@ namespace ReconNess.PubSub
                 var terminalLineOutput = Encoding.UTF8.GetString(body.ToArray());
 
                 var script = providerArgs.AgentRunner.Agent.Script;
-                var scriptOutput = await this.scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
+                var scriptOutput = await scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
 
                 await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
                 {

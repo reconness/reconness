@@ -36,24 +36,24 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IAgentRunnerProvider.RunningCountAsync"/>
         /// </summary>
-        public Task<int> RunningCountAsync => Task.FromResult(this.backgroundTaskQueue.RunningCount);
+        public Task<int> RunningCountAsync => Task.FromResult(backgroundTaskQueue.RunningCount);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.RunningChannelsAsync"/>
         /// </summary>
-        public Task<IList<string>> RunningChannelsAsync => Task.FromResult(this.backgroundTaskQueue.RunningChannels);
+        public Task<IList<string>> RunningChannelsAsync => Task.FromResult(backgroundTaskQueue.RunningChannels);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.IsStoppedAsync(string)"/>
         /// </summary>
-        public Task<bool> IsStoppedAsync(string channel) => Task.FromResult(this.backgroundTaskQueue.IsStopped(channel));
+        public Task<bool> IsStoppedAsync(string channel) => Task.FromResult(backgroundTaskQueue.IsStopped(channel));
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.InitializesAsync(string)"/>
         /// </summary>
         public Task InitializesAsync(string channel)
         {
-            this.backgroundTaskQueue.Initializes(channel);
+            backgroundTaskQueue.Initializes(channel);
 
             return Task.CompletedTask;
         }
@@ -61,7 +61,7 @@ namespace ReconNess.Worker
         /// <summary>
         /// <see cref="IAgentRunnerProvider.StopAsync(string)"/>
         /// </summary>
-        public async Task StopAsync(string channel) => await this.backgroundTaskQueue.StopAsync(channel);
+        public async Task StopAsync(string channel) => await backgroundTaskQueue.StopAsync(channel);
 
         /// <summary>
         /// <see cref="IAgentRunnerProvider.RunAsync(AgentRunnerProviderArgs)"/>
@@ -69,7 +69,7 @@ namespace ReconNess.Worker
         public Task RunAsync(AgentRunnerProviderArgs providerArgs)
         {
             var processWrapper = new ProcessWrapper();
-            this.backgroundTaskQueue.QueueAgentRun(new AgentRunnerProcess(providerArgs.Channel, processWrapper, async (CancellationToken token) =>
+            backgroundTaskQueue.QueueAgentRun(new AgentRunnerProcess(providerArgs.Channel, processWrapper, async (CancellationToken token) =>
             {
                 try
                 {
@@ -106,7 +106,7 @@ namespace ReconNess.Worker
 
                             // Parse the terminal output one line
                             var terminalLineOutput = processWrapper.TerminalLineOutput();
-                            var scriptOutput = await this.scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
+                            var scriptOutput = await scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
 
                             await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
                             {

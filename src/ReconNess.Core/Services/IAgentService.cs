@@ -109,6 +109,6 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
         Task DeleteConfigurationFileAsync(Agent agent, CancellationToken cancellationToken);
-        
+
     }
 }

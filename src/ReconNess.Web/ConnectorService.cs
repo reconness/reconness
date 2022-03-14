@@ -30,7 +30,7 @@ namespace ReconNess.Web
             var time = DateTime.Now.ToString("hh:mm:ss tt");
 
             msg = includeTime ? $"[{time}] {msg}" : msg;
-            await this.reconnessHub.Clients.All.SendAsync(channel, msg, cancellationToken);
+            await reconnessHub.Clients.All.SendAsync(channel, msg, cancellationToken);
         }
     }
 }

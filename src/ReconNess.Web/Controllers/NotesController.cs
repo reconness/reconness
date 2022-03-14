@@ -71,13 +71,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService
+            var rootDomain = await rootDomainService
                 .GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName)
                     .Include(t => t.Notes)
                 .SingleAsync(cancellationToken);
@@ -87,7 +87,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.SaveRootdomainNotesAsync(rootDomain, noteDto.Notes, cancellationToken);
+            await notesService.SaveRootdomainNotesAsync(rootDomain, noteDto.Notes, cancellationToken);
 
             return NoContent();
         }
@@ -125,19 +125,19 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
             }
 
-            var subdomain = await this.subdomainService
+            var subdomain = await subdomainService
                 .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
                     .Include(s => s.Notes)
                 .SingleAsync(cancellationToken);
@@ -147,7 +147,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.SaveSubdomainNotesAsync(subdomain, noteDto.Notes, cancellationToken);
+            await notesService.SaveSubdomainNotesAsync(subdomain, noteDto.Notes, cancellationToken);
 
             return NoContent();
         }

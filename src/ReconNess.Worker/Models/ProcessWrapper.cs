@@ -14,7 +14,7 @@ namespace ReconNess.Worker.Models
 
         public void Start(string command)
         {
-            this.process = new Process()
+            process = new Process()
             {
                 StartInfo = new ProcessStartInfo
                 {
@@ -27,27 +27,27 @@ namespace ReconNess.Worker.Models
                 }
             };
 
-            this.process.Start();
+            process.Start();
         }
 
         public bool EndOfStream
         {
             get
             {
-                if (this.process == null)
+                if (process == null)
                 {
                     return true;
                 }
 
-                return this.process.StandardOutput.EndOfStream;
+                return process.StandardOutput.EndOfStream;
             }
         }
 
         public string TerminalLineOutput()
         {
-            if (!this.EndOfStream)
+            if (!EndOfStream)
             {
-                return this.process.StandardOutput.ReadLine();
+                return process.StandardOutput.ReadLine();
             }
 
             return string.Empty;

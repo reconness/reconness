@@ -22,7 +22,7 @@ namespace ReconNess.UnitTests
         [TestInitialize]
         public void TestInitialize()
         {
-            this.categoryIdOnDb = Guid.NewGuid();
+            categoryIdOnDb = Guid.NewGuid();
             var categoriesOnDb = new List<Category>
             {
                 new Category
@@ -43,13 +43,13 @@ namespace ReconNess.UnitTests
             unitOfWorkMock.Setup(c => c.CommitAsync(It.IsAny<CancellationToken>()))
                 .Callback(() =>
                 {
-                    this.addWasCalled = true;
+                    addWasCalled = true;
                 });
 
             unitOfWorkMock.Setup(m => m.Repository<Category>(It.IsAny<CancellationToken>()))
                 .Returns(repositoryMock.Object);
 
-            this.unitOfWork = unitOfWorkMock.Object;
+            unitOfWork = unitOfWorkMock.Object;
         }
 
         [TestMethod]
@@ -62,19 +62,19 @@ namespace ReconNess.UnitTests
             {
                 new Category
                 {
-                    Id = this.categoryIdOnDb,
+                    Id = categoryIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
-            var categoryService = new AgentCategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
 
             // Assert
             Assert.IsTrue(categories.Count == 1);
-            Assert.IsTrue(this.addWasCalled == false);
+            Assert.IsTrue(addWasCalled == false);
         }
 
         [TestMethod]
@@ -85,20 +85,20 @@ namespace ReconNess.UnitTests
             {
                 new Category
                 {
-                    Id = this.categoryIdOnDb,
+                    Id = categoryIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewCategories = new List<string>();
-            var categoryService = new AgentCategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
 
             // Assert
             Assert.IsTrue(categories.Count == 0);
-            Assert.IsTrue(this.addWasCalled == false);
+            Assert.IsTrue(addWasCalled == false);
         }
 
         [TestMethod]
@@ -109,20 +109,20 @@ namespace ReconNess.UnitTests
             {
                 new Category
                 {
-                    Id = this.categoryIdOnDb,
+                    Id = categoryIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewCategories = new List<string> { "Brute Force", "New Category" };
-            var categoryService = new AgentCategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
 
             // Assert
             Assert.IsTrue(categories.Count == 2);
-            Assert.IsTrue(this.addWasCalled == true);
+            Assert.IsTrue(addWasCalled == true);
         }
 
         [TestMethod]
@@ -133,20 +133,20 @@ namespace ReconNess.UnitTests
             {
                 new Category
                 {
-                    Id = this.categoryIdOnDb,
+                    Id = categoryIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewCategories = new List<string> { "New Category" };
-            var categoryService = new AgentCategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
 
             // Assert
             Assert.IsTrue(categories.Count == 1);
-            Assert.IsTrue(this.addWasCalled == true);
+            Assert.IsTrue(addWasCalled == true);
         }
 
         [TestMethod]
@@ -157,20 +157,20 @@ namespace ReconNess.UnitTests
             {
                 new Category
                 {
-                    Id = this.categoryIdOnDb,
+                    Id = categoryIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewCategories = new List<string> { "New Category", "New Category" };
-            var categoryService = new AgentCategoryService(this.unitOfWork);
+            var categoryService = new AgentCategoryService(unitOfWork);
 
             // Act
             var categories = categoryService.GetCategoriesAsync(myCategoriesOnDb, myNewCategories).Result;
 
             // Assert
             Assert.IsTrue(categories.Count == 1);
-            Assert.IsTrue(this.addWasCalled == true);
+            Assert.IsTrue(addWasCalled == true);
         }
     }
 }

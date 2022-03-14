@@ -41,7 +41,7 @@ namespace ReconNess.Services
                 // avoid add new duplicate categories
                 myCategoriesName.Add(newCategory);
 
-                var category = await this.GetNewOrExistCategory(newCategory, cancellationToken);
+                var category = await GetNewOrExistCategory(newCategory, cancellationToken);
                 myCategories.Add(category);
             }
 
@@ -76,7 +76,7 @@ namespace ReconNess.Services
         /// <returns></returns>
         private async ValueTask<Category> GetNewOrExistCategory(string newCategory, CancellationToken cancellationToken)
         {
-            var category = await this.GetByCriteriaAsync(c => c.Name == newCategory, cancellationToken);
+            var category = await GetByCriteriaAsync(c => c.Name == newCategory, cancellationToken);
             if (category == null)
             {
                 category = new Category
@@ -84,7 +84,7 @@ namespace ReconNess.Services
                     Name = newCategory
                 };
 
-                category = await this.AddAsync(category, cancellationToken);
+                category = await AddAsync(category, cancellationToken);
             }
 
             return category;

@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core;
 using ReconNess.Core.Providers;
@@ -9,7 +7,6 @@ using ReconNess.Providers;
 using ReconNess.PubSub;
 using ReconNess.Services;
 using ReconNess.Web.Auth;
-using ReconNess.Worker;
 
 namespace ReconNess.Web
 {
@@ -22,7 +19,7 @@ namespace ReconNess.Web
             services.AddSingleton<IJwtFactory, JwtFactory>();
 
             services.AddScoped<IDbContext, ReconNessContext>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();            
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAgentRunnerService, AgentRunnerService>();
@@ -46,8 +43,6 @@ namespace ReconNess.Web
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();
             services.AddSingleton<IAgentRunnerProvider, QueueAgentRunnerProvider>();
-            //services.AddSingleton<IAgentRunnerProvider, WorkerAgentRunnerProvider>();
-            services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }
 }

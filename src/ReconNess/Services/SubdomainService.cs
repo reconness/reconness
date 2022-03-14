@@ -7,7 +7,6 @@ using ReconNess.Data.Npgsql.Helpers;
 using ReconNess.Entities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -47,7 +46,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                     .Include(s => s.RootDomain)
                     .Include(s => s.Services)
                     .Include(s => s.Notes)
@@ -59,7 +58,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
@@ -70,7 +69,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Services)
                     .Include(t => t.Notes)
                     .Include(t => t.Directories)
@@ -85,7 +84,7 @@ namespace ReconNess.Services
             IQueryable<Subdomain> queryable = default;
             if (string.IsNullOrEmpty(query))
             {
-                queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
+                queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
                         .Select(subdomain => new Subdomain
                         {
                             Id = subdomain.Id,
@@ -115,7 +114,7 @@ namespace ReconNess.Services
             }
             else
             {
-                queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
+                queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
                     .Select(subdomain => new Subdomain
                     {
                         Name = subdomain.Name,
@@ -149,7 +148,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Labels)
                 .SingleAsync(cancellationToken);
         }
@@ -160,9 +159,9 @@ namespace ReconNess.Services
             var myLabels = subdomain.Labels.Select(l => l.Name).ToList();
             myLabels.Add(newLabel);
 
-            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
+            subdomain.Labels = await labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
 
-            await this.UpdateAsync(subdomain, cancellationToken);
+            await UpdateAsync(subdomain, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -173,12 +172,12 @@ namespace ReconNess.Services
             if (string.IsNullOrWhiteSpace(subdomain.AgentsRanBefore))
             {
                 subdomain.AgentsRanBefore = agentName;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
             }
             else if (!subdomain.AgentsRanBefore.Contains(agentName))
             {
                 subdomain.AgentsRanBefore = string.Join(", ", subdomain.AgentsRanBefore, agentName);
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
             }
         }
 
@@ -188,10 +187,10 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             // if we have a new subdomain
-            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && 
-                !subdomain.Name.Equals(terminalOutputParse.Subdomain) && 
-                !await this.AnyAsync(s => s.Name == terminalOutputParse.Subdomain, cancellationToken))
-            {                
+            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) &&
+                !subdomain.Name.Equals(terminalOutputParse.Subdomain) &&
+                !await AnyAsync(s => s.Name == terminalOutputParse.Subdomain, cancellationToken))
+            {
                 subdomain = new Subdomain
                 {
                     Name = terminalOutputParse.Subdomain,
@@ -199,52 +198,52 @@ namespace ReconNess.Services
                     RootDomain = subdomain.RootDomain
                 };
 
-                await this.AddAsync(subdomain, cancellationToken);                
+                await AddAsync(subdomain, cancellationToken);
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Ip))
             {
-                await this.UpdateSubdomainIpAddressAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainIpAddressAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (terminalOutputParse.IsAlive != null)
             {
-                await this.UpdateSubdomainIsAliveAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainIsAliveAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (terminalOutputParse.HasHttpOpen != null)
             {
-                await this.UpdateSubdomainHasHttpOpenAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainHasHttpOpenAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (terminalOutputParse.Takeover != null)
             {
-                await this.UpdateSubdomainTakeoverAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainTakeoverAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.HttpDirectory))
             {
-                await this.UpdateSubdomainDirectoryAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainDirectoryAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Service))
             {
-                await this.UpdateSubdomainServiceAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainServiceAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Note))
             {
-                await this.UpdateSubdomainNoteAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainNoteAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Technology))
             {
-                await this.UpdateSubdomainTechnologyAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainTechnologyAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrWhiteSpace(terminalOutputParse.Label))
             {
-                await this.UpdateSubdomainLabelAsync(subdomain, terminalOutputParse, cancellationToken);
+                await UpdateSubdomainLabelAsync(subdomain, terminalOutputParse, cancellationToken);
             }
         }
 
@@ -261,11 +260,11 @@ namespace ReconNess.Services
             if (Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
             {
                 subdomain.IpAddress = scriptOutput.Ip;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
 
                 if (activateNotification)
                 {
-                    await this.notificationService.SendAsync(NotificationType.IP, new[]
+                    await notificationService.SendAsync(NotificationType.IP, new[]
                     {
                         ("{{domain}}", subdomain.Name),
                         ("{{ip}}", scriptOutput.Ip)
@@ -287,11 +286,11 @@ namespace ReconNess.Services
             if (subdomain.IsAlive != scriptOutput.IsAlive)
             {
                 subdomain.IsAlive = scriptOutput.IsAlive.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
 
                 if (activateNotification && subdomain.IsAlive.Value)
                 {
-                    await this.notificationService.SendAsync(NotificationType.IS_ALIVE, new[]
+                    await notificationService.SendAsync(NotificationType.IS_ALIVE, new[]
                     {
                         ("{{domain}}", subdomain.Name),
                         ("{{isAlive}}", scriptOutput.IsAlive.Value.ToString())
@@ -313,11 +312,11 @@ namespace ReconNess.Services
             if (subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
             {
                 subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
 
                 if (activateNotification && subdomain.HasHttpOpen.Value)
                 {
-                    await this.notificationService.SendAsync(NotificationType.HAS_HTTP_OPEN, new[]
+                    await notificationService.SendAsync(NotificationType.HAS_HTTP_OPEN, new[]
                     {
                         ("{{domain}}", subdomain.Name),
                         ("{{httpOpen}}", scriptOutput.HasHttpOpen.Value.ToString())
@@ -339,11 +338,11 @@ namespace ReconNess.Services
             if (subdomain.Takeover != scriptOutput.Takeover.Value)
             {
                 subdomain.Takeover = scriptOutput.Takeover.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
 
                 if (activateNotification && subdomain.Takeover.Value)
                 {
-                    await this.notificationService.SendAsync(NotificationType.TAKEOVER, new[]
+                    await notificationService.SendAsync(NotificationType.TAKEOVER, new[]
                     {
                         ("{{domain}}", subdomain.Name),
                         ("{{takeover}}", scriptOutput.Takeover.Value.ToString())
@@ -383,11 +382,11 @@ namespace ReconNess.Services
             };
 
             subdomain.Directories.Add(directory);
-            await this.UpdateAsync(subdomain, cancellationToken);
+            await UpdateAsync(subdomain, cancellationToken);
 
             if (activateNotification)
             {
-                await this.notificationService.SendAsync(NotificationType.DIRECTORY, new[]
+                await notificationService.SendAsync(NotificationType.DIRECTORY, new[]
                 {
                     ("{{domain}}", subdomain.Name),
                     ("{{directory}}", httpDirectory)
@@ -419,11 +418,11 @@ namespace ReconNess.Services
             if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
             {
                 subdomain.Services.Add(service);
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
 
                 if (activateNotification)
                 {
-                    await this.notificationService.SendAsync(NotificationType.SERVICE, new[]
+                    await notificationService.SendAsync(NotificationType.SERVICE, new[]
                     {
                         ("{{domain}}", subdomain.Name),
                         ("{{service}}", service.Name),
@@ -449,11 +448,11 @@ namespace ReconNess.Services
                 notes = subdomain.Notes.Notes + "\n" + notes;
             }
 
-            await this.notesService.SaveSubdomainNotesAsync(subdomain, notes, cancellationToken);
+            await notesService.SaveSubdomainNotesAsync(subdomain, notes, cancellationToken);
 
             if (activateNotification)
             {
-                await this.notificationService.SendAsync(NotificationType.NOTE, new[]
+                await notificationService.SendAsync(NotificationType.NOTE, new[]
                 {
                     ("{{domain}}", subdomain.Name),
                     ("{{note}}", scriptOutput.Note)
@@ -474,11 +473,11 @@ namespace ReconNess.Services
             if (!string.IsNullOrEmpty(scriptOutput.Technology) && !scriptOutput.Technology.Equals(subdomain.Technology, StringComparison.OrdinalIgnoreCase))
             {
                 subdomain.Technology = scriptOutput.Technology;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
 
                 if (activateNotification && subdomain.Takeover.Value)
                 {
-                    await this.notificationService.SendAsync(NotificationType.TECHNOLOGY, new[]
+                    await notificationService.SendAsync(NotificationType.TECHNOLOGY, new[]
                     {
                         ("{{domain}}", subdomain.Name),
                         ("{{technology}}", scriptOutput.Technology)
@@ -498,7 +497,7 @@ namespace ReconNess.Services
         {
             if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower(), cancellationToken);
+                var label = await labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower(), cancellationToken);
                 if (label == null)
                 {
                     var random = new Random();
@@ -511,7 +510,7 @@ namespace ReconNess.Services
 
                 subdomain.Labels.Add(label);
 
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
             }
         }
     }

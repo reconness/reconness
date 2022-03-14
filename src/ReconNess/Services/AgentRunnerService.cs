@@ -57,16 +57,16 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async ValueTask<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
         {
-            if ((await this.agentRunnerProvider.RunningCountAsync) == 0)
+            if ((await agentRunnerProvider.RunningCountAsync) == 0)
             {
                 return new List<string>();
             }
 
             var agentsRunning = new List<string>();
 
-            var channels = await this.agentRunnerProvider.RunningChannelsAsync;
+            var channels = await agentRunnerProvider.RunningChannelsAsync;
 
-            var agents = await this.agentService.GetAllAsync(cancellationToken);
+            var agents = await agentService.GetAllAsync(cancellationToken);
             foreach (var agent in agents)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -89,12 +89,12 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-            await this.agentRunnerProvider.InitializesAsync(channel);
+            await agentRunnerProvider.InitializesAsync(channel);
 
             _logger.Info($"Start channel {channel}");
-            await this.agentBackgroundService.StartOnScopeAsync(agentRunner, channel, cancellationToken);
+            await agentBackgroundService.StartOnScopeAsync(agentRunner, channel, cancellationToken);
 
-            await this.agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
+            await agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
             {
                 AgentRunner = agentRunner,
                 Channel = channel,
@@ -125,8 +125,8 @@ namespace ReconNess.Services
 
             var channel = AgentRunnerHelpers.GetChannel(agentRunner);
 
-            await this.StopAgentAsync(channel, cancellationToken);
-            await this.agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, true, false, cancellationToken);
+            await StopAgentAsync(channel, cancellationToken);
+            await agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, true, false, cancellationToken);
         }
 
         /// <summary>
@@ -141,11 +141,11 @@ namespace ReconNess.Services
 
             try
             {
-                if (!(await this.agentRunnerProvider.IsStoppedAsync(channel)))
+                if (!(await agentRunnerProvider.IsStoppedAsync(channel)))
                 {
                     _logger.Info($"Stop channel {channel}");
 
-                    await this.agentRunnerProvider.StopAsync(channel);
+                    await agentRunnerProvider.StopAsync(channel);
                 }
             }
             catch (Exception ex)
@@ -185,15 +185,15 @@ namespace ReconNess.Services
 
             if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunnerType))
             {
-                await this.RunAgenthInEachTargetsAsync(agentRunner, channel, cancellationToken);
+                await RunAgenthInEachTargetsAsync(agentRunner, channel, cancellationToken);
             }
             else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunnerType))
             {
-                await this.RunAgentInEachRootDomainsAsync(agentRunner, channel, cancellationToken);
+                await RunAgentInEachRootDomainsAsync(agentRunner, channel, cancellationToken);
             }
             else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunnerType))
             {
-                await this.RunAgentInEachSubdomainsAsync(agentRunner, channel, cancellationToken);
+                await RunAgentInEachSubdomainsAsync(agentRunner, channel, cancellationToken);
             }
         }
 
@@ -206,10 +206,10 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private async Task RunAgenthInEachTargetsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetAllAsync(cancellationToken);
+            var targets = await targetService.GetAllAsync(cancellationToken);
             if (!targets.Any())
             {
-                await this.agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
+                await agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
                 return;
             }
 
@@ -227,7 +227,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last, allowSkip: true);
+                await RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last, allowSkip: true);
 
                 targetsCount--;
             }
@@ -242,10 +242,10 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private async Task RunAgentInEachRootDomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
-            var rootdomains = await this.rootDomainService.GetAllByCriteriaAsync(r => r.Target == agentRunner.Target, cancellationToken);
+            var rootdomains = await rootDomainService.GetAllByCriteriaAsync(r => r.Target == agentRunner.Target, cancellationToken);
             if (!rootdomains.Any())
             {
-                await this.agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
+                await agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
                 return;
             }
 
@@ -263,7 +263,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last, allowSkip: true);
+                await RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last, allowSkip: true);
 
                 rootdomainsCount--;
             }
@@ -278,10 +278,10 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private async Task RunAgentInEachSubdomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
         {
-            var subdomains = await this.subdomainService.GetSubdomainsAsync(s => s.RootDomain == agentRunner.RootDomain, cancellationToken);
+            var subdomains = await subdomainService.GetSubdomainsAsync(s => s.RootDomain == agentRunner.RootDomain, cancellationToken);
             if (!subdomains.Any())
             {
-                await this.agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
+                await agentBackgroundService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
                 return;
             }
 
@@ -299,7 +299,7 @@ namespace ReconNess.Services
                     Command = agentRunner.Command
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last, allowSkip: true);
+                await RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last, allowSkip: true);
 
                 subdomainsCount--;
             }
@@ -315,13 +315,13 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task RunAgentAsync(AgentRunner agentRunner, string channel, string agentRunnerType, bool last, bool allowSkip)
         {
-            if (await this.agentRunnerProvider.IsStoppedAsync(channel))
+            if (await agentRunnerProvider.IsStoppedAsync(channel))
             {
                 return;
             }
 
             var command = AgentRunnerHelpers.GetCommand(agentRunner);
-            await this.agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
+            await agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
             {
                 AgentRunner = agentRunner,
                 Channel = channel,
@@ -344,7 +344,7 @@ namespace ReconNess.Services
         {
             if (AgentRunnerHelpers.NeedToSkipRun(result.AgentRunner, result.AgentRunnerType))
             {
-                await this.agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"SKIP: {result.Command}", includeTime: true, result.CancellationToken);
+                await agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"SKIP: {result.Command}", includeTime: true, result.CancellationToken);
 
                 return true;
             }
@@ -359,7 +359,7 @@ namespace ReconNess.Services
         {
             _logger.Info($"Start command {result.Command}");
 
-            await this.agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"RUN: {result.Command}", includeTime: true, result.CancellationToken);
+            await agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"RUN: {result.Command}", includeTime: true, result.CancellationToken);
         }
 
         /// <summary>
@@ -368,7 +368,7 @@ namespace ReconNess.Services
         private async Task ParserOutputHandlerAsync(AgentRunnerProviderResult result)
         {
             // Save the Terminal Output Parse 
-            await this.agentBackgroundService.SaveOutputParseOnScopeAsync
+            await agentBackgroundService.SaveOutputParseOnScopeAsync
             (
                 result.AgentRunner,
                 result.AgentRunnerType,
@@ -376,7 +376,7 @@ namespace ReconNess.Services
                 result.CancellationToken
             );
 
-            await this.agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.TerminalLineOutput, includeTime: false, result.CancellationToken);
+            await agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.TerminalLineOutput, includeTime: false, result.CancellationToken);
         }
 
         /// <summary>
@@ -386,12 +386,12 @@ namespace ReconNess.Services
         {
             _logger.Info($"End command {result.Command}");
 
-            await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);
+            await agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);
 
             if (result.Last)
             {
-                await this.StopAgentAsync(result.Channel, result.CancellationToken);
-                await this.agentBackgroundService.DoneOnScopeAsync(result.AgentRunner, result.Channel, false, false, result.CancellationToken);
+                await StopAgentAsync(result.Channel, result.CancellationToken);
+                await agentBackgroundService.DoneOnScopeAsync(result.AgentRunner, result.Channel, false, false, result.CancellationToken);
             }
         }
 
@@ -402,12 +402,12 @@ namespace ReconNess.Services
         {
             _logger.Error(result.Exception, $"Exception running command {result.Command}");
 
-            await this.agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.Exception.Message, includeTime: true, result.CancellationToken);
+            await agentBackgroundService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.Exception.Message, includeTime: true, result.CancellationToken);
 
             if (result.Last)
             {
-                await this.StopAgentAsync(result.Channel, result.CancellationToken);
-                await this.agentBackgroundService.DoneOnScopeAsync(result.AgentRunner, result.Channel, false, true, result.CancellationToken);
+                await StopAgentAsync(result.Channel, result.CancellationToken);
+                await agentBackgroundService.DoneOnScopeAsync(result.AgentRunner, result.Channel, false, true, result.CancellationToken);
             }
         }
     }

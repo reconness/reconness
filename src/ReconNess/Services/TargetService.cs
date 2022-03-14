@@ -41,7 +41,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -60,7 +60,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -84,7 +84,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                         .Include(t => t.RootDomains)
                        .SingleAsync(cancellationToken);
         }
@@ -94,7 +94,7 @@ namespace ReconNess.Services
         {
             target.RootDomains.Add(newRootdomain);
 
-            await this.UpdateAsync(target, cancellationToken);
+            await UpdateAsync(target, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -105,12 +105,12 @@ namespace ReconNess.Services
             if (string.IsNullOrWhiteSpace(target.AgentsRanBefore))
             {
                 target.AgentsRanBefore = agentName;
-                await this.UpdateAsync(target, cancellationToken);
+                await UpdateAsync(target, cancellationToken);
             }
             else if (!target.AgentsRanBefore.Contains(agentName))
             {
                 target.AgentsRanBefore = string.Join(", ", target.AgentsRanBefore, agentName);
-                await this.UpdateAsync(target, cancellationToken);
+                await UpdateAsync(target, cancellationToken);
             }
         }
 
@@ -120,12 +120,12 @@ namespace ReconNess.Services
             cancellationToken.ThrowIfCancellationRequested();
 
             RootDomain rootDomain = default;
-            if (await this.NeedAddNewRootDomain(target, terminalOutputParse.RootDomain, cancellationToken))
+            if (await NeedAddNewRootDomain(target, terminalOutputParse.RootDomain, cancellationToken))
             {
-                rootDomain = await this.AddTargetNewRootDomainAsync(target, terminalOutputParse.RootDomain, cancellationToken);
+                rootDomain = await AddTargetNewRootDomainAsync(target, terminalOutputParse.RootDomain, cancellationToken);
                 if (activateNotification)
                 {
-                    await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
+                    await notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {
                         ("{{rootDomain}}", rootDomain.Name)
                     }, cancellationToken);
@@ -134,7 +134,7 @@ namespace ReconNess.Services
 
             if (rootDomain != null)
             {
-                await this.rootDomainService.SaveTerminalOutputParseAsync(rootDomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
+                await rootDomainService.SaveTerminalOutputParseAsync(rootDomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
             }
         }
 
@@ -152,7 +152,7 @@ namespace ReconNess.Services
                 return false;
             }
 
-            var existRootDomain = await this.rootDomainService.AnyAsync(r => r.Target == target && r.Name == rootDomain, cancellationToken);
+            var existRootDomain = await rootDomainService.AnyAsync(r => r.Target == target && r.Name == rootDomain, cancellationToken);
             return !existRootDomain;
         }
 
@@ -171,7 +171,7 @@ namespace ReconNess.Services
                 Target = target
             };
 
-            return this.rootDomainService.AddAsync(newRootDomain, cancellationToken);
+            return rootDomainService.AddAsync(newRootDomain, cancellationToken);
         }
     }
 }

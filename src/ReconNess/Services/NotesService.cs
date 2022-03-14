@@ -35,13 +35,13 @@ namespace ReconNess.Services
                     RootDomain = rootDomain
                 };
 
-                await this.AddAsync(notes, cancellationToken);
+                await AddAsync(notes, cancellationToken);
             }
             else
             {
                 notes.Notes = notesContent;
 
-                await this.UpdateAsync(notes, cancellationToken);
+                await UpdateAsync(notes, cancellationToken);
             }
         }
 
@@ -57,13 +57,13 @@ namespace ReconNess.Services
                     Subdomain = subdomain
                 };
 
-                await this.AddAsync(notes, cancellationToken);
+                await AddAsync(notes, cancellationToken);
             }
             else
             {
                 notes.Notes = notesContent;
 
-                await this.UpdateAsync(notes, cancellationToken);
+                await UpdateAsync(notes, cancellationToken);
             }
         }
     }

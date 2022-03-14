@@ -25,7 +25,7 @@ namespace ReconNess.Web.Dtos
 
         public bool? IsAlive { get; set; }
 
-        public string Screenshot{ get; set; }
+        public string Screenshot { get; set; }
 
         public string Technology { get; set; }
 

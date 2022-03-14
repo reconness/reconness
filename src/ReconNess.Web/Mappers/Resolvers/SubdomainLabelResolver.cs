@@ -22,7 +22,7 @@ namespace ReconNess.Web.Mappers.Resolvers
             {
                 source.Labels.ForEach(l =>
                 {
-                    var label = this.labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
+                    var label = labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
                     if (label != null)
                     {
                         labels.Add(label);

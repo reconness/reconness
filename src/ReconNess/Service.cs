@@ -25,8 +25,8 @@
         /// <param name="unitOfWork">The implementation of Unit Of Work pattern <see cref="IUnitOfWork" /></param>
         public Service(IUnitOfWork unitOfWork)
         {
-            this.UnitOfWork = unitOfWork;
-            this.repository = this.UnitOfWork.Repository<TEntity>();
+            UnitOfWork = unitOfWork;
+            repository = UnitOfWork.Repository<TEntity>();
         }
 
         /// <inheritdoc/>
@@ -37,7 +37,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.FindAsync(id, cancellationToken);
+            return repository.FindAsync(id, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -45,7 +45,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.FindByCriteriaAsync(predicate, cancellationToken);
+            return repository.FindByCriteriaAsync(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -53,7 +53,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetAllAsync(cancellationToken);
+            return repository.GetAllAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -61,13 +61,13 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.AnyAsync(predicate, cancellationToken);
+            return repository.AnyAsync(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IQueryable<TEntity> GetAllQueryable()
         {
-            return this.repository.GetAllQueryable();
+            return repository.GetAllQueryable();
         }
 
         /// <inheritdoc/>
@@ -75,13 +75,13 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetAllByCriteriaAsync(predicate, cancellationToken);
+            return repository.GetAllByCriteriaAsync(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate)
         {
-            return this.repository.GetAllQueryableByCriteria(predicate);
+            return repository.GetAllQueryableByCriteria(predicate);
         }
 
         /// <inheritdoc/>
@@ -89,7 +89,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.repository.GetByCriteriaAsync(predicate, cancellationToken);
+            return repository.GetByCriteriaAsync(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -97,8 +97,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Add(entity, cancellationToken);
-            this.UnitOfWork.Commit(cancellationToken);
+            repository.Add(entity, cancellationToken);
+            UnitOfWork.Commit(cancellationToken);
 
             return entity;
         }
@@ -108,8 +108,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.AddRange(entities, cancellationToken);
-            this.UnitOfWork.Commit(cancellationToken);
+            repository.AddRange(entities, cancellationToken);
+            UnitOfWork.Commit(cancellationToken);
 
             return entities;
         }
@@ -119,8 +119,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Add(entity, cancellationToken);
-            await this.UnitOfWork.CommitAsync(cancellationToken);
+            repository.Add(entity, cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
 
             return entity;
         }
@@ -130,8 +130,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.AddRange(entities, cancellationToken);
-            await this.UnitOfWork.CommitAsync(cancellationToken);
+            repository.AddRange(entities, cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
 
             return entities;
         }
@@ -141,8 +141,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Update(entity, cancellationToken);
-            this.UnitOfWork.Commit(cancellationToken);
+            repository.Update(entity, cancellationToken);
+            UnitOfWork.Commit(cancellationToken);
 
             return entity;
         }
@@ -152,8 +152,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.UpdateRange(entities, cancellationToken);
-            this.UnitOfWork.Commit(cancellationToken);
+            repository.UpdateRange(entities, cancellationToken);
+            UnitOfWork.Commit(cancellationToken);
 
             return entities;
         }
@@ -163,8 +163,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Update(entity, cancellationToken);
-            await this.UnitOfWork.CommitAsync(cancellationToken);
+            repository.Update(entity, cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
 
             return entity;
         }
@@ -174,8 +174,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.UpdateRange(entities, cancellationToken);
-            await this.UnitOfWork.CommitAsync(cancellationToken);
+            repository.UpdateRange(entities, cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
 
             return entities;
         }
@@ -185,8 +185,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Delete(entity, cancellationToken);
-            this.UnitOfWork.Commit(cancellationToken);
+            repository.Delete(entity, cancellationToken);
+            UnitOfWork.Commit(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -194,8 +194,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.DeleteRange(entities, cancellationToken);
-            this.UnitOfWork.Commit(cancellationToken);
+            repository.DeleteRange(entities, cancellationToken);
+            UnitOfWork.Commit(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -203,8 +203,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.Delete(entity, cancellationToken);
-            await this.UnitOfWork.CommitAsync(cancellationToken);
+            repository.Delete(entity, cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -212,8 +212,8 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.repository.DeleteRange(entities, cancellationToken);
-            await this.UnitOfWork.CommitAsync(cancellationToken);
+            repository.DeleteRange(entities, cancellationToken);
+            await UnitOfWork.CommitAsync(cancellationToken);
         }
     }
 }

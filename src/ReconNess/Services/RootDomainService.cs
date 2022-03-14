@@ -41,7 +41,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<RootDomain> GetRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria)
+            return await GetAllQueryableByCriteria(criteria)
                     .Select(rootDomain => new RootDomain
                     {
                         Id = rootDomain.Id,
@@ -55,7 +55,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<RootDomain> GetRootDomainWithSubdomainsAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria)
+            return await GetAllQueryableByCriteria(criteria)
                         .Include(r => r.Subdomains)
                     .SingleOrDefaultAsync(cancellationToken);
         }
@@ -63,7 +63,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria)
+            return await GetAllQueryableByCriteria(criteria)
                     .Select(rootDomain => new RootDomain
                     {
                         Name = rootDomain.Name,
@@ -122,7 +122,7 @@ namespace ReconNess.Services
         {
             rootDomain.Subdomains.Clear();
 
-            await this.UpdateAsync(rootDomain, cancellationToken);
+            await UpdateAsync(rootDomain, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -148,7 +148,7 @@ namespace ReconNess.Services
                 }
             }
 
-            await this.UpdateAsync(rootDomain, cancellationToken);
+            await UpdateAsync(rootDomain, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -181,12 +181,12 @@ namespace ReconNess.Services
             if (string.IsNullOrWhiteSpace(rootDomain.AgentsRanBefore))
             {
                 rootDomain.AgentsRanBefore = agentName;
-                await this.UpdateAsync(rootDomain, cancellationToken);
+                await UpdateAsync(rootDomain, cancellationToken);
             }
             else if (!rootDomain.AgentsRanBefore.Contains(agentName))
             {
                 rootDomain.AgentsRanBefore = string.Join(", ", rootDomain.AgentsRanBefore, agentName);
-                await this.UpdateAsync(rootDomain, cancellationToken);
+                await UpdateAsync(rootDomain, cancellationToken);
             }
         }
 
@@ -204,16 +204,16 @@ namespace ReconNess.Services
                     Target = rootDomain.Target
                 };
 
-                await this.AddAsync(rootDomain, cancellationToken);
+                await AddAsync(rootDomain, cancellationToken);
             }
 
             Subdomain subdomain = default;
-            if (await this.NeedAddNewSubdomain(rootDomain, terminalOutputParse.Subdomain, cancellationToken))
+            if (await NeedAddNewSubdomain(rootDomain, terminalOutputParse.Subdomain, cancellationToken))
             {
-                subdomain = await this.AddRootDomainNewSubdomainAsync(rootDomain, terminalOutputParse.Subdomain, agentName, cancellationToken);
+                subdomain = await AddRootDomainNewSubdomainAsync(rootDomain, terminalOutputParse.Subdomain, agentName, cancellationToken);
                 if (activateNotification)
                 {
-                    await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
+                    await notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
                     {
                         ("{{domain}}", subdomain.Name)
                     }, cancellationToken);
@@ -222,7 +222,7 @@ namespace ReconNess.Services
 
             if (subdomain != null)
             {
-                await this.subdomainService.SaveTerminalOutputParseAsync(subdomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
+                await subdomainService.SaveTerminalOutputParseAsync(subdomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
             }
         }
 
@@ -240,7 +240,7 @@ namespace ReconNess.Services
                 return false;
             }
 
-            var existSubdomain = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
+            var existSubdomain = await subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
             return !existSubdomain;
         }
 
@@ -261,7 +261,7 @@ namespace ReconNess.Services
                 RootDomain = rootDomain
             };
 
-            return this.subdomainService.AddAsync(newSubdomain, cancellationToken);
+            return subdomainService.AddAsync(newSubdomain, cancellationToken);
         }
 
         /// <summary>

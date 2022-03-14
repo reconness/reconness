@@ -36,23 +36,23 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (this.repositories == null)
+            if (repositories == null)
             {
-                this.repositories = new Hashtable();
+                repositories = new Hashtable();
             }
 
             var type = typeof(TEntity).Name;
 
-            if (this.repositories.ContainsKey(type))
+            if (repositories.ContainsKey(type))
             {
-                return (IRepository<TEntity>)this.repositories[type];
+                return (IRepository<TEntity>)repositories[type];
             }
 
             var repositoryType = typeof(Repository<TEntity>);
 
-            this.repositories.Add(type, Activator.CreateInstance(repositoryType, this.context));
+            repositories.Add(type, Activator.CreateInstance(repositoryType, context));
 
-            return (IRepository<TEntity>)this.repositories[type];
+            return (IRepository<TEntity>)repositories[type];
         }
 
         /// <inheritdoc/>
@@ -60,7 +60,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.BeginTransaction(cancellationToken);
+            context.BeginTransaction(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -68,7 +68,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.Commit(cancellationToken);
+            return context.Commit(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -76,7 +76,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.context.CommitAsync(cancellationToken);
+            return context.CommitAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -84,7 +84,7 @@
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.context.Rollback(cancellationToken);
+            context.Rollback(cancellationToken);
         }
     }
 }
