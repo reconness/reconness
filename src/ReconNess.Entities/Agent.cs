@@ -17,6 +17,8 @@ namespace ReconNess.Entities
 
         public DateTime? LastRun { get; set; }
 
+        public string ConfigurationFileName { get; set; }
+
         public virtual string AgentType { get; set; }
 
         public virtual AgentTrigger AgentTrigger { get; set; }

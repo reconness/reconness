@@ -22,13 +22,13 @@ namespace ReconNess.Core.Providers
         /// <param name="logFileSelected">The log file</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The log file content</returns>
-        Task<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken);
+        ValueTask<string> ReadLogfileAsync(string logFileSelected, CancellationToken cancellationToken);
 
         /// <summary>
         /// Clean the log file
         /// </summary>
         /// <param name="logFileSelected">The log file</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        Task CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken);
+        ValueTask CleanLogfileAsync(string logFileSelected, CancellationToken cancellationToken);
     }
 }

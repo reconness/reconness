@@ -36,6 +36,8 @@
                                 <router-link class="dropdown-item" to="/agents/debug">Debug Agent</router-link>
                                 <router-link class="dropdown-item" to="/agents/install">Install Agents</router-link>
                                 <div class="dropdown-divider"></div>
+                                <router-link class="dropdown-item" to="/agents/wordlists">Wordlists</router-link>
+                                <div class="dropdown-divider"></div>
                                 <div v-for="a in agents" v-bind:key="a.id">
                                     <router-link class="dropdown-item" :to="{name: 'agentEdit', params: { agentName: a.name }}">{{ a.name }}</router-link>
                                 </div>
@@ -46,6 +48,7 @@
                                 Account
                             </a>
                             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <router-link class="dropdown-item" to="/users">Users</router-link>
                                 <router-link class="dropdown-item" to="/notifications">Notifications</router-link>
                                 <router-link class="dropdown-item" to="/logs">Logs</router-link>
                                 <div class="dropdown-divider"></div>

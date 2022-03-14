@@ -18,10 +18,6 @@
 
         public string Service { get; set; }
 
-        public string HttpScreenshotFilePath { get; set; }
-
-        public string HttpsScreenshotFilePath { get; set; }
-
         public string HttpDirectory { get; set; }
 
         public string HttpDirectoryMethod { get; set; }

@@ -84,5 +84,31 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
         Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Read the configuration file
+        /// </summary>
+        /// <param name="configurationFileName">The configuration file name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task<string> ReadConfigurationFileAsync(string configurationFileName, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Update configuration file
+        /// </summary>
+        /// <param name="agent">The agent</param>
+        /// <param name="configurationContent">The new content</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task UpdateConfigurationFileAsync(Agent agent, string configurationContent, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Delete configuration file
+        /// </summary>
+        /// <param name="agent">The agent</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task DeleteConfigurationFileAsync(Agent agent, CancellationToken cancellationToken);
+        
     }
 }

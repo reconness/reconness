@@ -18,8 +18,7 @@ namespace ReconNess.Core.Providers
         /// <summary>
         /// Obtain the current ReconNess version
         /// </summary>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A Task</returns>
-        Task<string> GetCurrentVersionAsync(CancellationToken cancellationToken);
+        /// <returns>The current ReconNess version</returns>
+        string GetCurrentVersion();
     }
 }

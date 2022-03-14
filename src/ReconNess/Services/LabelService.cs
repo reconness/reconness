@@ -26,14 +26,12 @@ namespace ReconNess.Services
         {
         }
 
-        /// <summary>
-        /// <see cref="ILabelService.GetLabelsAsync(ICollection{SubdomainLabel}, List{string}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ICollection<Label>> GetLabelsAsync(ICollection<Label> myLabels, List<string> newLabels, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var myLabelsName = this.GetIntersectionLabelsName(myLabels, newLabels);
+            var myLabelsName = GetIntersectionLabelsName(myLabels, newLabels);
             foreach (var newLabel in newLabels)
             {
                 if (myLabelsName.Contains(newLabel))
@@ -57,7 +55,7 @@ namespace ReconNess.Services
         /// <param name="myLabels">The list of my Labels</param>
         /// <param name="newLabels">The list of string Labels</param>
         /// <returns>The names of the categorias that interset the old and the new Labels</returns>
-        private List<string> GetIntersectionLabelsName(ICollection<Label> myLabels, List<string> newLabels)
+        private static List<string> GetIntersectionLabelsName(ICollection<Label> myLabels, List<string> newLabels)
         {
             var myLabelsName = myLabels.Select(c => c.Name).ToList();
             foreach (var myLabelName in myLabelsName)
@@ -77,7 +75,7 @@ namespace ReconNess.Services
         /// <param name="newLabel">The new labels assign to the subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Label</returns>
-        private async Task<Label> GetNewOrExistLabel(string newLabel, CancellationToken cancellationToken)
+        private async ValueTask<Label> GetNewOrExistLabel(string newLabel, CancellationToken cancellationToken)
         {
             var label = await this.GetByCriteriaAsync(c => c.Name == newLabel, cancellationToken);
             if (label == null)

@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 namespace ReconNess.Web.Controllers
 {
     [Authorize]
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class RootDomainsController : ControllerBase
@@ -38,8 +39,26 @@ namespace ReconNess.Web.Controllers
             this.rootDomainService = rootDomainService;
         }
 
-        // GET api/rootdomains/{targetName}/{rootDomainName}
+        /// <summary>
+        /// Obtain a rootdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/rootdomains/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A rootdomain</returns>
+        /// <response code="200">Returns a rootdomain</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpGet("{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
@@ -58,8 +77,27 @@ namespace ReconNess.Web.Controllers
             return Ok(this.mapper.Map<RootDomain, RootDomainDto>(rootDomain));
         }
 
-        // DELETE api/rootdomains/deleteSubdomians/{targetName}/{rootDomainName}
+        /// <summary>
+        /// Delete all the subdomains belong to the rootdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/rootdomains/deleteSubdomians/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("deleteSubdomians/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DeleteSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
@@ -84,8 +122,28 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // GET api/rootdomains/export/{targetName}/{rootDomainName}
+        /// <summary>
+        /// Export the rootdomian with all the subdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/rootdomains/export/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The json file with the rootdomain and the subdomains data</returns>
+        /// <response code="200">Returns the json file with the rootdomain and the subdomains data</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("export/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
@@ -112,8 +170,28 @@ namespace ReconNess.Web.Controllers
             return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }
 
-        // POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
+        /// <summary>
+        /// Upload a list of subdomains to the rootdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/rootdomains/uploadSubdomains/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="file">The file with all the subdomains to be uploaded</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("uploadSubdomains/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
@@ -141,17 +219,37 @@ namespace ReconNess.Web.Controllers
             var path = Path.GetTempFileName();
             using (var stream = new FileStream(path, FileMode.Create))
             {
-                await file.CopyToAsync(stream);
+                await file.CopyToAsync(stream, cancellationToken);
             }
 
             var subdomains = System.IO.File.ReadAllLines(path).ToList();
-            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains);
+            await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains, cancellationToken);
 
             return NoContent();
         }
 
-        // GET api/rootdomains/exportSubdomains/{targetName}/{rootDomainName}
+        /// <summary>
+        /// Download all the subdomain to a csv file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/rootdomains/exportSubdomains/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The csv file with all the subdomains beloing to the rootdomain</returns>
+        /// <response code="200">Returns the csv file with all the subdomains beloing to the rootdomain</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("exportSubdomains/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> DonwloadSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))

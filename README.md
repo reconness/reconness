@@ -1,7 +1,7 @@
 # ReconNess Web App
 
 [![Build Status](https://dev.azure.com/reconness/reconness/_apis/build/status/reconness.reconness?branchName=master)](https://dev.azure.com/reconness/reconness/_build/latest?definitionId=1&branchName=master)
-
+<a href="https://twitter.com/reconness"><img src="https://img.shields.io/twitter/follow/reconness?logo=twitter&??style=flat-square&logo=appveyor"></a>
 <p align="center">
   <img width="300" height="300" src="logo.png">
 </p>
@@ -28,9 +28,29 @@ NodeJs Current and LTS Releases
 
 [https://nodejs.org/download/release/](https://nodejs.org/download/release/)
 
-DotNet 5
+DotNet 6
 
-[https://dotnet.microsoft.com/download/dotnet/5.0](https://dotnet.microsoft.com/download/dotnet/5.0)
+[https://dotnet.microsoft.com/download/dotnet/6.0](https://dotnet.microsoft.com/download/dotnet/6.0)
+
+We are working in the **NEW UI**, you can check here the progress
+[http://134.209.46.128/](http://134.209.46.128/)
+
+## Work in Progress (!!!!!NEW UI!!!!)
+
+### Home
+![image](https://user-images.githubusercontent.com/1503645/111404842-d9660600-86a5-11eb-9651-2ac0881c2616.png)
+
+### Targets
+![image](https://user-images.githubusercontent.com/1503645/111404929-ff8ba600-86a5-11eb-9965-d3c80080feac.png)
+
+![image](https://user-images.githubusercontent.com/1503645/111404978-1205df80-86a6-11eb-8db1-5a98f81a0532.png)
+
+![image](https://user-images.githubusercontent.com/1503645/111405002-1df1a180-86a6-11eb-8e09-22c370d43ed4.png)
+
+### Agents
+![image](https://user-images.githubusercontent.com/1503645/111405052-31047180-86a6-11eb-8c00-09e2c343aedc.png)
+
+![image](https://user-images.githubusercontent.com/1503645/111405107-47aac880-86a6-11eb-9513-4d2c01453735.png)
 
 ## Join us
 

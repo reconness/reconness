@@ -33,6 +33,6 @@ namespace ReconNess.Core.Services
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A list of agents name that still are running</returns>        
-        Task<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        ValueTask<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
     }
 }

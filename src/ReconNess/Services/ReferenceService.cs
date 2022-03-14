@@ -26,12 +26,10 @@ namespace ReconNess.Services
         {
         }
 
-        /// <summary>
-        /// <see cref="IReferenceService.GetReferencesAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<Reference>> GetReferencesAsync(CancellationToken cancellationToken)
         {
-            var references = await this.GetAllQueryable(cancellationToken)
+            var references = await this.GetAllQueryable()
                     .OrderBy(r => r.Categories)
                     .AsNoTracking()
                 .ToListAsync(cancellationToken);
@@ -39,12 +37,10 @@ namespace ReconNess.Services
             return references;
         }
 
-        /// <summary>
-        /// <see cref="IReferenceService.GetAllCategoriesAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken)
         {
-            var entities = await this.GetAllQueryable(cancellationToken)
+            var entities = await this.GetAllQueryable()
                 .Select(r => r.Categories)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

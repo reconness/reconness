@@ -1,3 +1,57 @@
+
+## [1.8.0] - 2021-12-13
+
+- Migrate to DotNet 6
+- Update packages
+
+## [1.7.4] - 2021-09-29
+
+- Add https by default
+- Add agentName
+- Refactor and improve performance using ValueTask instead Task
+- Validate if the subdomain exist before add a new one
+- Update packages
+
+## [1.7.3] - 2021-09-11
+
+- Fix axios
+- Update packages
+
+## [1.7.2] - 2021-06-16
+
+- Add screenshots folder inside /app/Content following the path target/rootdomain/subdomain by subdomain screenshot
+- Update packages
+
+## [1.7.1] - 2021-04-16
+
+- Add Agents configurations
+- Add Wordlist for subdomain enumeration
+- Add Wordlist for directory enumeration
+- Add Wordlist for DNS resolvers
+- Update packages
+
+## [1.7.0] - 2021-04-17
+
+- Add multiple users feature, now we can have more than one user using the platform
+- Add Owner user, the user that we use by default in the Dockerfile in the login
+- Add Admin and Member users
+- Change the Owner user to other Admin user
+- Update packages
+
+## [1.6.5] - 2021-02-19
+
+### Added
+
+- Add Swagger
+- Update packages
+
+## [1.6.4] - 2021-02-02
+
+### Added
+
+- Fix Dockerfile
+- Update packages
+
 ## [1.6.3] - 2020-11-18
 
 ### Added

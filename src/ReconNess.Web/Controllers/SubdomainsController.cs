@@ -1,8 +1,10 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ using System.Threading.Tasks;
 namespace ReconNess.Web.Controllers
 {
     [Authorize]
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class SubdomainsController : ControllerBase
@@ -45,8 +48,27 @@ namespace ReconNess.Web.Controllers
             this.labelService = labelService;
         }
 
-        // GET api/subdomains/{target}/{rootDomainName}/{subdomain}
+        /// <summary>
+        /// Obtain a subdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/subdomains/{target}/{rootDomainName}/{subdomain}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainName">The subdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A subdomain</returns>
+        /// <response code="200">Returns a subdomain</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpGet("{targetName}/{rootDomainName}/{subdomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
@@ -75,8 +97,34 @@ namespace ReconNess.Web.Controllers
             return Ok(this.mapper.Map<Subdomain, SubdomainDto>(subdomain));
         }
 
-        // GET api/subdomains/{target}/{rootDomainName}
+        /// <summary>
+        /// Obtain the list of subdomains paginate.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/subdomains/{target}/{rootDomainName}
+        ///     {
+        ///         "query": "443",
+        ///         "limit": 10,
+        ///         "ascending": 1,
+        ///         "page", 1,
+        ///         "byColumn": 1
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainQueryDto">The subdomain query dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The list of subdomains paginate</returns>
+        /// <response code="200">Returns the list of subdomains paginate</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpGet("GetPaginate/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetPaginate(string targetName, string rootDomainName, [FromQuery] SubdomainQueryDto subdomainQueryDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
@@ -99,19 +147,41 @@ namespace ReconNess.Web.Controllers
             var subdomainResult = await this.subdomainService.GetPaginateAsync(rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
 
             var subdomains = this.mapper.Map<IList<Subdomain>, IList<SubdomainDto>>(subdomainResult.Results);
-
-            return Ok(new { Count = subdomainResult.RowCount, Data = subdomains });
-        }
-
-        // POST api/subdomains
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
+            
+            foreach (var subdomain in subdomains)
             {
-                return BadRequest();
+                subdomain.Screenshot = SubdomainHelpers.GetBase64Image(targetName, rootDomainName, subdomain.Name);
             }
 
+            return Ok(new { Count = subdomainResult.RowCount, Data = subdomains });
+        }       
+
+        /// <summary>
+        /// Save a new subdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/subdomains
+        ///     {
+        ///         "name": "www.xxxxx.com",
+        ///         "target": "xxxxx",
+        ///         "rootDomain": "xxxxx.com"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="subdomainDto">The subdomain dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A new subdomain</returns>
+        /// <response code="200">Returns a new subdomain</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
+        {
             var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
@@ -124,7 +194,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name);
+            var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name, cancellationToken);
             if (subdomainExist)
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");
@@ -139,15 +209,42 @@ namespace ReconNess.Web.Controllers
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
         }
 
-        // PUT api/subdomains/{id}
+        /// <summary>
+        /// Update a subdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/subdomains/{id}
+        ///     {
+        ///         "name": "updated.xxxxx.com",
+        ///         "isMainPortal": true,
+        ///         "labels":
+        ///         [
+        ///             {
+        ///                 "name": "bug"
+        ///             },
+        ///             {
+        ///                 "name": "bounty"
+        ///             }
+        ///         ]
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="id">The subdomain id</param>
+        /// <param name="subdomainDto">The subdomain dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
@@ -165,8 +262,28 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // PUT api/subdomains/label/{id}
+        /// <summary>
+        /// Add a new label to the subdomian.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/subdomains/label/{id}
+        ///     {
+        ///         "label": "newlabel"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="id">The subdomain id</param>
+        /// <param name="subdomainLabelDto">The subdomain label dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("label/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
             var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
@@ -180,8 +297,24 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // DELETE api/subdomains/{id}
+        /// <summary>
+        /// Delete a subdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/subdomains/{id}
+        ///
+        /// </remarks>
+        /// <param name="id">The subdomain id</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             var subdomain = await this.subdomainService.GetByCriteriaAsync(a => a.Id == id, cancellationToken);

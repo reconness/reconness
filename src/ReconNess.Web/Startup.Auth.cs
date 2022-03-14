@@ -3,9 +3,13 @@ namespace ReconNess.Web
 {
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
+    using ReconNess.Data.Npgsql;
+    using ReconNess.Entities;
     using ReconNess.Web.Auth;
     using System;
     using System.Text;
@@ -19,8 +23,42 @@ namespace ReconNess.Web
         /// 
         /// </summary>
         /// <param name="services"></param>
-        private void ConfigureAuth(IServiceCollection services, IWebHostEnvironment env)
+        /// <param name="env"></param>
+        /// <param name="connectionString"></param>
+        private void ConfigureAuth(IServiceCollection services, IWebHostEnvironment env, string connectionString)
         {
+            services.AddDbContext<ReconNessContext>
+            (
+                options => options
+                    .UseNpgsql(connectionString)
+                    .LogTo(Console.WriteLine)
+            );
+
+            services.AddIdentity<User, Role>()
+               .AddEntityFrameworkStores<ReconNessContext>()
+               .AddSignInManager()
+               .AddDefaultTokenProviders();
+
+            services.Configure<IdentityOptions>(options =>
+            {
+                // Password settings.
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequiredLength = 6;
+
+                // Lockout settings.
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.AllowedForNewUsers = true;
+
+                // User settings.
+                options.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+                options.User.RequireUniqueEmail = true;
+            });
+
             // jwt wire up
             // Get options from app settings
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
@@ -32,7 +70,7 @@ namespace ReconNess.Web
                             Environment.GetEnvironmentVariable("SecurityKey", EnvironmentVariableTarget.User);
             }
 
-            SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+            SymmetricSecurityKey _signingKey = new(Encoding.ASCII.GetBytes(secretKey));
 
             // Configure JwtIssuerOptions
             services.Configure<JwtIssuerOptions>(options =>

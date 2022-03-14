@@ -8,14 +8,18 @@ services:
       dockerfile: Dockerfile
     ports:
       - '80:5000'
+      - '443:5001'
     depends_on:
       - 'postgres'
       - 'rabbitmq'
+    volumes:
+      - shared-folder-volume:/app/Content
     networks:
       - reconness-network
     environment:
       - ReconnessUserName=reconness               # login username
       - ReconnessPassword=reconness               # login password
+      - ReconnessEmail=xxxx@youremail.com         # login email
       - PostgresUser=reconness                    # postgres userName
       - PostgresPassword=reconness                # postgres password
       - PostgresDb=reconness                      # postgres database
@@ -58,6 +62,7 @@ services:
 
 volumes:
     reconness-postgresql-volume:
+    shared-folder-volume:
 
 networks:
     reconness-network:

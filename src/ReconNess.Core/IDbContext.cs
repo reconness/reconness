@@ -80,17 +80,15 @@
         /// <summary>
         /// Obtain a list query of async generic Entities
         /// </summary>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A list query of async generic Entities</returns>
-        IQueryable<TEntity> ToQueryable<TEntity>(CancellationToken cancellationToken = default) where TEntity : class;
+        IQueryable<TEntity> ToQueryable<TEntity>() where TEntity : class;
 
         /// <summary>
         /// Obtain a list query of async generic Entities by criteria
         /// </summary>
         /// <param name="predicate">The criteria</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A list query of async generic Entities</returns>
-        IQueryable<TEntity> ToQueryableByCriteria<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class;
+        IQueryable<TEntity> ToQueryableByCriteria<TEntity>(Expression<Func<TEntity, bool>> predicate) where TEntity : class;
 
         /// <summary>
         /// Obtain first or something async generic Entity

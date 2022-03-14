@@ -23,9 +23,7 @@ namespace ReconNess.Services
         {
         }
 
-        /// <summary>
-        /// <see cref="INotesService.SaveRootdomainNotesAsync(RootDomain, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveRootdomainNotesAsync(RootDomain rootDomain, string notesContent, CancellationToken cancellationToken = default)
         {
             var notes = rootDomain.Notes;
@@ -47,9 +45,7 @@ namespace ReconNess.Services
             }
         }
 
-        /// <summary>
-        /// <see cref="INotesService.SaveSubdomainNotesAsync(Subdomain, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task SaveSubdomainNotesAsync(Subdomain subdomain, string notesContent, CancellationToken cancellationToken = default)
         {
             var notes = subdomain.Notes;

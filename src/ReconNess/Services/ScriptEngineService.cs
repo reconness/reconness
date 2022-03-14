@@ -17,9 +17,7 @@ namespace ReconNess.Services
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        /// <summary>
-        /// <see cref="IScriptEngineService.TerminalOutputParseAsync(string, string, int, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ScriptOutput> TerminalOutputParseAsync(string script, string lineInput, int lineInputCount, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -31,7 +29,7 @@ namespace ReconNess.Services
                     Assembly.GetAssembly(typeof(ScriptOutput)),
                     Assembly.GetAssembly(typeof(Exception)),
                     Assembly.GetAssembly(typeof(System.Text.RegularExpressions.Regex)))
-                , globals: globals);
+                , globals: globals, cancellationToken: cancellationToken);
         }
     }
 

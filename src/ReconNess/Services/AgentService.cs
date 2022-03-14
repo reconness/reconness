@@ -9,8 +9,10 @@ using ReconNess.Entities;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -41,12 +43,10 @@ namespace ReconNess.Services
             this.authProvider = authProvider;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentsNoTrackingAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
         {
-            var result = this.GetAllQueryable(cancellationToken)
+            var result = this.GetAllQueryable()
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -67,12 +67,10 @@ namespace ReconNess.Services
                     .ToListAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentNoTrackingAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -82,6 +80,7 @@ namespace ReconNess.Services
                         Command = agent.Command,
                         AgentType = agent.AgentType,
                         AgentTrigger = agent.AgentTrigger,
+                        ConfigurationFileName = agent.ConfigurationFileName,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
@@ -89,35 +88,29 @@ namespace ReconNess.Services
                         .ToList()
                     })
                     .AsNoTracking()
-                    .SingleOrDefaultAsync();
+                    .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
                     .Include(a => a.AgentHistories)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetAgentToRunAsync(Expression{Func{Agent, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria, cancellationToken)
+            return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
-                .SingleOrDefaultAsync();
+                .SingleOrDefaultAsync(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetMarketplaceAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
@@ -129,9 +122,7 @@ namespace ReconNess.Services
             return agentMarketplaces.Agents;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.GetScriptAsync(string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
             try
@@ -151,17 +142,13 @@ namespace ReconNess.Services
             return string.Empty;
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.DebugAsync(string, string, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
-            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0);
+            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.AddAgentHistoryAsync(Agent, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
         {
             agent.AgentHistories = new List<AgentHistory>
@@ -173,12 +160,10 @@ namespace ReconNess.Services
                 }
             };
 
-            return await this.AddAsync(agent);
+            return await this.AddAsync(agent, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IAgentService.UpdateAgentAsync(Agent, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
         {
             if (agent.AgentHistories == null)
@@ -192,7 +177,61 @@ namespace ReconNess.Services
                 ChangeType = "Agent Updated"
             });
 
-            await this.UpdateAsync(agent);
+            await this.UpdateAsync(agent, cancellationToken);
         }
+
+        /// <inheritdoc/>
+        public async Task<string> ReadConfigurationFileAsync(string configurationFileName, CancellationToken cancellationToken)
+        {
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                configurationFileName = configurationFileName.Replace(c.ToString(), "");
+            }
+
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var path = Path.Combine(configPath, configurationFileName);
+            if (path.StartsWith(configPath))
+            {
+                using var fs = File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var bs = new BufferedStream(fs);
+                using var sr = new StreamReader(bs);
+
+                return await sr.ReadToEndAsync();
+            }
+            else
+            {
+                _logger.Warn($"Invalid file path {path}");
+            }
+
+            return string.Empty;
+        }
+
+        /// <inheritdoc/>
+        public async Task UpdateConfigurationFileAsync(Agent agent, string configurationContent, CancellationToken cancellationToken)
+        {
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var path = Path.Combine(configPath, agent.ConfigurationFileName);
+
+            if (path.StartsWith(configPath))
+            {
+                await File.WriteAllTextAsync(path, configurationContent, cancellationToken);
+            }
+        }
+
+        /// <inheritdoc/>
+        public async Task DeleteConfigurationFileAsync(Agent agent, CancellationToken cancellationToken)
+        {
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var path = Path.Combine(configPath, agent.ConfigurationFileName);
+
+            if (path.StartsWith(configPath))
+            {
+                File.Delete(path);
+
+                agent.ConfigurationFileName = string.Empty;
+                await this.UpdateAsync(agent, cancellationToken);
+            }
+        }       
     }
 }

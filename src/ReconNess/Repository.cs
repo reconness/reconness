@@ -28,9 +28,7 @@
             this.context = context;
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.GetAllAsync(CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -38,19 +36,13 @@
             return this.context.ToListAsync<TEntity>(cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.GetAllQueryable(CancellationToken)"/>
-        /// </summary>
-        public IQueryable<TEntity> GetAllQueryable(CancellationToken cancellationToken = default)
+        /// <inheritdoc/>
+        public IQueryable<TEntity> GetAllQueryable()
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return this.context.ToQueryable<TEntity>(cancellationToken);
+            return this.context.ToQueryable<TEntity>();
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.GetAllByCriteriaAsync(Expression{Func{TEntity, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<List<TEntity>> GetAllByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -58,9 +50,7 @@
             return this.context.ToListByCriteriaAsync<TEntity>(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.AnyAsync(Expression{Func{TEntity, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -68,19 +58,13 @@
             return this.context.AnyAsync<TEntity>(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.GetAllQueryableByCriteria(Expression{Func{TEntity, bool}}, CancellationToken)"/>
-        /// </summary>
-        public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
+        /// <inheritdoc/>
+        public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return this.context.ToQueryableByCriteria<TEntity>(predicate, cancellationToken);
+            return this.context.ToQueryableByCriteria<TEntity>(predicate);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.GetByCriteriaAsync(Expression{Func{TEntity, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<TEntity> GetByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -88,9 +72,7 @@
             return this.context.FirstOrDefaultAsync<TEntity>(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.FindByCriteriaAsync(Expression{Func{TEntity, bool}}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<TEntity> FindByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -98,9 +80,7 @@
             return this.context.FindByCriteriaAsync<TEntity>(predicate, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.FindAsync(Guid, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public Task<TEntity> FindAsync(Guid id, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -108,9 +88,7 @@
             return this.context.FindAsync<TEntity>(id, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.Add(TEntity, CancellationToken)/>
-        /// </summary>
+        /// <inheritdoc/>
         public void Add(TEntity entity, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -118,9 +96,7 @@
             this.context.SetAsAdded<TEntity>(entity, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.AddRange(List{TEntity}, CancellationToken)"/
-        /// </summary>
+        /// <inheritdoc/>
         public void AddRange(List<TEntity> entities, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -128,9 +104,7 @@
             this.context.SetAsAdded<TEntity>(entities, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.Update(TEntity, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void Update(TEntity entity, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -138,9 +112,7 @@
             this.context.SetAsModified<TEntity>(entity, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.UpdateRange(List{TEntity}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void UpdateRange(List<TEntity> entities, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -148,9 +120,7 @@
             this.context.SetAsModified<TEntity>(entities, cancellationToken);
         }
 
-        /// <summary>
-        /// <see cref="IRepository{TEntity}.Delete(TEntity, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void Delete(TEntity entity, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -158,9 +128,7 @@
             this.context.SetAsDeleted<TEntity>(entity, cancellationToken);
         }
 
-        /// <summary>
-        ///  <see cref="IRepository{TEntity}.DeleteRange(List{TEntity}, CancellationToken)"/>
-        /// </summary>
+        /// <inheritdoc/>
         public void DeleteRange(List<TEntity> entities, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();

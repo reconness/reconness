@@ -1,5 +1,6 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Models;
@@ -8,12 +9,15 @@ using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReconNess.Web.Controllers
 {
     [Authorize]
+    [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
     public class AgentsController : ControllerBase
@@ -56,8 +60,22 @@ namespace ReconNess.Web.Controllers
             this.subdomainService = subdomainService;
         }
 
-        // GET api/agents
+        /// <summary>
+        /// Obtain the list of agents installed.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents
+        ///
+        /// </remarks>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The list of agents</returns>
+        /// <response code="200">Returns the list of agents</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var agents = await this.agentService.GetAgentsNoTrackingAsync(cancellationToken);
@@ -67,8 +85,27 @@ namespace ReconNess.Web.Controllers
             return Ok(agentsDto);
         }
 
-        // GET api/agents/{agentName}
+        /// <summary>
+        /// Obtain an agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The agent</returns>
+        /// <response code="200">Returns the agent</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpGet("{agentName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
@@ -82,11 +119,32 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            return Ok(this.mapper.Map<Agent, AgentDto>(agent));
+            var agentDto = this.mapper.Map<Agent, AgentDto>(agent);
+            if (!string.IsNullOrEmpty(agentDto.ConfigurationFileName))
+            {
+                agentDto.ConfigurationContent = await this.agentService.ReadConfigurationFileAsync(agentDto.ConfigurationFileName, cancellationToken);
+                agentDto.ConfigurationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            }
+
+            return Ok(agentDto);
         }
 
-        // GET api/agents/marketplace
+        /// <summary>
+        /// Obtain the marketplace of agents, with all the agents that we can install on reconness by default.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents/marketplace
+        ///
+        /// </remarks>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The list of agents in the marketplace</returns>
+        /// <response code="200">Returns the list of agents in the marketplace</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpGet("marketplace")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Marketplace(CancellationToken cancellationToken)
         {
             var marketplaces = await this.agentService.GetMarketplaceAsync(cancellationToken);
@@ -96,15 +154,33 @@ namespace ReconNess.Web.Controllers
             return Ok(marketplaceDtos);
         }
 
-        // POST api/agents
+        /// <summary>
+        /// Save a new agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents
+        ///     {
+        ///         "name": "mynewagent",
+        ///         "command": "myagent -h -d {{rootdomain}}",
+        ///         "repository": "www.github.com/myaccount/myproject",
+        ///         "agentType": "subdomain",
+        ///         "categories": "scan subdomains"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="agentDto">The agent dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
@@ -122,22 +198,44 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // PUT api/agents/{id}
+        /// <summary>
+        /// Update an agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/agents/{id}
+        ///     { 
+        ///         "name": "mynewagent",
+        ///         "command": "myagent -h -d {{rootdomain}}",
+        ///         "repository": "www.github.com/myaccount/myproject",
+        ///         "agentType": "subdomain",
+        ///         "categories": "scan subdomains",
+        ///         "script": "// the script here"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="id">The agent id</param>
+        /// <param name="agentDto">The agent dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name);
+            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -182,8 +280,24 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // DELETE api/agents/{agentName}
+        /// <summary>
+        /// Delete an agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/agents/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpDelete("{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Delete(string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
@@ -202,16 +316,30 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // POST api/agents/install
+        /// <summary>
+        /// Install a new agent from the marketplace.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/install
+        ///
+        /// </remarks>
+        /// <param name="agentDefaultDto">The agent dto from the marketplace</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The agent installed</returns>
+        /// <response code="200">Returns the agent installed</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("install")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
-            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name);
+            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -221,21 +349,36 @@ namespace ReconNess.Web.Controllers
 
             agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
-            var userName = this.Request.HttpContext.User.Identity.Name;
             var agentInstalled = await this.agentService.AddAgentAsync(agent, "Agent Installed", cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
 
-        // POST api/agents/debug
+        /// <summary>
+        /// Debug an agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/debug
+        ///     {
+        ///         "terminalOutput": "the terminal output that we want to debug",
+        ///         "script": "// the script that is going to parse and debug the terminal output define above"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="agentDebugDto">The agent debug dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The debug output</returns>
+        /// <response code="200">Returns thedebug output</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
         [HttpPost("debug")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult> Debug([FromBody] AgentDebugDto agentDebugDto, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest();
-            }
-
             try
             {
                 var scriptOutput = await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken);
@@ -248,8 +391,34 @@ namespace ReconNess.Web.Controllers
             }
         }
 
-        // POST api/agents/run
+        /// <summary>
+        /// Run an agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/run
+        ///     {
+        ///         "agent": "myagent",
+        ///         "command": "myagent -h -d {{subdomain}}",
+        ///         "target": "mytarget",
+        ///         "rootdomain": "myrootdomain.com"
+        ///         "subdomain": "www.mysubdomain.com",
+        ///         "activateNotification": true
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="agentRunnerDto">The agent dto to run</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("run")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> RunAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
             var agent = await agentService.GetAgentToRunAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
@@ -302,8 +471,33 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // POST api/agents/stop
+        /// <summary>
+        /// Stop an agent.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/stop
+        ///     {
+        ///         "agent": "myagent",
+        ///         "target": "mytarget",
+        ///         "rootdomain": "myrootdomain.com"
+        ///         "subdomain": "www.mysubdomain.com"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="agentRunnerDto">The agent dto to stop</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The notifications configuration</returns>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpPost("stop")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
             var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
@@ -336,9 +530,9 @@ namespace ReconNess.Web.Controllers
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
                 subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken)
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefaultAsync(cancellationToken);
 
                 if (subdomain == null)
                 {
@@ -359,8 +553,29 @@ namespace ReconNess.Web.Controllers
             return NoContent();
         }
 
-        // GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
+        /// <summary>
+        /// Obtain if a specific agent is running.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainName">The subdomain</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>If a specific agent is running</returns>
+        /// <response code="200">Returns if a specific agent is running</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
         [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
             Target target = default;
@@ -387,9 +602,9 @@ namespace ReconNess.Web.Controllers
             if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
             {
                 subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken)
+                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
                         .AsNoTracking()
-                        .SingleOrDefaultAsync();
+                        .SingleOrDefaultAsync(cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
@@ -404,6 +619,158 @@ namespace ReconNess.Web.Controllers
             }, cancellationToken);
 
             return Ok(agentsRunning);
+        }
+
+        /// <summary>
+        /// Upload the configuration file, that is going to be save inside the folder
+        /// /app/Content/configurations.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/agents/upload/{id}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="file">The file with the agent configuration</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("upload/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UploadConfiguration(string agentName, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (file.Length == 0 || string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            var configurationFileName = string.Empty;
+            string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
+            foreach (char c in invalid)
+            {
+                configurationFileName = file.FileName.Replace(c.ToString(), "");
+            }
+
+            var configPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            var fileNamePath = Path.Combine(configPath, configurationFileName);
+            if (!fileNamePath.StartsWith(configPath))
+            {
+                return BadRequest("The path to save the file is invalid.");
+            }
+
+            if (System.IO.File.Exists(fileNamePath))
+            {
+                return BadRequest("We have a file with that name inside the configuration folder, please change the filename and try again.");
+            }
+
+            using (var stream = new FileStream(fileNamePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            if (!string.IsNullOrEmpty(agent.ConfigurationFileName))
+            {
+                var removeFile = Path.Combine(configPath, agent.ConfigurationFileName);
+                if (removeFile.StartsWith(configPath))
+                {
+                    System.IO.File.Delete(removeFile);
+                }
+            }
+
+            agent.ConfigurationFileName = file.FileName;
+            await this.agentService.UpdateAsync(agent, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// save an agent configuration file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/agents/configuration/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="agentDto">The agent dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpPut("configuration/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateConfiguration(string agentName, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            if (!agent.Name.Equals(agentDto.Name))
+            {
+                return BadRequest();
+            }
+
+            await this.agentService.UpdateConfigurationFileAsync(agent, agentDto.ConfigurationContent, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Delete an agent configuration file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/agents/configuration/{agentName}
+        ///
+        /// </remarks>
+        /// <param name="agentName">The agent name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpDelete("configuration/{agentName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteConfiguration(string agentName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(agentName))
+            {
+                return BadRequest();
+            }
+
+            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            if (agent == null)
+            {
+                return NotFound();
+            }
+
+            await this.agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
+
+            return NoContent();
         }
     }
 }
