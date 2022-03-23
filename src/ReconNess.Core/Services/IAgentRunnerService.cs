@@ -17,7 +17,7 @@ namespace ReconNess.Core.Services
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task RunAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        Task RunAgentAsync(Models.AgentRunner agentRunner, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stop the agent if it is running
@@ -25,7 +25,7 @@ namespace ReconNess.Core.Services
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task StopAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        Task StopAgentAsync(string runnerId, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a list of agents name that still are running
@@ -33,6 +33,6 @@ namespace ReconNess.Core.Services
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A list of agents name that still are running</returns>        
-        ValueTask<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        Task<List<string>> RunningAgentsAsync(Models.AgentRunner agentRunner, CancellationToken cancellationToken = default);
     }
 }

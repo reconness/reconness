@@ -6,14 +6,12 @@ using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using System;
-using System.Collections.Generic;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReconNess.PubSub
 {
-    public class QueueAgentRunnerProvider : IAgentRunnerProvider
+    public class AgentRunnerQueueProvider : IAgentRunnerQueueProvider
     {
         private readonly IScriptEngineService scriptEngineService;
 
@@ -22,7 +20,7 @@ namespace ReconNess.PubSub
         private readonly IConnection _conn;
         private readonly IModel _channel;
 
-        public QueueAgentRunnerProvider(IConfiguration configuration, IScriptEngineService scriptEngineService)
+        public AgentRunnerQueueProvider(IConfiguration configuration, IScriptEngineService scriptEngineService)
         {
             var rabbitmqConnectionString = configuration.GetConnectionString("DefaultRabbitmqConnection");
 
@@ -46,21 +44,7 @@ namespace ReconNess.PubSub
             this.scriptEngineService = scriptEngineService;
         }
 
-        public Task<int> RunningCountAsync => Task.FromResult(0);
-
-        public Task<IList<string>> RunningChannelsAsync => Task.FromResult((IList<string>)new List<string>());
-
-        public Task InitializesAsync(string channel)
-        {
-            return Task.CompletedTask;
-        }
-
-        public Task<bool> IsStoppedAsync(string channel)
-        {
-            return Task.FromResult(false);
-        }
-
-        public Task RunAsync(AgentRunnerProviderArgs providerArgs)
+        public Task EnqueueAsync(AgentRunnerQueue providerArgs)
         {
             _logger.Info($"Sending command to rabbitmq: {providerArgs.Command}");
 
@@ -81,28 +65,12 @@ namespace ReconNess.PubSub
                 var script = providerArgs.AgentRunner.Agent.Script;
                 var scriptOutput = await scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
 
-                await providerArgs.ParserOutputHandlerAsync(new AgentRunnerProviderResult
-                {
-                    AgentRunner = providerArgs.AgentRunner,
-                    AgentRunnerType = providerArgs.AgentRunnerType,
-                    Channel = providerArgs.Channel,
-                    ScriptOutput = scriptOutput,
-                    LineCount = lineCount,
-                    TerminalLineOutput = terminalLineOutput,
-                    CancellationToken = CancellationToken.None
-                });
-
             };
 
             _channel.BasicConsume(queue: "hello",
                                     autoAck: true,
                                     consumer: consumer);
 
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(string channel)
-        {
             return Task.CompletedTask;
         }
     }

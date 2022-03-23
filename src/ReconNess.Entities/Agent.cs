@@ -27,6 +27,6 @@ namespace ReconNess.Entities
 
         public virtual ICollection<AgentHistory> AgentHistories { get; set; }
 
-        public virtual ICollection<AgentRun> AgentRuns { get; set; }
+        public virtual ICollection<AgentRunner> AgentRunners { get; set; }
     }
 }

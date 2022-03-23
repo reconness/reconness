@@ -15,7 +15,7 @@ namespace ReconNess.Helpers
         /// </summary>
         /// <param name="agentRunner">The agent runner</param>
         /// <param name="agentRunnerType">The agent runner type</param>
-        public static bool NeedToSkipRun(AgentRunner agentRunner, string agentRunnerType)
+        public static bool CanSkipRun(Core.Models.AgentRunner agentRunner, string agentRunnerType)
         {
             var agentTrigger = agentRunner.Agent.AgentTrigger;
             if (agentTrigger == null)
@@ -42,7 +42,7 @@ namespace ReconNess.Helpers
         /// <param name="agentTypeRootDomain">if is the RootDomain the agent type</param>
         /// <param name="agentTypeSubdomain">if is the Subdomain the agent type</param>
         /// <returns>If ran before (target, rootdomain, subdomain)></returns>
-        private static bool RanBefore(AgentRunner agentRunner, bool agentTypeTarget, bool agentTypeRootDomain, bool agentTypeSubdomain)
+        private static bool RanBefore(Core.Models.AgentRunner agentRunner, bool agentTypeTarget, bool agentTypeRootDomain, bool agentTypeSubdomain)
         {
             var agentRanBeforeInThisTarget = agentTypeTarget && agentRunner.Target != null &&
                                                  !string.IsNullOrEmpty(agentRunner.Target.AgentsRanBefore) &&
@@ -276,64 +276,6 @@ namespace ReconNess.Helpers
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Obtain the channel, we use the channel to send notification to the frontend (tarminal and logs)
-        /// and to register the Runners process
-        /// </summary>
-        /// <param name="agent">The agent</param>
-        /// <param name="rootDomain">The domain</param>
-        /// <param name="subdomain">The subdomain</param>
-        /// <returns>The channel to send the menssage</returns>
-        public static string GetChannel(AgentRunner agentRunner)
-        {
-            if (agentRunner.Target == null)
-            {
-                return $"{agentRunner.Agent.Name}";
-            }
-
-            if (agentRunner.RootDomain == null)
-            {
-                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}";
-            }
-
-            if (agentRunner.Subdomain == null)
-            {
-                return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}";
-            }
-
-            return $"{agentRunner.Agent.Name}_{agentRunner.Target.Name}_{agentRunner.RootDomain.Name}_{agentRunner.Subdomain.Name}";
-        }
-
-        /// <summary>
-        /// Obtain the command to run on bash
-        /// </summary>
-        /// <param name="agentRunner">The agent</param>
-        /// <returns>The command to run on bash</returns>
-        public static string GetCommand(AgentRunner agentRunner)
-        {
-            var command = agentRunner.Command;
-            if (string.IsNullOrWhiteSpace(command))
-            {
-                command = agentRunner.Agent.Command;
-            }
-
-            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
-                              Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
-
-            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
-                              Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
-
-            return command
-                .Replace("{{target}}", agentRunner.Target.Name)
-                .Replace("{{rootDomain}}", agentRunner.RootDomain.Name)
-                .Replace("{{rootdomain}}", agentRunner.RootDomain.Name)
-                .Replace("{{domain}}", agentRunner.Subdomain == null ? agentRunner.RootDomain.Name : agentRunner.Subdomain.Name)
-                .Replace("{{subdomain}}", agentRunner.Subdomain == null ? agentRunner.RootDomain.Name : agentRunner.Subdomain.Name)
-                .Replace("{{userName}}", envUserName)
-                .Replace("{{password}}", envPassword)
-                .Replace("\"", "\\\"");
         }
     }
 }

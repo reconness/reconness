@@ -36,13 +36,12 @@ namespace ReconNess.Web
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
 
-            services.AddSingleton<IAgentBackgroundService, AgentBackgroundService>();
             services.AddSingleton<IConnectorService, ConnectorService>();
             services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ILogsProvider, LogsProvider>();
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();
-            services.AddSingleton<IAgentRunnerProvider, QueueAgentRunnerProvider>();
+            services.AddSingleton<IAgentRunnerQueueProvider, AgentRunnerQueueProvider>();
         }
     }
 }

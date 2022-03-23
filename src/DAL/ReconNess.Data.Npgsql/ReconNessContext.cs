@@ -20,7 +20,8 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : IdentityDbContext<User, Role, Guid>, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
-        public DbSet<AgentRun> AgentRuns { get; set; }
+        public DbSet<AgentRunner> AgentRunners { get; set; }
+        public DbSet<AgentRunnerOutput> AgentRunnerOutputs { get; set; }
         public DbSet<AgentTrigger> AgentTriggers { get; set; }
         public DbSet<AgentHistory> AgentHistories { get; set; }
         public DbSet<Category> Categories { get; set; }
@@ -57,7 +58,11 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentRun>()
+            modelBuilder.Entity<AgentRunner>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentRunnerOutput>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
@@ -109,9 +114,15 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentRun>()
+            modelBuilder.Entity<AgentRunner>()
                 .HasOne(t => t.Agent)
-                .WithMany(r => r.AgentRuns)
+                .WithMany(r => r.AgentRunners)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AgentRunnerOutput>()
+                .HasOne(t => t.AgentRunner)
+                .WithMany(r => r.Outputs)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 

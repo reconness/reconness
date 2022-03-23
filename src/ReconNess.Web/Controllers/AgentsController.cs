@@ -458,7 +458,7 @@ namespace ReconNess.Web.Controllers
             }
 
             await agentRunnerService.RunAgentAsync(
-                new AgentRunner
+                new Core.Models.AgentRunner
                 {
                     Agent = agent,
                     Target = target,
@@ -500,55 +500,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
-            if (agent == null)
-            {
-                return BadRequest();
-            }
-
-            Target target = default;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
-            {
-                target = await targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
-                if (target == null)
-                {
-                    return BadRequest();
-                }
-            }
-
-            RootDomain rootDomain = default;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
-            {
-                rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
-                if (rootDomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            Subdomain subdomain = default;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
-            {
-                subdomain = await subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain)
-                        .AsNoTracking()
-                        .SingleOrDefaultAsync(cancellationToken);
-
-                if (subdomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            var agentRunner = new AgentRunner
-            {
-                Agent = agent,
-                Target = target,
-                RootDomain = rootDomain,
-                Subdomain = subdomain
-            };
-
-            await agentRunnerService.StopAgentAsync(agentRunner, cancellationToken);
+            await agentRunnerService.StopAgentAsync(agentRunnerDto.RunnerId, cancellationToken);
 
             return NoContent();
         }
@@ -611,7 +563,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            var agentsRunning = await agentRunnerService.RunningAgentsAsync(new AgentRunner
+            var agentsRunning = await agentRunnerService.RunningAgentsAsync(new Core.Models.AgentRunner
             {
                 Target = target,
                 RootDomain = rootDomain,
