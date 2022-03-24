@@ -15,7 +15,7 @@ namespace ReconNess.Helpers
         /// </summary>
         /// <param name="agentRunner">The agent runner</param>
         /// <param name="agentRunnerType">The agent runner type</param>
-        public static bool CanSkipRun(Core.Models.AgentRunner agentRunner, string agentRunnerType)
+        public static bool CanSkipRun(Core.Models.AgentRunnerInfo agentRunner, string agentRunnerType)
         {
             var agentTrigger = agentRunner.Agent.AgentTrigger;
             if (agentTrigger == null)
@@ -42,7 +42,7 @@ namespace ReconNess.Helpers
         /// <param name="agentTypeRootDomain">if is the RootDomain the agent type</param>
         /// <param name="agentTypeSubdomain">if is the Subdomain the agent type</param>
         /// <returns>If ran before (target, rootdomain, subdomain)></returns>
-        private static bool RanBefore(Core.Models.AgentRunner agentRunner, bool agentTypeTarget, bool agentTypeRootDomain, bool agentTypeSubdomain)
+        private static bool RanBefore(Core.Models.AgentRunnerInfo agentRunner, bool agentTypeTarget, bool agentTypeRootDomain, bool agentTypeSubdomain)
         {
             var agentRanBeforeInThisTarget = agentTypeTarget && agentRunner.Target != null &&
                                                  !string.IsNullOrEmpty(agentRunner.Target.AgentsRanBefore) &&

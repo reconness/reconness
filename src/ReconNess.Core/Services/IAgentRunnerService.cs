@@ -9,15 +9,15 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface IAgentRunnerService
     /// </summary>
-    public interface IAgentRunnerService : IService<Agent>
+    public interface IAgentRunnerService : IService<AgentRunner>
     {
         /// <summary>
         /// Run the agent
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task RunAgentAsync(Models.AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        Task RunAgentAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stop the agent if it is running
@@ -25,7 +25,7 @@ namespace ReconNess.Core.Services
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task StopAgentAsync(string runnerId, CancellationToken cancellationToken = default);
+        Task StopAgentAsync(string channel, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a list of agents name that still are running
@@ -33,6 +33,6 @@ namespace ReconNess.Core.Services
         /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A list of agents name that still are running</returns>        
-        Task<List<string>> RunningAgentsAsync(Models.AgentRunner agentRunner, CancellationToken cancellationToken = default);
+        Task<List<string>> RunningAgentsAsync(CancellationToken cancellationToken = default);
     }
 }

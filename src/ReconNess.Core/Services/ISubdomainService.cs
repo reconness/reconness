@@ -12,7 +12,7 @@ namespace ReconNess.Core.Services
     /// The interface ISubdomainService
     /// </summary>
     public interface ISubdomainService : IService<Subdomain>
-    { 
+    {
         /// <summary>
         /// Obtain the list of subdomains
         /// </summary>

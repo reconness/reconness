@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -458,7 +457,7 @@ namespace ReconNess.Web.Controllers
             }
 
             await agentRunnerService.RunAgentAsync(
-                new Core.Models.AgentRunner
+                new Core.Models.AgentRunnerInfo
                 {
                     Agent = agent,
                     Target = target,
@@ -506,69 +505,24 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Obtain if a specific agent is running.
+        /// Obtain the list of running agents.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
+        ///     GET api/agents/running
         ///
         /// </remarks>
-        /// <param name="targetName">The target name</param>
-        /// <param name="rootDomainName">The rootdomain</param>
-        /// <param name="subdomainName">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>If a specific agent is running</returns>
-        /// <response code="200">Returns if a specific agent is running</response>
-        /// <response code="400">Bad Request</response>
+        /// <returns>The list of running agents</returns>
+        /// <response code="200">Returns the list of running agents</response>
         /// <response code="401">If the user is not authenticate</response>
-        /// <response code="404">Not Found</response>
-        [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
+        [HttpGet("running")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
+        public async Task<ActionResult> RunningAgent(CancellationToken cancellationToken)
         {
-            Target target = default;
-            if (!string.IsNullOrWhiteSpace(targetName))
-            {
-                target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
-                if (target == null)
-                {
-                    return BadRequest();
-                }
-            }
-
-            RootDomain rootDomain = default;
-            if (!string.IsNullOrWhiteSpace(rootDomainName) && !"undefined".Equals(rootDomainName))
-            {
-                rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == rootDomainName, cancellationToken);
-                if (rootDomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            Subdomain subdomain = default;
-            if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
-            {
-                subdomain = await subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
-                        .AsNoTracking()
-                        .SingleOrDefaultAsync(cancellationToken);
-                if (subdomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            var agentsRunning = await agentRunnerService.RunningAgentsAsync(new Core.Models.AgentRunner
-            {
-                Target = target,
-                RootDomain = rootDomain,
-                Subdomain = subdomain
-            }, cancellationToken);
+            var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
             return Ok(agentsRunning);
         }

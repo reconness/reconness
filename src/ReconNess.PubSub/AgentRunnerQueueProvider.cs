@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using NLog;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
-using ReconNess.Core.Services;
 using System;
 using System.Text;
 using System.Threading.Tasks;
