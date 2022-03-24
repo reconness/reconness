@@ -23,17 +23,16 @@ namespace ReconNess.Web
         {
             using (var scope = webHost.Services.CreateScope())
             {
-                using (var appContext = scope.ServiceProvider.GetRequiredService<ReconNessContext>())
+                using var appContext = scope.ServiceProvider.GetRequiredService<ReconNessContext>();
+
+                try
                 {
-                    try
-                    {
-                        appContext.Database.Migrate();
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.Error(ex);
-                        throw;
-                    }
+                    appContext.Database.Migrate();
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex);
+                    throw;
                 }
             }
 

@@ -16,26 +16,17 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="ITargetService"/>
     /// </summary>
-    public class TargetService : Service<Target>, IService<Target>, ITargetService, ISaveTerminalOutputParseService<Target>
+    public class TargetService : Service<Target>, IService<Target>, ITargetService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly IRootDomainService rootDomainService;
-        private readonly INotificationService notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ITargetService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
-        /// <param name="notificationService"><see cref="INotificationService"/></param>
-        public TargetService(IUnitOfWork unitOfWork,
-            IRootDomainService rootDomainService,
-            INotificationService notificationService)
+        public TargetService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-            this.rootDomainService = rootDomainService;
-            this.notificationService = notificationService;
         }
 
         /// <inheritdoc/>
@@ -112,66 +103,6 @@ namespace ReconNess.Services
                 target.AgentsRanBefore = string.Join(", ", target.AgentsRanBefore, agentName);
                 await UpdateAsync(target, cancellationToken);
             }
-        }
-
-        /// <inheritdoc/>
-        public async Task SaveTerminalOutputParseAsync(Target target, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            RootDomain rootDomain = default;
-            if (await NeedAddNewRootDomain(target, terminalOutputParse.RootDomain, cancellationToken))
-            {
-                rootDomain = await AddTargetNewRootDomainAsync(target, terminalOutputParse.RootDomain, cancellationToken);
-                if (activateNotification)
-                {
-                    await notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
-                    {
-                        ("{{rootDomain}}", rootDomain.Name)
-                    }, cancellationToken);
-                }
-            }
-
-            if (rootDomain != null)
-            {
-                await rootDomainService.SaveTerminalOutputParseAsync(rootDomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// If we need to add a new RootDomain
-        /// </summary>
-        /// <param name="target">The Target</param>
-        /// <param name="rootDomain">The root domain</param>
-        /// <param name="cancellationToken">Cancellation Token</param>
-        /// <returns>If we need to add a new RootDomain</returns>
-        private async ValueTask<bool> NeedAddNewRootDomain(Target target, string rootDomain, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(rootDomain))
-            {
-                return false;
-            }
-
-            var existRootDomain = await rootDomainService.AnyAsync(r => r.Target == target && r.Name == rootDomain, cancellationToken);
-            return !existRootDomain;
-        }
-
-        /// <summary>
-        /// Add a new root domain in the target
-        /// </summary>
-        /// <param name="target">The target to add the new root domain</param>
-        /// <param name="rootDomain">The new root domain</param>
-        /// <param name="cancellationToken">Cancellation Token</param>
-        /// <returns>The new root domain added</returns>
-        private Task<RootDomain> AddTargetNewRootDomainAsync(Target target, string rootDomain, CancellationToken cancellationToken)
-        {
-            var newRootDomain = new RootDomain
-            {
-                Name = rootDomain,
-                Target = target
-            };
-
-            return rootDomainService.AddAsync(newRootDomain, cancellationToken);
         }
     }
 }

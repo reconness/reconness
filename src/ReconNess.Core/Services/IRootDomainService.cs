@@ -10,7 +10,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ITargetService
     /// </summary>
-    public interface IRootDomainService : IService<RootDomain>, ISaveTerminalOutputParseService<RootDomain>
+    public interface IRootDomainService : IService<RootDomain>
     {
         /// <summary>
         /// Obtain a rootDomain with no tracking

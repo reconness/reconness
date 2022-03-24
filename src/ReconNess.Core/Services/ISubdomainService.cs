@@ -11,8 +11,8 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ISubdomainService
     /// </summary>
-    public interface ISubdomainService : IService<Subdomain>, ISaveTerminalOutputParseService<Subdomain>
-    {
+    public interface ISubdomainService : IService<Subdomain>
+    { 
         /// <summary>
         /// Obtain the list of subdomains
         /// </summary>

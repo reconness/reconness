@@ -10,7 +10,7 @@ namespace ReconNess.Core.Services
     /// <summary>
     /// The interface ILabelService
     /// </summary>
-    public interface ITargetService : IService<Target>, ISaveTerminalOutputParseService<Target>
+    public interface ITargetService : IService<Target>
     {
         /// <summary>
         /// Obtain the list of targets not tracking

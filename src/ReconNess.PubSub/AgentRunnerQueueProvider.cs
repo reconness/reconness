@@ -13,14 +13,12 @@ namespace ReconNess.PubSub
 {
     public class AgentRunnerQueueProvider : IAgentRunnerQueueProvider
     {
-        private readonly IScriptEngineService scriptEngineService;
-
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
         private readonly ConnectionFactory _factory;
         private readonly IConnection _conn;
         private readonly IModel _channel;
 
-        public AgentRunnerQueueProvider(IConfiguration configuration, IScriptEngineService scriptEngineService)
+        public AgentRunnerQueueProvider(IConfiguration configuration)
         {
             var rabbitmqConnectionString = configuration.GetConnectionString("DefaultRabbitmqConnection");
 
@@ -40,8 +38,6 @@ namespace ReconNess.PubSub
                                     exclusive: false,
                                     autoDelete: false,
                                     arguments: null);
-
-            this.scriptEngineService = scriptEngineService;
         }
 
         public Task EnqueueAsync(AgentRunnerQueue providerArgs)
@@ -53,23 +49,6 @@ namespace ReconNess.PubSub
                                 routingKey: "hello",
                                 basicProperties: null,
                                 body: body);
-
-            var lineCount = 1;
-
-            var consumer = new EventingBasicConsumer(_channel);
-            consumer.Received += async (model, ea) =>
-            {
-                var body = ea.Body;
-                var terminalLineOutput = Encoding.UTF8.GetString(body.ToArray());
-
-                var script = providerArgs.AgentRunner.Agent.Script;
-                var scriptOutput = await scriptEngineService.TerminalOutputParseAsync(script, terminalLineOutput, lineCount++);
-
-            };
-
-            _channel.BasicConsume(queue: "hello",
-                                    autoAck: true,
-                                    consumer: consumer);
 
             return Task.CompletedTask;
         }

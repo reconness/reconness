@@ -16,26 +16,17 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="IRootDomainService"/>
     /// </summary>
-    public class RootDomainService : Service<RootDomain>, IService<RootDomain>, IRootDomainService, ISaveTerminalOutputParseService<RootDomain>
+    public class RootDomainService : Service<RootDomain>, IService<RootDomain>, IRootDomainService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly ISubdomainService subdomainService;
-        private readonly INotificationService notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="IRootDomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
-        /// <param name="notificationService"><see cref="INotificationService"/></param>
-        public RootDomainService(IUnitOfWork unitOfWork,
-            ISubdomainService subdomainService,
-            INotificationService notificationService)
+        public RootDomainService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-            this.subdomainService = subdomainService;
-            this.notificationService = notificationService;
         }
 
         /// <inheritdoc/>
@@ -190,80 +181,6 @@ namespace ReconNess.Services
             }
         }
 
-        /// <inheritdoc/>
-        public async Task SaveTerminalOutputParseAsync(RootDomain rootDomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // if we have a new rootdomain
-            if (!string.IsNullOrEmpty(terminalOutputParse.RootDomain) && !rootDomain.Name.Equals(terminalOutputParse.RootDomain))
-            {
-                rootDomain = new RootDomain
-                {
-                    Name = terminalOutputParse.RootDomain,
-                    Target = rootDomain.Target
-                };
-
-                await AddAsync(rootDomain, cancellationToken);
-            }
-
-            Subdomain subdomain = default;
-            if (await NeedAddNewSubdomain(rootDomain, terminalOutputParse.Subdomain, cancellationToken))
-            {
-                subdomain = await AddRootDomainNewSubdomainAsync(rootDomain, terminalOutputParse.Subdomain, agentName, cancellationToken);
-                if (activateNotification)
-                {
-                    await notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
-                    {
-                        ("{{domain}}", subdomain.Name)
-                    }, cancellationToken);
-                }
-            }
-
-            if (subdomain != null)
-            {
-                await subdomainService.SaveTerminalOutputParseAsync(subdomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// If we need to add a new subdomain
-        /// </summary>
-        /// <param name="rootDomain">The root domain</param>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="cancellationToken">Cancellation Token</param>
-        /// <returns>If we need to add a new RootDomain</returns>
-        private async ValueTask<bool> NeedAddNewSubdomain(RootDomain rootDomain, string subdomain, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(subdomain) || Uri.CheckHostName(subdomain) == UriHostNameType.Unknown)
-            {
-                return false;
-            }
-
-            var existSubdomain = await subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomain, cancellationToken);
-            return !existSubdomain;
-        }
-
-        /// <summary>
-        /// Add a new subdomain in the target
-        /// </summary>
-        /// <param name="target">The target</param>
-        /// <param name="rootDomain">The root domain to add the new subdomain</param>
-        /// <param name="subdomain">The new root domain</param>
-        /// <param name="cancellationToken">Cancellation Token</param>
-        /// <returns>The new subdomain added</returns>
-        private Task<Subdomain> AddRootDomainNewSubdomainAsync(RootDomain rootDomain, string subdomain, string agentName, CancellationToken cancellationToken)
-        {
-            var newSubdomain = new Subdomain
-            {
-                Name = subdomain,
-                AgentsRanBefore = agentName,
-                RootDomain = rootDomain
-            };
-
-            return subdomainService.AddAsync(newSubdomain, cancellationToken);
-        }
-
         /// <summary>
         /// Obtain the names of the rootdomains that interset the old and the new rootdomains
         /// </summary>
@@ -296,7 +213,7 @@ namespace ReconNess.Services
             var subdomains = new List<string>();
             foreach (var subdomain in uploadSubdomains)
             {
-                if (subdomain.Contains(","))
+                if (subdomain.Contains(','))
                 {
                     subdomains.AddRange(subdomain.Split(","));
                 }

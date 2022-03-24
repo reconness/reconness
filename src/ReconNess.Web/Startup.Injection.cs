@@ -36,7 +36,6 @@ namespace ReconNess.Web
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
 
-            services.AddSingleton<IConnectorService, ConnectorService>();
             services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ILogsProvider, LogsProvider>();
 
