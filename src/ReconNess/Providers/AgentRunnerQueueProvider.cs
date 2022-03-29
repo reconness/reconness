@@ -32,8 +32,8 @@ namespace ReconNess.Providers
 
             this.channel = conn.CreateModel();
 
-            this.channel.ExchangeDeclare("reconness", ExchangeType.Direct);
-            this.channel.QueueDeclare("reconness-queue");
+            this.channel.ExchangeDeclare("reconness", ExchangeType.Direct, true);
+            this.channel.QueueDeclare("reconness-queue", true);
 
             this.channel.QueueBind("reconness-queue", "reconness", "reconness");
         }
