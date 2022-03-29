@@ -1,10 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core;
+using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Data.Npgsql;
 using ReconNess.Providers;
-using ReconNess.PubSub;
 using ReconNess.Services;
 using ReconNess.Web.Auth;
 
@@ -40,7 +40,7 @@ namespace ReconNess.Web
             services.AddSingleton<ILogsProvider, LogsProvider>();
 
             services.AddSingleton<IScriptEngineService, ScriptEngineService>();
-            services.AddSingleton<IAgentRunnerQueueProvider, AgentRunnerQueueProvider>();
+            services.AddSingleton<IQueueProvider<AgentRunnerQueue>, AgentRunnerQueueProvider>();
         }
     }
 }

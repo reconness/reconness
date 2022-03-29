@@ -21,7 +21,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.0" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="6.15.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
@@ -39,7 +38,6 @@
     <ProjectReference Include="..\DAL\ReconNess.Data.Npgsql\ReconNess.Data.Npgsql.csproj" />
     <ProjectReference Include="..\ReconNess.Core\ReconNess.Core.csproj" />
     <ProjectReference Include="..\ReconNess.Entities\ReconNess.Entities.csproj" />
-    <ProjectReference Include="..\ReconNess.PubSub\ReconNess.PubSub.csproj" />
     <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
   </ItemGroup>
 

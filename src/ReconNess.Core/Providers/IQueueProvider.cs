@@ -1,4 +1,4 @@
-﻿using ReconNess.Core.Models;
+﻿using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReconNess.Core.Providers
@@ -6,13 +6,14 @@ namespace ReconNess.Core.Providers
     /// <summary>
     /// The interface IAgentRunnerProvider
     /// </summary>
-    public interface IAgentRunnerQueueProvider
+    public interface IQueueProvider<T>
     {
         /// <summary>
         /// Run the Agent
         /// </summary>
-        /// <param name="providerArgs">The Agent params</param>
+        /// <param name="args">The Agent params</param>
+        /// <param name="cancellationToken"></param>
         /// <returns>A task</returns>
-        Task EnqueueAsync(AgentRunnerQueue providerArgs);
+        Task EnqueueAsync(T args, CancellationToken cancellationToken);
     }
 }
