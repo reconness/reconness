@@ -165,7 +165,7 @@ namespace ReconNess.Web.Controllers
 
             var rootdomainDto = mapper.Map<RootDomain, RootDomainDto>(rootDomain);
 
-            var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
+            var download = Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
 
             return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }

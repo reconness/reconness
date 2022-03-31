@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
-using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
@@ -150,7 +149,7 @@ namespace ReconNess.Web.Controllers
 
             foreach (var subdomain in subdomains)
             {
-                subdomain.Screenshot = SubdomainHelpers.GetBase64Image(targetName, rootDomainName, subdomain.Name);
+                subdomain.Screenshot = Helpers.GetBase64Image(targetName, rootDomainName, subdomain.Name);
             }
 
             return Ok(new { Count = subdomainResult.RowCount, Data = subdomains });
