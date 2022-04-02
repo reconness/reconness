@@ -48,5 +48,7 @@ namespace ReconNess.Web.Dtos
 
         public string Image { get; set; }
 
+        public bool Owner { get; set; }
+
     }
 }
