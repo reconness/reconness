@@ -62,6 +62,7 @@ namespace ReconNess.Services
                         Script = agent.Script,
                         Target = agent.Target,
                         Image = agent.Image,
+                        ConfigurationFileName = agent.ConfigurationFileName,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
