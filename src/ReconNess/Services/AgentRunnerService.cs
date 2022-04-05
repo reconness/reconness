@@ -59,7 +59,19 @@ namespace ReconNess.Services
             var agentRunnerSaved = await GetChannelAsync(agentRunnerInfo, cancellationToken);
             if (agentRunnerType.StartsWith("Current"))
             {
-                await EnqueueRunAgentAsync(agentRunnerInfo, agentRunnerSaved, agentRunnerType, true, false, cancellationToken);
+                var command = GetCommand(agentRunnerInfo);
+                var agentRunnerQueue = new AgentRunnerQueue
+                {
+                    Channel = agentRunnerSaved.Channel,
+                    Command = command,
+                    AgentRunnerType = agentRunnerType,
+                    Last = true,
+                    AllowSkip = false,
+                    Count = 1,
+                    Total = 1
+                };
+
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
             else
             {
@@ -124,10 +136,10 @@ namespace ReconNess.Services
                 return;
             }
 
-            var targetsCount = targets.Count;
+            var count = 1;
             foreach (var target in targets)
             {
-                var last = targetsCount == 1;
+                var last = count == targets.Count;
                 var newAgentRunner = new AgentRunnerInfo
                 {
                     Agent = agentRunnerInfo.Agent,
@@ -138,9 +150,19 @@ namespace ReconNess.Services
                     Command = agentRunnerInfo.Command
                 };
 
-                await EnqueueRunAgentAsync(newAgentRunner, agentRunnerSaved, AgentRunnerTypes.ALL_TARGETS, last, true, cancellationToken);
+                var command = GetCommand(agentRunnerInfo);
+                var agentRunnerQueue = new AgentRunnerQueue
+                {
+                    Channel = agentRunnerSaved.Channel,
+                    Command = command,
+                    AgentRunnerType = AgentRunnerTypes.ALL_TARGETS,
+                    Last = last,
+                    AllowSkip = true,
+                    Count = count++,
+                    Total = targets.Count
+                };
 
-                targetsCount--;
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
         }
 
@@ -161,10 +183,10 @@ namespace ReconNess.Services
                 return;
             }
 
-            var rootdomainsCount = rootdomains.Count;
+            var count = rootdomains.Count;
             foreach (var rootdomain in rootdomains)
             {
-                var last = rootdomainsCount == 1;
+                var last = count == rootdomains.Count;
                 var newAgentRunner = new AgentRunnerInfo
                 {
                     Agent = agentRunnerInfo.Agent,
@@ -175,9 +197,19 @@ namespace ReconNess.Services
                     Command = agentRunnerInfo.Command
                 };
 
-                await EnqueueRunAgentAsync(newAgentRunner, agentRunnerSaved, AgentRunnerTypes.ALL_ROOTDOMAINS, last, true, cancellationToken);
+                var command = GetCommand(agentRunnerInfo);
+                var agentRunnerQueue = new AgentRunnerQueue
+                {
+                    Channel = agentRunnerSaved.Channel,
+                    Command = command,
+                    AgentRunnerType = AgentRunnerTypes.ALL_ROOTDOMAINS,
+                    Last = last,
+                    AllowSkip = true,
+                    Count = count++,
+                    Total = rootdomains.Count
+                };
 
-                rootdomainsCount--;
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
         }
 
@@ -198,10 +230,10 @@ namespace ReconNess.Services
                 return;
             }
 
-            var subdomainsCount = subdomains.Count;
+            var count = subdomains.Count;
             foreach (var subdomain in subdomains)
             {
-                var last = subdomainsCount == 1;
+                var last = count == subdomains.Count;
                 var newAgentRunner = new AgentRunnerInfo
                 {
                     Agent = agentRunnerInfo.Agent,
@@ -212,9 +244,19 @@ namespace ReconNess.Services
                     Command = agentRunnerInfo.Command
                 };
 
-                await EnqueueRunAgentAsync(newAgentRunner, agentRunnerSaved, AgentRunnerTypes.ALL_SUBDOMAINS, last, true, cancellationToken);
+                var command = GetCommand(agentRunnerInfo);
+                var agentRunnerQueue = new AgentRunnerQueue
+                {
+                    Channel = agentRunnerSaved.Channel,
+                    Command = command,
+                    AgentRunnerType = AgentRunnerTypes.ALL_SUBDOMAINS,
+                    Last = last,
+                    AllowSkip = true,
+                    Count = count++,
+                    Total = subdomains.Count
+                };
 
-                subdomainsCount--;
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
         }
 
@@ -226,19 +268,9 @@ namespace ReconNess.Services
         /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="last">If is the last bash to run</param>
         /// <returns>A task</returns>
-        private async Task EnqueueRunAgentAsync(AgentRunnerInfo agentRunnerInfo, AgentRunner agentRunnerSaved, string agentRunnerType, bool last, bool allowSkip, CancellationToken cancellationToken = default)
-        {
-            var command = GetCommand(agentRunnerInfo);
-
-            await queueProvider.EnqueueAsync(new AgentRunnerQueue
-            {
-                Channel = agentRunnerSaved.Channel,
-                Command = command,
-                AgentRunnerType = agentRunnerType,
-                Last = last,
-                AllowSkip = allowSkip
-            },
-            cancellationToken);
+        private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
+        {            
+            await queueProvider.EnqueueAsync(agentRunnerQueue, cancellationToken);
         }
 
         /// <summary>
