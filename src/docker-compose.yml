@@ -27,6 +27,26 @@ services:
       - RabbitMQPassword=reconness                # rabbitmq password
       - SecurityKey=mysecuritykeypleasechangethis # securityKey for the JWT, minimum length is 16 characters
 
+  agent:
+    container_name: 'reconness-agent'
+    image: 'reconness-agent'
+    build:
+      context: ../../reconness-c-sharp-runtime-agents/src/.
+      dockerfile: Dockerfile
+    depends_on:
+      - 'postgres'
+      - 'rabbitmq'
+    volumes:
+      - shared-folder-volume:/app/Content
+    networks:
+      - reconness-network
+    environment:
+      - PostgresUser=reconness                    # postgres userName
+      - PostgresPassword=reconness                # postgres password
+      - PostgresDb=reconness                      # postgres database
+      - RabbitMQUser=reconness                    # rabbitmq userName
+      - RabbitMQPassword=reconness                # rabbitmq password
+
   postgres:
     ports:
       - '5432:5432'
