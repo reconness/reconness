@@ -183,7 +183,7 @@ namespace ReconNess.Services
                 return;
             }
 
-            var count = rootdomains.Count;
+            var count = 1;
             foreach (var rootdomain in rootdomains)
             {
                 var last = count == rootdomains.Count;
@@ -230,7 +230,7 @@ namespace ReconNess.Services
                 return;
             }
 
-            var count = subdomains.Count;
+            var count = 1;
             foreach (var subdomain in subdomains)
             {
                 var last = count == subdomains.Count;
