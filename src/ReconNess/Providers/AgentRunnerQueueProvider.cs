@@ -33,6 +33,9 @@ namespace ReconNess.Providers
             this.channel = conn.CreateModel();
 
             this.channel.ExchangeDeclare("reconness", ExchangeType.Direct);
+            this.channel.QueueDeclare("reconness-queue");
+
+            this.channel.QueueBind("reconness-queue", "reconness", "reconness");
         }
 
         public Task EnqueueAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken)
