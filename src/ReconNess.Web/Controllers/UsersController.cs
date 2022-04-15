@@ -156,11 +156,11 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="userDto">The user dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">The new user</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] UserDto userDto, CancellationToken cancellationToken)
@@ -194,7 +194,7 @@ namespace ReconNess.Web.Controllers
             await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
             await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
 
-            return NoContent();
+            return Ok(user);
         }
 
         /// <summary>
@@ -259,6 +259,7 @@ namespace ReconNess.Web.Controllers
             user.Email = userDto.Email;
             user.FirstName = userDto.FirstName;
             user.LastName = userDto.LastName;
+            user.Image = userDto.Image;
 
             var result = await userManager.UpdateAsync(user);
             if (!result.Succeeded)

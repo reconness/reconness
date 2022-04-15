@@ -62,6 +62,7 @@ namespace ReconNess.Services
                         Script = agent.Script,
                         Target = agent.Target,
                         Image = agent.Image,
+                        ConfigurationFileName = agent.ConfigurationFileName,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
@@ -122,7 +123,7 @@ namespace ReconNess.Services
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
-            var request = new RestRequest("/reconness/reconness-agents/master/default-agents1.5.json");
+            var request = new RestRequest("/reconness/reconness-agents/master/default-agents2.json");
 
             var response = await client.ExecuteGetAsync(request, cancellationToken);
             var agentMarketplaces = JsonConvert.DeserializeObject<AgentMarketplaces>(response.Content);

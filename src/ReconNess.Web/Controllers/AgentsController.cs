@@ -23,6 +23,7 @@ namespace ReconNess.Web.Controllers
     public class AgentsController : ControllerBase
     {
         private static readonly string ERROR_AGENT_EXIT = "An Agent with that name exist";
+        private static readonly string ERROR_AGENT_MARKETPLACE_EXIT = "The agent is already installed";
 
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
@@ -385,10 +386,10 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDefaultDto.Name, cancellationToken);
+            var agentExist = await this.agentService.AnyAsync(t => t.Id == agentDefaultDto.Id, cancellationToken);
             if (agentExist)
             {
-                return BadRequest(ERROR_AGENT_EXIT);
+                return BadRequest(ERROR_AGENT_MARKETPLACE_EXIT);
             }
 
             var agent = this.mapper.Map<AgentMarketplaceDto, Agent>(agentDefaultDto);
@@ -817,6 +818,25 @@ namespace ReconNess.Web.Controllers
             await this.agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Obtain the configuratin path of the agents.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents/configuration/path
+        ///
+        /// </remarks>
+        /// <returns>The configuration path</returns>
+        /// <response code="200">Returns the configuration path</response>
+        [HttpGet("configuration/path")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult ConfigurationPath()
+        {
+            var configurationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            return Ok(configurationPath);
         }
     }
 }
