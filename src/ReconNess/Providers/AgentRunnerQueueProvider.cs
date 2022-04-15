@@ -1,5 +1,5 @@
-﻿using NLog;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using NLog;
 using RabbitMQ.Client;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
@@ -33,12 +33,12 @@ namespace ReconNess.Providers
             rabbitmqConnectionString = rabbitmqConnectionString.Replace("{{username}}", rabbitMQUserName)
                                                                .Replace("{{password}}", rabbitMQPassword);
 
-            if(!int.TryParse(reconnessAgentCountFromEnv, out int result))
+            if (!int.TryParse(reconnessAgentCountFromEnv, out int result))
             {
                 result = 1;
             }
 
-            reconnessAgentCount = result;            
+            reconnessAgentCount = result;
 
             var factory = new ConnectionFactory() { Uri = new Uri(rabbitmqConnectionString) };
 
@@ -46,24 +46,30 @@ namespace ReconNess.Providers
 
             this.channel = conn.CreateModel();
 
-            this.channel.ExchangeDeclare("reconness", ExchangeType.Direct);            
+            this.channel.ExchangeDeclare("reconness", ExchangeType.Direct);
         }
 
-        public Task EnqueueAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken)
+        public async Task EnqueueAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken)
         {
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(agentRunnerQueue));
-            var r = new Random(DateTime.Now.Millisecond);
-
-            var agentRoutingKey = $"reconness-{r.Next(1, reconnessAgentCount + 1)}";
-            _logger.Info($"Send to the routingKey {agentRoutingKey}");
             
-            lock (this.channel) {
+            string agentRoutingKey = await this.GetAgentRoutingKeyAsync();
+            _logger.Info($"Send to the routingKey {agentRoutingKey}");
+
+            lock (this.channel)
+            {
                 this.channel.BasicPublish("reconness", agentRoutingKey,
                                 basicProperties: this.channel.CreateBasicProperties(),
                                 body: body);
             }
+        }
 
-            return Task.CompletedTask;
+        private Task<string> GetAgentRoutingKeyAsync()
+        {
+
+            var r = new Random(DateTime.Now.Millisecond);
+
+            return Task.FromResult($"reconness-{r.Next(1, reconnessAgentCount + 1)}");
         }
     }
 }

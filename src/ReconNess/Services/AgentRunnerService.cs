@@ -269,7 +269,7 @@ namespace ReconNess.Services
         /// <param name="last">If is the last bash to run</param>
         /// <returns>A task</returns>
         private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
-        {            
+        {
             await queueProvider.EnqueueAsync(agentRunnerQueue, cancellationToken);
         }
 

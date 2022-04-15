@@ -24,6 +24,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<AgentRunnerOutput> AgentRunnerOutputs { get; set; }
         public DbSet<AgentTrigger> AgentTriggers { get; set; }
         public DbSet<AgentHistory> AgentHistories { get; set; }
+        public DbSet<AgentsSetting> AgentsSettings { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -73,6 +74,8 @@ namespace ReconNess.Data.Npgsql
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentsSetting>();
 
             modelBuilder.Entity<Reference>()
                 .Property(i => i.Id)
@@ -183,6 +186,7 @@ namespace ReconNess.Data.Npgsql
         {
             LabelSeeding.Run(modelBuilder);
             IdentitySeeding.Run(modelBuilder);
+            AgentsSettingSeeding.Run(modelBuilder);
         }
 
         /// <inheritdoc/>
