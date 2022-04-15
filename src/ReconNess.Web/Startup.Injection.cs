@@ -24,6 +24,7 @@ namespace ReconNess.Web
             services.AddScoped<IAgentService, AgentService>();
             services.AddScoped<IAgentRunnerService, AgentRunnerService>();
             services.AddScoped<IAgentCategoryService, AgentCategoryService>();
+            services.AddScoped<IAgentsSettingService, AgentsSettingService>();
             services.AddScoped<ITargetService, TargetService>();
             services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<ISubdomainService, SubdomainService>();
@@ -35,7 +36,8 @@ namespace ReconNess.Web
             services.AddScoped<IAuthProvider, AuthProvider>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
-
+            
+            
             services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ILogsProvider, LogsProvider>();
 

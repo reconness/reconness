@@ -14,6 +14,6 @@ namespace ReconNess.Core.Providers
         /// <param name="args">The Agent params</param>
         /// <param name="cancellationToken"></param>
         /// <returns>A task</returns>
-        Task EnqueueAsync(T args, CancellationToken cancellationToken);
+        void Enqueue(T args);
     }
 }

@@ -26,7 +26,6 @@ services:
       - RabbitMQUser=reconness                    # rabbitmq userName
       - RabbitMQPassword=reconness                # rabbitmq password
       - SecurityKey=mysecuritykeypleasechangethis # securityKey for the JWT, minimum length is 16 characters
-      - ReconnessAgentCount=2
   agent1:
     container_name: 'reconness-agent-1'
     image: 'reconness-agent'
@@ -46,7 +45,7 @@ services:
       - PostgresDb=reconness                      # postgres database
       - RabbitMQUser=reconness                    # rabbitmq userName
       - RabbitMQPassword=reconness                # rabbitmq password
-      - ReconnessAgentOrder=1
+      - ReconnessAgent=1
   agent2:
     container_name: 'reconness-agent-2'
     image: 'reconness-agent'
@@ -66,7 +65,7 @@ services:
       - PostgresDb=reconness                      # postgres database
       - RabbitMQUser=reconness                    # rabbitmq userName
       - RabbitMQPassword=reconness                # rabbitmq password
-      - ReconnessAgentOrder=2
+      - ReconnessAgent=2
       
   postgres:
     ports:

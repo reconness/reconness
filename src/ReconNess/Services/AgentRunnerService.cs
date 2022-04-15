@@ -23,6 +23,7 @@ namespace ReconNess.Services
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ISubdomainService subdomainService;
+        private readonly IAgentServerService agentServerService;
         private readonly IQueueProvider<AgentRunnerQueue> queueProvider;
 
         /// <summary>
@@ -32,17 +33,20 @@ namespace ReconNess.Services
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
-        /// <param name="queueProvider"><see cref="IQueueProvider"/></param>
+        /// <param name="queueProvider"><see cref="IQueueProvider{T}"/></param>
+        /// <param name="agentServerService"><see cref="IAgentServerService"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
             ITargetService targetService,
             IRootDomainService rootDomainService,
             ISubdomainService subdomainService,
-            IQueueProvider<AgentRunnerQueue> queueProvider) : base(unitOfWork)
+            IQueueProvider<AgentRunnerQueue> queueProvider,
+            IAgentServerService agentServerService) : base(unitOfWork)
         {
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.subdomainService = subdomainService;
             this.queueProvider = queueProvider;
+            this.agentServerService = agentServerService;
         }
 
         /// <inheritdoc/>
@@ -270,7 +274,9 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
         {
-            await queueProvider.EnqueueAsync(agentRunnerQueue, cancellationToken);
+            agentRunnerQueue.AvailableServerNumber = await this.agentServerService.GetAgentAvailableServerAsync(cancellationToken);
+
+            queueProvider.Enqueue(agentRunnerQueue);
         }
 
         /// <summary>
@@ -365,6 +371,6 @@ namespace ReconNess.Services
                 AgentTypes.SUBDOMAIN => agentRunnerInfo.Subdomain == null ? AgentRunnerTypes.ALL_SUBDOMAINS : AgentRunnerTypes.CURRENT_SUBDOMAIN,
                 _ => string.Empty
             };
-        }
+        }      
     }
 }

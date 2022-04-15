@@ -6,8 +6,6 @@ using ReconNess.Core.Providers;
 using System;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace ReconNess.Providers
 {
@@ -15,8 +13,8 @@ namespace ReconNess.Providers
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
+        
         private readonly IModel channel;
-        private readonly int reconnessAgentCount;
 
         public AgentRunnerQueueProvider(IConfiguration configuration)
         {
@@ -27,18 +25,9 @@ namespace ReconNess.Providers
             var rabbitMQPassword = Environment.GetEnvironmentVariable("RabbitMQPassword") ??
                              Environment.GetEnvironmentVariable("RabbitMQPassword", EnvironmentVariableTarget.User);
 
-            var reconnessAgentCountFromEnv = Environment.GetEnvironmentVariable("ReconnessAgentCount") ??
-                             Environment.GetEnvironmentVariable("ReconnessAgentCount", EnvironmentVariableTarget.User);
-
             rabbitmqConnectionString = rabbitmqConnectionString.Replace("{{username}}", rabbitMQUserName)
                                                                .Replace("{{password}}", rabbitMQPassword);
-
-            if (!int.TryParse(reconnessAgentCountFromEnv, out int result))
-            {
-                result = 1;
-            }
-
-            reconnessAgentCount = result;
+            
 
             var factory = new ConnectionFactory() { Uri = new Uri(rabbitmqConnectionString) };
 
@@ -49,27 +38,19 @@ namespace ReconNess.Providers
             this.channel.ExchangeDeclare("reconness", ExchangeType.Direct);
         }
 
-        public async Task EnqueueAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken)
+        public void Enqueue(AgentRunnerQueue agentRunnerQueue)
         {
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(agentRunnerQueue));
-            
-            string agentRoutingKey = await this.GetAgentRoutingKeyAsync();
-            _logger.Info($"Send to the routingKey {agentRoutingKey}");
+            var routingKey = $"reconness-{agentRunnerQueue.AvailableServerNumber}";
+
+            _logger.Info($"Send to the routingKey {routingKey}");
 
             lock (this.channel)
             {
-                this.channel.BasicPublish("reconness", agentRoutingKey,
+                this.channel.BasicPublish("reconness", routingKey,
                                 basicProperties: this.channel.CreateBasicProperties(),
                                 body: body);
             }
-        }
-
-        private Task<string> GetAgentRoutingKeyAsync()
-        {
-
-            var r = new Random(DateTime.Now.Millisecond);
-
-            return Task.FromResult($"reconness-{r.Next(1, reconnessAgentCount + 1)}");
         }
     }
 }
