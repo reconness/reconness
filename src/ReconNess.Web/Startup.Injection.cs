@@ -1,9 +1,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core;
+using ReconNess.Core.Managers;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Data.Npgsql;
+using ReconNess.Managers;
 using ReconNess.Providers;
 using ReconNess.Services;
 using ReconNess.Web.Auth;
@@ -36,8 +38,9 @@ namespace ReconNess.Web
             services.AddScoped<IAuthProvider, AuthProvider>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoleService, RoleService>();
-            
-            
+
+            services.AddSingleton<IAgentServerManager, AgentServerManager>();
+
             services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ILogsProvider, LogsProvider>();
 

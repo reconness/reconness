@@ -24,7 +24,6 @@ namespace ReconNess.Data.Npgsql
         public DbSet<AgentRunnerOutput> AgentRunnerOutputs { get; set; }
         public DbSet<AgentTrigger> AgentTriggers { get; set; }
         public DbSet<AgentHistory> AgentHistories { get; set; }
-        public DbSet<AgentServer> AgentServers { get; set; }
         public DbSet<AgentsSetting> AgentsSettings { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
@@ -73,10 +72,6 @@ namespace ReconNess.Data.Npgsql
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<AgentTrigger>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<AgentServer>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 

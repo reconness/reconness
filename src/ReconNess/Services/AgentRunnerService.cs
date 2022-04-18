@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NLog;
 using ReconNess.Core;
+using ReconNess.Core.Managers;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
@@ -23,7 +24,7 @@ namespace ReconNess.Services
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ISubdomainService subdomainService;
-        private readonly IAgentServerService agentServerService;
+        private readonly IAgentServerManager agentServerManager;
         private readonly IQueueProvider<AgentRunnerQueue> queueProvider;
 
         /// <summary>
@@ -34,19 +35,19 @@ namespace ReconNess.Services
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
         /// <param name="queueProvider"><see cref="IQueueProvider{T}"/></param>
-        /// <param name="agentServerService"><see cref="IAgentServerService"/></param>
+        /// <param name="agentServerManager"><see cref="IAgentServerManager"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
             ITargetService targetService,
             IRootDomainService rootDomainService,
             ISubdomainService subdomainService,
             IQueueProvider<AgentRunnerQueue> queueProvider,
-            IAgentServerService agentServerService) : base(unitOfWork)
+            IAgentServerManager agentServerManager) : base(unitOfWork)
         {
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.subdomainService = subdomainService;
             this.queueProvider = queueProvider;
-            this.agentServerService = agentServerService;
+            this.agentServerManager = agentServerManager;
         }
 
         /// <inheritdoc/>
@@ -274,7 +275,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
         {
-            agentRunnerQueue.AvailableServerNumber = await this.agentServerService.GetAgentAvailableServerAsync(cancellationToken);
+            agentRunnerQueue.AvailableServerNumber = await this.agentServerManager.GetAvailableServerAsync(agentRunnerQueue.Channel, cancellationToken);
 
             queueProvider.Enqueue(agentRunnerQueue);
         }
