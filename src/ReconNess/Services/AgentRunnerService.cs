@@ -275,7 +275,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
         {
-            agentRunnerQueue.AvailableServerNumber = await this.agentServerManager.GetAvailableServerAsync(agentRunnerQueue.Channel, cancellationToken);
+            agentRunnerQueue.AvailableServerNumber = await this.agentServerManager.GetAvailableServerAsync(agentRunnerQueue.Channel, 60, cancellationToken);
 
             queueProvider.Enqueue(agentRunnerQueue);
         }

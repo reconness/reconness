@@ -31,12 +31,12 @@ namespace ReconNess.Managers
         }
 
         /// <inheritdoc/>
-        public async Task<int> GetAvailableServerAsync(string channel, CancellationToken cancellationToken = default)
+        public async Task<int> GetAvailableServerAsync(string channel, int refreshInMin = 60, CancellationToken cancellationToken = default)
         {
             await this.InitialiceAsync(cancellationToken);
 
             // try to remove the keys inside the servers with more than 1 hr created
-            this.RefreshServers();
+            this.RefreshServers(refreshInMin);
 
             if (this.agentsSetting.Strategy == Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN)
             {
@@ -72,11 +72,11 @@ namespace ReconNess.Managers
         /// <summary>
         /// Remove the keys inside the servers with more than 1 hr created
         /// </summary>
-        private void RefreshServers()
+        private void RefreshServers(int refreshInMin)
         {
             for (int i = 1; i <= this.agentsSetting.AgentServerCount; i++)
             {
-                this.servers[i].Refresh();
+                this.servers[i].Refresh(refreshInMin);
             }
         }
 

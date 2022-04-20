@@ -28,12 +28,12 @@ namespace ReconNess.Managers
 
         internal int Count => Channels.Values.Sum(c => c.Count);
 
-        internal void Refresh()
+        internal void Refresh(int refreshTimeOnMin)
         {
             var channelsToRemove = new List<string>();
             foreach (var channel in Channels)
             {
-                if (channel.Value.CreatedAt.AddHours(1) < DateTime.Now)
+                if (channel.Value.CreatedAt.AddMinutes(refreshTimeOnMin) < DateTime.Now)
                 {
                     channelsToRemove.Add(channel.Key);
                 }
