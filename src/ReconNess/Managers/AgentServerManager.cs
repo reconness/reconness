@@ -48,12 +48,6 @@ namespace ReconNess.Managers
             return this.GetServerUnbusy(channel);
         }
 
-        /// <inheritdoc/>
-        public void AgentsSettingWasUpdated()
-        {
-            this.agentsSetting = null;
-        }
-
         /// <summary>
         /// If the Setting is null obtain it from the database, and initialice the servers track 
         /// </summary>

@@ -268,10 +268,8 @@ namespace ReconNess.Services
         /// <summary>
         /// Run bash
         /// </summary>
-        /// <param name="agentRunnerInfo">The agent run parameters</param>
-        /// <param name="channel">The channel to send the menssage</param>
-        /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
-        /// <param name="last">If is the last bash to run</param>
+        /// <param name="agentRunnerQueue">The agent runner queue information</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
         private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
         {
