@@ -358,6 +358,49 @@ namespace ReconNess.UnitTests
         }
 
         [TestMethod]
+        public async Task TestGetAvailableServerRounRobinParalleltComplexAsync()
+        {
+            // Arrange
+            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+
+            var agentsSettings = new List<AgentsSetting>
+            {
+                new AgentsSetting
+                {
+                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                    AgentServerCount = 4
+                }
+            };
+
+            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
+                .Returns<CancellationToken>(c =>
+                {
+                    return Task.FromResult(agentsSettings);
+                });
+
+            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+
+            // Assert
+            await Parallel.ForEachAsync<int>(Enumerable.Range(0, 100), async (i, c) =>
+            {
+                var channel = await agentServerManager.GetAvailableServerAsync("my-channel-1");
+                Assert.IsTrue(1 == channel);
+
+                var channel2 = await agentServerManager.GetAvailableServerAsync("my-channel-2");
+                Assert.IsTrue(2 == channel2);
+
+                var channel3 = await agentServerManager.GetAvailableServerAsync("my-channel-1");
+                Assert.IsTrue(1 == channel3);
+
+                var channel4 = await agentServerManager.GetAvailableServerAsync("my-channel-3");
+                Assert.IsTrue(3 == channel4);
+
+                var channel5 = await agentServerManager.GetAvailableServerAsync("my-channel-4");
+                Assert.IsTrue(4 == channel5);
+            });
+        }
+
+        [TestMethod]
         public async Task TestGetAvailableServerGreedyComplexAsync()
         {
             // Arrange
