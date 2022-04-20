@@ -11,7 +11,9 @@ using System.Threading.Tasks;
 namespace ReconNess.Managers
 {
     /// <summary>
-    /// This class implement <see cref="IAgentServerManager"/>
+    /// This class implement <see cref="IAgentServerManager"/>, this implemntation does not check the pub/sub service directly, to know what server is unbusy, is a decoupling
+    /// of what is happending in the pub/sub service, that can be an issue, but at the same time is not big deal to be decoupling of the pub/sub service
+    /// and emulate what could be happening base on the traffic
     /// </summary>
     public class AgentServerManager : IAgentServerManager
     {
@@ -47,7 +49,7 @@ namespace ReconNess.Managers
         }
 
         /// <inheritdoc/>
-        public void InvalidateServers()
+        public void AgentsSettingWasUpdated()
         {
             this.agentsSetting = null;
         }

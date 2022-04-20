@@ -19,8 +19,8 @@ namespace ReconNess.Core.Managers
         Task<int> GetAvailableServerAsync(string channel, int refreshInMin = 60, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// If the Agents Setting was updated, and we change the amount of available servers, we need to call this method to invalidate the servers data struct
+        /// If the Agents Setting was updated, and we change the amount of available servers or the strategy, we need to call this method to reset the servers data struct settings
         /// </summary>
-        void InvalidateServers();
+        void AgentsSettingWasUpdated();
     }
 }
