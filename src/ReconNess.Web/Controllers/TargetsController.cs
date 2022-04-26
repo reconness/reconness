@@ -285,15 +285,14 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Import a rootdomain with all the subdomains in the target.
+        /// Import a target with all the rootdomain.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     POST api/targets/importRootDomain/{targetName}
+        ///     POST api/targets/import
         ///
         /// </remarks>
-        /// <param name="targetName">The target name</param>
         /// <param name="file">the rootdomain json with all the subdomains too</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The rootdomain name imported</returns>
@@ -301,27 +300,16 @@ namespace ReconNess.Web.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
-        [HttpPost("importRootDomain/{targetName}")]
+        [HttpPost("import")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> ImportRootDomain(IFormFile file, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(targetName))
-            {
-                return BadRequest();
-            }
-
             if (file.Length == 0)
             {
                 return BadRequest();
-            }
-
-            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
             }
 
             var path = Path.GetTempFileName();
@@ -330,32 +318,73 @@ namespace ReconNess.Web.Controllers
                 await file.CopyToAsync(stream, cancellationToken);
             }
 
-            RootDomainDto rootDomainDto = default;
+            TargetDto targetDto = default;
             try
             {
                 var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
-                rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+                targetDto = JsonConvert.DeserializeObject<TargetDto>(json);
             }
             catch (Exception)
             {
-                return BadRequest("Invalid rootdomain json");
+                return BadRequest("Invalid target json");
             }
 
-            if (string.IsNullOrEmpty(rootDomainDto.Name))
+            if (string.IsNullOrEmpty(targetDto.Name))
             {
-                return BadRequest($"The rootdomain name can not be empty");
+                return BadRequest($"The target name can not be empty");
             }
 
-            if (target.RootDomains.Any(r => rootDomainDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            if (await this.targetService.AnyAsync(r => targetDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                return BadRequest($"The rootdomain: {rootDomainDto.Name} exist in the target");
+                return BadRequest($"The target: {targetDto.Name} exist.");
             }
 
-            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+            var uploadTarget = this.mapper.Map<TargetDto, Target>(targetDto);
 
-            await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
+            await this.targetService.AddAsync(uploadTarget, cancellationToken);
 
-            return Ok(uploadRootDomain.Name);
+            return Ok(uploadTarget.Name);
+        }
+
+        /// <summary>
+        /// Export the target with all the rootdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/targets/export/{targetName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The json file with the target and the rootdomain data</returns>
+        /// <response code="200">Returns the json file with the rootdomain and the subdomains data</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("export/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Export(string targetName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var targetDto = this.mapper.Map<Target, TargetDto>(target);
+
+            var download = Helpers.Helpers.ZipSerializedObject<TargetDto>(targetDto);
+
+            return File(download, "application/json", $"target-{targetDto.Name}.json");
         }
 
         /// <summary>

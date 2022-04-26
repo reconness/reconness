@@ -2,9 +2,11 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -120,6 +122,80 @@ namespace ReconNess.Web.Controllers
             await this.rootDomainService.DeleteSubdomainsAsync(rootDomain, cancellationToken);
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Import a rootdomain with all the subdomains in the target.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/rootdomains/import/{targetName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="file">the rootdomain json with all the subdomains too</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The rootdomain name imported</returns>
+        /// <response code="200">Returns the rootdomain name imported</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("import/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            if (file.Length == 0)
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            RootDomainDto rootDomainDto = default;
+            try
+            {
+                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
+                rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Invalid rootdomain json");
+            }
+
+            if (string.IsNullOrEmpty(rootDomainDto.Name))
+            {
+                return BadRequest($"The rootdomain name can not be empty");
+            }
+
+            if (target.RootDomains.Any(r => rootDomainDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest($"The rootdomain: {rootDomainDto.Name} exist in the target");
+            }
+
+            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+
+            await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
+
+            return Ok(uploadRootDomain.Name);
         }
 
         /// <summary>
