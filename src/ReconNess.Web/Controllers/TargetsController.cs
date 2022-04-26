@@ -26,6 +26,7 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetsController" /> class
@@ -33,14 +34,17 @@ namespace ReconNess.Web.Controllers
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public TargetsController(
             IMapper mapper,
             ITargetService targetService,
-            IRootDomainService rootDomainService)
+            IRootDomainService rootDomainService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -142,6 +146,12 @@ namespace ReconNess.Web.Controllers
             var insertedTarget = await this.targetService.AddAsync(target, cancellationToken);
             var insertedTargetDto = this.mapper.Map<Target, TargetDto>(insertedTarget);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = insertedTarget,
+                Data = $"Target {insertedTarget.Name} added"
+            }, cancellationToken);
+
             return Ok(insertedTargetDto);
         }
 
@@ -201,6 +211,12 @@ namespace ReconNess.Web.Controllers
 
             await this.targetService.UpdateAsync(target, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} updated"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -239,6 +255,11 @@ namespace ReconNess.Web.Controllers
 
             await this.targetService.DeleteAsync(target, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Target {target.Name} deleted"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -262,24 +283,32 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DeleteBatch([FromBody] List<String> targetNames, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteBatch([FromBody] IList<string> targetNames, CancellationToken cancellationToken)
         {
             if (targetNames == null || targetNames.Count == 0)
             {
                 return BadRequest();
             }
 
-            List<Target> targetsEntities = new List<Target>();
-            foreach (String targetName in targetNames)
+            var targetsEntities = new List<Target>();
+            foreach (var targetName in targetNames)
             {
-              Target target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
-              if (target != null)
-              {
-                targetsEntities.Add(target);
-              }   
+                var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+                if (target != null)
+                {
+                    targetsEntities.Add(target);
+                }   
             }
 
             await this.targetService.DeleteRangeAsync(targetsEntities, cancellationToken);
+
+            foreach (var target in targetsEntities)
+            {
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Data = $"Target {target.Name} deleted"
+                }, cancellationToken);
+            }
 
             return NoContent();
         }
@@ -305,7 +334,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ImportRootDomain(IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> Import(IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0)
             {
@@ -341,7 +370,13 @@ namespace ReconNess.Web.Controllers
 
             var uploadTarget = this.mapper.Map<TargetDto, Target>(targetDto);
 
-            await this.targetService.AddAsync(uploadTarget, cancellationToken);
+            var target = await this.targetService.AddAsync(uploadTarget, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} imported"
+            }, cancellationToken);
 
             return Ok(uploadTarget.Name);
         }
@@ -383,6 +418,12 @@ namespace ReconNess.Web.Controllers
             var targetDto = this.mapper.Map<Target, TargetDto>(target);
 
             var download = Helpers.Helpers.ZipSerializedObject<TargetDto>(targetDto);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} exported"
+            }, cancellationToken);
 
             return File(download, "application/json", $"target-{targetDto.Name}.json");
         }

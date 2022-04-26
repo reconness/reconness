@@ -44,7 +44,7 @@ namespace ReconNess.Core.Services
         /// <param name="newRootdomain">root domain upload</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default);
+        Task ImportRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain the target dashboard

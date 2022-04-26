@@ -26,21 +26,17 @@ namespace ReconNess.Services
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IScriptEngineService scriptEngineService;
-        private readonly IAuthProvider authProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
-        /// <param name="authProvider"><see cref="IAuthProvider"/></param>
         public AgentService(IUnitOfWork unitOfWork,
-            IScriptEngineService scriptEngineService,
-            IAuthProvider authProvider)
+            IScriptEngineService scriptEngineService)
             : base(unitOfWork)
         {
             this.scriptEngineService = scriptEngineService;
-            this.authProvider = authProvider;
         }
 
         /// <inheritdoc/>
@@ -106,7 +102,7 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
-                    .Include(a => a.Logs)
+                    .Include(a => a.EventTracks)
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
@@ -155,38 +151,6 @@ namespace ReconNess.Services
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
             return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
-        {
-            agent.Logs = new List<AgentLog>
-            {
-                new AgentLog
-                {
-                    Username = this.authProvider.UserName(),
-                    Log = changeType
-                }
-            };
-
-            return await this.AddAsync(agent, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
-        {
-            if (agent.Logs == null)
-            {
-                agent.Logs = new List<AgentLog>();
-            }
-
-            agent.Logs.Add(new AgentLog
-            {
-                Username = this.authProvider.UserName(),
-                Log = "Agent Updated"
-            });
-
-            await this.UpdateAsync(agent, cancellationToken);
         }
 
         /// <inheritdoc/>

@@ -27,6 +27,6 @@ namespace ReconNess.Entities
 
         public virtual ICollection<RootDomain> RootDomains { get; set; }
 
-        public virtual ICollection<TargetLog> Logs { get; set; }
+        public virtual ICollection<EventTrack> EventTracks { get; set; }
     }
 }

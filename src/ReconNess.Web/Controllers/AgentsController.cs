@@ -32,6 +32,7 @@ namespace ReconNess.Web.Controllers
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ISubdomainService subdomainService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentsController" /> class
@@ -43,6 +44,7 @@ namespace ReconNess.Web.Controllers
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public AgentsController(
             IMapper mapper,
             IAgentService agentService,
@@ -50,7 +52,8 @@ namespace ReconNess.Web.Controllers
             IAgentCategoryService categoryService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
-            ISubdomainService subdomainService)
+            ISubdomainService subdomainService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.agentService = agentService;
@@ -59,6 +62,7 @@ namespace ReconNess.Web.Controllers
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.subdomainService = subdomainService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -194,7 +198,14 @@ namespace ReconNess.Web.Controllers
                 agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
             }
 
-            var insertedAgent = await this.agentService.AddAgentAsync(agent, "Agent Added", cancellationToken);
+            var insertedAgent = await this.agentService.AddAsync(agent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} Added"
+            }, cancellationToken);
+
             var insertedAgentDto = this.mapper.Map<Agent, AgentDto>(insertedAgent);
 
             return Ok(insertedAgentDto);
@@ -281,7 +292,13 @@ namespace ReconNess.Web.Controllers
             agent.AgentTrigger.SubdomainIncExcLabel = agentDto.TriggerSubdomainIncExcLabel;
             agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
 
-            await this.agentService.UpdateAgentAsync(agent, cancellationToken);
+            await this.agentService.UpdateAsync(agent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} Updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -319,6 +336,11 @@ namespace ReconNess.Web.Controllers
 
             await this.agentService.DeleteAsync(agent, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Agent {agent.Name} Deleted"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -341,24 +363,33 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DeleteBatch([FromBody] List<String> agentNames, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteBatch([FromBody] IList<string> agentNames, CancellationToken cancellationToken)
         {
             if (agentNames == null || agentNames.Count == 0)
             {
                 return BadRequest();
             }
 
-            List<Agent> agentsEntities = new List<Agent>();
-            foreach (String agentName in agentNames)
+            var agentsEntities = new List<Agent>();
+            foreach (var agentName in agentNames)
             {
-              Agent agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
-              if (agent != null)
-              {
-                agentsEntities.Add(agent);
-              }   
+                var agent = await this.agentService.GetByCriteriaAsync(a => a.Name == agentName, cancellationToken);
+                if (agent != null)
+                {
+                    agentsEntities.Add(agent);
+                    
+                }
             }
 
             await this.agentService.DeleteRangeAsync(agentsEntities, cancellationToken);
+
+            foreach (var agent in agentsEntities)
+            {
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Data = $"Agent {agent.Name} Deleted"
+                }, cancellationToken);
+            }
 
             return NoContent();
         }
@@ -396,7 +427,13 @@ namespace ReconNess.Web.Controllers
 
             agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
-            var agentInstalled = await this.agentService.AddAgentAsync(agent, "Agent Installed", cancellationToken);
+            var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agentInstalled,
+                Data = $"Agent {agentInstalled.Name} Installed"
+            }, cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
@@ -497,14 +534,15 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetSubdomainAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            await this.agentRunnerService.RunAgentAsync(
+            await this.agentRunnerService.RunAgentAsync
+            (
                 new AgentRunner
                 {
                     Agent = agent,
@@ -513,7 +551,14 @@ namespace ReconNess.Web.Controllers
                     Subdomain = subdomain,
                     ActivateNotification = agentRunnerDto.ActivateNotification,
                     Command = agentRunnerDto.Command
-                }, cancellationToken);
+                }, cancellationToken
+            );
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} Running"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -596,6 +641,12 @@ namespace ReconNess.Web.Controllers
             };
 
             await this.agentRunnerService.StopAgentAsync(agentRunner, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} stopped"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -739,6 +790,12 @@ namespace ReconNess.Web.Controllers
             agent.ConfigurationFileName = file.FileName;
             await this.agentService.UpdateAsync(agent, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} configuration uploaded"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -781,6 +838,12 @@ namespace ReconNess.Web.Controllers
 
             await this.agentService.UpdateConfigurationFileAsync(agent, agentDto.ConfigurationContent, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} configuration updated"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -816,6 +879,12 @@ namespace ReconNess.Web.Controllers
             }
 
             await this.agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} configuration deleted"
+            }, cancellationToken);
 
             return NoContent();
         }

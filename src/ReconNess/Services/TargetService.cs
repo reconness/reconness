@@ -96,7 +96,7 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
+        public async Task ImportRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
         {
             target.RootDomains.Add(newRootdomain);
 
@@ -162,15 +162,15 @@ namespace ReconNess.Services
             dashboard.SubdomainByPort = groupPorts.Select(p => new SubdomainByPort { Port = p.Key, Count = p.Count() });
             dashboard.SubdomainByDirectories = groupDirectories.Select(p => new SubdomainByDirectories { Subdomain = p.Key.Name, Count = p.Count() }).Take(5);
 
-            var groupByDayOfWeek = await this.UnitOfWork.Repository<TargetLog>().GetAllQueryableByCriteria(l => l.CreatedAt > DateTime.Now.AddDays(-7))
+            var groupByDayOfWeek = await this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.CreatedAt > DateTime.Now.AddDays(-7))
                 .GroupBy(l => l.CreatedAt.DayOfWeek)
                 .ToListAsync(cancellationToken);
 
-            dashboard.Interactions = groupByDayOfWeek.Select(d => new Interaction { Day = d.Key, Count = d.Count() });
+            dashboard.Interactions = groupByDayOfWeek.Select(d => new DashboardEventTrackInteraction { Day = d.Key, Count = d.Count() });
 
 
-            dashboard.Logs = await this.UnitOfWork.Repository<TargetLog>().GetAllQueryableByCriteria(l => l.Target == target)
-                .Select(l => new DashboardLog { Date = l.CreatedAt, Log = l.Log}).Take(10)
+            dashboard.EventTracks = await this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.Target == target)
+                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Data}).Take(10)
                 .ToListAsync(cancellationToken);
 
             throw new NotImplementedException();

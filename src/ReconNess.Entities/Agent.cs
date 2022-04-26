@@ -35,7 +35,7 @@ namespace ReconNess.Entities
 
         public virtual ICollection<Category> Categories { get; set; }
 
-        public virtual ICollection<AgentLog> Logs { get; set; }
+        public virtual ICollection<EventTrack> EventTracks { get; set; }
 
         public virtual ICollection<AgentRun> AgentRuns { get; set; }
     }

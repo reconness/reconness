@@ -9,9 +9,9 @@ namespace ReconNess.Core.Models
 
         public IEnumerable<SubdomainByDirectories> SubdomainByDirectories { get; set; }
 
-        public IEnumerable<Interaction> Interactions { get; set; }
+        public IEnumerable<DashboardEventTrackInteraction> Interactions { get; set; }
 
-        public IEnumerable<DashboardLog> Logs { get; set; }
+        public IEnumerable<DashboardEventTrack> EventTracks { get; set; }
     }
 
     public class SubdomainByPort
@@ -28,15 +28,15 @@ namespace ReconNess.Core.Models
         public int Count { get; set; }
     }
 
-    public class Interaction
+    public class DashboardEventTrackInteraction
     {
         public DayOfWeek Day { get; set; }
         public int Count { get; set; }
     }
 
-    public class DashboardLog
+    public class DashboardEventTrack
     {
         public DateTime Date { get; set; }
-        public string Log { get; set; }
+        public string Data { get; set; }
     }
 }

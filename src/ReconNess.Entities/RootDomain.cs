@@ -18,5 +18,7 @@ namespace ReconNess.Entities
         public virtual Note Notes { get; set; }
 
         public virtual Target Target { get; set; }
+
+        public virtual ICollection<EventTrack> EventTracks { get; set; }
     }
 }

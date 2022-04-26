@@ -24,6 +24,7 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetsController" /> class
@@ -31,14 +32,17 @@ namespace ReconNess.Web.Controllers
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public RootDomainsController(
             IMapper mapper,
             ITargetService targetService,
-            IRootDomainService rootDomainService)
+            IRootDomainService rootDomainService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -121,6 +125,13 @@ namespace ReconNess.Web.Controllers
 
             await this.rootDomainService.DeleteSubdomainsAsync(rootDomain, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} deleted subdomains"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -146,7 +157,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> Import(string targetName, IFormFile file, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -193,7 +204,14 @@ namespace ReconNess.Web.Controllers
 
             var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
 
-            await this.targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
+            await this.targetService.ImportRootDomainAsync(target, uploadRootDomain, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = uploadRootDomain,
+                Data = $"Rootdomain {uploadRootDomain.Name} imported"
+            }, cancellationToken);
 
             return Ok(uploadRootDomain.Name);
         }
@@ -242,6 +260,13 @@ namespace ReconNess.Web.Controllers
             var rootdomainDto = this.mapper.Map<RootDomain, RootDomainDto>(rootDomain);
 
             var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} exported"
+            }, cancellationToken);
 
             return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }
@@ -301,6 +326,13 @@ namespace ReconNess.Web.Controllers
             var subdomains = System.IO.File.ReadAllLines(path).ToList();
             await this.rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} uploaded {subdomains.Count} subdomains"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -348,6 +380,13 @@ namespace ReconNess.Web.Controllers
             var data = string.Join(",", rootDomain.Subdomains.Select(s => s.Name));
 
             var download = Encoding.UTF8.GetBytes(data);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} downloaded {rootDomain.Subdomains.Count} subdomains"
+            }, cancellationToken);
 
             return File(download, "text/csv", "subdomains.csv");
         }

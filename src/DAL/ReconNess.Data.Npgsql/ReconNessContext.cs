@@ -21,17 +21,15 @@ namespace ReconNess.Data.Npgsql
     {
         public DbSet<Agent> Agents { get; set; }
         public DbSet<AgentRun> AgentRuns { get; set; }
-        public DbSet<AgentTrigger> AgentTriggers { get; set; }
-        public DbSet<AgentLog> AgentLogs { get; set; }
+        public DbSet<AgentTrigger> AgentTriggers { get; set; }        
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
-
-        public DbSet<TargetLog> TargetLogs { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Directory> Directories { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<EventTrack> EventTracks { get; set; }
 
         /// <summary>
         /// A transaction Object
@@ -55,17 +53,17 @@ namespace ReconNess.Data.Npgsql
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<EventTrack>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<Agent>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<AgentRun>()
                 .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<AgentLog>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
+                .ValueGeneratedOnAdd();            
 
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
@@ -80,10 +78,6 @@ namespace ReconNess.Data.Npgsql
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Target>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<TargetLog>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
@@ -121,23 +115,11 @@ namespace ReconNess.Data.Npgsql
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<AgentLog>()
-               .HasOne(t => t.Agent)
-               .WithMany(r => r.Logs)
-               .IsRequired()
-               .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<AgentTrigger>()
                .HasOne(t => t.Agent)
                .WithOne(r => r.AgentTrigger)
                .IsRequired()
-               .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<TargetLog>()
-                .HasOne(t => t.Target)
-                .WithMany(r => r.Logs)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.Cascade);            
 
             modelBuilder.Entity<RootDomain>()
                 .HasOne(t => t.Target)

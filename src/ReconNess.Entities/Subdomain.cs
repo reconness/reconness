@@ -34,5 +34,7 @@ namespace ReconNess.Entities
         public virtual ICollection<Directory> Directories { get; set; }
 
         public virtual ICollection<Service> Services { get; set; }
+
+        public virtual ICollection<EventTrack> EventTracks { get; set; }
     }
 }
