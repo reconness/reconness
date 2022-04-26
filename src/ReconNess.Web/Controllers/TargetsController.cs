@@ -357,5 +357,40 @@ namespace ReconNess.Web.Controllers
 
             return Ok(uploadRootDomain.Name);
         }
+
+        /// <summary>
+        /// Obtain a target by name.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/targets/{targetName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A target by name</returns>
+        /// <response code="200">Returns a target by name</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpGet("dashboard/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetDashboard(string targetName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(await this.targetService.GetDashboardAsync(target, cancellationToken));
+        }
     }
 }

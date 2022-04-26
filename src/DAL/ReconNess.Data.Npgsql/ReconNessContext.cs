@@ -22,9 +22,11 @@ namespace ReconNess.Data.Npgsql
         public DbSet<Agent> Agents { get; set; }
         public DbSet<AgentRun> AgentRuns { get; set; }
         public DbSet<AgentTrigger> AgentTriggers { get; set; }
-        public DbSet<AgentHistory> AgentHistories { get; set; }
+        public DbSet<AgentLog> AgentLogs { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
+
+        public DbSet<TargetLog> TargetLogs { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
         public DbSet<Subdomain> Subdomains { get; set; }
         public DbSet<Service> Services { get; set; }
@@ -61,7 +63,7 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentHistory>()
+            modelBuilder.Entity<AgentLog>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
@@ -78,6 +80,10 @@ namespace ReconNess.Data.Npgsql
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<Target>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<TargetLog>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
@@ -115,9 +121,9 @@ namespace ReconNess.Data.Npgsql
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<AgentHistory>()
+            modelBuilder.Entity<AgentLog>()
                .HasOne(t => t.Agent)
-               .WithMany(r => r.AgentHistories)
+               .WithMany(r => r.Logs)
                .IsRequired()
                .OnDelete(DeleteBehavior.Cascade);
 
@@ -126,6 +132,12 @@ namespace ReconNess.Data.Npgsql
                .WithOne(r => r.AgentTrigger)
                .IsRequired()
                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<TargetLog>()
+                .HasOne(t => t.Target)
+                .WithMany(r => r.Logs)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RootDomain>()
                 .HasOne(t => t.Target)

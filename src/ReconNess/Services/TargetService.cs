@@ -144,6 +144,14 @@ namespace ReconNess.Services
             }
         }
 
+        /// <inheritdoc/>
+        public Task<TargetDashboard> GetDashboardAsync(Target target, CancellationToken cancellationToken = default)
+        {
+            // TODO:
+
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// If we need to add a new RootDomain
         /// </summary>

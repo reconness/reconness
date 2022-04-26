@@ -106,7 +106,7 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
-                    .Include(a => a.AgentHistories)
+                    .Include(a => a.Logs)
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
@@ -160,12 +160,12 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
         {
-            agent.AgentHistories = new List<AgentHistory>
+            agent.Logs = new List<AgentLog>
             {
-                new AgentHistory
+                new AgentLog
                 {
                     Username = this.authProvider.UserName(),
-                    ChangeType = changeType
+                    Log = changeType
                 }
             };
 
@@ -175,15 +175,15 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
         {
-            if (agent.AgentHistories == null)
+            if (agent.Logs == null)
             {
-                agent.AgentHistories = new List<AgentHistory>();
+                agent.Logs = new List<AgentLog>();
             }
 
-            agent.AgentHistories.Add(new AgentHistory
+            agent.Logs.Add(new AgentLog
             {
                 Username = this.authProvider.UserName(),
-                ChangeType = "Agent Updated"
+                Log = "Agent Updated"
             });
 
             await this.UpdateAsync(agent, cancellationToken);
