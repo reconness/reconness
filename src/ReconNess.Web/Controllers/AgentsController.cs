@@ -111,7 +111,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -235,12 +235,12 @@ namespace ReconNess.Web.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
             var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
@@ -321,7 +321,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Delete(string agentName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete([FromRoute] string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -674,7 +674,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> RunningAgent(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
+        public async Task<ActionResult> RunningAgent([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromRoute] string subdomainName, CancellationToken cancellationToken)
         {
             Target target = default;
             if (!string.IsNullOrWhiteSpace(targetName))
@@ -741,7 +741,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UploadConfiguration(string agentName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> UploadConfiguration([FromRoute] string agentName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0 || string.IsNullOrEmpty(agentName))
             {
@@ -818,7 +818,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateConfiguration(string agentName, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateConfiguration([FromRoute] string agentName, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -865,7 +865,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DeleteConfiguration(string agentName, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteConfiguration([FromRoute] string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {

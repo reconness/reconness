@@ -89,7 +89,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -181,12 +181,12 @@ namespace ReconNess.Web.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
             if (target == null)
@@ -240,7 +240,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete([FromRoute] string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -402,7 +402,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Export(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Export([FromRoute] string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -447,7 +447,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetDashboard(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetDashboard([FromRoute] string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {

@@ -65,7 +65,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Get(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -104,7 +104,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -157,7 +157,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Import(string targetName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> Import([FromRoute] string targetName, IFormFile file, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -238,7 +238,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Export([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -293,7 +293,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> UploadSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -358,7 +358,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DonwloadSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> DonwloadSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
