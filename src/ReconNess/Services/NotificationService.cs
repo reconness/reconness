@@ -69,12 +69,11 @@ namespace ReconNess.Services
             {
                 var client = new RestClient(notification.Url);
                 var request = new RestRequest();
-                request.UseNewtonsoftJson();
 
                 var payload = notification.Payload.Replace("{{notification}}", agentPayload);
                 request.AddJsonBody(JsonConvert.DeserializeObject(payload));
 
-                var method = "POST".Equals(notification.Method) ? Method.POST : Method.GET;
+                var method = "POST".Equals(notification.Method) ? Method.Post : Method.Get;
                 var response = await client.ExecuteAsync(request, method, cancellationToken);
             }
             catch (Exception ex)
