@@ -23,8 +23,6 @@ namespace ReconNess.Web.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        private static readonly string ERROR_USER_EXIT = "A user with that user name exist";
-
         private readonly IMapper mapper;
         private readonly IUserService userService;
         private readonly IRoleService roleService;
@@ -62,39 +60,42 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var users = await this.userService
-                        .GetAllQueryable()
+            var users = new List<User>();
+
+            if (this.authProvider.AreYouMember())
+            {
+                // get yourself only
+                users.Add(await this.userService
+                        .GetAllQueryableByCriteria(u => u.UserName == this.authProvider.UserName())
                         .AsNoTracking()
-                        .ToListAsync(cancellationToken);
+                        .FirstOrDefaultAsync(cancellationToken));
+            }
+            else if (this.authProvider.AreYouAdmin())
+            {
+                // get yourself and member users only
+                var allUsers = await this.userService
+                            .GetAllQueryable()
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
+
+                foreach (var user in allUsers)
+                {
+                    if (user.UserName == this.authProvider.UserName() || await this.userManager.IsInRoleAsync(user, "Member"))
+                    {
+                        users.Add(user);
+                    }
+                }
+            }
+            else
+            {
+                // get all users
+                users = await this.userService
+                            .GetAllQueryable()
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
+            }
 
             return Ok(this.mapper.Map<List<User>, List<UserDto>>(users));
-        }
-
-        /// <summary>
-        /// Obtain the list of roles.
-        /// </summary>
-        /// <remarks>
-        /// Sample request:
-        ///
-        ///     GET api/users
-        ///
-        /// </remarks>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The list of targets</returns>
-        /// <response code="200">Returns the list of users</response>
-        /// <response code="401">If the user is not authenticate or admin role</response>
-        [HttpGet("roles")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
-        {
-            var roles = await this.roleService
-                        .GetAllQueryable()
-                        .AsNoTracking()
-                        .Select(r => r.Name)
-                        .ToListAsync(cancellationToken);
-
-            return Ok(roles);
         }
 
         /// <summary>
@@ -124,13 +125,15 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            // only the Owner and the Admin user can see the into of the other users
-            if (!this.authProvider.AreYouAdmin() && !this.authProvider.AreYouOwner())
+            var currentUserName = this.authProvider.UserName();
+            if (this.authProvider.AreYouMember() && user.UserName != currentUserName)
             {
-                if (!user.UserName.Equals(this.authProvider.UserName()))
-                {
-                    return BadRequest("You only can see your own user.");
-                }
+                return BadRequest("You only can see your own user.");
+            }
+
+            if (this.authProvider.AreYouAdmin() && user.UserName != currentUserName && !(await this.userManager.IsInRoleAsync(user, "Member")))
+            {
+                return BadRequest("You only can see your own user or member users.");
             }
 
             return Ok(this.mapper.Map<User, UserDto>(user));
@@ -176,11 +179,21 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("Password is required.");
             }
 
+            if (this.authProvider.AreYouAdmin() && "Admin".Equals(userDto.Role))
+            {
+                return BadRequest("You can not add Admin new user.");
+            }
+
+            if (!"Member".Equals(userDto.Role) && !"Admin".Equals(userDto.Role))
+            {
+                return BadRequest("You can not add an invalid Role.");
+            }
+
             var userExist = await this.userService.AnyAsync(t => t.UserName.ToLower() == userDto.UserName.ToLower(), cancellationToken);
             if (userExist)
             {
-                return BadRequest(ERROR_USER_EXIT);
-            }
+                return BadRequest("A user with that user name exist");
+            }            
 
             var user = this.mapper.Map<UserDto, User>(userDto);
 
@@ -230,24 +243,35 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put(Guid id, [FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
+            if (!"Member".Equals(userDto.Role) && !"Admin".Equals(userDto.Role))
+            {
+                return BadRequest("You can not add an invalid Role.");
+            }
+
             var user = await this.userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
                 return NotFound();
             }
 
-            if (!await this.CanEditAsync(user))
+            var currentUserName = this.authProvider.UserName();
+            if (this.authProvider.AreYouMember() && !user.UserName.Equals(currentUserName))
             {
-                return BadRequest("You can not edit this user.");
+                return BadRequest("You can only edit yourself.");
+            }
+
+            if (this.authProvider.AreYouAdmin() && !user.UserName.Equals(currentUserName) && !(await this.userManager.IsInRoleAsync(user, "Member")))
+            {
+                return BadRequest("You only can edit yourself or a Member users.");
             }
 
             if (user.UserName != userDto.UserName && await this.userService.AnyAsync(t => t.UserName == userDto.UserName, cancellationToken))
             {
-                return BadRequest(ERROR_USER_EXIT);
+                return BadRequest("A user with that user name exist");
             }
 
-            // if you want to change your password you only need to enter the currentPassword if you are not the Onwer
-            if (!string.IsNullOrWhiteSpace(userDto.NewPassword) && await this.NeedCurrentPassword(user))
+            // if only need a current password when you are trying to change the password and the user is yourself
+            if (!string.IsNullOrWhiteSpace(userDto.NewPassword) && user.UserName.Equals(currentUserName))
             {
                 if (string.IsNullOrWhiteSpace(userDto.CurrentPassword) || !await userManager.CheckPasswordAsync(user, userDto.CurrentPassword))
                 {
@@ -272,15 +296,12 @@ namespace ReconNess.Web.Controllers
                 await userManager.RemovePasswordAsync(user);
                 await userManager.AddPasswordAsync(user, userDto.NewPassword);
             }
+                        
+            await userManager.RemoveFromRolesAsync(user, await userManager.GetRolesAsync(user));
+            await userManager.RemoveClaimsAsync(user, await userManager.GetClaimsAsync(user));
 
-            if (!this.authProvider.AreYouMember())
-            {
-                await userManager.RemoveFromRolesAsync(user, await userManager.GetRolesAsync(user));
-                await userManager.RemoveClaimsAsync(user, await userManager.GetClaimsAsync(user));
-
-                await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
-                await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
-            }
+            await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
+            await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));            
 
             return NoContent();
         }
@@ -306,15 +327,15 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (this.authProvider.AreYouMember())
+            {
+                return BadRequest("You can not remove an user.");
+            }
+
             var user = await this.userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
                 return NotFound();
-            }
-
-            if (!await this.CanDeleteAsync(user))
-            {
-                return BadRequest("You can not remove this user.");
             }
 
             if (user.UserName.Equals(this.authProvider.UserName()))
@@ -322,9 +343,41 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("You can not remove your own user.");
             }
 
+            if (this.authProvider.AreYouAdmin() && !(await this.userManager.IsInRoleAsync(user, "Member")))
+            {
+                return BadRequest("You only can remove Member users.");
+            }            
+
             await this.userManager.DeleteAsync(user);
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Obtain the list of roles.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/users
+        ///
+        /// </remarks>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The list of targets</returns>
+        /// <response code="200">Returns the list of users</response>
+        /// <response code="401">If the user is not authenticate or admin role</response>
+        [HttpGet("roles")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
+        {
+            var roles = await this.roleService
+                        .GetAllQueryable()
+                        .AsNoTracking()
+                        .Select(r => r.Name)
+                        .ToListAsync(cancellationToken);
+
+            return Ok(roles);
         }
 
         /// <summary>
@@ -351,16 +404,25 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AssignOwner(Guid id, CancellationToken cancellationToken)
         {
+            if (!this.authProvider.AreYouOwner())
+            {
+                return BadRequest("You can not assign owner.");
+            }
+
             var user = await this.userManager.FindByIdAsync(id.ToString());
             if (user == null)
             {
                 return NotFound();
             }
 
-            var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName(), cancellationToken);
-            if (currentUser == null || !await this.CanAssignOwnerAsync(user))
+            if (user.UserName.Equals(this.authProvider.UserName()))
             {
-                return BadRequest("You can not assign owner to this user.");
+                return BadRequest("You can not reassign owner to yourself.");
+            }
+
+            if (!(await this.userManager.IsInRoleAsync(user, "Admin")))
+            {
+                return BadRequest("You only can assign owner to an Admin user.");
             }
 
             user.Owner = true;
@@ -370,57 +432,14 @@ namespace ReconNess.Web.Controllers
                 return StatusCode(StatusCodes.Status409Conflict);
             }
 
+            var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName() && u.Owner, cancellationToken);
             currentUser.Owner = false;
 
             await this.userService.UpdateAsync(currentUser, cancellationToken);
 
             return NoContent();
         }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private async Task<bool> CanEditAsync(User user)
-        {
-            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
-            return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")) || user.UserName.Equals(this.authProvider.UserName());
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private async Task<bool> CanAssignOwnerAsync(User user)
-        {
-            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
-            return this.authProvider.AreYouOwner() && userRole.Equals("Admin") && !user.UserName.Equals(this.authProvider.UserName());
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private async Task<bool> NeedCurrentPassword(User user)
-        {
-            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
-            return !(this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member")));
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <returns></returns>
-        private async Task<bool> CanDeleteAsync(User user)
-        {
-            var userRole = (await userManager.GetRolesAsync(user)).FirstOrDefault();
-            return this.authProvider.AreYouOwner() || (this.authProvider.AreYouAdmin() && userRole.Equals("Member"));
-        }
-
+        
         /// <summary>
         /// Obtain the role claim
         /// </summary>
