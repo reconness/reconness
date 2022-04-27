@@ -227,7 +227,7 @@ namespace ReconNess.Services
         /// <returns>A Task</returns>
         private async Task EnqueueRunAgentForEachSubdomainsAsync(AgentRunnerInfo agentRunnerInfo, AgentRunner agentRunnerSaved, CancellationToken cancellationToken)
         {
-            var subdomains = await this.subdomainService.GetSubdomainsNoTrackingAsync(s => s.RootDomain == agentRunner.RootDomain, cancellationToken);
+            var subdomains = await this.subdomainService.GetSubdomainsNoTrackingAsync(s => s.RootDomain == agentRunnerInfo.RootDomain, cancellationToken);
             if (!subdomains.Any())
             {
                 agentRunnerSaved.Stage = Entities.Enum.AgentRunStage.SUCCESS;

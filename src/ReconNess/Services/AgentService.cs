@@ -154,38 +154,6 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default)
-        {
-            agent.AgentHistories = new List<AgentHistory>
-            {
-                new AgentHistory
-                {
-                    Username = authProvider.UserName(),
-                    ChangeType = changeType
-                }
-            };
-
-            return await AddAsync(agent, cancellationToken);
-        }
-
-        /// <inheritdoc/>
-        public async Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default)
-        {
-            if (agent.AgentHistories == null)
-            {
-                agent.AgentHistories = new List<AgentHistory>();
-            }
-
-            agent.AgentHistories.Add(new AgentHistory
-            {
-                Username = authProvider.UserName(),
-                ChangeType = "Agent Updated"
-            });
-
-            await UpdateAsync(agent, cancellationToken);
-        }
-
-        /// <inheritdoc/>
         public async Task<string> ReadConfigurationFileAsync(string configurationFileName, CancellationToken cancellationToken)
         {
             string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());

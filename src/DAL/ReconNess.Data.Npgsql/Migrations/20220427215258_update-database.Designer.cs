@@ -12,8 +12,8 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    [Migration("20220426193328_AddEventTrackTable")]
-    partial class AddEventTrackTable
+    [Migration("20220427215258_update-database")]
+    partial class updatedatabase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -213,7 +213,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
+            modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -231,14 +231,8 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Description")
-                        .HasColumnType("text");
-
                     b.Property<int>("Stage")
                         .HasColumnType("integer");
-
-                    b.Property<string>("TerminalOutput")
-                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -247,7 +241,72 @@ namespace ReconNess.Data.Npgsql.Migrations
 
                     b.HasIndex("AgentId");
 
-                    b.ToTable("AgentRunners");
+                    b.ToTable("AgentRuns");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentRunnerOutput", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AgentRunnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Output")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentRunnerId");
+
+                    b.ToTable("AgentRunnerOutputs");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentsSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("AgentServerCount")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Strategy")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AgentsSettings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("ade752b1-af9e-4ba8-5706-35ad1c1e94ee"),
+                            AgentServerCount = 1,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Deleted = false,
+                            Strategy = 0,
+                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
@@ -1030,7 +1089,7 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
+            modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
                         .WithMany("AgentRunners")
@@ -1039,6 +1098,17 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
 
                     b.Navigation("Agent");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentRunnerOutput", b =>
+                {
+                    b.HasOne("ReconNess.Entities.AgentRunner", "AgentRunner")
+                        .WithMany("Outputs")
+                        .HasForeignKey("AgentRunnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AgentRunner");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
@@ -1146,6 +1216,11 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Navigation("AgentTrigger");
 
                     b.Navigation("EventTracks");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
+                {
+                    b.Navigation("Outputs");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.RootDomain", b =>

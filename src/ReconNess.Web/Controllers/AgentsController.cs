@@ -533,16 +533,15 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await subdomainService.GetSubdomainAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            await this.agentRunnerService.RunAgentAsync
-            (
-                new AgentRunner
+            await agentRunnerService.RunAgentAsync(
+                new AgentRunnerInfo
                 {
                     Agent = agent,
                     Target = target,
@@ -550,8 +549,7 @@ namespace ReconNess.Web.Controllers
                     Subdomain = subdomain,
                     ActivateNotification = agentRunnerDto.ActivateNotification,
                     Command = agentRunnerDto.Command
-                }, cancellationToken
-            );
+                }, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -591,31 +589,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            await agentRunnerService.StopAgentAsync(agentRunnerDto.RunnerId, cancellationToken);
+            var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
-                if (subdomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            var agentRunner = new AgentRunner
-            {
-                Agent = agent,
-                Target = target,
-                RootDomain = rootDomain,
-                Subdomain = subdomain
-            };
-
-            await this.agentRunnerService.StopAgentAsync(agentRunner, cancellationToken);
-
-            await this.eventTrackService.AddAsync(new EventTrack
-            {
-                Agent = agent,
-                Data = $"Agent {agent.Name} stopped"
-            }, cancellationToken);
-
-            return NoContent();
+            return Ok(agentsRunning);
         }
 
         /// <summary>

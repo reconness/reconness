@@ -417,7 +417,7 @@ namespace ReconNess.Web.Controllers
 
             var targetDto = this.mapper.Map<Target, TargetDto>(target);
 
-            var download = Helpers.Helpers.ZipSerializedObject<TargetDto>(targetDto);
+            var download = Helpers.ZipSerializedObject<TargetDto>(targetDto);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {

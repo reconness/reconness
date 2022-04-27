@@ -20,7 +20,7 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : IdentityDbContext<User, Role, Guid>, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
-        public DbSet<AgentRun> AgentRuns { get; set; }
+        public DbSet<AgentRunner> AgentRuns { get; set; }
         public DbSet<AgentTrigger> AgentTriggers { get; set; }   
         public DbSet<AgentRunnerOutput> AgentRunnerOutputs { get; set; }
         public DbSet<AgentsSetting> AgentsSettings { get; set; }
@@ -63,7 +63,7 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentRun>()
+            modelBuilder.Entity<AgentRunner>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 

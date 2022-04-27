@@ -239,7 +239,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
                     b.HasIndex("AgentId");
 
-                    b.ToTable("AgentRunners");
+                    b.ToTable("AgentRuns");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentRunnerOutput", b =>
@@ -1209,7 +1209,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
                 {
-                    b.Navigation("AgentRuns");
+                    b.Navigation("AgentRunners");
 
                     b.Navigation("AgentTrigger");
 
