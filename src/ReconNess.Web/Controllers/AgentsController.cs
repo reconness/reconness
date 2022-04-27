@@ -22,6 +22,7 @@ namespace ReconNess.Web.Controllers
     public class AgentsController : ControllerBase
     {
         private static readonly string ERROR_AGENT_EXIT = "An Agent with that name exist";
+        private static readonly string ERROR_AGENT_MARKETPLACE_EXIT = "The agent is already installed";
 
         private readonly IMapper mapper;
         private readonly IAgentService agentService;
@@ -30,6 +31,7 @@ namespace ReconNess.Web.Controllers
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ISubdomainService subdomainService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentsController" /> class
@@ -41,6 +43,7 @@ namespace ReconNess.Web.Controllers
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public AgentsController(
             IMapper mapper,
             IAgentService agentService,
@@ -48,7 +51,8 @@ namespace ReconNess.Web.Controllers
             IAgentCategoryService categoryService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
-            ISubdomainService subdomainService)
+            ISubdomainService subdomainService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.agentService = agentService;
@@ -57,6 +61,7 @@ namespace ReconNess.Web.Controllers
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.subdomainService = subdomainService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -105,7 +110,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Get(string agentName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -171,11 +176,11 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="agentDto">The agent dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Return the created agent</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
@@ -192,9 +197,17 @@ namespace ReconNess.Web.Controllers
                 agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
             }
 
-            await agentService.AddAgentAsync(agent, "Agent Added", cancellationToken);
+            var insertedAgent = await this.agentService.AddAsync(agent, cancellationToken);
 
-            return NoContent();
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} Added"
+            }, cancellationToken);
+
+            var insertedAgentDto = this.mapper.Map<Agent, AgentDto>(insertedAgent);
+
+            return Ok(insertedAgentDto);
         }
 
         /// <summary>
@@ -221,12 +234,12 @@ namespace ReconNess.Web.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
             var agent = await agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
@@ -245,7 +258,11 @@ namespace ReconNess.Web.Controllers
             agent.Command = agentDto.Command;
             agent.Script = agentDto.Script;
             agent.AgentType = agentDto.AgentType;
-            agent.Categories = await categoryService.GetCategoriesAsync(agent.Categories, agentDto.Categories, cancellationToken);
+            agent.PrimaryColor = agentDto.PrimaryColor;
+            agent.SecondaryColor = agentDto.SecondaryColor;
+            agent.Target = agentDto.Target;
+            agent.Image = agentDto.Image;
+            agent.Categories = await this.categoryService.GetCategoriesAsync(agent.Categories, agentDto.Categories, cancellationToken);
 
             if (agent.AgentTrigger == null)
             {
@@ -274,7 +291,13 @@ namespace ReconNess.Web.Controllers
             agent.AgentTrigger.SubdomainIncExcLabel = agentDto.TriggerSubdomainIncExcLabel;
             agent.AgentTrigger.SubdomainLabel = agentDto.TriggerSubdomainLabel;
 
-            await agentService.UpdateAgentAsync(agent, cancellationToken);
+            await this.agentService.UpdateAsync(agent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} Updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -297,7 +320,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Delete(string agentName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete([FromRoute] string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -311,6 +334,61 @@ namespace ReconNess.Web.Controllers
             }
 
             await agentService.DeleteAsync(agent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Agent {agent.Name} Deleted"
+            }, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Delete multiple agents.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/agents/batch
+        ///     ["agente1", "agente2", agente3]
+        ///
+        /// </remarks>
+        /// <param name="agentNames">The agent name list</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpDelete("batch")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteBatch([FromBody] IList<string> agentNames, CancellationToken cancellationToken)
+        {
+            if (agentNames == null || agentNames.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            var agentsEntities = new List<Agent>();
+            foreach (var agentName in agentNames)
+            {
+                var agent = await this.agentService.GetByCriteriaAsync(a => a.Name == agentName, cancellationToken);
+                if (agent != null)
+                {
+                    agentsEntities.Add(agent);
+                    
+                }
+            }
+
+            await this.agentService.DeleteRangeAsync(agentsEntities, cancellationToken);
+
+            foreach (var agent in agentsEntities)
+            {
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Data = $"Agent {agent.Name} Deleted"
+                }, cancellationToken);
+            }
 
             return NoContent();
         }
@@ -338,19 +416,25 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Install([FromBody] AgentMarketplaceDto agentDefaultDto, CancellationToken cancellationToken)
         {
-            var agentExist = await agentService.AnyAsync(t => t.Name == agentDefaultDto.Name, cancellationToken);
+            var agentExist = await this.agentService.AnyAsync(t => t.Id == agentDefaultDto.Id, cancellationToken);
             if (agentExist)
             {
-                return BadRequest(ERROR_AGENT_EXIT);
+                return BadRequest(ERROR_AGENT_MARKETPLACE_EXIT);
             }
 
             var agent = mapper.Map<AgentMarketplaceDto, Agent>(agentDefaultDto);
 
             agent.Script = await agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
-            var agentInstalled = await agentService.AddAgentAsync(agent, "Agent Installed", cancellationToken);
+            var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
 
-            return Ok(mapper.Map<Agent, AgentDto>(agentInstalled));
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agentInstalled,
+                Data = $"Agent {agentInstalled.Name} Installed"
+            }, cancellationToken);
+
+            return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
         }
 
         /// <summary>
@@ -449,15 +533,16 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await subdomainService.GetSubdomainAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await this.subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            await agentRunnerService.RunAgentAsync(
-                new Core.Models.AgentRunnerInfo
+            await this.agentRunnerService.RunAgentAsync
+            (
+                new AgentRunner
                 {
                     Agent = agent,
                     Target = target,
@@ -465,7 +550,14 @@ namespace ReconNess.Web.Controllers
                     Subdomain = subdomain,
                     ActivateNotification = agentRunnerDto.ActivateNotification,
                     Command = agentRunnerDto.Command
-                }, cancellationToken);
+                }, cancellationToken
+            );
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} Running"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -501,6 +593,28 @@ namespace ReconNess.Web.Controllers
         {
             await agentRunnerService.StopAgentAsync(agentRunnerDto.RunnerId, cancellationToken);
 
+                if (subdomain == null)
+                {
+                    return NotFound();
+                }
+            }
+
+            var agentRunner = new AgentRunner
+            {
+                Agent = agent,
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = subdomain
+            };
+
+            await this.agentRunnerService.StopAgentAsync(agentRunner, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} stopped"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -520,7 +634,8 @@ namespace ReconNess.Web.Controllers
         [HttpGet("running")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult> RunningAgent(CancellationToken cancellationToken)
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> RunningAgent([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromRoute] string subdomainName, CancellationToken cancellationToken)
         {
             var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
@@ -549,7 +664,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UploadConfiguration(string agentName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> UploadConfiguration([FromRoute] string agentName, IFormFile file, CancellationToken cancellationToken)
         {
             if (file.Length == 0 || string.IsNullOrEmpty(agentName))
             {
@@ -598,6 +713,12 @@ namespace ReconNess.Web.Controllers
             agent.ConfigurationFileName = file.FileName;
             await agentService.UpdateAsync(agent, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} configuration uploaded"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -620,7 +741,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> UpdateConfiguration(string agentName, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpdateConfiguration([FromRoute] string agentName, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -639,6 +760,12 @@ namespace ReconNess.Web.Controllers
             }
 
             await agentService.UpdateConfigurationFileAsync(agent, agentDto.ConfigurationContent, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} configuration updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -661,7 +788,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> DeleteConfiguration(string agentName, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteConfiguration([FromRoute] string agentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(agentName))
             {
@@ -676,7 +803,32 @@ namespace ReconNess.Web.Controllers
 
             await agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Agent = agent,
+                Data = $"Agent {agent.Name} configuration deleted"
+            }, cancellationToken);
+
             return NoContent();
+        }
+
+        /// <summary>
+        /// Obtain the configuratin path of the agents.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents/configuration/path
+        ///
+        /// </remarks>
+        /// <returns>The configuration path</returns>
+        /// <response code="200">Returns the configuration path</response>
+        [HttpGet("configuration/path")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public IActionResult ConfigurationPath()
+        {
+            var configurationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
+            return Ok(configurationPath);
         }
     }
 }

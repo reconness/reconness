@@ -34,5 +34,7 @@ namespace ReconNess.Entities
         /// Gets or sets if is deleted
         /// </summary>
         public bool Deleted { get; set; }
+
+        public string Image { get; set; }
     }
 }

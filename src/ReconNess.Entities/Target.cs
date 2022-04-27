@@ -21,6 +21,12 @@ namespace ReconNess.Entities
 
         public bool HasBounty { get; set; }
 
+        public string PrimaryColor { get; set; }
+
+        public string SecondaryColor { get; set; }
+
         public virtual ICollection<RootDomain> RootDomains { get; set; }
+
+        public virtual ICollection<EventTrack> EventTracks { get; set; }
     }
 }

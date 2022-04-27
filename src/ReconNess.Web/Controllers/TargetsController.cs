@@ -26,6 +26,7 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetsController" /> class
@@ -33,14 +34,17 @@ namespace ReconNess.Web.Controllers
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public TargetsController(
             IMapper mapper,
             ITargetService targetService,
-            IRootDomainService rootDomainService)
+            IRootDomainService rootDomainService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -85,7 +89,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Get(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -122,11 +126,11 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="targetDto">The target dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Return the created target</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
@@ -139,9 +143,16 @@ namespace ReconNess.Web.Controllers
 
             var target = mapper.Map<TargetDto, Target>(targetDto);
 
-            await targetService.AddAsync(target, cancellationToken);
+            var insertedTarget = await this.targetService.AddAsync(target, cancellationToken);
+            var insertedTargetDto = this.mapper.Map<Target, TargetDto>(insertedTarget);
 
-            return NoContent();
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = insertedTarget,
+                Data = $"Target {insertedTarget.Name} added"
+            }, cancellationToken);
+
+            return Ok(insertedTargetDto);
         }
 
         /// <summary>
@@ -170,12 +181,12 @@ namespace ReconNess.Web.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
-        [HttpPut("{id}")]
+        [HttpPut("{id:guid}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
             var target = await targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
             if (target == null)
@@ -193,10 +204,18 @@ namespace ReconNess.Web.Controllers
             target.IsPrivate = targetDto.IsPrivate;
             target.InScope = targetDto.InScope;
             target.OutOfScope = targetDto.OutOfScope;
+            target.PrimaryColor = targetDto.PrimaryColor;
+            target.SecondaryColor = targetDto.SecondaryColor;
 
             target.RootDomains = rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
 
             await targetService.UpdateAsync(target, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -221,7 +240,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete([FromRoute] string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -236,19 +255,73 @@ namespace ReconNess.Web.Controllers
 
             await targetService.DeleteAsync(target, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Target {target.Name} deleted"
+            }, cancellationToken);
+
             return NoContent();
         }
 
         /// <summary>
-        /// Import a rootdomain with all the subdomains in the target.
+        /// Delete a target.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     POST api/targets/importRootDomain/{targetName}
+        ///     DELETE api/targets/batch
+        ///     ["target1", "target2", target3]
         ///
         /// </remarks>
-        /// <param name="targetName">The target name</param>
+        /// <param name="targetNames">The target name list</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("batch")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> DeleteBatch([FromBody] IList<string> targetNames, CancellationToken cancellationToken)
+        {
+            if (targetNames == null || targetNames.Count == 0)
+            {
+                return BadRequest();
+            }
+
+            var targetsEntities = new List<Target>();
+            foreach (var targetName in targetNames)
+            {
+                var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+                if (target != null)
+                {
+                    targetsEntities.Add(target);
+                }   
+            }
+
+            await this.targetService.DeleteRangeAsync(targetsEntities, cancellationToken);
+
+            foreach (var target in targetsEntities)
+            {
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Data = $"Target {target.Name} deleted"
+                }, cancellationToken);
+            }
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Import a target with all the rootdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/targets/import
+        ///
+        /// </remarks>
         /// <param name="file">the rootdomain json with all the subdomains too</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The rootdomain name imported</returns>
@@ -256,27 +329,16 @@ namespace ReconNess.Web.Controllers
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
-        [HttpPost("importRootDomain/{targetName}")]
+        [HttpPost("import")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ImportRootDomain(string targetName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> Import(IFormFile file, CancellationToken cancellationToken)
         {
-            if (string.IsNullOrEmpty(targetName))
-            {
-                return BadRequest();
-            }
-
             if (file.Length == 0)
             {
                 return BadRequest();
-            }
-
-            var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
-            {
-                return NotFound();
             }
 
             var path = Path.GetTempFileName();
@@ -285,32 +347,120 @@ namespace ReconNess.Web.Controllers
                 await file.CopyToAsync(stream, cancellationToken);
             }
 
-            RootDomainDto rootDomainDto = default;
+            TargetDto targetDto = default;
             try
             {
                 var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
-                rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+                targetDto = JsonConvert.DeserializeObject<TargetDto>(json);
             }
             catch (Exception)
             {
-                return BadRequest("Invalid rootdomain json");
+                return BadRequest("Invalid target json");
             }
 
-            if (string.IsNullOrEmpty(rootDomainDto.Name))
+            if (string.IsNullOrEmpty(targetDto.Name))
             {
-                return BadRequest($"The rootdomain name can not be empty");
+                return BadRequest($"The target name can not be empty");
             }
 
-            if (target.RootDomains.Any(r => rootDomainDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            if (await this.targetService.AnyAsync(r => targetDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
             {
-                return BadRequest($"The rootdomain: {rootDomainDto.Name} exist in the target");
+                return BadRequest($"The target: {targetDto.Name} exist.");
             }
 
-            var uploadRootDomain = mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+            var uploadTarget = this.mapper.Map<TargetDto, Target>(targetDto);
 
-            await targetService.UploadRootDomainAsync(target, uploadRootDomain, cancellationToken);
+            var target = await this.targetService.AddAsync(uploadTarget, cancellationToken);
 
-            return Ok(uploadRootDomain.Name);
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} imported"
+            }, cancellationToken);
+
+            return Ok(uploadTarget.Name);
+        }
+
+        /// <summary>
+        /// Export the target with all the rootdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/targets/export/{targetName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The json file with the target and the rootdomain data</returns>
+        /// <response code="200">Returns the json file with the rootdomain and the subdomains data</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("export/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Export([FromRoute] string targetName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var targetDto = this.mapper.Map<Target, TargetDto>(target);
+
+            var download = Helpers.Helpers.ZipSerializedObject<TargetDto>(targetDto);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} exported"
+            }, cancellationToken);
+
+            return File(download, "application/json", $"target-{targetDto.Name}.json");
+        }
+
+        /// <summary>
+        /// Obtain a target by name.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/targets/{targetName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A target by name</returns>
+        /// <response code="200">Returns a target by name</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpGet("dashboard/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetDashboard([FromRoute] string targetName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(await this.targetService.GetDashboardAsync(target, cancellationToken));
         }
     }
 }

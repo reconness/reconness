@@ -2,9 +2,11 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Web.Dtos;
+using System;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -22,6 +24,7 @@ namespace ReconNess.Web.Controllers
         private readonly IMapper mapper;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TargetsController" /> class
@@ -29,14 +32,17 @@ namespace ReconNess.Web.Controllers
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public RootDomainsController(
             IMapper mapper,
             ITargetService targetService,
-            IRootDomainService rootDomainService)
+            IRootDomainService rootDomainService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -59,7 +65,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Get(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -98,7 +104,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DeleteSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -119,7 +125,95 @@ namespace ReconNess.Web.Controllers
 
             await rootDomainService.DeleteSubdomainsAsync(rootDomain, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} deleted subdomains"
+            }, cancellationToken);
+
             return NoContent();
+        }
+
+        /// <summary>
+        /// Import a rootdomain with all the subdomains in the target.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/rootdomains/import/{targetName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="file">the rootdomain json with all the subdomains too</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The rootdomain name imported</returns>
+        /// <response code="200">Returns the rootdomain name imported</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("import/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Import([FromRoute] string targetName, IFormFile file, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            if (file.Length == 0)
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var path = Path.GetTempFileName();
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream, cancellationToken);
+            }
+
+            RootDomainDto rootDomainDto = default;
+            try
+            {
+                var json = System.IO.File.ReadAllLines(path).FirstOrDefault();
+                rootDomainDto = JsonConvert.DeserializeObject<RootDomainDto>(json);
+            }
+            catch (Exception)
+            {
+                return BadRequest("Invalid rootdomain json");
+            }
+
+            if (string.IsNullOrEmpty(rootDomainDto.Name))
+            {
+                return BadRequest($"The rootdomain name can not be empty");
+            }
+
+            if (target.RootDomains.Any(r => rootDomainDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                return BadRequest($"The rootdomain: {rootDomainDto.Name} exist in the target");
+            }
+
+            var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
+
+            await this.targetService.ImportRootDomainAsync(target, uploadRootDomain, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = uploadRootDomain,
+                Data = $"Rootdomain {uploadRootDomain.Name} imported"
+            }, cancellationToken);
+
+            return Ok(uploadRootDomain.Name);
         }
 
         /// <summary>
@@ -144,7 +238,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Export(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Export([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -166,6 +260,13 @@ namespace ReconNess.Web.Controllers
             var rootdomainDto = mapper.Map<RootDomain, RootDomainDto>(rootDomain);
 
             var download = Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} exported"
+            }, cancellationToken);
 
             return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
         }
@@ -192,7 +293,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UploadSubdomains(string targetName, string rootDomainName, IFormFile file, CancellationToken cancellationToken)
+        public async Task<IActionResult> UploadSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, IFormFile file, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -225,6 +326,13 @@ namespace ReconNess.Web.Controllers
             var subdomains = System.IO.File.ReadAllLines(path).ToList();
             await rootDomainService.UploadSubdomainsAsync(rootDomain, subdomains, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} uploaded {subdomains.Count} subdomains"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -250,7 +358,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> DonwloadSubdomains(string targetName, string rootDomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> DonwloadSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -272,6 +380,13 @@ namespace ReconNess.Web.Controllers
             var data = string.Join(",", rootDomain.Subdomains.Select(s => s.Name));
 
             var download = Encoding.UTF8.GetBytes(data);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} downloaded {rootDomain.Subdomains.Count} subdomains"
+            }, cancellationToken);
 
             return File(download, "text/csv", "subdomains.csv");
         }

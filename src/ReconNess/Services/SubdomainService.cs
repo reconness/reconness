@@ -37,25 +37,19 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
+        public async Task<List<Subdomain>> GetSubdomainsNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await GetAllQueryableByCriteria(predicate)
-                    .Include(s => s.RootDomain)
-                    .Include(s => s.Services)
-                    .Include(s => s.Notes)
-                    .Include(s => s.Directories)
-                    .Include(s => s.Labels)
+            return await this.GetAllQueryableByCriteria(predicate)
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await GetAllQueryableByCriteria(predicate)
-                    .Include(t => t.Services)
-                    .Include(t => t.Notes)
-                    .Include(t => t.Directories)
-                    .Include(t => t.Labels)
+            return await this.GetAllQueryableByCriteria(predicate)
+                    .Include(t => t.RootDomain)
+                        .ThenInclude(r => r.Target)
                 .SingleAsync(cancellationToken);
         }
 
@@ -143,6 +137,8 @@ namespace ReconNess.Services
         {
             return await GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Labels)
+                    .Include(t => t.RootDomain)
+                        .ThenInclude(r => r.Target)
                 .SingleAsync(cancellationToken);
         }
 

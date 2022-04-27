@@ -1,7 +1,11 @@
-﻿namespace ReconNess.Web.Dtos
+﻿using System;
+
+namespace ReconNess.Web.Dtos
 {
     public class AgentMarketplaceDto
     {
+        public Guid Id { get; set;}
+        
         public string Name { get; set; }
 
         public string Repository { get; set; }

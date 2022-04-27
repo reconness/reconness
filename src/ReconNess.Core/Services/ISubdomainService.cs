@@ -19,7 +19,7 @@ namespace ReconNess.Core.Services
         /// <param name="predicate">The predicate</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The list of subdomains</returns>
-        Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
+        Task<List<Subdomain>> GetSubdomainsNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Obtain a subdomain by criteria

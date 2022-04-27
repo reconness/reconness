@@ -36,6 +36,12 @@ namespace ReconNess.Services
                         {
                             Id = target.Id,
                             Name = target.Name,
+                            PrimaryColor = target.PrimaryColor,
+                            SecondaryColor = target.SecondaryColor,
+                            BugBountyProgramUrl = target.BugBountyProgramUrl,
+                            InScope = target.InScope,
+                            OutOfScope = target.OutOfScope,
+                            IsPrivate = target.IsPrivate,
                             RootDomains = target.RootDomains.Select(rootDomain => new RootDomain
                             {
                                 Id = rootDomain.Id,
@@ -80,7 +86,7 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
+        public async Task ImportRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
         {
             target.RootDomains.Add(newRootdomain);
 
@@ -100,8 +106,41 @@ namespace ReconNess.Services
             else if (!target.AgentsRanBefore.Contains(agentName))
             {
                 target.AgentsRanBefore = string.Join(", ", target.AgentsRanBefore, agentName);
-                await UpdateAsync(target, cancellationToken);
+                await this.UpdateAsync(target, cancellationToken);
             }
         }
+
+        /// <inheritdoc/>
+        public async Task<TargetDashboard> GetDashboardAsync(Target target, CancellationToken cancellationToken = default)
+        {
+            // TODO: refactor this method
+            var dashboard = new TargetDashboard();
+
+            var groupPorts = await this.UnitOfWork.Repository<Service>().GetAllQueryableByCriteria(s => s.Subdomain.RootDomain.Target == target)
+                .GroupBy(s => s.Port)
+                .ToListAsync(cancellationToken);
+
+            var groupDirectories = await this.UnitOfWork.Repository<Directory>().GetAllQueryableByCriteria(d => d.Subdomain.RootDomain.Target == target)
+                .GroupBy(s => s.Subdomain)
+                .OrderBy(s => s.Count())
+                .ToListAsync(cancellationToken);
+
+            dashboard.SubdomainByPort = groupPorts.Select(p => new SubdomainByPort { Port = p.Key, Count = p.Count() });
+            dashboard.SubdomainByDirectories = groupDirectories.Select(p => new SubdomainByDirectories { Subdomain = p.Key.Name, Count = p.Count() }).Take(5);
+
+            var groupByDayOfWeek = await this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.CreatedAt > DateTime.Now.AddDays(-7))
+                .GroupBy(l => l.CreatedAt.DayOfWeek)
+                .ToListAsync(cancellationToken);
+
+            dashboard.Interactions = groupByDayOfWeek.Select(d => new DashboardEventTrackInteraction { Day = d.Key, Count = d.Count() });
+
+
+            dashboard.EventTracks = await this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.Target == target)
+                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Data}).Take(10)
+                .ToListAsync(cancellationToken);
+
+            throw new NotImplementedException();
+        }
+
     }
 }

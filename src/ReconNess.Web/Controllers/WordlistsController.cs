@@ -291,12 +291,12 @@ namespace ReconNess.Web.Controllers
         /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
         /// <param name="file">The file with all the wordlist</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Returns some of the file's metadata</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
         [HttpPost("upload/{type}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -336,7 +336,13 @@ namespace ReconNess.Web.Controllers
                 await file.CopyToAsync(stream, cancellationToken);
             }
 
-            return NoContent();
+            WordlisFileMetadataDto wordlistMetadata = new WordlisFileMetadataDto();
+            wordlistMetadata.Filename = file.FileName;
+            wordlistMetadata.Count = System.IO.File.ReadLines(fileNamePath).Count();
+            wordlistMetadata.Size = file.Length.ToString();
+            wordlistMetadata.Path = fileNamePath;
+
+            return Ok(wordlistMetadata);
         }
     }
 }

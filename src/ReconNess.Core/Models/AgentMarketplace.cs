@@ -1,7 +1,11 @@
-﻿namespace ReconNess.Core.Models
+﻿using System;
+
+namespace ReconNess.Core.Models
 {
     public class AgentMarketplace
     {
+        public Guid Id { get; set;}
+        
         public string Name { get; set; }
 
         public string Repository { get; set; }

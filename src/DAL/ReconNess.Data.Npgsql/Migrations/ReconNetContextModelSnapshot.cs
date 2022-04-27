@@ -17,7 +17,7 @@ namespace ReconNess.Data.Npgsql.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "6.0.3")
+                .HasAnnotation("ProductVersion", "6.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -173,13 +173,22 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("text");
 
                     b.Property<DateTime?>("LastRun")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<string>("PrimaryColor")
                         .HasColumnType("text");
 
                     b.Property<string>("Repository")
@@ -188,43 +197,18 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<string>("Script")
                         .HasColumnType("text");
 
+                    b.Property<string>("SecondaryColor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Target")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.ToTable("Agents");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AgentId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("ChangeType")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Username")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgentId");
-
-                    b.ToTable("AgentHistories");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
@@ -470,6 +454,52 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasIndex("SubdomainId");
 
                     b.ToTable("Directories");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.EventTrack", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("AgentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("RootDomainId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SubdomainId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("RootDomainId");
+
+                    b.HasIndex("SubdomainId");
+
+                    b.HasIndex("TargetId");
+
+                    b.ToTable("EventTracks");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Label", b =>
@@ -876,6 +906,12 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<string>("OutOfScope")
                         .HasColumnType("text");
 
+                    b.Property<string>("PrimaryColor")
+                        .HasColumnType("text");
+
+                    b.Property<string>("SecondaryColor")
+                        .HasColumnType("text");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -911,6 +947,9 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("FirstName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Image")
                         .HasColumnType("text");
 
                     b.Property<string>("LastName")
@@ -1048,17 +1087,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.AgentHistory", b =>
-                {
-                    b.HasOne("ReconNess.Entities.Agent", "Agent")
-                        .WithMany("AgentHistories")
-                        .HasForeignKey("AgentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Agent");
-                });
-
             modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
@@ -1100,6 +1128,33 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Subdomain");
+                });
+
+            modelBuilder.Entity("ReconNess.Entities.EventTrack", b =>
+                {
+                    b.HasOne("ReconNess.Entities.Agent", "Agent")
+                        .WithMany("EventTracks")
+                        .HasForeignKey("AgentId");
+
+                    b.HasOne("ReconNess.Entities.RootDomain", "RootDomain")
+                        .WithMany("EventTracks")
+                        .HasForeignKey("RootDomainId");
+
+                    b.HasOne("ReconNess.Entities.Subdomain", "Subdomain")
+                        .WithMany("EventTracks")
+                        .HasForeignKey("SubdomainId");
+
+                    b.HasOne("ReconNess.Entities.Target", "Target")
+                        .WithMany("EventTracks")
+                        .HasForeignKey("TargetId");
+
+                    b.Navigation("Agent");
+
+                    b.Navigation("RootDomain");
+
+                    b.Navigation("Subdomain");
+
+                    b.Navigation("Target");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.Note", b =>
@@ -1154,11 +1209,11 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
                 {
-                    b.Navigation("AgentHistories");
-
-                    b.Navigation("AgentRunners");
+                    b.Navigation("AgentRuns");
 
                     b.Navigation("AgentTrigger");
+
+                    b.Navigation("EventTracks");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
@@ -1168,6 +1223,8 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.RootDomain", b =>
                 {
+                    b.Navigation("EventTracks");
+
                     b.Navigation("Notes");
 
                     b.Navigation("Subdomains");
@@ -1177,6 +1234,8 @@ namespace ReconNess.Data.Npgsql.Migrations
                 {
                     b.Navigation("Directories");
 
+                    b.Navigation("EventTracks");
+
                     b.Navigation("Notes");
 
                     b.Navigation("Services");
@@ -1184,6 +1243,8 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.Target", b =>
                 {
+                    b.Navigation("EventTracks");
+
                     b.Navigation("RootDomains");
                 });
 #pragma warning restore 612, 618

@@ -11,7 +11,7 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using VueCliMiddleware;
+
 namespace ReconNess.Web
 {
     public partial class Startup
@@ -58,14 +58,10 @@ namespace ReconNess.Web
 
             services.AddAutoMapper(typeof(Startup));
 
+            services.AddCors();
+
             services.AddMvc()
                 .AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
-
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
 
             services.AddSwaggerGen(c =>
             {
@@ -131,8 +127,14 @@ namespace ReconNess.Web
 
             app.UseRouting();
 
+            // global cors policy
+            app.UseCors(x => x
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .SetIsOriginAllowed(origin => true) // allow any origin
+                .AllowCredentials()); // allow credentials
+
             app.UseStaticFiles();
-            app.UseSpaStaticFiles();
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -142,9 +144,9 @@ namespace ReconNess.Web
                 var request = context.HttpContext.Request;
                 var response = context.HttpContext.Response;
 
-                if (response.StatusCode == (int)HttpStatusCode.Unauthorized && !request.Path.Value.StartsWith("/api"))
+                if (!request.Path.Value.StartsWith("/api"))
                 {
-                    response.Redirect("/Auth/login");
+                    response.Redirect("/swagger");
                 }
 
                 return Task.CompletedTask;
@@ -155,20 +157,7 @@ namespace ReconNess.Web
                 // Mapping of endpoints goes here:
                 endpoints.MapControllers();
                 endpoints.MapHub<ReconNessHub>("/AgentRunLogsHub");
-            });
-
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if ("Development".Equals(Env.EnvironmentName))
-                {
-                    spa.UseVueCli(npmScript: "serve", port: 8080);
-                }
-            });
+            });            
         }
     }
 }

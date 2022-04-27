@@ -45,5 +45,10 @@ namespace ReconNess.Web.Dtos
         /// 
         /// </summary>
         public string ConfirmationPassword { get; set; }
+
+        public string Image { get; set; }
+
+        public bool Owner { get; set; }
+
     }
 }

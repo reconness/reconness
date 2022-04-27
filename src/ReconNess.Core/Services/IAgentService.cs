@@ -69,23 +69,6 @@ namespace ReconNess.Core.Services
         Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Add a new agent
-        /// </summary>
-        /// <param name="agent">The new agent</param>
-        /// <param name="changeType">the change type</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A new agent added</returns>
-        Task<Agent> AddAgentAsync(Agent agent, string changeType, CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// Update the agent
-        /// </summary>
-        /// <param name="agent">The agent</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns></returns>
-        Task UpdateAgentAsync(Agent agent, CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// Read the configuration file
         /// </summary>
         /// <param name="configurationFileName">The configuration file name</param>

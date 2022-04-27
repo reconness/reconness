@@ -115,7 +115,7 @@
         }
 
         /// <inheritdoc/>
-        public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
+        public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 

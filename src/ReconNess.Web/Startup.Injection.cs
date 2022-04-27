@@ -28,6 +28,8 @@ namespace ReconNess.Web
             services.AddScoped<IAgentCategoryService, AgentCategoryService>();
             services.AddScoped<IAgentsSettingService, AgentsSettingService>();
             services.AddScoped<ITargetService, TargetService>();
+            services.AddScoped<IEventTrackService, EventTrackService>();
+            
             services.AddScoped<IRootDomainService, RootDomainService>();
             services.AddScoped<ISubdomainService, SubdomainService>();
             services.AddScoped<INotesService, NotesService>();

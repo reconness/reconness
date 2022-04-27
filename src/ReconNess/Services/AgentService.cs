@@ -26,21 +26,17 @@ namespace ReconNess.Services
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly IScriptEngineService scriptEngineService;
-        private readonly IAuthProvider authProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineService"/></param>
-        /// <param name="authProvider"><see cref="IAuthProvider"/></param>
         public AgentService(IUnitOfWork unitOfWork,
-            IScriptEngineService scriptEngineService,
-            IAuthProvider authProvider)
+            IScriptEngineService scriptEngineService)
             : base(unitOfWork)
         {
             this.scriptEngineService = scriptEngineService;
-            this.authProvider = authProvider;
         }
 
         /// <inheritdoc/>
@@ -54,6 +50,15 @@ namespace ReconNess.Services
                         LastRun = agent.LastRun,
                         Command = agent.Command,
                         AgentType = agent.AgentType,
+                        CreatedBy = agent.CreatedBy,
+                        PrimaryColor = agent.PrimaryColor,
+                        SecondaryColor = agent.SecondaryColor,
+                        Repository = agent.Repository,
+                        AgentTrigger = agent.AgentTrigger,
+                        Script = agent.Script,
+                        Target = agent.Target,
+                        Image = agent.Image,
+                        ConfigurationFileName = agent.ConfigurationFileName,
                         Categories = agent.Categories.Select(category => new Category
                         {
                             Name = category.Name
@@ -97,7 +102,7 @@ namespace ReconNess.Services
             return await GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
-                    .Include(a => a.AgentHistories)
+                    .Include(a => a.EventTracks)
                 .SingleOrDefaultAsync(cancellationToken);
         }
 
@@ -114,7 +119,7 @@ namespace ReconNess.Services
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
             var client = new RestClient("https://raw.githubusercontent.com/");
-            var request = new RestRequest("/reconness/reconness-agents/master/default-agents1.5.json");
+            var request = new RestRequest("/reconness/reconness-agents/master/default-agents2.json");
 
             var response = await client.ExecuteGetAsync(request, cancellationToken);
             var agentMarketplaces = JsonConvert.DeserializeObject<AgentMarketplaces>(response.Content);
