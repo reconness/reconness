@@ -25,6 +25,7 @@ namespace ReconNess.Web.Controllers
         private readonly IRootDomainService rootDomainService;
         private readonly ITargetService targetService;
         private readonly ILabelService labelService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubdomainsController" /> class
@@ -34,18 +35,21 @@ namespace ReconNess.Web.Controllers
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="labelService"><see cref="ILabelService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public SubdomainsController(
             IMapper mapper,
             ISubdomainService subdomainService,
             IRootDomainService rootDomainService,
             ITargetService targetService,
-            ILabelService labelService)
+            ILabelService labelService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.subdomainService = subdomainService;
             this.rootDomainService = rootDomainService;
             this.targetService = targetService;
             this.labelService = labelService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -69,7 +73,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Get(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> Get([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromRoute] string subdomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
             {
@@ -125,7 +129,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetPaginate(string targetName, string rootDomainName, [FromQuery] SubdomainQueryDto subdomainQueryDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetPaginate([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromQuery] SubdomainQueryDto subdomainQueryDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -206,6 +210,14 @@ namespace ReconNess.Web.Controllers
                 Name = subdomainDto.Name
             }, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = newSubdoamin,
+                Data = $"Subdomain {newSubdoamin.Name} added"
+            }, cancellationToken);
+
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
         }
 
@@ -243,8 +255,20 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Put(Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == subdomainDto.Target, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
+            if (rootDomain == null)
+            {
+                return BadRequest();
+            }
+
             var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
@@ -258,6 +282,14 @@ namespace ReconNess.Web.Controllers
             subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, subdomainDto.Labels.Select(l => l.Name).ToList(), cancellationToken);
 
             await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Subdomain = subdomain,
+                Data = $"Subdomain {subdomain.Name} updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -284,7 +316,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddLabel(Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddLabel([FromRoute] Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
             var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
@@ -293,6 +325,14 @@ namespace ReconNess.Web.Controllers
             }
 
             await this.subdomainService.AddLabelAsync(subdomain, subdomainLabelDto.Label, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = subdomain.RootDomain.Target,
+                RootDomain = subdomain.RootDomain,
+                Subdomain = subdomain,
+                Data = $"Subdomain {subdomain.Name} Label {subdomainLabelDto.Label} added"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -315,15 +355,22 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetByCriteriaAsync(a => a.Id == id, cancellationToken);
+            var subdomain = await this.subdomainService.GetSubdomainAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
             }
 
             await this.subdomainService.DeleteAsync(subdomain, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = subdomain.RootDomain.Target,
+                RootDomain = subdomain.RootDomain,
+                Data = $"Subdomain {subdomain.Name} deleted"
+            }, cancellationToken);
 
             return NoContent();
         }

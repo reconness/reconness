@@ -21,8 +21,7 @@ namespace ReconNess.Data.Npgsql
     {
         public DbSet<Agent> Agents { get; set; }
         public DbSet<AgentRun> AgentRuns { get; set; }
-        public DbSet<AgentTrigger> AgentTriggers { get; set; }
-        public DbSet<AgentHistory> AgentHistories { get; set; }
+        public DbSet<AgentTrigger> AgentTriggers { get; set; }        
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -30,6 +29,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<Service> Services { get; set; }
         public DbSet<Directory> Directories { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<EventTrack> EventTracks { get; set; }
 
         /// <summary>
         /// A transaction Object
@@ -53,17 +53,17 @@ namespace ReconNess.Data.Npgsql
         {
             base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<EventTrack>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
             modelBuilder.Entity<Agent>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
             modelBuilder.Entity<AgentRun>()
                 .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
-
-            modelBuilder.Entity<AgentHistory>()
-                .Property(i => i.Id)
-                .ValueGeneratedOnAdd();
+                .ValueGeneratedOnAdd();            
 
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
@@ -115,17 +115,11 @@ namespace ReconNess.Data.Npgsql
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<AgentHistory>()
-               .HasOne(t => t.Agent)
-               .WithMany(r => r.AgentHistories)
-               .IsRequired()
-               .OnDelete(DeleteBehavior.Cascade);
-
             modelBuilder.Entity<AgentTrigger>()
                .HasOne(t => t.Agent)
                .WithOne(r => r.AgentTrigger)
                .IsRequired()
-               .OnDelete(DeleteBehavior.Cascade);
+               .OnDelete(DeleteBehavior.Cascade);            
 
             modelBuilder.Entity<RootDomain>()
                 .HasOne(t => t.Target)

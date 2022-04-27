@@ -1,3 +1,4 @@
+using ReconNess.Core.Models;
 using ReconNess.Entities;
 using System;
 using System.Collections.Generic;
@@ -43,6 +44,14 @@ namespace ReconNess.Core.Services
         /// <param name="newRootdomain">root domain upload</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        Task UploadRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default);
+        Task ImportRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain the target dashboard
+        /// </summary>
+        /// <param name="target">The target</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The target dashboard data</returns>
+        Task<TargetDashboard> GetDashboardAsync(Target target, CancellationToken cancellationToken = default);
     }
 }
