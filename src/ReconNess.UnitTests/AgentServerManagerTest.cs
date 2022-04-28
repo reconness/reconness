@@ -1,8 +1,11 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using ReconNess.Core.Managers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using ReconNess.Managers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,24 +20,22 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerRounRobinSimpleAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
-                    AgentServerCount = 4
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                AgentServerCount = 4
             };
+            
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             var channel1 = await agentServerManager.GetAvailableServerAsync("my-channel-1");
@@ -46,29 +47,27 @@ namespace ReconNess.UnitTests
             Assert.IsTrue(2 == channel2);
             Assert.IsTrue(1 == channel3);
         }
-
+        
         [TestMethod]
         public async Task TestGetAvailableServerGreedySimpleAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
-                    AgentServerCount = 4
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
+                AgentServerCount = 4
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
+
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             var channel1 = await agentServerManager.GetAvailableServerAsync("my-channel-1");
@@ -85,24 +84,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerSimpleRounRobinOneServerAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
-                    AgentServerCount = 1
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                AgentServerCount = 1
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
                 .Returns<CancellationToken>(c =>
                 {
                     return Task.FromResult(agentsSettings);
                 });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             var channel1 = await agentServerManager.GetAvailableServerAsync("my-channel-1");
@@ -119,24 +115,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerSimpleGreedyOneServerAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
-                    AgentServerCount = 1
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
+                AgentServerCount = 1
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             var channel1 = await agentServerManager.GetAvailableServerAsync("my-channel-1");
@@ -153,24 +146,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexRounRobinTwoServerAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
-                    AgentServerCount = 2
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                AgentServerCount = 2
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             // Assert
@@ -209,24 +199,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexGreedyTwoServerAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
-                    AgentServerCount = 2
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
+                AgentServerCount = 2
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             // Assert
@@ -300,24 +287,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerRounRobinComplexAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
-                    AgentServerCount = 4
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                AgentServerCount = 4
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
                 .Returns<CancellationToken>(c =>
                 {
                     return Task.FromResult(agentsSettings);
                 });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Assert
             foreach (var i in Enumerable.Range(0, 100))
@@ -361,24 +345,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerRounRobinParalleltComplexAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
-                    AgentServerCount = 4
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                AgentServerCount = 4
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Assert
             await Parallel.ForEachAsync<int>(Enumerable.Range(0, 100), async (i, c) =>
@@ -404,24 +385,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerGreedyComplexAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
-                    AgentServerCount = 4
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
+                AgentServerCount = 4
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Assert
             foreach (var i in Enumerable.Range(1, 100))
@@ -555,24 +533,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexRounRobinRefreshTwoServerAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
-                    AgentServerCount = 2
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.ROUND_ROBIN,
+                AgentServerCount = 2
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             // Assert
@@ -613,24 +588,21 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexGreedyRefreshTwoServerAsync()
         {
             // Arrange
-            var agentsSettingServiceMock = new Mock<IAgentsSettingService>();
+            var agentServerSettingMock = new Mock<IAgentServerSetting>();
 
-            var agentsSettings = new List<AgentsSetting>
+            var agentsSettings = new AgentsSetting
             {
-                new AgentsSetting
-                {
-                    Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
-                    AgentServerCount = 2
-                }
+                Strategy = Entities.Enum.AgentRunnerStrategy.GREEDY,
+                AgentServerCount = 2
             };
 
-            agentsSettingServiceMock.Setup(c => c.GetAllAsync(It.IsAny<CancellationToken>()))
-                .Returns<CancellationToken>(c =>
-                {
-                    return Task.FromResult(agentsSettings);
-                });
+            agentServerSettingMock.Setup(c => c.GetAgentSettingAsync(It.IsAny<CancellationToken>()))
+               .Returns<CancellationToken>(c =>
+               {
+                   return Task.FromResult(agentsSettings);
+               });
 
-            var agentServerManager = new AgentServerManager(agentsSettingServiceMock.Object);
+            var agentServerManager = new AgentServerManager(agentServerSettingMock.Object);
 
             // Act
             // Assert

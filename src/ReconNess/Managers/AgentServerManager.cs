@@ -18,7 +18,7 @@ namespace ReconNess.Managers
     /// </summary>
     public class AgentServerManager : IAgentServerManager
     {
-        private readonly IServiceScopeFactory serviceScopeFactory;
+        private readonly IAgentServerSetting agentServerSetting;
 
         private AgentsSetting agentsSetting;
 
@@ -27,10 +27,10 @@ namespace ReconNess.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="IAgentServerManager" /> class
         /// </summary>
-        /// <param name="serviceScopeFactory"><see cref="IServiceScopeFactory"/></param>
-        public AgentServerManager(IServiceScopeFactory serviceScopeFactory)
+        /// <param name="agentServerSetting"><see cref="IAgentServerSetting"/></param>
+        public AgentServerManager(IAgentServerSetting agentServerSetting)
         {
-            this.serviceScopeFactory = serviceScopeFactory;
+            this.agentServerSetting = agentServerSetting;
         }
 
         /// <inheritdoc/>
@@ -58,10 +58,7 @@ namespace ReconNess.Managers
         {
             if (this.agentsSetting == null)
             {
-                using var scope = this.serviceScopeFactory.CreateScope();
-                var agentsSettingService = scope.ServiceProvider.GetService<IAgentsSettingService>();
-
-                this.agentsSetting = (await agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
+                this.agentsSetting = await agentServerSetting.GetAgentSettingAsync(cancellationToken);
                 for (int i = 1; i <= this.agentsSetting.AgentServerCount; i++)
                 {
                     this.servers.TryAdd(i, new AgentServer());
