@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using ReconNess.Core;
 using ReconNess.Core.Managers;
 using ReconNess.Core.Services;
@@ -17,7 +18,7 @@ namespace ReconNess.Managers
     /// </summary>
     public class AgentServerManager : IAgentServerManager
     {
-        private readonly IAgentsSettingService agentsSettingService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
         private AgentsSetting agentsSetting;
 
@@ -26,10 +27,10 @@ namespace ReconNess.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="IAgentServerManager" /> class
         /// </summary>
-        /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public AgentServerManager(IAgentsSettingService agentsSettingService)
+        /// <param name="serviceScopeFactory"><see cref="IServiceScopeFactory"/></param>
+        public AgentServerManager(IServiceScopeFactory serviceScopeFactory)
         {
-            this.agentsSettingService = agentsSettingService;
+            this.serviceScopeFactory = serviceScopeFactory;
         }
 
         /// <inheritdoc/>
@@ -57,7 +58,10 @@ namespace ReconNess.Managers
         {
             if (this.agentsSetting == null)
             {
-                this.agentsSetting = (await this.agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
+                using var scope = this.serviceScopeFactory.CreateScope();
+                var agentsSettingService = scope.ServiceProvider.GetService<IAgentsSettingService>();
+
+                this.agentsSetting = (await agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
                 for (int i = 1; i <= this.agentsSetting.AgentServerCount; i++)
                 {
                     this.servers.TryAdd(i, new AgentServer());
