@@ -7,7 +7,7 @@ namespace ReconNess.Core.Managers
     /// <summary>
     /// The interface IAgentServerSetting
     /// </summary>
-    public interface IAgentServerSetting
+    public interface IAgentsSettingServerManager
     {
         /// <summary>
         /// Obtain the agents setting

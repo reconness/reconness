@@ -20,7 +20,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerRounRobinSimpleAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -52,7 +52,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerGreedySimpleAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -84,7 +84,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerSimpleRounRobinOneServerAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -115,7 +115,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerSimpleGreedyOneServerAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -146,7 +146,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexRounRobinTwoServerAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -199,7 +199,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexGreedyTwoServerAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -287,7 +287,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerRounRobinComplexAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -345,7 +345,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerRounRobinParalleltComplexAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -385,7 +385,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerGreedyComplexAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -533,7 +533,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexRounRobinRefreshTwoServerAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {
@@ -588,7 +588,7 @@ namespace ReconNess.UnitTests
         public async Task TestGetAvailableServerComplexGreedyRefreshTwoServerAsync()
         {
             // Arrange
-            var agentServerSettingMock = new Mock<IAgentServerSetting>();
+            var agentServerSettingMock = new Mock<IAgentsSettingServerManager>();
 
             var agentsSettings = new AgentsSetting
             {

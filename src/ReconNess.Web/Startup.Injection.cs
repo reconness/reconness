@@ -42,7 +42,7 @@ namespace ReconNess.Web
             services.AddScoped<IRoleService, RoleService>();
 
             services.AddSingleton<IAgentServerManager, AgentServerManager>();
-            services.AddSingleton<IAgentServerSetting, AgentServerSetting>();
+            services.AddSingleton<IAgentsSettingServerManager, AgentsSettingServerManager>();
 
             services.AddSingleton<IVersionProvider, VersionProvider>();
             services.AddSingleton<ILogsProvider, LogsProvider>();

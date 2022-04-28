@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ReconNess.Managers
+namespace ReconNess.Managers.Models
 {
     internal class AgentServerChannel
     {

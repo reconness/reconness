@@ -3,6 +3,7 @@ using ReconNess.Core;
 using ReconNess.Core.Managers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Managers.Models;
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace ReconNess.Managers
     /// </summary>
     public class AgentServerManager : IAgentServerManager
     {
-        private readonly IAgentServerSetting agentServerSetting;
+        private readonly IAgentsSettingServerManager agentServerSetting;
 
         private AgentsSetting agentsSetting;
 
@@ -27,8 +28,8 @@ namespace ReconNess.Managers
         /// <summary>
         /// Initializes a new instance of the <see cref="IAgentServerManager" /> class
         /// </summary>
-        /// <param name="agentServerSetting"><see cref="IAgentServerSetting"/></param>
-        public AgentServerManager(IAgentServerSetting agentServerSetting)
+        /// <param name="agentServerSetting"><see cref="IAgentsSettingServerManager"/></param>
+        public AgentServerManager(IAgentsSettingServerManager agentServerSetting)
         {
             this.agentServerSetting = agentServerSetting;
         }
