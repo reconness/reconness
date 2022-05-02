@@ -6,7 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Entities.Enum;
 using ReconNess.Web.Dtos;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +25,7 @@ namespace ReconNess.Web.Controllers
         private readonly INotificationService notificationService;
         private readonly IVersionProvider currentVersionProvider;
         private readonly ILogsProvider logsProvider;
+        private readonly IAgentsSettingService agentsSettingService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountsController" /> class
@@ -30,15 +34,18 @@ namespace ReconNess.Web.Controllers
         /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="currentVersionProvider"><see cref="IVersionProvider"/></param>
         /// <param name="logsProvider"><see cref="ILogsProvider"/></param>
+        /// <param name="agentsSettingService"><see cref="IAgentsSettingService"/></param>
         public AccountsController(IMapper mapper,
             INotificationService notificationService,
             IVersionProvider currentVersionProvider,
-            ILogsProvider logsProvider)
+            ILogsProvider logsProvider,
+            IAgentsSettingService agentsSettingService)
         {
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.currentVersionProvider = currentVersionProvider;
             this.logsProvider = logsProvider;
+            this.agentsSettingService = agentsSettingService;
         }
 
         /// <summary>
@@ -233,6 +240,69 @@ namespace ReconNess.Web.Controllers
             }
 
             await logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Obtain Agents setting.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/accounts/agents-setting
+        ///
+        /// </remarks>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="200">The Agents setting</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpGet("agents-setting")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> AgentsSetting(CancellationToken cancellationToken)
+        {
+            var agentsSetting = (await this.agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
+
+            return Ok(agentsSetting);
+        }
+
+        /// <summary>
+        /// Update Agents setting.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/accounts/agents-setting
+        ///     {
+        ///         "AgentServerCount": 2,
+        ///         "Strategy": "ROUND_ROBIN"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="agentsSettingDto">The agents setting</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpPut("agents-setting")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateAgentsSetting([FromBody] AgentsSettingDto agentsSettingDto, CancellationToken cancellationToken)
+        {
+            if (agentsSettingDto.AgentServerCount <= 0)
+            {
+                return BadRequest("We need at least one agent server.");
+            }
+                        
+            if (!Enum.TryParse(agentsSettingDto.Strategy, out AgentRunnerStrategy strategy))
+            {
+                return BadRequest("The strategy is invalid.");
+            }
+
+            var agentsSetting = (await this.agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
+            agentsSetting.AgentServerCount = agentsSettingDto.AgentServerCount;
+            agentsSetting.Strategy = strategy;
+
+            await this.agentsSettingService.UpdateAsync(agentsSetting, cancellationToken);
 
             return NoContent();
         }
