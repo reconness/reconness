@@ -275,7 +275,7 @@ namespace ReconNess.Web.Controllers
         ///     PUT api/accounts/agents-setting
         ///     {
         ///         "AgentServerCount": 2,
-        ///         "Strategy": "ROUND_ROBIN"
+        ///         "Strategy": "ROUND_ROBIN|GREEDY"
         ///     }
         ///
         /// </remarks>
