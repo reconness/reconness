@@ -170,6 +170,25 @@ namespace ReconNess.Data.Npgsql
                .IsRequired()
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Agent>()
+                .HasMany(t => t.EventTracks)
+                .WithOne(r => r.Agent)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Target>()
+               .HasMany(t => t.EventTracks)
+               .WithOne(r => r.Target)
+               .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RootDomain>()
+               .HasMany(t => t.EventTracks)
+               .WithOne(r => r.RootDomain)
+               .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Subdomain>()
+               .HasMany(t => t.EventTracks)
+               .WithOne(r => r.Subdomain)
+               .OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Ignore<BaseEntity>();
 
             RunSeed(modelBuilder);
