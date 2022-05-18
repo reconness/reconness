@@ -1,9 +1,9 @@
 ﻿namespace ReconNess.Entities.Enum
 {
-    public enum AgentRunStage
+    public enum AgentRunnerCommandStatus
     {
-        ENQUEUE,
         RUNNING,
+        SKIPPED,
         SUCCESS,
         STOPPED,
         FAILED

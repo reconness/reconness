@@ -10,10 +10,18 @@ namespace ReconNess.Entities
 
         public string Channel { get; set; }
 
-        public AgentRunStage Stage { get; set; }
+        public AgentRunnerStage Stage { get; set; }
 
-        public virtual Agent Agent { get; set; }
+        public int Total { get; set; }
 
-        public virtual ICollection<AgentRunnerOutput> Outputs { get; set; }
+        public bool AllowSkip { get; set; }
+
+        public string AgentRunnerType { get; set; }
+
+        public bool ActivateNotification { get; set; }
+
+        public virtual Agent Agent { get; set; }        
+
+        public virtual ICollection<AgentRunnerCommand> Commands { get; set; }
     }
 }

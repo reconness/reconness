@@ -20,9 +20,11 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : IdentityDbContext<User, Role, Guid>, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
-        public DbSet<AgentRunner> AgentRuns { get; set; }
-        public DbSet<AgentTrigger> AgentTriggers { get; set; }   
-        public DbSet<AgentRunnerOutput> AgentRunnerOutputs { get; set; }
+
+        public DbSet<AgentTrigger> AgentTriggers { get; set; }
+        public DbSet<AgentRunner> AgentRuns { get; set; } 
+        public DbSet<AgentRunnerCommand> AgentRunnerCommands { get; set; }
+        public DbSet<AgentRunnerCommandOutput> AgentRunnerCommandOutputs { get; set; }
         public DbSet<AgentsSetting> AgentsSettings { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
@@ -67,10 +69,13 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentRunnerOutput>()
+            modelBuilder.Entity<AgentRunnerCommand>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
-                           
+
+            modelBuilder.Entity<AgentRunnerCommandOutput>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();                           
 
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
@@ -124,12 +129,17 @@ namespace ReconNess.Data.Npgsql
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<AgentRunnerOutput>()
+            modelBuilder.Entity<AgentRunnerCommand>()
                 .HasOne(t => t.AgentRunner)
-                .WithMany(r => r.Outputs)
+                .WithMany(r => r.Commands)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<AgentRunnerCommandOutput>()
+                .HasOne(t => t.AgentRunnerCommand)
+                .WithMany(r => r.Outputs)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<AgentTrigger>()
                .HasOne(t => t.Agent)

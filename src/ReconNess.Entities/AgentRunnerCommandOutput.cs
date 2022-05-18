@@ -2,12 +2,12 @@
 
 namespace ReconNess.Entities
 {
-    public class AgentRunnerOutput : BaseEntity, IEntity
+    public class AgentRunnerCommandOutput : BaseEntity, IEntity
     {
         public Guid Id { get; set; }
 
         public string Output { get; set; }
 
-        public virtual AgentRunner AgentRunner { get; set; }
+        public virtual AgentRunnerCommand AgentRunnerCommand { get; set; }
     }
 }
