@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace ReconNess.Core.Services
 {
     /// <summary>
-    /// The interface INotesService
+    /// The interface INotificationService
     /// </summary>
     public interface INotificationService : IService<Notification>
     {

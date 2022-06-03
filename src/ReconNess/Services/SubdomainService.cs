@@ -23,7 +23,6 @@ namespace ReconNess.Services
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly ILabelService labelService;
-        private readonly INotesService notesService;
         private readonly INotificationService notificationService;
 
         /// <summary>
@@ -35,12 +34,10 @@ namespace ReconNess.Services
         public SubdomainService(
             IUnitOfWork unitOfWork,
             ILabelService labelService,
-            INotesService notesService,
             INotificationService notificationService)
             : base(unitOfWork)
         {
             this.labelService = labelService;
-            this.notesService = notesService;
             this.notificationService = notificationService;
         }
 
@@ -66,7 +63,6 @@ namespace ReconNess.Services
         {
             return await this.GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Services)
-                    .Include(t => t.Notes)
                     .Include(t => t.Directories)
                     .Include(t => t.Labels)
                     .AsNoTracking()
@@ -226,11 +222,6 @@ namespace ReconNess.Services
             if (!string.IsNullOrEmpty(terminalOutputParse.Service))
             {
                 await this.UpdateSubdomainServiceAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (!string.IsNullOrEmpty(terminalOutputParse.Note))
-            {
-                await this.UpdateSubdomainNoteAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
             }
 
             if (!string.IsNullOrEmpty(terminalOutputParse.Technology))
@@ -426,34 +417,6 @@ namespace ReconNess.Services
                         ("{{port}}", service.Port.ToString())
                     }, cancellationToken);
                 }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain Note
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async Task UpdateSubdomainNoteAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken)
-        {
-            var notes = scriptOutput.Note;
-            if (!string.IsNullOrEmpty(subdomain.Notes?.Notes ?? string.Empty))
-            {
-                notes = subdomain.Notes.Notes + "\n" + notes;
-            }
-
-            await this.notesService.SaveSubdomainNotesAsync(subdomain, notes, cancellationToken);
-
-            if (activateNotification)
-            {
-                await this.notificationService.SendAsync(NotificationType.NOTE, new[]
-                {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{note}}", scriptOutput.Note)
-                }, cancellationToken);
             }
         }
 

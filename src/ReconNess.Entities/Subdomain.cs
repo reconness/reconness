@@ -29,7 +29,7 @@ namespace ReconNess.Entities
 
         public virtual ICollection<Label> Labels { get; set; }
 
-        public virtual Note Notes { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
 
         public virtual ICollection<Directory> Directories { get; set; }
 

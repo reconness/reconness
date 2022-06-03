@@ -40,6 +40,51 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
+        /// Save a note for the target.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/notes/target/{targetName}
+        ///     {
+        ///         "comment": "The new note"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="noteDto">The Note dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("target/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ADDTargetNote(string targetName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName)
+                .Include(t => t.Notes)
+                .SingleAsync(cancellationToken);
+
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            await this.notesService.AddTargetCommentAsync(target, noteDto.Comment, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
         /// Save a note for the rootdomain.
         /// </summary>
         /// <remarks>
@@ -47,7 +92,7 @@ namespace ReconNess.Web.Controllers
         ///
         ///     POST api/notes/rootdomain/{targetName}/{rootDomainName}
         ///     {
-        ///         "notes": "The new note"
+        ///         "comment": "The new note"
         ///     }
         ///
         /// </remarks>
@@ -64,7 +109,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SaveRootDomainNotes(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddRootDomainNote(string targetName, string rootDomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
             {
@@ -87,7 +132,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.SaveRootdomainNotesAsync(rootDomain, noteDto.Notes, cancellationToken);
+            await this.notesService.AddRootdomainCommentAsync(rootDomain, noteDto.Comment, cancellationToken);
 
             return NoContent();
         }
@@ -100,7 +145,7 @@ namespace ReconNess.Web.Controllers
         ///
         ///     POST api/notes/subdomain/{target}/{rootDomainName}/{subdomain}
         ///     {
-        ///         "notes": "The new note"
+        ///         "comment": "The new note"
         ///     }
         ///
         /// </remarks>
@@ -118,7 +163,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SaveSubdomainNotes(string targetName, string rootDomainName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddSubdomainNote(string targetName, string rootDomainName, string subdomainName, [FromBody] NoteDto noteDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
             {
@@ -147,7 +192,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.SaveSubdomainNotesAsync(subdomain, noteDto.Notes, cancellationToken);
+            await this.notesService.AddSubdomainCommentAsync(subdomain, noteDto.Comment, cancellationToken);
 
             return NoContent();
         }

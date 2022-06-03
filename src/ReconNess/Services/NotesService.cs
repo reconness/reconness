@@ -24,47 +24,42 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task SaveRootdomainNotesAsync(RootDomain rootDomain, string notesContent, CancellationToken cancellationToken = default)
+        public async Task AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default)
         {
-            var notes = rootDomain.Notes;
-            if (notes == null)
+            target.Notes.Add(new Note
             {
-                notes = new Note
-                {
-                    Notes = notesContent,
-                    RootDomain = rootDomain
-                };
+                Comment = comment,
+                Target = target
+            });
 
-                await this.AddAsync(notes, cancellationToken);
-            }
-            else
-            {
-                notes.Notes = notesContent;
-
-                await this.UpdateAsync(notes, cancellationToken);
-            }
+            this.UnitOfWork.Repository<Target>().Update(target, cancellationToken);
+            await this.UnitOfWork.CommitAsync();
         }
 
         /// <inheritdoc/>
-        public async Task SaveSubdomainNotesAsync(Subdomain subdomain, string notesContent, CancellationToken cancellationToken = default)
+        public async Task AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default)
         {
-            var notes = subdomain.Notes;
-            if (notes == null)
+            rootDomain.Notes.Add(new Note
             {
-                notes = new Note
-                {
-                    Notes = notesContent,
-                    Subdomain = subdomain
-                };
+                Comment = comment,
+                RootDomain = rootDomain
+            });
 
-                await this.AddAsync(notes, cancellationToken);
-            }
-            else
-            {
-                notes.Notes = notesContent;
-
-                await this.UpdateAsync(notes, cancellationToken);
-            }
+            this.UnitOfWork.Repository<RootDomain>().Update(rootDomain, cancellationToken);
+            await this.UnitOfWork.CommitAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default)
+        {
+            subdomain.Notes.Add(new Note
+            {
+                Comment = comment,
+                Subdomain = subdomain
+            });
+
+            this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
+            await this.UnitOfWork.CommitAsync();
+        }        
     }
 }

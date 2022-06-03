@@ -31,8 +31,6 @@ namespace ReconNess.Web.Dtos
 
         public string AgentsRanBefore { get; set; }
 
-        public string Notes { get; set; }
-
         public List<DirectoryDto> Directories { get; set; }
 
         public List<ServiceDto> Services { get; set; }

@@ -2,6 +2,6 @@
 {
     public class NoteDto
     {
-        public string Notes { get; set; }
+        public string Comment { get; set; }
     }
 }
