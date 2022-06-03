@@ -55,7 +55,7 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(predicate)
                     .Include(t => t.RootDomain)
                         .ThenInclude(r => r.Target)
-                .SingleAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -66,7 +66,7 @@ namespace ReconNess.Services
                     .Include(t => t.Directories)
                     .Include(t => t.Labels)
                     .AsNoTracking()
-                .SingleAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -143,7 +143,7 @@ namespace ReconNess.Services
                     .Include(t => t.Labels)
                     .Include(t => t.RootDomain)
                         .ThenInclude(r => r.Target)
-                .SingleAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>

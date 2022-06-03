@@ -1,5 +1,6 @@
 using NLog;
 using ReconNess.Core;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System.Threading;
@@ -13,14 +14,17 @@ namespace ReconNess.Services
     public class NotesService : Service<Note>, IService<Note>, INotesService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly IAuthProvider authProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="INotesService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public NotesService(IUnitOfWork unitOfWork)
+        /// <param name="authProvider"><see cref="IAuthProvider"/></param>
+        public NotesService(IUnitOfWork unitOfWork, IAuthProvider authProvider)
             : base(unitOfWork)
         {
+            this.authProvider = authProvider;
         }
 
         /// <inheritdoc/>
@@ -29,6 +33,7 @@ namespace ReconNess.Services
             target.Notes.Add(new Note
             {
                 Comment = comment,
+                CreatedBy = authProvider.UserName(),
                 Target = target
             });
 
@@ -42,6 +47,7 @@ namespace ReconNess.Services
             rootDomain.Notes.Add(new Note
             {
                 Comment = comment,
+                CreatedBy = authProvider.UserName(),
                 RootDomain = rootDomain
             });
 
@@ -55,6 +61,7 @@ namespace ReconNess.Services
             subdomain.Notes.Add(new Note
             {
                 Comment = comment,
+                CreatedBy = authProvider.UserName(),
                 Subdomain = subdomain
             });
 
