@@ -133,15 +133,20 @@ namespace ReconNess.Data.Npgsql
                .IsRequired()
                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Subdomain>()
-                .HasOne(t => t.Notes)
-                .WithOne(r => r.Subdomain)
+            modelBuilder.Entity<Target>()
+                .HasMany(t => t.Notes)
+                .WithOne(r => r.Target)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RootDomain>()
-                .HasOne(t => t.Notes)
+                .HasMany(t => t.Notes)
                 .WithOne(r => r.RootDomain)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subdomain>()
+                .HasMany(t => t.Notes)
+                .WithOne(r => r.Subdomain)
+                .OnDelete(DeleteBehavior.Cascade);            
 
             modelBuilder.Entity<Directory>()
                 .HasOne(t => t.Subdomain)
@@ -154,6 +159,25 @@ namespace ReconNess.Data.Npgsql
                .IsRequired()
                .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Agent>()
+                .HasMany(t => t.EventTracks)
+                .WithOne(r => r.Agent)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Target>()
+               .HasMany(t => t.EventTracks)
+               .WithOne(r => r.Target)
+               .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<RootDomain>()
+               .HasMany(t => t.EventTracks)
+               .WithOne(r => r.RootDomain)
+               .OnDelete(DeleteBehavior.SetNull);
+
+            modelBuilder.Entity<Subdomain>()
+               .HasMany(t => t.EventTracks)
+               .WithOne(r => r.Subdomain)
+               .OnDelete(DeleteBehavior.SetNull);
             modelBuilder.Ignore<BaseEntity>();
 
             RunSeed(modelBuilder);

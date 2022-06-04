@@ -1,7 +1,13 @@
-﻿namespace ReconNess.Web.Dtos
+﻿using System;
+
+namespace ReconNess.Web.Dtos
 {
     public class NoteDto
     {
-        public string Notes { get; set; }
+        public Guid Id { get; set; }
+
+        public string CreatedBy { get; set; }
+
+        public string Comment { get; set; }
     }
 }

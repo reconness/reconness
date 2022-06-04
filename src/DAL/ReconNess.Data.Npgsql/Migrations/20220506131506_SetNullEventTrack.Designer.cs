@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -11,9 +12,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20220506131506_SetNullEventTrack")]
+    partial class SetNullEventTrack
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -522,17 +524,14 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Comment")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text");
 
                     b.Property<Guid?>("RootDomainId")
                         .HasColumnType("uuid");
@@ -540,19 +539,16 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<Guid?>("SubdomainId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid?>("TargetId")
-                        .HasColumnType("uuid");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RootDomainId");
+                    b.HasIndex("RootDomainId")
+                        .IsUnique();
 
-                    b.HasIndex("SubdomainId");
-
-                    b.HasIndex("TargetId");
+                    b.HasIndex("SubdomainId")
+                        .IsUnique();
 
                     b.ToTable("Note");
                 });
@@ -1100,25 +1096,18 @@ namespace ReconNess.Data.Npgsql.Migrations
             modelBuilder.Entity("ReconNess.Entities.Note", b =>
                 {
                     b.HasOne("ReconNess.Entities.RootDomain", "RootDomain")
-                        .WithMany("Notes")
-                        .HasForeignKey("RootDomainId")
+                        .WithOne("Notes")
+                        .HasForeignKey("ReconNess.Entities.Note", "RootDomainId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("ReconNess.Entities.Subdomain", "Subdomain")
-                        .WithMany("Notes")
-                        .HasForeignKey("SubdomainId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("ReconNess.Entities.Target", "Target")
-                        .WithMany("Notes")
-                        .HasForeignKey("TargetId")
+                        .WithOne("Notes")
+                        .HasForeignKey("ReconNess.Entities.Note", "SubdomainId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("RootDomain");
 
                     b.Navigation("Subdomain");
-
-                    b.Navigation("Target");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.RootDomain", b =>
@@ -1186,8 +1175,6 @@ namespace ReconNess.Data.Npgsql.Migrations
             modelBuilder.Entity("ReconNess.Entities.Target", b =>
                 {
                     b.Navigation("EventTracks");
-
-                    b.Navigation("Notes");
 
                     b.Navigation("RootDomains");
                 });
