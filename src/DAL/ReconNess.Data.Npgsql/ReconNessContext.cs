@@ -22,7 +22,7 @@ namespace ReconNess.Data.Npgsql
         public DbSet<Agent> Agents { get; set; }
 
         public DbSet<AgentTrigger> AgentTriggers { get; set; }
-        public DbSet<AgentRunner> AgentRuns { get; set; } 
+        public DbSet<AgentRunner> AgentRunners { get; set; } 
         public DbSet<AgentRunnerCommand> AgentRunnerCommands { get; set; }
         public DbSet<AgentRunnerCommandOutput> AgentRunnerCommandOutputs { get; set; }
         public DbSet<AgentsSetting> AgentsSettings { get; set; }
