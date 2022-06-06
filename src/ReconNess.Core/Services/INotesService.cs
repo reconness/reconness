@@ -9,22 +9,31 @@ namespace ReconNess.Core.Services
     /// </summary>
     public interface INotesService : IService<Note>
     {
+         /// <summary>
+         /// Save rootdomain comment
+         /// </summary>
+         /// <param name="target">The target</param>
+         /// <param name="comment">The notes</param>
+         /// <param name="cancellationToken">Notification that operations should be canceled</param>
+         /// <returns></returns>
+        Task AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default);
+
         /// <summary>
-        /// Save target notes
+        /// Save rootdomain comment
         /// </summary>
-        /// <param name="target">The target</param>
-        /// <param name="notes">The notes</param>
+        /// <param name="rootDomain">The rootdomain</param>
+        /// <param name="comment">The notes</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task SaveRootdomainNotesAsync(RootDomain target, string notes, CancellationToken cancellationToken = default);
+        Task AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Save subdomains notes
         /// </summary>
         /// <param name="subdomain">The subdomain</param>
-        /// <param name="notes">The notes</param>
+        /// <param name="comment">The notes</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task SaveSubdomainNotesAsync(Subdomain subdomain, string notes, CancellationToken cancellationToken = default);
+        Task AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default);
     }
 }

@@ -12,7 +12,5 @@ namespace ReconNess.Web.Dtos
         public string AgentsRanBefore { get; set; }
 
         public List<SubdomainDto> Subdomains { get; set; }
-
-        public string Notes { get; set; }
     }
 }

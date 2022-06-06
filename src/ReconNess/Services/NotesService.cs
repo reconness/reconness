@@ -1,5 +1,6 @@
 using NLog;
 using ReconNess.Core;
+using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using System.Threading;
@@ -13,58 +14,59 @@ namespace ReconNess.Services
     public class NotesService : Service<Note>, IService<Note>, INotesService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+        private readonly IAuthProvider authProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="INotesService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        public NotesService(IUnitOfWork unitOfWork)
+        /// <param name="authProvider"><see cref="IAuthProvider"/></param>
+        public NotesService(IUnitOfWork unitOfWork, IAuthProvider authProvider)
             : base(unitOfWork)
         {
+            this.authProvider = authProvider;
         }
 
         /// <inheritdoc/>
-        public async Task SaveRootdomainNotesAsync(RootDomain rootDomain, string notesContent, CancellationToken cancellationToken = default)
+        public async Task AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default)
         {
-            var notes = rootDomain.Notes;
-            if (notes == null)
+            target.Notes.Add(new Note
             {
-                notes = new Note
-                {
-                    Notes = notesContent,
-                    RootDomain = rootDomain
-                };
+                Comment = comment,
+                CreatedBy = authProvider.UserName(),
+                Target = target
+            });
 
-                await AddAsync(notes, cancellationToken);
-            }
-            else
-            {
-                notes.Notes = notesContent;
-
-                await UpdateAsync(notes, cancellationToken);
-            }
+            this.UnitOfWork.Repository<Target>().Update(target, cancellationToken);
+            await this.UnitOfWork.CommitAsync();
         }
 
         /// <inheritdoc/>
-        public async Task SaveSubdomainNotesAsync(Subdomain subdomain, string notesContent, CancellationToken cancellationToken = default)
+        public async Task AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default)
         {
-            var notes = subdomain.Notes;
-            if (notes == null)
+            rootDomain.Notes.Add(new Note
             {
-                notes = new Note
-                {
-                    Notes = notesContent,
-                    Subdomain = subdomain
-                };
+                Comment = comment,
+                CreatedBy = authProvider.UserName(),
+                RootDomain = rootDomain
+            });
 
-                await AddAsync(notes, cancellationToken);
-            }
-            else
-            {
-                notes.Notes = notesContent;
-
-                await UpdateAsync(notes, cancellationToken);
-            }
+            this.UnitOfWork.Repository<RootDomain>().Update(rootDomain, cancellationToken);
+            await this.UnitOfWork.CommitAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default)
+        {
+            subdomain.Notes.Add(new Note
+            {
+                Comment = comment,
+                CreatedBy = authProvider.UserName(),
+                Subdomain = subdomain
+            });
+
+            this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
+            await this.UnitOfWork.CommitAsync();
+        }        
     }
 }

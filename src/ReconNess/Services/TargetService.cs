@@ -75,7 +75,7 @@ namespace ReconNess.Services
                             .ToList()
                         })
                         .AsNoTracking()
-                       .SingleAsync(cancellationToken);
+                        .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -83,7 +83,7 @@ namespace ReconNess.Services
         {
             return await GetAllQueryableByCriteria(predicate)
                         .Include(t => t.RootDomains)
-                       .SingleAsync(cancellationToken);
+                        .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>

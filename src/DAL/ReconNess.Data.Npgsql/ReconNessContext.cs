@@ -159,15 +159,20 @@ namespace ReconNess.Data.Npgsql
                .IsRequired()
                .OnDelete(DeleteBehavior.Cascade);
 
-            modelBuilder.Entity<Subdomain>()
-                .HasOne(t => t.Notes)
-                .WithOne(r => r.Subdomain)
+            modelBuilder.Entity<Target>()
+                .HasMany(t => t.Notes)
+                .WithOne(r => r.Target)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<RootDomain>()
-                .HasOne(t => t.Notes)
+                .HasMany(t => t.Notes)
                 .WithOne(r => r.RootDomain)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Subdomain>()
+                .HasMany(t => t.Notes)
+                .WithOne(r => r.Subdomain)
+                .OnDelete(DeleteBehavior.Cascade);            
 
             modelBuilder.Entity<Directory>()
                 .HasOne(t => t.Subdomain)

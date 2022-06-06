@@ -25,6 +25,8 @@ namespace ReconNess.Entities
 
         public string SecondaryColor { get; set; }
 
+        public virtual ICollection<Note> Notes { get; set; }
+
         public virtual ICollection<RootDomain> RootDomains { get; set; }
 
         public virtual ICollection<EventTrack> EventTracks { get; set; }

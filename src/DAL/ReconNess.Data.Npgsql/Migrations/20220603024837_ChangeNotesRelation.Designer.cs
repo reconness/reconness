@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ReconNess.Data.Npgsql;
@@ -11,9 +12,10 @@ using ReconNess.Data.Npgsql;
 namespace ReconNess.Data.Npgsql.Migrations
 {
     [DbContext(typeof(ReconNessContext))]
-    partial class ReconNetContextModelSnapshot : ModelSnapshot
+    [Migration("20220603024837_ChangeNotesRelation")]
+    partial class ChangeNotesRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -211,23 +213,14 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
+            modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("ActivateNotification")
-                        .HasColumnType("boolean");
-
                     b.Property<Guid>("AgentId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("AgentRunnerType")
-                        .HasColumnType("text");
-
-                    b.Property<bool>("AllowSkip")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("Channel")
                         .HasColumnType("text");
@@ -238,11 +231,14 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.Property<bool>("Deleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
                     b.Property<int>("Stage")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Total")
-                        .HasColumnType("integer");
+                    b.Property<string>("TerminalOutput")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -252,108 +248,6 @@ namespace ReconNess.Data.Npgsql.Migrations
                     b.HasIndex("AgentId");
 
                     b.ToTable("AgentRuns");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentRunnerCommand", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AgentRunnerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Command")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Number")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Server")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgentRunnerId");
-
-                    b.ToTable("AgentRunnerCommands");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentRunnerCommandOutput", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AgentRunnerCommandId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<string>("Output")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgentRunnerCommandId");
-
-                    b.ToTable("AgentRunnerCommandOutputs");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentsSetting", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("AgentServerCount")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<int>("Strategy")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AgentsSettings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("ade752b1-af9e-4ba8-5706-35ad1c1e94ee"),
-                            AgentServerCount = 1,
-                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Deleted = false,
-                            Strategy = 0,
-                            UpdatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
@@ -1142,37 +1036,15 @@ namespace ReconNess.Data.Npgsql.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
+            modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
-                        .WithMany("AgentRunners")
+                        .WithMany("AgentRuns")
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Agent");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentRunnerCommand", b =>
-                {
-                    b.HasOne("ReconNess.Entities.AgentRunner", "AgentRunner")
-                        .WithMany("Commands")
-                        .HasForeignKey("AgentRunnerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AgentRunner");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentRunnerCommandOutput", b =>
-                {
-                    b.HasOne("ReconNess.Entities.AgentRunnerCommand", "AgentRunnerCommand")
-                        .WithMany("Outputs")
-                        .HasForeignKey("AgentRunnerCommandId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AgentRunnerCommand");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
@@ -1286,21 +1158,11 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
                 {
-                    b.Navigation("AgentRunners");
+                    b.Navigation("AgentRuns");
 
                     b.Navigation("AgentTrigger");
 
                     b.Navigation("EventTracks");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentRunner", b =>
-                {
-                    b.Navigation("Commands");
-                });
-
-            modelBuilder.Entity("ReconNess.Entities.AgentRunnerCommand", b =>
-                {
-                    b.Navigation("Outputs");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.RootDomain", b =>

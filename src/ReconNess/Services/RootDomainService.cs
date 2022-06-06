@@ -35,8 +35,7 @@ namespace ReconNess.Services
                     .Select(rootDomain => new RootDomain
                     {
                         Id = rootDomain.Id,
-                        Name = rootDomain.Name,
-                        Notes = rootDomain.Notes
+                        Name = rootDomain.Name
                     })
                     .AsNoTracking()
                     .SingleOrDefaultAsync(cancellationToken);
@@ -59,10 +58,7 @@ namespace ReconNess.Services
                         Name = rootDomain.Name,
                         AgentsRanBefore = rootDomain.AgentsRanBefore,
                         HasBounty = rootDomain.HasBounty,
-                        Notes = new Note
-                        {
-                            Notes = rootDomain.Notes.Notes
-                        },
+                        Notes = rootDomain.Notes,
                         Subdomains = rootDomain.Subdomains
                             .Select(subdomain => new Subdomain
                             {
@@ -75,10 +71,7 @@ namespace ReconNess.Services
                                 IsMainPortal = subdomain.IsMainPortal,
                                 Takeover = subdomain.Takeover,
                                 Technology = subdomain.Technology,
-                                Notes = new Note
-                                {
-                                    Notes = subdomain.Notes.Notes
-                                },
+                                Notes = subdomain.Notes,                                
                                 Labels = subdomain.Labels
                                     .Select(label => new Label
                                     {

@@ -15,7 +15,7 @@ namespace ReconNess.Entities
 
         public virtual ICollection<Subdomain> Subdomains { get; set; }
 
-        public virtual Note Notes { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
 
         public virtual Target Target { get; set; }
 
