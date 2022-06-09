@@ -28,17 +28,19 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default)
+        public async Task<Note> AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default)
         {
-            target.Notes.Add(new Note
+            Note note = new Note
             {
                 Comment = comment,
                 CreatedBy = authProvider.UserName(),
                 Target = target
-            });
+            };
+            target.Notes.Add(note);
 
             this.UnitOfWork.Repository<Target>().Update(target, cancellationToken);
             await this.UnitOfWork.CommitAsync();
+            return note;
         }
 
         /// <inheritdoc/>
