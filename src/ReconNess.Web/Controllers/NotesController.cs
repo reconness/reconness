@@ -130,7 +130,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.AddTargetCommentAsync(target, noteDto.Comment, cancellationToken);
+            var noteEntity = await this.notesService.AddTargetCommentAsync(target, noteDto.Comment, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -138,7 +138,10 @@ namespace ReconNess.Web.Controllers
                 Data = $"Note '{noteDto.Comment}' added"
             }, cancellationToken);
 
-            return NoContent();
+            var noteDtoResponse = this.mapper.Map<Note, NoteDto>(noteEntity);
+
+
+            return Ok(noteDtoResponse);
         }
 
         /// <summary>
