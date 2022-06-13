@@ -26,6 +26,7 @@ namespace ReconNess.Web.Controllers
         private readonly IVersionProvider currentVersionProvider;
         private readonly ILogsProvider logsProvider;
         private readonly IAgentsSettingService agentsSettingService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountsController" /> class
@@ -35,17 +36,20 @@ namespace ReconNess.Web.Controllers
         /// <param name="currentVersionProvider"><see cref="IVersionProvider"/></param>
         /// <param name="logsProvider"><see cref="ILogsProvider"/></param>
         /// <param name="agentsSettingService"><see cref="IAgentsSettingService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public AccountsController(IMapper mapper,
             INotificationService notificationService,
             IVersionProvider currentVersionProvider,
             ILogsProvider logsProvider,
-            IAgentsSettingService agentsSettingService)
+            IAgentsSettingService agentsSettingService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.currentVersionProvider = currentVersionProvider;
             this.logsProvider = logsProvider;
             this.agentsSettingService = agentsSettingService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -112,6 +116,11 @@ namespace ReconNess.Web.Controllers
             var notification = mapper.Map<NotificationDto, Notification>(notificationDto);
 
             await notificationService.SaveNotificationAsync(notification, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Notification setting updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -303,6 +312,11 @@ namespace ReconNess.Web.Controllers
             agentsSetting.Strategy = strategy;
 
             await this.agentsSettingService.UpdateAsync(agentsSetting, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
+            }, cancellationToken);
 
             return NoContent();
         }
