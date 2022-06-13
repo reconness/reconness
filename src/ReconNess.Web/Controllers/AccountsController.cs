@@ -250,6 +250,11 @@ namespace ReconNess.Web.Controllers
 
             await logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -315,7 +320,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
+                Data = $"Agents setting updated"
             }, cancellationToken);
 
             return NoContent();
