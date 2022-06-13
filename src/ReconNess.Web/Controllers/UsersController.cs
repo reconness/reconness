@@ -179,7 +179,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("Password is required.");
             }
 
-            if (this.authProvider.AreYouAdmin() && "Admin".Equals(userDto.Role))
+            if (!this.authProvider.AreYouOwner() && this.authProvider.AreYouAdmin() && "Admin".Equals(userDto.Role))
             {
                 return BadRequest("You can not add Admin new user.");
             }

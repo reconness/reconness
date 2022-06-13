@@ -96,14 +96,6 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task ImportRootDomainAsync(Target target, RootDomain newRootdomain, CancellationToken cancellationToken = default)
-        {
-            target.RootDomains.Add(newRootdomain);
-
-            await this.UpdateAsync(target, cancellationToken);
-        }
-
-        /// <inheritdoc/>
         public async Task UpdateAgentRanAsync(Target target, string agentName, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
