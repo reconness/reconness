@@ -34,7 +34,7 @@ namespace ReconNess.Core.Services
         /// <param name="criteria">The criteria</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A subdomain or null</returns>
-        Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
+        Task<RootDomain> ExportRootDomainAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Delete all the subdomains and relations
@@ -61,5 +61,14 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken"></param>
         /// <returns>A list of subdomain added</returns>
         ICollection<RootDomain> GetRootDomains(ICollection<RootDomain> myRootDomains, List<string> newRootDomains, CancellationToken cancellationToken = default);
+
+
+        /// <summary>
+        /// Upload root domain data with subdomains, services, port, ips, directories, labels, etc
+        /// </summary>
+        /// <param name="uploadRootDomain">root domain upload</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A task</returns>
+        Task<RootDomain> ImportRootDomainAsync(RootDomain uploadRootDomain, CancellationToken cancellationToken = default);
     }
 }

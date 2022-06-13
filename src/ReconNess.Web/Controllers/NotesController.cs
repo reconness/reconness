@@ -69,7 +69,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("target/{targetName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetTargetNote(string targetName, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetTargetNotes(string targetName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -114,7 +114,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> AddTargetNotes(string targetName, [FromBody] NoteAddDto noteDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> AddTargetNote(string targetName, [FromBody] NoteAddDto noteDto, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName))
             {
@@ -130,7 +130,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.AddTargetCommentAsync(target, noteDto.Comment, cancellationToken);
+            var noteEntity = await this.notesService.AddTargetCommentAsync(target, noteDto.Comment, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -138,7 +138,10 @@ namespace ReconNess.Web.Controllers
                 Data = $"Note '{noteDto.Comment}' added"
             }, cancellationToken);
 
-            return NoContent();
+            var noteDtoResponse = this.mapper.Map<Note, NoteDto>(noteEntity);
+
+
+            return Ok(noteDtoResponse);
         }
 
         /// <summary>
@@ -372,7 +375,7 @@ namespace ReconNess.Web.Controllers
         [HttpGet("subdomain/{targetName}/{rootDomainName}/{subdomainName}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> GetRootDomainNotes(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetSubdomainNotes(string targetName, string rootDomainName, string subdomainName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName) || string.IsNullOrEmpty(subdomainName))
             {

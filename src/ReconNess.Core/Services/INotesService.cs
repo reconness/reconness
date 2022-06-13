@@ -16,7 +16,7 @@ namespace ReconNess.Core.Services
          /// <param name="comment">The notes</param>
          /// <param name="cancellationToken">Notification that operations should be canceled</param>
          /// <returns></returns>
-        Task AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default);
+        Task<Note> AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Save rootdomain comment
@@ -25,7 +25,7 @@ namespace ReconNess.Core.Services
         /// <param name="comment">The notes</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default);
+        Task<Note> AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Save subdomains notes
@@ -34,6 +34,6 @@ namespace ReconNess.Core.Services
         /// <param name="comment">The notes</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns></returns>
-        Task AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default);
+        Task<Note> AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default);
     }
 }

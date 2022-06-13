@@ -28,45 +28,42 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default)
+        public async Task<Note> AddTargetCommentAsync(Target target, string comment, CancellationToken cancellationToken = default)
         {
-            target.Notes.Add(new Note
+            Note note = new Note
             {
                 Comment = comment,
                 CreatedBy = authProvider.UserName(),
                 Target = target
-            });
+            };
 
-            this.UnitOfWork.Repository<Target>().Update(target, cancellationToken);
-            await this.UnitOfWork.CommitAsync();
+            return await this.AddAsync(note, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default)
+        public async Task<Note> AddRootdomainCommentAsync(RootDomain rootDomain, string comment, CancellationToken cancellationToken = default)
         {
-            rootDomain.Notes.Add(new Note
+            Note note = new Note
             {
                 Comment = comment,
                 CreatedBy = authProvider.UserName(),
                 RootDomain = rootDomain
-            });
+            };
 
-            this.UnitOfWork.Repository<RootDomain>().Update(rootDomain, cancellationToken);
-            await this.UnitOfWork.CommitAsync();
+            return await this.AddAsync(note, cancellationToken);
         }
 
         /// <inheritdoc/>
-        public async Task AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default)
+        public async Task<Note> AddSubdomainCommentAsync(Subdomain subdomain, string comment, CancellationToken cancellationToken = default)
         {
-            subdomain.Notes.Add(new Note
+            Note note = new Note
             {
                 Comment = comment,
                 CreatedBy = authProvider.UserName(),
                 Subdomain = subdomain
-            });
+            };
 
-            this.UnitOfWork.Repository<Subdomain>().Update(subdomain, cancellationToken);
-            await this.UnitOfWork.CommitAsync();
+            return await this.AddAsync(note, cancellationToken);
         }        
     }
 }

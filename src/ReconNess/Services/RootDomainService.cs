@@ -50,7 +50,7 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task<RootDomain> ExportRootDomainNoTrackingAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
+        public async Task<RootDomain> ExportRootDomainAsync(Expression<Func<RootDomain, bool>> criteria, CancellationToken cancellationToken = default)
         {
             return await GetAllQueryableByCriteria(criteria)
                     .Select(rootDomain => new RootDomain
@@ -96,8 +96,7 @@ namespace ReconNess.Services
                             })
                             .ToList()
                     })
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync(cancellationToken);
+                    .FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -171,6 +170,12 @@ namespace ReconNess.Services
                 rootDomain.AgentsRanBefore = string.Join(", ", rootDomain.AgentsRanBefore, agentName);
                 await UpdateAsync(rootDomain, cancellationToken);
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<RootDomain> ImportRootDomainAsync(RootDomain uploadRootDomain, CancellationToken cancellationToken = default)
+        {
+            return await this.AddAsync(uploadRootDomain, cancellationToken);
         }
 
         /// <summary>

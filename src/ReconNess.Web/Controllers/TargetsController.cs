@@ -409,7 +409,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -434,7 +434,7 @@ namespace ReconNess.Web.Controllers
         /// <remarks>
         /// Sample request:
         ///
-        ///     GET api/targets/{targetName}
+        ///     GET api/targets/dashboard/{targetName}
         ///
         /// </remarks>
         /// <param name="targetName">The target name</param>
