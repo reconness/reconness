@@ -84,6 +84,57 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
+        /// Delete a rootdomain.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/rootdomains/{targetName}/{rootDomainName}
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain to delete</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([FromRoute] string targetName, [FromRoute] string rootDomainName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var rootDomain = await this.rootDomainService.GetRootDomainWithSubdomainsAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
+            {
+                return NotFound();
+            }
+
+            await this.rootDomainService.DeleteAsync(rootDomain, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Rootdomain {rootDomain.Name} deleted"
+            }, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
         /// Delete all the subdomains belong to the rootdomain.
         /// </summary>
         /// <remarks>
@@ -111,7 +162,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -204,12 +255,13 @@ namespace ReconNess.Web.Controllers
 
             var uploadRootDomain = this.mapper.Map<RootDomainDto, RootDomain>(rootDomainDto);
 
-            await this.targetService.ImportRootDomainAsync(target, uploadRootDomain, cancellationToken);
+            uploadRootDomain.Target = target;
+            var uploadedRootDomain = await this.rootDomainService.ImportRootDomainAsync(uploadRootDomain, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
-                RootDomain = uploadRootDomain,
+                RootDomain = uploadedRootDomain,
                 Data = $"Rootdomain {uploadRootDomain.Name} imported"
             }, cancellationToken);
 
@@ -245,13 +297,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.ExportRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.ExportRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -305,7 +357,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -365,7 +417,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
