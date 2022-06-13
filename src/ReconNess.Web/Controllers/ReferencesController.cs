@@ -20,18 +20,22 @@ namespace ReconNess.Web.Controllers
     {
         private readonly IMapper mapper;
         private readonly IReferenceService referenceService;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ReferencesController" /> class
         /// </summary>
         /// <param name="mapper"><see cref="IMapper"/></param>
         /// <param name="referenceService"><see cref="IReferenceService"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public ReferencesController(
             IMapper mapper,
-            IReferenceService referenceService)
+            IReferenceService referenceService,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.referenceService = referenceService;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -111,6 +115,11 @@ namespace ReconNess.Web.Controllers
 
             var referenceAdded = await this.referenceService.AddAsync(reference, cancellationToken);
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Reference {referenceAdded.Url} Added"
+            }, cancellationToken);
+
             return Ok(this.mapper.Map<Reference, ReferenceDto>(referenceAdded));
         }
 
@@ -141,6 +150,11 @@ namespace ReconNess.Web.Controllers
             }
 
             await this.referenceService.DeleteAsync(reference, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Reference {reference.Url} Deleted"
+            }, cancellationToken);
 
             return NoContent();
         }

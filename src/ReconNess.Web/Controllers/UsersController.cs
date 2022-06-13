@@ -28,18 +28,30 @@ namespace ReconNess.Web.Controllers
         private readonly IRoleService roleService;
         private readonly IAuthProvider authProvider;
         private readonly UserManager<User> userManager;
+        private readonly IEventTrackService eventTrackService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsersController" /> class
+        /// </summary>
+        /// <param name="mapper"><see cref="IMapper"/></param>
+        /// <param name="userService"><see cref="IUserService"/></param>
+        /// <param name="roleService"><see cref="IRoleService"/></param>
+        /// <param name="authProvider"><see cref="IAuthProvider"/></param>
+        /// <param name="userManager"><see cref="UserManager{TUser}"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public UsersController(IMapper mapper,
             IUserService userService,
             IRoleService roleService,
             IAuthProvider authProvider,
-            UserManager<User> userManager)
+            UserManager<User> userManager,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.userService = userService;
             this.roleService = roleService;
             this.authProvider = authProvider;
             this.userManager = userManager;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -207,6 +219,11 @@ namespace ReconNess.Web.Controllers
             await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
             await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"User {user.Email} Added"
+            }, cancellationToken);
+
             return Ok(user);
         }
 
@@ -301,7 +318,12 @@ namespace ReconNess.Web.Controllers
             await userManager.RemoveClaimsAsync(user, await userManager.GetClaimsAsync(user));
 
             await userManager.AddToRolesAsync(user, new List<string> { userDto.Role });
-            await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));            
+            await userManager.AddClaimsAsync(user, GetClaims(userDto.Role));
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"User {user.Email} edited"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -316,6 +338,7 @@ namespace ReconNess.Web.Controllers
         ///
         /// </remarks>
         /// <param name="id">The user id</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate or is not admin</response>
@@ -325,7 +348,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
             if (this.authProvider.AreYouMember())
             {
@@ -349,6 +372,11 @@ namespace ReconNess.Web.Controllers
             }            
 
             await this.userManager.DeleteAsync(user);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"User {user.Email} deleted"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -381,7 +409,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Update an user.
+        /// Update an user the Owner.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -436,6 +464,11 @@ namespace ReconNess.Web.Controllers
             currentUser.Owner = false;
 
             await this.userService.UpdateAsync(currentUser, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"User {user.Email} assigned as new Owner"
+            }, cancellationToken);
 
             return NoContent();
         }

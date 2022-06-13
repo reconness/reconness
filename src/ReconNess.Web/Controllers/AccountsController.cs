@@ -22,6 +22,7 @@ namespace ReconNess.Web.Controllers
         private readonly INotificationService notificationService;
         private readonly IVersionProvider currentVersionProvider;
         private readonly ILogsProvider logsProvider;
+        private readonly IEventTrackService eventTrackService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AccountsController" /> class
@@ -30,15 +31,18 @@ namespace ReconNess.Web.Controllers
         /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="currentVersionProvider"><see cref="IVersionProvider"/></param>
         /// <param name="logsProvider"><see cref="ILogsProvider"/></param>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public AccountsController(IMapper mapper,
             INotificationService notificationService,
             IVersionProvider currentVersionProvider,
-            ILogsProvider logsProvider)
+            ILogsProvider logsProvider,
+            IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.currentVersionProvider = currentVersionProvider;
             this.logsProvider = logsProvider;
+            this.eventTrackService = eventTrackService;
         }
 
         /// <summary>
@@ -105,6 +109,11 @@ namespace ReconNess.Web.Controllers
             var notification = this.mapper.Map<NotificationDto, Notification>(notificationDto);
 
             await this.notificationService.SaveNotificationAsync(notification, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Notification setting updated"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -233,6 +242,11 @@ namespace ReconNess.Web.Controllers
             }
 
             await this.logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
+            }, cancellationToken);
 
             return NoContent();
         }

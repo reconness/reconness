@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Models;
+using ReconNess.Core.Services;
+using ReconNess.Entities;
 using ReconNess.Web.Dtos;
 using System.IO;
 using System.Linq;
@@ -18,6 +20,17 @@ namespace ReconNess.Web.Controllers
     [ApiController]
     public class WordlistsController : ControllerBase
     {
+        private readonly IEventTrackService eventTrackService;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WordlistsController" /> class
+        /// </summary>
+        /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
+        public WordlistsController(IEventTrackService eventTrackService)
+        {
+            this.eventTrackService = eventTrackService;
+        }
+
         /// <summary>
         /// Obtain the list of wordlist, content discovery and resolvers.
         /// </summary>
@@ -145,13 +158,14 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
         /// <param name="filename">The filename</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="200">Returns the list of wordlist, content discovery and resolvers</response>
         /// <response code="401">If the user is not authenticate</response>
         [HttpGet("download")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public IActionResult Download(string type, string filename)
+        public async Task<IActionResult> Download(string type, string filename, CancellationToken cancellationToken)
         {
             if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
             {
@@ -170,6 +184,11 @@ namespace ReconNess.Web.Controllers
             {
                 return BadRequest();
             }
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Wordlist {type}/{filename} downloaded"
+            }, cancellationToken);
 
             return PhysicalFile(path, "application/text");
         }
@@ -226,6 +245,11 @@ namespace ReconNess.Web.Controllers
                 await System.IO.File.WriteAllTextAsync(path, wordlistInputDto.Data, cancellationToken);
             }
 
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Wordlist {type}/{filename} edited"
+            }, cancellationToken);
+
             return NoContent();
         }
 
@@ -241,6 +265,7 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="type">The type [subdomain_enum, dir_enum, dns_resolver_enum]</param>
         /// <param name="filename">The filename</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <response code="204">No Content</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate or is not admin</response>
@@ -250,7 +275,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public IActionResult Delete(string type, string filename)
+        public async Task<IActionResult> Delete(string type, string filename, CancellationToken cancellationToken)
         {
             if (!"dir_enum".Equals(type) && !"dns_resolver_enum".Equals(type) && !"subdomain_enum".Equals(type))
             {
@@ -275,6 +300,11 @@ namespace ReconNess.Web.Controllers
             {
                 System.IO.File.Delete(path);
             }
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Wordlist {type}/{filename} deleted"
+            }, cancellationToken);
 
             return NoContent();
         }
@@ -342,6 +372,11 @@ namespace ReconNess.Web.Controllers
             wordlistMetadata.Count = System.IO.File.ReadLines(fileNamePath).Count();
             wordlistMetadata.Size = file.Length.ToString();
             wordlistMetadata.Path = fileNamePath;
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Wordlist {type}/{filename} uploaded"
+            }, cancellationToken);
 
             return Ok(wordlistMetadata);
         }
