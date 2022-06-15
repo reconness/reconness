@@ -454,13 +454,12 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
-            if (target == null)
+            if (!await this.targetService.AnyAsync(t => t.Name == targetName, cancellationToken))
             {
                 return NotFound();
             }
 
-            return Ok(await this.targetService.GetDashboardAsync(target, cancellationToken));
+            return Ok(await this.targetService.GetDashboardAsync(targetName, cancellationToken));
         }
     }
 }

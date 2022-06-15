@@ -185,13 +185,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == subdomainDto.Target, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
@@ -256,13 +256,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == subdomainDto.Target, cancellationToken);
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == subdomainDto.RootDomain, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();

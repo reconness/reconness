@@ -201,7 +201,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Agent = agent,
+                Agent = insertedAgent,
                 Data = $"Agent {agent.Name} Added"
             }, cancellationToken);
 
