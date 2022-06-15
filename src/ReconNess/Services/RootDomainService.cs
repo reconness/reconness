@@ -68,7 +68,19 @@ namespace ReconNess.Services
                         Name = rootDomain.Name,
                         AgentsRanBefore = rootDomain.AgentsRanBefore,
                         HasBounty = rootDomain.HasBounty,
-                        Notes = rootDomain.Notes,
+                        CreatedAt = rootDomain.CreatedAt,
+                        EventTracks = rootDomain.EventTracks.Select(eventTrack => new EventTrack
+                        {
+                            Data = eventTrack.Data,                            
+                            Username = eventTrack.Username,
+                            CreatedAt = eventTrack.CreatedAt,
+                        }).ToList(),
+                        Notes = rootDomain.Notes.Select(note => new Note
+                        {
+                            Comment = note.Comment,
+                            CreatedBy = note.CreatedBy,
+                            CreatedAt = note.CreatedAt,
+                        }).ToList(),
                         Subdomains = rootDomain.Subdomains
                             .Select(subdomain => new Subdomain
                             {
@@ -81,32 +93,38 @@ namespace ReconNess.Services
                                 IsMainPortal = subdomain.IsMainPortal,
                                 Takeover = subdomain.Takeover,
                                 Technology = subdomain.Technology,
-                                Notes = subdomain.Notes,                                
-                                Labels = subdomain.Labels
-                                    .Select(label => new Label
-                                    {
-                                        Name = label.Name,
-                                        Color = label.Color
-                                    })
-                                    .ToList(),
-                                Services = subdomain.Services
-                                    .Select(service => new Service
-                                    {
-                                        Name = service.Name,
-                                        Port = service.Port
-                                    }).ToList(),
-                                Directories = subdomain.Directories
-                                    .Select(directory => new Directory
-                                    {
-                                        Uri = directory.Uri,
-                                        Method = directory.Method,
-                                        StatusCode = directory.StatusCode,
-                                        Size = directory.Size
-                                    }).ToList()
-                            })
-                            .ToList()
-                    })
-                    .FirstOrDefaultAsync(cancellationToken);
+                                CreatedAt = subdomain.CreatedAt,
+                                EventTracks = subdomain.EventTracks.Select(eventTrack => new EventTrack
+                                {
+                                    Data = eventTrack.Data,
+                                    Username = eventTrack.Username,
+                                    CreatedAt = eventTrack.CreatedAt,
+                                }).ToList(),
+                                Notes = subdomain.Notes.Select(note => new Note
+                                {
+                                    Comment = note.Comment,
+                                    CreatedBy = note.CreatedBy,
+                                    CreatedAt = note.CreatedAt,
+                                }).ToList(),
+                                Labels = subdomain.Labels.Select(label => new Label
+                                {
+                                    Name = label.Name,
+                                    Color = label.Color
+                                }).ToList(),
+                                Services = subdomain.Services.Select(service => new Service
+                                {
+                                    Name = service.Name,
+                                    Port = service.Port
+                                }).ToList(),
+                                Directories = subdomain.Directories.Select(directory => new Directory
+                                {
+                                    Uri = directory.Uri,
+                                    Method = directory.Method,
+                                    StatusCode = directory.StatusCode,
+                                    Size = directory.Size
+                                }).ToList()
+                            }).ToList()
+                    }).FirstOrDefaultAsync(cancellationToken);
         }
 
         /// <inheritdoc/>

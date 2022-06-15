@@ -79,6 +79,10 @@ namespace ReconNess.Web.Controllers
             }
 
             var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
+            {
+                return NotFound();
+            }
 
             return Ok(this.mapper.Map<RootDomain, RootDomainDto>(rootDomain));
         }
@@ -303,13 +307,15 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var rootDomain = await this.rootDomainService.ExportRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
             }
 
-            var rootdomainDto = this.mapper.Map<RootDomain, RootDomainDto>(rootDomain);
+            var exportRootDomain = await this.rootDomainService.ExportRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+
+            var rootdomainDto = this.mapper.Map<RootDomain, RootDomainDto>(exportRootDomain);
 
             var download = Helpers.Helpers.ZipSerializedObject<RootDomainDto>(rootdomainDto);
 

@@ -136,36 +136,128 @@ namespace ReconNess.Services
             }
         }
 
-        /// <inheritdoc/>
-        public async Task<TargetDashboard> GetDashboardAsync(Target target, CancellationToken cancellationToken = default)
+        public async Task<Target> ExportTargetAsync(Expression<Func<Target, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            // TODO: refactor this method
+            return await this.GetAllQueryableByCriteria(criteria)
+                    .Select(target => new Target
+                    {
+                        Name = target.Name,
+                        AgentsRanBefore = target.AgentsRanBefore,
+                        HasBounty = target.HasBounty,
+                        OutOfScope = target.OutOfScope,
+                        BugBountyProgramUrl = target.BugBountyProgramUrl,
+                        InScope = target.InScope,
+                        IsPrivate = target.IsPrivate,
+                        PrimaryColor = target.PrimaryColor,
+                        SecondaryColor = target.SecondaryColor,
+                        CreatedAt = target.CreatedAt,
+                        Notes = target.Notes.Select(note => new Note
+                        {
+                            Comment = note.Comment,
+                            CreatedBy = note.CreatedBy,
+                            CreatedAt = note.CreatedAt,
+                        }).ToList(),
+                        EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
+                        {
+                            Data = eventTrack.Data,
+                            Username = eventTrack.Username,
+                            CreatedAt = eventTrack.CreatedAt,
+                        }).ToList(),
+                        RootDomains = target.RootDomains
+                            .Select(rootDomain => new RootDomain
+                            {
+                                Name = rootDomain.Name,
+                                AgentsRanBefore = rootDomain.AgentsRanBefore,
+                                HasBounty = rootDomain.HasBounty,
+                                CreatedAt = rootDomain.CreatedAt,
+                                EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
+                                {
+                                    Data = eventTrack.Data,
+                                    Username = eventTrack.Username,
+                                    CreatedAt = eventTrack.CreatedAt,
+                                }).ToList(),
+                                Notes = rootDomain.Notes.Select(note => new Note
+                                {
+                                    Comment = note.Comment,
+                                    CreatedBy = note.CreatedBy,
+                                    CreatedAt = note.CreatedAt,
+                                }).ToList(),
+                                Subdomains = rootDomain.Subdomains
+                                    .Select(subdomain => new Subdomain
+                                    {
+                                        Name = subdomain.Name,
+                                        AgentsRanBefore = subdomain.AgentsRanBefore,
+                                        HasBounty = subdomain.HasBounty,
+                                        HasHttpOpen = subdomain.HasHttpOpen,
+                                        IpAddress = subdomain.IpAddress,
+                                        IsAlive = subdomain.IsAlive,
+                                        IsMainPortal = subdomain.IsMainPortal,
+                                        Takeover = subdomain.Takeover,
+                                        Technology = subdomain.Technology,
+                                        CreatedAt = subdomain.CreatedAt,
+                                        Notes = subdomain.Notes.Select(note => new Note
+                                        {
+                                            Comment = note.Comment,
+                                            CreatedBy = note.CreatedBy,
+                                            CreatedAt = note.CreatedAt,
+                                        }).ToList(),
+                                        EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
+                                        {
+                                            Data = eventTrack.Data,
+                                            Username = eventTrack.Username,
+                                            CreatedAt = eventTrack.CreatedAt,
+                                        }).ToList(),
+                                        Labels = subdomain.Labels.Select(label => new Label
+                                        {
+                                            Name = label.Name,
+                                            Color = label.Color
+                                        })
+                                        .ToList(),
+                                        Services = subdomain.Services.Select(service => new Service
+                                        {
+                                            Name = service.Name,
+                                            Port = service.Port
+                                        }).ToList(),
+                                        Directories = subdomain.Directories.Select(directory => new Directory
+                                        {
+                                            Uri = directory.Uri,
+                                            Method = directory.Method,
+                                            StatusCode = directory.StatusCode,
+                                            Size = directory.Size
+                                        }).ToList()
+                                    }).ToList()
+                            }).ToList()
+                        })
+                        .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        /// <inheritdoc/>
+        public async Task<TargetDashboard> GetDashboardAsync(string targetName, CancellationToken cancellationToken = default)
+        {
             var dashboard = new TargetDashboard();
 
-            var groupPorts = await this.UnitOfWork.Repository<Service>().GetAllQueryableByCriteria(s => s.Subdomain.RootDomain.Target == target)
-                .GroupBy(s => s.Port)
+            var services = await this.UnitOfWork.Repository<Service>().GetAllByCriteriaAsync(s => s.Subdomain.RootDomain.Target.Name == targetName, cancellationToken);
+            var groupPorts = services.GroupBy(s => s.Port);
+
+            dashboard.SubdomainByPort = groupPorts.Select(p => new SubdomainByPort { Port = p.Key, Count = p.Count() }).OrderByDescending(s => s.Count);
+
+            var directories = await this.UnitOfWork.Repository<Directory>().GetAllQueryableByCriteria(d => d.Subdomain.RootDomain.Target.Name == targetName)
+                    .Include(d => d.Subdomain)
                 .ToListAsync(cancellationToken);
 
-            var groupDirectories = await this.UnitOfWork.Repository<Directory>().GetAllQueryableByCriteria(d => d.Subdomain.RootDomain.Target == target)
-                .GroupBy(s => s.Subdomain)
-                .OrderBy(s => s.Count())
-                .ToListAsync(cancellationToken);
+            var groupDirectories = directories.GroupBy(s => s.Subdomain);
 
-            dashboard.SubdomainByPort = groupPorts.Select(p => new SubdomainByPort { Port = p.Key, Count = p.Count() });
-            dashboard.SubdomainByDirectories = groupDirectories.Select(p => new SubdomainByDirectories { Subdomain = p.Key.Name, Count = p.Count() }).Take(5);
+            dashboard.SubdomainByDirectories = groupDirectories.Select(p => new SubdomainByDirectories { Subdomain = p.Key.Name, Count = p.Count() }).OrderByDescending(d => d.Count).Take(5);
 
-            var groupByDayOfWeek = await this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.CreatedAt > DateTime.Now.AddDays(-7))
-                .GroupBy(l => l.CreatedAt.DayOfWeek)
-                .ToListAsync(cancellationToken);
+            var groupByDayOfWeek = this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.CreatedAt > DateTime.UtcNow.AddDays(-7))
+                .GroupBy(l => l.CreatedAt.DayOfWeek);
 
             dashboard.Interactions = groupByDayOfWeek.Select(d => new DashboardEventTrackInteraction { Day = d.Key, Count = d.Count() });
 
+            dashboard.EventTracks = this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.Target.Name == targetName)
+                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Data, CreatedBy = l.Username }).Take(10);
 
-            dashboard.EventTracks = await this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.Target == target)
-                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Data}).Take(10)
-                .ToListAsync(cancellationToken);
-
-            throw new NotImplementedException();
+            return dashboard;
         }
 
         /// <summary>

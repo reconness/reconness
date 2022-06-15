@@ -43,6 +43,6 @@ namespace ReconNess.Core.Services
         /// <param name="target">The target</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The target dashboard data</returns>
-        Task<TargetDashboard> GetDashboardAsync(Target target, CancellationToken cancellationToken = default);
+        Task<TargetDashboard> GetDashboardAsync(string targetName, CancellationToken cancellationToken = default);
     }
 }
