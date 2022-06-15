@@ -37,6 +37,7 @@ namespace ReconNess.Core.Models
     public class DashboardEventTrack
     {
         public DateTime Date { get; set; }
+        public string CreatedBy { get; set; }
         public string Data { get; set; }
     }
 }
