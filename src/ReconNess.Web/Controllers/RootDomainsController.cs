@@ -269,7 +269,9 @@ namespace ReconNess.Web.Controllers
                 Data = $"Rootdomain {uploadRootDomain.Name} imported"
             }, cancellationToken);
 
-            return Ok(uploadRootDomain.Name);
+            var uploadRootDomainDto = this.mapper.Map<RootDomain, RootDomainDto>(uploadedRootDomain);
+
+            return Ok(uploadRootDomainDto);
         }
 
         /// <summary>
