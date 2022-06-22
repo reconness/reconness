@@ -16,8 +16,6 @@ namespace ReconNess.Entities
 
         public bool AllowSkip { get; set; }
 
-        public string AgentRunnerType { get; set; }
-
         public bool ActivateNotification { get; set; }
 
         public virtual Agent Agent { get; set; }        

@@ -59,7 +59,7 @@ namespace ReconNess.Services
             var agentRunnerType = GetAgentRunnerType(agentRunnerInfo);            
             if (agentRunnerType.StartsWith("Current"))
             {
-                await EnqueueAgentRunnerCurrentConceptAsync(agentRunnerInfo, agentRunnerType, cancellationToken);
+                await EnqueueAgentRunnerCurrentConceptAsync(agentRunnerInfo, cancellationToken);
             }
             else
             {
@@ -85,10 +85,9 @@ namespace ReconNess.Services
         /// Enqueue current concept [target, rootdomain, subdomain]
         /// </summary>
         /// <param name="agentRunnerInfo">The agent run parameters</param>
-        /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task EnqueueAgentRunnerCurrentConceptAsync(AgentRunnerInfo agentRunnerInfo, string agentRunnerType, CancellationToken cancellationToken)
+        private async Task EnqueueAgentRunnerCurrentConceptAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken)
         {
             var channel = await GetChannelAsync(agentRunnerInfo, cancellationToken);
             await AddAsync(new AgentRunner
@@ -97,7 +96,6 @@ namespace ReconNess.Services
                 Stage = AgentRunnerStage.ENQUEUE,
                 AllowSkip = false,
                 Total = 1,
-                AgentRunnerType = agentRunnerType,
                 ActivateNotification = agentRunnerInfo.ActivateNotification,
                 Agent = agentRunnerInfo.Agent
             }, cancellationToken);
@@ -158,7 +156,6 @@ namespace ReconNess.Services
                 AllowSkip = true,
                 Total = targets.Count,
                 ActivateNotification = agentRunnerInfo.ActivateNotification,
-                AgentRunnerType = AgentRunnerTypes.ALL_TARGETS,
                 Agent = agentRunnerInfo.Agent
             }, cancellationToken);
 
@@ -171,6 +168,7 @@ namespace ReconNess.Services
                 var agentRunnerQueue = new AgentRunnerQueue
                 {
                     Channel = channel,
+                    Payload = target.Name,
                     Command = command,
                     Count = count++,
                 };
@@ -198,7 +196,6 @@ namespace ReconNess.Services
                 AllowSkip = true,
                 Total = rootdomains.Count,
                 ActivateNotification = agentRunnerInfo.ActivateNotification,
-                AgentRunnerType = AgentRunnerTypes.ALL_ROOTDOMAINS,
                 Agent = agentRunnerInfo.Agent
             }, cancellationToken);
 
@@ -211,6 +208,7 @@ namespace ReconNess.Services
                 var agentRunnerQueue = new AgentRunnerQueue
                 {
                     Channel = channel,
+                    Payload = rootdomain.Name,
                     Command = command,
                     Count = count++
                 };
@@ -237,7 +235,6 @@ namespace ReconNess.Services
                 Stage = stage,
                 AllowSkip = true,
                 Total = subdomains.Count,
-                AgentRunnerType = AgentRunnerTypes.ALL_SUBDOMAINS,
                 ActivateNotification = agentRunnerInfo.ActivateNotification,
                 Agent = agentRunnerInfo.Agent
             }, cancellationToken);
@@ -251,6 +248,7 @@ namespace ReconNess.Services
                 var agentRunnerQueue = new AgentRunnerQueue
                 {
                     Channel = channel,
+                    Payload = subdomain.Name,
                     Command = command,
                     Count = count++
                 };
@@ -287,17 +285,14 @@ namespace ReconNess.Services
         private async Task<string> GetChannelAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default)
         {
             string channel = string.Empty;
-            if (agentRunnerInfo.Target == null)
+            
+            if (agentRunnerInfo.RootDomain == null)
             {
-                channel = $"{agentRunnerInfo.Agent.Name}";
-            }
-            else if (agentRunnerInfo.RootDomain == null)
-            {
-                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}";
+                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_all";
             }
             else if (agentRunnerInfo.Subdomain == null)
             {
-                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_{agentRunnerInfo.RootDomain.Name}";
+                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_{agentRunnerInfo.RootDomain.Name}_all";
             }
             else
             {
