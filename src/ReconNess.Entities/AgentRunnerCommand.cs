@@ -16,6 +16,8 @@ namespace ReconNess.Entities
 
         public int Server { get; set; }
 
+        public string? Error { get; set; }
+
         public virtual AgentRunner AgentRunner { get; set; }
 
         public virtual ICollection<AgentRunnerCommandOutput> Outputs { get; set; }
