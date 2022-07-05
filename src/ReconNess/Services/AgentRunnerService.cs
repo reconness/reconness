@@ -105,7 +105,7 @@ namespace ReconNess.Services
             {
                 Channel = channel,
                 Command = command,
-                Count = 1
+                Number = 1
             };
 
             await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
@@ -170,7 +170,7 @@ namespace ReconNess.Services
                     Channel = channel,
                     Payload = target.Name,
                     Command = command,
-                    Count = count++,
+                    Number = count++,
                 };
 
                 await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
@@ -210,7 +210,7 @@ namespace ReconNess.Services
                     Channel = channel,
                     Payload = rootdomain.Name,
                     Command = command,
-                    Count = count++
+                    Number = count++
                 };
 
                 await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
@@ -250,7 +250,7 @@ namespace ReconNess.Services
                     Channel = channel,
                     Payload = subdomain.Name,
                     Command = command,
-                    Count = count++
+                    Number = count++
                 };
 
                 await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
@@ -265,7 +265,7 @@ namespace ReconNess.Services
         /// <returns>A task</returns>
         private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
         {
-            agentRunnerQueue.AvailableServerNumber = await this.agentServerManager.GetAvailableServerAsync(agentRunnerQueue.Channel, 60, cancellationToken);
+            agentRunnerQueue.ServerNumber = await this.agentServerManager.GetAvailableServerAsync(agentRunnerQueue.Channel, 60, cancellationToken);
 
             queueProvider.Enqueue(agentRunnerQueue);
         }

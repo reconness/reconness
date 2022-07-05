@@ -6,7 +6,7 @@
         
         public string Payload { get; set; }
         public string Command { get; set; }
-        public int Count { get; set; }
-        public int AvailableServerNumber { get; set; }
+        public int Number { get; set; }
+        public int ServerNumber { get; set; }
     }
 }

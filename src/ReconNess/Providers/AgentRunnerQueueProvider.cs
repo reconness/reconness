@@ -41,7 +41,7 @@ namespace ReconNess.Providers
         public void Enqueue(AgentRunnerQueue agentRunnerQueue)
         {
             var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(agentRunnerQueue));
-            var routingKey = $"reconness-{agentRunnerQueue.AvailableServerNumber}";
+            var routingKey = $"reconness-{agentRunnerQueue.ServerNumber}";
 
             _logger.Info($"Send to the routingKey {routingKey}");
 
