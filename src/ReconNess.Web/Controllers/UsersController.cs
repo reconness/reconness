@@ -74,7 +74,15 @@ namespace ReconNess.Web.Controllers
         {
             var users = new List<User>();
 
-            if (this.authProvider.AreYouMember())
+            if (this.authProvider.AreYouOwner())
+            {
+                // get all users
+                users = await this.userService
+                            .GetAllQueryable()
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
+            }
+            else if (this.authProvider.AreYouMember())
             {
                 // get yourself only
                 users.Add(await this.userService
@@ -97,14 +105,6 @@ namespace ReconNess.Web.Controllers
                         users.Add(user);
                     }
                 }
-            }
-            else
-            {
-                // get all users
-                users = await this.userService
-                            .GetAllQueryable()
-                            .AsNoTracking()
-                            .ToListAsync(cancellationToken);
             }
 
             return Ok(this.mapper.Map<List<User>, List<UserDto>>(users));
@@ -272,12 +272,12 @@ namespace ReconNess.Web.Controllers
             }
 
             var currentUserName = this.authProvider.UserName();
-            if (this.authProvider.AreYouMember() && !user.UserName.Equals(currentUserName))
+            if (!this.authProvider.AreYouOwner() && this.authProvider.AreYouMember() && !user.UserName.Equals(currentUserName))
             {
                 return BadRequest("You can only edit yourself.");
             }
 
-            if (this.authProvider.AreYouAdmin() && !user.UserName.Equals(currentUserName) && !(await this.userManager.IsInRoleAsync(user, "Member")))
+            if (!this.authProvider.AreYouOwner() && this.authProvider.AreYouAdmin() && !user.UserName.Equals(currentUserName) && !(await this.userManager.IsInRoleAsync(user, "Member")))
             {
                 return BadRequest("You only can edit yourself or a Member users.");
             }
