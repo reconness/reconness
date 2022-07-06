@@ -74,7 +74,15 @@ namespace ReconNess.Web.Controllers
         {
             var users = new List<User>();
 
-            if (this.authProvider.AreYouMember())
+            if (this.authProvider.AreYouOwner())
+            {
+                // get all users
+                users = await this.userService
+                            .GetAllQueryable()
+                            .AsNoTracking()
+                            .ToListAsync(cancellationToken);
+            }
+            else if (this.authProvider.AreYouMember())
             {
                 // get yourself only
                 users.Add(await this.userService
@@ -97,14 +105,6 @@ namespace ReconNess.Web.Controllers
                         users.Add(user);
                     }
                 }
-            }
-            else
-            {
-                // get all users
-                users = await this.userService
-                            .GetAllQueryable()
-                            .AsNoTracking()
-                            .ToListAsync(cancellationToken);
             }
 
             return Ok(this.mapper.Map<List<User>, List<UserDto>>(users));
