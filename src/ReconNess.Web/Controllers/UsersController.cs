@@ -272,12 +272,12 @@ namespace ReconNess.Web.Controllers
             }
 
             var currentUserName = this.authProvider.UserName();
-            if (this.authProvider.AreYouMember() && !user.UserName.Equals(currentUserName))
+            if (!this.authProvider.AreYouOwner() && this.authProvider.AreYouMember() && !user.UserName.Equals(currentUserName))
             {
                 return BadRequest("You can only edit yourself.");
             }
 
-            if (this.authProvider.AreYouAdmin() && !user.UserName.Equals(currentUserName) && !(await this.userManager.IsInRoleAsync(user, "Member")))
+            if (!this.authProvider.AreYouOwner() && this.authProvider.AreYouAdmin() && !user.UserName.Equals(currentUserName) && !(await this.userManager.IsInRoleAsync(user, "Member")))
             {
                 return BadRequest("You only can edit yourself or a Member users.");
             }
