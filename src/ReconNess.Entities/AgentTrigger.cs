@@ -6,27 +6,27 @@ namespace ReconNess.Entities
     {
         public Guid Id { get; set; }
 
-        public bool SkipIfRunBefore { get; set; }
+        public bool? SkipIfRunBefore { get; set; }
 
-        public bool TargetHasBounty { get; set; }
+        public bool? TargetHasBounty { get; set; }
 
         public string TargetIncExcName { get; set; }
 
         public string TargetName { get; set; }
 
-        public bool RootdomainHasBounty { get; set; }
+        public bool? RootdomainHasBounty { get; set; }
 
         public string RootdomainIncExcName { get; set; }
 
         public string RootdomainName { get; set; }
 
-        public bool SubdomainHasBounty { get; set; }
+        public bool? SubdomainHasBounty { get; set; }
 
-        public bool SubdomainIsAlive { get; set; }
+        public bool? SubdomainIsAlive { get; set; }
 
-        public bool SubdomainIsMainPortal { get; set; }
+        public bool? SubdomainIsMainPortal { get; set; }
 
-        public bool SubdomainHasHttpOrHttpsOpen { get; set; }
+        public bool? SubdomainHasHttpOrHttpsOpen { get; set; }
 
         public string SubdomainIncExcName { get; set; }
 
