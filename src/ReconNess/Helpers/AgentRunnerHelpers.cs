@@ -28,7 +28,7 @@ namespace ReconNess.Helpers
             var agentTypeSubdomain = AgentRunnerTypes.CURRENT_SUBDOMAIN.Equals(agentRunnerType) || AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunnerType);
 
 
-            return (agentTrigger.SkipIfRunBefore && RanBefore(agentRunner, agentTypeTarget, agentTypeRootDomain, agentTypeSubdomain)) ||
+            return (agentTrigger.SkipIfRunBefore ?? false && RanBefore(agentRunner, agentTypeTarget, agentTypeRootDomain, agentTypeSubdomain)) ||
                    (agentTypeTarget && SkipTarget(agentRunner.Target, agentTrigger)) ||
                    (agentTypeRootDomain && SkipRootDomain(agentRunner.RootDomain, agentTrigger)) ||
                    (agentTypeSubdomain && SkipSubdomain(agentRunner.Subdomain, agentTrigger));
@@ -67,7 +67,7 @@ namespace ReconNess.Helpers
         /// <returns>If we need to skip this Target</returns>
         private static bool SkipTarget(Target target, AgentTrigger agentTrigger)
         {
-            if (agentTrigger.TargetHasBounty && (target == null || !target.HasBounty))
+            if (agentTrigger.TargetHasBounty != target.HasBounty)
             {
                 return true;
             }
@@ -101,7 +101,7 @@ namespace ReconNess.Helpers
         /// <returns>If we need to skip this RootDomain</returns>
         private static bool SkipRootDomain(RootDomain rootDomain, AgentTrigger agentTrigger)
         {
-            if (agentTrigger.RootdomainHasBounty && (rootDomain == null || !rootDomain.HasBounty))
+            if (agentTrigger.RootdomainHasBounty != rootDomain.HasBounty)
             {
                 return true;
             }
@@ -135,22 +135,22 @@ namespace ReconNess.Helpers
         /// <returns>If we need to skip this Subdomain</returns>
         private static bool SkipSubdomain(Subdomain subdomain, AgentTrigger agentTrigger)
         {
-            if (agentTrigger.SubdomainHasBounty && (subdomain == null || subdomain.HasBounty == null || !subdomain.HasBounty.Value))
+            if (agentTrigger.SubdomainHasBounty ?? false && (subdomain == null || subdomain.HasBounty == null || !subdomain.HasBounty.Value))
             {
                 return true;
             }
 
-            if (agentTrigger.SubdomainHasHttpOrHttpsOpen && (subdomain == null || subdomain.HasHttpOpen == null || !subdomain.HasHttpOpen.Value))
+            if (agentTrigger.SubdomainHasHttpOrHttpsOpen ?? false && (subdomain == null || subdomain.HasHttpOpen == null || !subdomain.HasHttpOpen.Value))
             {
                 return true;
             }
 
-            if (agentTrigger.SubdomainIsAlive && (subdomain == null || subdomain.IsAlive == null || !subdomain.IsAlive.Value))
+            if (agentTrigger.SubdomainIsAlive ?? false && (subdomain == null || subdomain.IsAlive == null || !subdomain.IsAlive.Value))
             {
                 return true;
             }
 
-            if (agentTrigger.SubdomainIsMainPortal && (subdomain == null || subdomain.IsMainPortal == null || !subdomain.IsMainPortal.Value))
+            if (agentTrigger.SubdomainIsMainPortal ?? false && (subdomain == null || subdomain.IsMainPortal == null || !subdomain.IsMainPortal.Value))
             {
                 return true;
             }
