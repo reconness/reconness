@@ -184,7 +184,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Post([FromBody] SubdomainDto subdomainDto, CancellationToken cancellationToken)
+        public async Task<IActionResult> Post([FromBody] SubdomainCreateDto subdomainDto, CancellationToken cancellationToken)
         {
             var target = await this.targetService.GetByCriteriaAsync(t => t.Name == subdomainDto.Target, cancellationToken);
             if (target == null)
@@ -219,6 +219,94 @@ namespace ReconNess.Web.Controllers
             }, cancellationToken);
 
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
+        }
+
+        /// <summary>
+        /// Save multiples subdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/subdomains
+        ///     {
+        ///         [
+        ///             {
+        ///                 "name": "www.xxxxx.com",
+        ///                 "target": "xxxxx",
+        ///                 "rootDomain": "xxxxx.com"
+        ///             },
+        ///             {
+        ///                 "name": "www1.xxxxx.com",
+        ///                 "target": "xxxxx",
+        ///                 "rootDomain": "xxxxx.com"
+        ///             },
+        ///         ]
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="subdomainDtos">The subdomains dto</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A new subdomain</returns>
+        /// <response code="200">Returns a new subdomain</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpPost("Multiples")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Multiples([FromBody] IList<SubdomainCreateDto> subdomainDtos, CancellationToken cancellationToken)
+        {
+            if (subdomainDtos == null || subdomainDtos.Count == 0)
+            {
+                return BadRequest("You need to send at least one new subdomain to save.");
+            }
+
+            var firstSubdomain = subdomainDtos.First();
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == firstSubdomain.Target, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest($"The target {firstSubdomain.Target} does not exist.");
+            }
+
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == firstSubdomain.RootDomain, cancellationToken);
+            if (rootDomain == null)
+            {
+                return BadRequest($"The root domain {firstSubdomain.RootDomain} does not exist.");
+            }
+
+            var newSubdomainDtos = new List<SubdomainDto>();
+            foreach (var subdomainDto in subdomainDtos)
+            {
+                var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name, cancellationToken);
+                if (subdomainExist)
+                {
+                    continue;
+                }
+
+                var newSubdomain = await this.subdomainService.AddAsync(new Subdomain
+                {
+                    RootDomain = rootDomain,
+                    Name = subdomainDto.Name
+                }, cancellationToken);
+
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Target = target,
+                    RootDomain = rootDomain,
+                    Subdomain = newSubdomain,
+                    Data = $"Subdomain {newSubdomain.Name} added"
+                }, cancellationToken);
+
+                newSubdomainDtos.Add(mapper.Map<Subdomain, SubdomainDto>(newSubdomain));
+                
+            }
+
+            if (newSubdomainDtos.Count == 0)
+            {
+                return BadRequest($"We did not save any new subdomain.");
+            }
+
+            return Ok(newSubdomainDtos);
         }
 
         /// <summary>
