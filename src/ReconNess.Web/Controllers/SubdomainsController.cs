@@ -462,5 +462,58 @@ namespace ReconNess.Web.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Delete multiples subdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/subdomains/multiples
+        /// {
+        ///     [
+        ///         "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        ///         "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="subdomainIds">The subdomains guid list to delete</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("Multiples")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteMultiples([FromBody] IList<Guid> subdomainIds, CancellationToken cancellationToken)
+        {
+            if (subdomainIds == null || subdomainIds.Count == 0)
+            {
+                return BadRequest("You need to send at least one subdomain to delete.");
+            }
+
+            foreach (var subdomainId in subdomainIds)
+            {
+                var subdomain = await this.subdomainService.GetSubdomainAsync(a => a.Id == subdomainId, cancellationToken);
+                if (subdomain == null)
+                {
+                    return NotFound();
+                }
+
+                await this.subdomainService.DeleteAsync(subdomain, cancellationToken);
+
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Target = subdomain.RootDomain.Target,
+                    RootDomain = subdomain.RootDomain,
+                    Data = $"Subdomain {subdomain.Name} deleted"
+                }, cancellationToken);
+                
+            }
+
+            return NoContent();
+        }
     }
+
 }
