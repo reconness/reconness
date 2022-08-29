@@ -44,5 +44,14 @@ namespace ReconNess.Core.Services
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The target dashboard data</returns>
         Task<TargetDashboard> GetDashboardAsync(string targetName, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain a target with all rootdomains
+        /// </summary>
+        /// <param name="criteria">The criteria</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>A subdomain or null</returns>
+        Task<Target> ExportTargetWithRootDomainsOnlyAsync(Expression<Func<Target, bool>> criteria, CancellationToken cancellationToken = default);
+
     }
 }

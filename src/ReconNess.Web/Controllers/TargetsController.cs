@@ -382,7 +382,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Export the target with all the rootdomains.
+        /// Export the target without rootdomains.
         /// </summary>
         /// <remarks>
         /// Sample request:
@@ -460,6 +460,55 @@ namespace ReconNess.Web.Controllers
             }
 
             return Ok(await this.targetService.GetDashboardAsync(targetName, cancellationToken));
+        }
+
+        /// <summary>
+        /// Export the target with all the rootdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/targets/export/{targetName}/alldata
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The json file with the target and the rootdomain data</returns>
+        /// <response code="200">Returns the json file with the rootdomain and the subdomains data</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("export/alldata/{targetName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ExportTargetInfo([FromRoute] string targetName, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var exportTarget = await this.targetService.ExportTargetWithRootDomainsOnlyAsync(t => t.Name == targetName, cancellationToken);
+
+            var targetDto = this.mapper.Map<Target, TargetDto>(exportTarget);
+
+            var download = Helpers.Helpers.ZipSerializedObject<TargetDto>(targetDto);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                Data = $"Target {target.Name} exported"
+            }, cancellationToken);
+
+            return File(download, "application/json", $"target-{targetDto.Name}.json");
         }
     }
 }
