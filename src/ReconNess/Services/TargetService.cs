@@ -231,57 +231,6 @@ namespace ReconNess.Services
                         .FirstOrDefaultAsync(cancellationToken);
         }
 
-        public async Task<Target> ExportTargetWithRootDomainsOnlyAsync(Expression<Func<Target, bool>> criteria, CancellationToken cancellationToken = default)
-        {
-            return await this.GetAllQueryableByCriteria(criteria)
-                .Select(target => new Target
-                {
-                    Name = target.Name,
-                    AgentsRanBefore = target.AgentsRanBefore,
-                    HasBounty = target.HasBounty,
-                    OutOfScope = target.OutOfScope,
-                    BugBountyProgramUrl = target.BugBountyProgramUrl,
-                    InScope = target.InScope,
-                    IsPrivate = target.IsPrivate,
-                    PrimaryColor = target.PrimaryColor,
-                    SecondaryColor = target.SecondaryColor,
-                    CreatedAt = target.CreatedAt,
-                    Notes = target.Notes.Select(note => new Note
-                    {
-                        Comment = note.Comment,
-                        CreatedBy = note.CreatedBy,
-                        CreatedAt = note.CreatedAt,
-                    }).ToList(),
-                    EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
-                    {
-                        Data = eventTrack.Data,
-                        Username = eventTrack.Username,
-                        CreatedAt = eventTrack.CreatedAt,
-                    }).ToList(),
-                    RootDomains = target.RootDomains
-                        .Select(rootDomain => new RootDomain
-                        {
-                            Name = rootDomain.Name,
-                            AgentsRanBefore = rootDomain.AgentsRanBefore,
-                            HasBounty = rootDomain.HasBounty,
-                            CreatedAt = rootDomain.CreatedAt,
-                            EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
-                            {
-                                Data = eventTrack.Data,
-                                Username = eventTrack.Username,
-                                CreatedAt = eventTrack.CreatedAt,
-                            }).ToList(),
-                            Notes = rootDomain.Notes.Select(note => new Note
-                            {
-                                Comment = note.Comment,
-                                CreatedBy = note.CreatedBy,
-                                CreatedAt = note.CreatedAt,
-                            }).ToList()
-                        }).ToList()
-                    })
-                    .FirstOrDefaultAsync(cancellationToken);
-        }
-
         /// <inheritdoc/>
         public async Task<TargetDashboard> GetDashboardAsync(string targetName, CancellationToken cancellationToken = default)
         {
