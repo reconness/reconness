@@ -382,7 +382,7 @@ namespace ReconNess.Web.Controllers
         }
 
         /// <summary>
-        /// Export the target without rootdomains.
+        /// Export the target with all rootdomains.
         /// </summary>
         /// <remarks>
         /// Sample request:
