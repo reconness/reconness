@@ -38,6 +38,14 @@ namespace ReconNess.Core.Services
         Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// Export the target
+        /// </summary>
+        /// <param name="predicate">The predicate</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns></returns>
+        Task<Target> ExportTargetAsync(Expression<Func<Target, bool>> criteria, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// Obtain the target dashboard
         /// </summary>
         /// <param name="target">The target</param>

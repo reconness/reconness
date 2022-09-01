@@ -409,7 +409,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            var target = await this.targetService.ExportTargetAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
@@ -417,7 +417,7 @@ namespace ReconNess.Web.Controllers
 
             var targetDto = this.mapper.Map<Target, TargetDto>(target);
 
-            var download = Helpers.Helpers.ZipSerializedObject<TargetDto>(targetDto);
+            var download = Helpers.Helpers.ZipSerializedObject(targetDto);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
