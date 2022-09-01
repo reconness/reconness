@@ -461,5 +461,77 @@ namespace ReconNess.Web.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        /// Delete multiples subdomains.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     DELETE api/subdomains/{targetName}/{rootDomainName}/multiples
+        /// {
+        ///     [
+        ///         "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        ///         "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain name</param>
+        /// <param name="subdomainIds">The subdomains guid list to delete</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpDelete("{targetName}/{rootDomainName}/Multiples")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteMultiples([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromBody] IList<Guid> subdomainIds, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return BadRequest();
+            }
+
+            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
+            {
+                return BadRequest();
+            }
+
+            if (subdomainIds == null || subdomainIds.Count == 0)
+            {
+                return BadRequest("You need to send at least one subdomain to delete.");
+            }
+
+            foreach (var subdomainId in subdomainIds)
+            {
+                var subdomain = await this.subdomainService.GetSubdomainAsync(s => s.Id == subdomainId && s.RootDomain == rootDomain && s.RootDomain.Target == target, cancellationToken);
+                if (subdomain == null)
+                {
+                    return NotFound();
+                }
+
+                await this.subdomainService.DeleteAsync(subdomain, cancellationToken);
+
+                await this.eventTrackService.AddAsync(new EventTrack
+                {
+                    Target = subdomain.RootDomain.Target,
+                    RootDomain = subdomain.RootDomain,
+                    Data = $"Subdomain {subdomain.Name} deleted"
+                }, cancellationToken);
+                
+            }
+
+            return NoContent();
+        }
     }
+
 }
