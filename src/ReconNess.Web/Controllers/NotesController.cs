@@ -105,7 +105,7 @@ namespace ReconNess.Web.Controllers
         /// <param name="targetName">The target name</param>
         /// <param name="noteDto">The Note dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Returns the note created</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -255,7 +255,7 @@ namespace ReconNess.Web.Controllers
         /// <param name="rootDomainName">The rootdomain name</param>
         /// <param name="noteDto">The Note dto</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">Returns the note created</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -287,7 +287,7 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.notesService.AddRootdomainCommentAsync(rootDomain, noteDto.Comment, cancellationToken);
+            var noteEntity = await this.notesService.AddRootdomainCommentAsync(rootDomain, noteDto.Comment, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -296,7 +296,9 @@ namespace ReconNess.Web.Controllers
                 Data = $"Note '{noteDto.Comment}' added"
             }, cancellationToken);
 
-            return NoContent();
+            var noteDtoResponse = this.mapper.Map<Note, NoteDto>(noteEntity);
+
+            return Ok(noteDtoResponse);
         }
 
         /// <summary>
