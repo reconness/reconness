@@ -8,6 +8,7 @@ using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -531,6 +532,77 @@ namespace ReconNess.Web.Controllers
             }
 
             return NoContent();
+        }
+
+        /// <summary>
+        /// Download all the subdomain to a csv file.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     POST api/subdomains/export/{targetName}/{rootDomainName}
+        ///     {
+        ///         [
+        ///             "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+        ///            "yyyyyyyy-yyyy-yyyy-yyyy-yyyyyyyyyyyy"
+        ///         ]
+        ///     }
+        /// </remarks>
+        /// <param name="targetName">The target name</param>
+        /// <param name="rootDomainName">The rootdomain</param>
+        /// <param name="subdomainIds">The subdomains guid list to delete</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The csv file with all the subdomains beloing to the rootdomain</returns>
+        /// <response code="200">Returns the csv file with all the subdomains beloing to the rootdomain</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpPost("export/{targetName}/{rootDomainName}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DonwloadSubdomains([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromBody] IList<Guid> subdomainIds, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(targetName) || string.IsNullOrEmpty(rootDomainName))
+            {
+                return BadRequest();
+            }
+
+            var target = await this.targetService.GetByCriteriaAsync(t => t.Name == targetName, cancellationToken);
+            if (target == null)
+            {
+                return NotFound();
+            }
+
+            var rootDomain = await this.rootDomainService.GetByCriteriaAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            if (rootDomain == null)
+            {
+                return NotFound();
+            }
+
+            var data = string.Empty;
+            foreach (var subdomainId in subdomainIds)
+            {
+                var subdomain = await this.subdomainService.GetSubdomainAsync(s => s.Id == subdomainId && s.RootDomain == rootDomain && s.RootDomain.Target == target, cancellationToken);
+                if (subdomain != null)
+                {
+                    data += $"{subdomain.Name},";
+                }
+            }
+
+            data = String.IsNullOrEmpty(data) ? data : data.TrimEnd(',');
+
+            var download = Encoding.UTF8.GetBytes(data);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Target = target,
+                RootDomain = rootDomain,
+                Data = $"Rootdomain {rootDomain.Name} downloaded {subdomainIds.Count} subdomains"
+            }, cancellationToken);
+
+            return File(download, "text/csv", "subdomains.csv");
         }
     }
 
