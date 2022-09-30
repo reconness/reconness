@@ -81,7 +81,7 @@ services:
     container_name: 'reconness-agent-1'
     image: 'reconness-agent'
     build:
-      context: ../../reconness-c-sharp-runtime-agents/src/.
+      context: ../../reconness-c-sharp-runtime-agents/.
       dockerfile: Dockerfile
     depends_on:
       - 'postgres'
@@ -103,7 +103,7 @@ services:
     container_name: 'reconness-agent-2'
     image: 'reconness-agent'
     build:
-      context: ../../reconness-c-sharp-runtime-agents/src/.
+      context: ../../reconness-c-sharp-runtime-agents/.
       dockerfile: Dockerfile
     depends_on:
       - 'postgres'
