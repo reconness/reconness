@@ -7,7 +7,6 @@ using ReconNess.Data.Npgsql.Helpers;
 using ReconNess.Entities;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -18,27 +17,23 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="ISubdomainService"/> 
     /// </summary>
-    public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService, ISaveTerminalOutputParseService<Subdomain>
+    public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
         private readonly ILabelService labelService;
-        private readonly INotificationService notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ISubdomainService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="labelService"><see cref="ILabelService"/></param>
-        /// <param name="notificationService"><see cref="INotificationService"/></param>
         public SubdomainService(
             IUnitOfWork unitOfWork,
-            ILabelService labelService,
-            INotificationService notificationService)
+            ILabelService labelService)
             : base(unitOfWork)
         {
             this.labelService = labelService;
-            this.notificationService = notificationService;
         }
 
         /// <inheritdoc/>
@@ -55,18 +50,19 @@ namespace ReconNess.Services
             return await this.GetAllQueryableByCriteria(predicate)
                     .Include(t => t.RootDomain)
                         .ThenInclude(r => r.Target)
-                .FirstOrDefaultAsync(cancellationToken);
+                .SingleAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Services)
+                    .Include(t => t.Notes)
                     .Include(t => t.Directories)
                     .Include(t => t.Labels)
                     .AsNoTracking()
-                .FirstOrDefaultAsync(cancellationToken);
+                .SingleAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -75,7 +71,7 @@ namespace ReconNess.Services
             IQueryable<Subdomain> queryable = default;
             if (string.IsNullOrEmpty(query))
             {
-                queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
+                queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
                         .Select(subdomain => new Subdomain
                         {
                             Id = subdomain.Id,
@@ -105,7 +101,7 @@ namespace ReconNess.Services
             }
             else
             {
-                queryable = this.GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
+                queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
                     .Select(subdomain => new Subdomain
                     {
                         Name = subdomain.Name,
@@ -139,11 +135,11 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                     .Include(t => t.Labels)
                     .Include(t => t.RootDomain)
                         .ThenInclude(r => r.Target)
-                .FirstOrDefaultAsync(cancellationToken);
+                .SingleAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -152,9 +148,9 @@ namespace ReconNess.Services
             var myLabels = subdomain.Labels.Select(l => l.Name).ToList();
             myLabels.Add(newLabel);
 
-            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
+            subdomain.Labels = await labelService.GetLabelsAsync(subdomain.Labels, myLabels, cancellationToken);
 
-            await this.UpdateAsync(subdomain, cancellationToken);
+            await UpdateAsync(subdomain, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -165,312 +161,12 @@ namespace ReconNess.Services
             if (string.IsNullOrWhiteSpace(subdomain.AgentsRanBefore))
             {
                 subdomain.AgentsRanBefore = agentName;
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
             }
             else if (!subdomain.AgentsRanBefore.Contains(agentName))
             {
                 subdomain.AgentsRanBefore = string.Join(", ", subdomain.AgentsRanBefore, agentName);
-                await this.UpdateAsync(subdomain, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task SaveTerminalOutputParseAsync(Subdomain subdomain, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            // if we have a new subdomain
-            if (!string.IsNullOrEmpty(terminalOutputParse.Subdomain) && 
-                !subdomain.Name.Equals(terminalOutputParse.Subdomain) && 
-                !await this.AnyAsync(s => s.Name == terminalOutputParse.Subdomain, cancellationToken))
-            {                
-                subdomain = new Subdomain
-                {
-                    Name = terminalOutputParse.Subdomain,
-                    AgentsRanBefore = agentName,
-                    RootDomain = subdomain.RootDomain
-                };
-
-                await this.AddAsync(subdomain, cancellationToken);                
-            }
-
-            if (!string.IsNullOrEmpty(terminalOutputParse.Ip))
-            {
-                await this.UpdateSubdomainIpAddressAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (terminalOutputParse.IsAlive != null)
-            {
-                await this.UpdateSubdomainIsAliveAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (terminalOutputParse.HasHttpOpen != null)
-            {
-                await this.UpdateSubdomainHasHttpOpenAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (terminalOutputParse.Takeover != null)
-            {
-                await this.UpdateSubdomainTakeoverAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (!string.IsNullOrEmpty(terminalOutputParse.HttpDirectory))
-            {
-                await this.UpdateSubdomainDirectoryAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (!string.IsNullOrEmpty(terminalOutputParse.Service))
-            {
-                await this.UpdateSubdomainServiceAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (!string.IsNullOrEmpty(terminalOutputParse.Technology))
-            {
-                await this.UpdateSubdomainTechnologyAsync(subdomain, activateNotification, terminalOutputParse, cancellationToken);
-            }
-
-            if (!string.IsNullOrWhiteSpace(terminalOutputParse.Label))
-            {
-                await this.UpdateSubdomainLabelAsync(subdomain, terminalOutputParse, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// Assign Ip address to the subdomain
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainIpAddressAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (Helpers.Helpers.ValidateIPv4(scriptOutput.Ip) && subdomain.IpAddress != scriptOutput.Ip)
-            {
-                subdomain.IpAddress = scriptOutput.Ip;
-                await this.UpdateAsync(subdomain, cancellationToken);
-
-                if (activateNotification)
-                {
-                    await this.notificationService.SendAsync(NotificationType.IP, new[]
-                    {
-                        ("{{domain}}", subdomain.Name),
-                        ("{{ip}}", scriptOutput.Ip)
-                    }, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain if is Alive
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainIsAliveAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (subdomain.IsAlive != scriptOutput.IsAlive)
-            {
-                subdomain.IsAlive = scriptOutput.IsAlive.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
-
-                if (activateNotification && subdomain.IsAlive.Value)
-                {
-                    await this.notificationService.SendAsync(NotificationType.IS_ALIVE, new[]
-                    {
-                        ("{{domain}}", subdomain.Name),
-                        ("{{isAlive}}", scriptOutput.IsAlive.Value.ToString())
-                    }, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain if it has http port open
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainHasHttpOpenAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (subdomain.HasHttpOpen != scriptOutput.HasHttpOpen.Value)
-            {
-                subdomain.HasHttpOpen = scriptOutput.HasHttpOpen.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
-
-                if (activateNotification && subdomain.HasHttpOpen.Value)
-                {
-                    await this.notificationService.SendAsync(NotificationType.HAS_HTTP_OPEN, new[]
-                    {
-                        ("{{domain}}", subdomain.Name),
-                        ("{{httpOpen}}", scriptOutput.HasHttpOpen.Value.ToString())
-                    }, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain if it can be takeover
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainTakeoverAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (subdomain.Takeover != scriptOutput.Takeover.Value)
-            {
-                subdomain.Takeover = scriptOutput.Takeover.Value;
-                await this.UpdateAsync(subdomain, cancellationToken);
-
-                if (activateNotification && subdomain.Takeover.Value)
-                {
-                    await this.notificationService.SendAsync(NotificationType.TAKEOVER, new[]
-                    {
-                        ("{{domain}}", subdomain.Name),
-                        ("{{takeover}}", scriptOutput.Takeover.Value.ToString())
-                    }, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain with directory discovery
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainDirectoryAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            var httpDirectory = scriptOutput.HttpDirectory.TrimEnd('/').TrimEnd();
-            if (subdomain.Directories == null)
-            {
-                subdomain.Directories = new List<Entities.Directory>();
-            }
-
-
-            if (subdomain.Directories.Any(d => d.Uri == httpDirectory))
-            {
-                return;
-            }
-
-            var directory = new Entities.Directory()
-            {
-                Uri = httpDirectory,
-                StatusCode = scriptOutput.HttpDirectoryStatusCode,
-                Method = scriptOutput.HttpDirectoryMethod,
-                Size = scriptOutput.HttpDirectorySize
-            };
-
-            subdomain.Directories.Add(directory);
-            await this.UpdateAsync(subdomain, cancellationToken);
-
-            if (activateNotification)
-            {
-                await this.notificationService.SendAsync(NotificationType.DIRECTORY, new[]
-                {
-                    ("{{domain}}", subdomain.Name),
-                    ("{{directory}}", httpDirectory)
-                }, cancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain if is a new service with open port
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainServiceAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (subdomain.Services == null)
-            {
-                subdomain.Services = new List<Service>();
-            }
-
-            var service = new Service
-            {
-                Name = scriptOutput.Service.ToLower(),
-                Port = scriptOutput.Port.Value
-            };
-
-            if (!subdomain.Services.Any(s => s.Name == service.Name && s.Port == service.Port))
-            {
-                subdomain.Services.Add(service);
-                await this.UpdateAsync(subdomain, cancellationToken);
-
-                if (activateNotification)
-                {
-                    await this.notificationService.SendAsync(NotificationType.SERVICE, new[]
-                    {
-                        ("{{domain}}", subdomain.Name),
-                        ("{{service}}", service.Name),
-                        ("{{port}}", service.Port.ToString())
-                    }, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain Technology
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="activateNotification">If we need to send notificationt</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainTechnologyAsync(Subdomain subdomain, bool activateNotification, ScriptOutput scriptOutput, CancellationToken cancellationToken)
-        {
-            if (!string.IsNullOrEmpty(scriptOutput.Technology) && !scriptOutput.Technology.Equals(subdomain.Technology, StringComparison.OrdinalIgnoreCase))
-            {
-                subdomain.Technology = scriptOutput.Technology;
-                await this.UpdateAsync(subdomain, cancellationToken);
-
-                if (activateNotification && subdomain.Takeover.Value)
-                {
-                    await this.notificationService.SendAsync(NotificationType.TECHNOLOGY, new[]
-                    {
-                        ("{{domain}}", subdomain.Name),
-                        ("{{technology}}", scriptOutput.Technology)
-                    }, cancellationToken);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Update the subdomain label
-        /// </summary>
-        /// <param name="subdomain">The subdomain</param>
-        /// <param name="scriptOutput">The terminal output one line</param>
-        /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        private async ValueTask UpdateSubdomainLabelAsync(Subdomain subdomain, ScriptOutput scriptOutput, CancellationToken cancellationToken = default)
-        {
-            if (!subdomain.Labels.Any(l => scriptOutput.Label.Equals(l.Name, StringComparison.OrdinalIgnoreCase)))
-            {
-                var label = await this.labelService.GetByCriteriaAsync(l => l.Name.ToLower() == scriptOutput.Label.ToLower(), cancellationToken);
-                if (label == null)
-                {
-                    var random = new Random();
-                    label = new Label
-                    {
-                        Name = scriptOutput.Label,
-                        Color = string.Format("#{0:X6}", random.Next(0x1000000))
-                    };
-                }
-
-                subdomain.Labels.Add(label);
-
-                await this.UpdateAsync(subdomain, cancellationToken);
+                await UpdateAsync(subdomain, cancellationToken);
             }
         }
     }

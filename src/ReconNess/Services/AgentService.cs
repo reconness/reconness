@@ -42,7 +42,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
         {
-            var result = this.GetAllQueryable()
+            var result = GetAllQueryable()
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -75,7 +75,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria)
+            return await GetAllQueryableByCriteria(criteria)
                     .Select(agent => new Agent
                     {
                         Id = agent.Id,
@@ -99,7 +99,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria)
+            return await GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
                     .Include(a => a.EventTracks)
@@ -109,7 +109,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
         {
-            return await this.GetAllQueryableByCriteria(criteria)
+            return await GetAllQueryableByCriteria(criteria)
                     .Include(a => a.Categories)
                     .Include(a => a.AgentTrigger)
                 .SingleOrDefaultAsync(cancellationToken);
@@ -150,7 +150,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<ScriptOutput> DebugAsync(string script, string terminalOutput, CancellationToken cancellationToken = default)
         {
-            return await this.scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0, cancellationToken);
+            return await scriptEngineService.TerminalOutputParseAsync(script, terminalOutput, 0, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -203,8 +203,8 @@ namespace ReconNess.Services
                 File.Delete(path);
 
                 agent.ConfigurationFileName = string.Empty;
-                await this.UpdateAsync(agent, cancellationToken);
+                await UpdateAsync(agent, cancellationToken);
             }
-        }       
+        }
     }
 }

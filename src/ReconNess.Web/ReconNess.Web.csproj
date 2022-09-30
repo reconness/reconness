@@ -8,6 +8,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ClientApp\**" />
+    <Content Remove="ClientApp\**" />
+    <EmbeddedResource Remove="ClientApp\**" />
+    <None Remove="ClientApp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.4.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.4" />
@@ -33,7 +40,6 @@
     <ProjectReference Include="..\DAL\ReconNess.Data.Npgsql\ReconNess.Data.Npgsql.csproj" />
     <ProjectReference Include="..\ReconNess.Core\ReconNess.Core.csproj" />
     <ProjectReference Include="..\ReconNess.Entities\ReconNess.Entities.csproj" />
-    <ProjectReference Include="..\ReconNess.Worker\ReconNess.Worker.csproj" />
     <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
   </ItemGroup>
 

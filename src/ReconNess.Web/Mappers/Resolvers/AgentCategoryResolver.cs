@@ -20,7 +20,7 @@ namespace ReconNess.Web.Mappers.Resolvers
             var agentCategories = new List<Category>();
             source.Categories.ForEach(cat =>
             {
-                var category = this.categoryService.GetByCriteriaAsync(c => c.Name == cat).Result;
+                var category = categoryService.GetByCriteriaAsync(c => c.Name == cat).Result;
                 if (category != null)
                 {
                     agentCategories.Add(category);

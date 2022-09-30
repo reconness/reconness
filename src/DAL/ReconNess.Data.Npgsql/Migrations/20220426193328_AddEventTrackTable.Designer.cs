@@ -247,7 +247,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
                     b.HasIndex("AgentId");
 
-                    b.ToTable("AgentRuns");
+                    b.ToTable("AgentRunners");
                 });
 
             modelBuilder.Entity("ReconNess.Entities.AgentTrigger", b =>
@@ -1033,7 +1033,7 @@ namespace ReconNess.Data.Npgsql.Migrations
             modelBuilder.Entity("ReconNess.Entities.AgentRun", b =>
                 {
                     b.HasOne("ReconNess.Entities.Agent", "Agent")
-                        .WithMany("AgentRuns")
+                        .WithMany("AgentRunners")
                         .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1141,7 +1141,7 @@ namespace ReconNess.Data.Npgsql.Migrations
 
             modelBuilder.Entity("ReconNess.Entities.Agent", b =>
                 {
-                    b.Navigation("AgentRuns");
+                    b.Navigation("AgentRunners");
 
                     b.Navigation("AgentTrigger");
 

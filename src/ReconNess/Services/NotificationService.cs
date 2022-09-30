@@ -5,7 +5,6 @@ using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
 using RestSharp;
-using RestSharp.Serializers.NewtonsoftJson;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,10 +30,10 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task SaveNotificationAsync(Notification newNotification, CancellationToken cancellationToken)
         {
-            var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+            var notification = await GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
             if (notification == null)
             {
-                await this.AddAsync(newNotification, cancellationToken);
+                await AddAsync(newNotification, cancellationToken);
                 return;
             }
 
@@ -53,13 +52,13 @@ namespace ReconNess.Services
             notification.NotePayload = newNotification.NotePayload;
             notification.TechnologyPayload = newNotification.TechnologyPayload;
 
-            await this.UpdateAsync(notification, cancellationToken);
+            await UpdateAsync(notification, cancellationToken);
         }
 
         /// <inheritdoc/>
         public async Task SendAsync(string agentPayload, CancellationToken cancellationToken)
         {
-            var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+            var notification = await GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
             if (notification == null)
             {
                 return;
@@ -85,7 +84,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task SendAsync(NotificationType notificationType, (string, string)[] replaces, CancellationToken cancellationToken = default)
         {
-            var payload = await this.GetPayloadAsync(notificationType, cancellationToken);
+            var payload = await GetPayloadAsync(notificationType, cancellationToken);
             if (string.IsNullOrEmpty(payload))
             {
                 return;
@@ -97,7 +96,7 @@ namespace ReconNess.Services
                 payload = payload.Replace(replace.Item1, replace.Item2);
             }
 
-            await this.SendAsync(payload, cancellationToken);
+            await SendAsync(payload, cancellationToken);
         }
 
         /// <summary>
@@ -108,7 +107,7 @@ namespace ReconNess.Services
         /// <returns>The payload</returns>
         private async Task<string> GetPayloadAsync(NotificationType notificationType, CancellationToken cancellationToken)
         {
-            var notification = await this.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
+            var notification = await GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
 
             return notificationType switch
             {

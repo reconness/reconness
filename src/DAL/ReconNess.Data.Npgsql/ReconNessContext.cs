@@ -20,8 +20,12 @@ namespace ReconNess.Data.Npgsql
     public class ReconNessContext : IdentityDbContext<User, Role, Guid>, IDbContext
     {
         public DbSet<Agent> Agents { get; set; }
-        public DbSet<AgentRun> AgentRuns { get; set; }
-        public DbSet<AgentTrigger> AgentTriggers { get; set; }        
+
+        public DbSet<AgentTrigger> AgentTriggers { get; set; }
+        public DbSet<AgentRunner> AgentRunners { get; set; } 
+        public DbSet<AgentRunnerCommand> AgentRunnerCommands { get; set; }
+        public DbSet<AgentRunnerCommandOutput> AgentRunnerCommandOutputs { get; set; }
+        public DbSet<AgentsSetting> AgentsSettings { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Target> Targets { get; set; }
         public DbSet<RootDomain> RootDomains { get; set; }
@@ -61,13 +65,23 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentRun>()
+            modelBuilder.Entity<AgentRunner>()
                 .Property(i => i.Id)
-                .ValueGeneratedOnAdd();            
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentRunnerCommand>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentRunnerCommandOutput>()
+                .Property(i => i.Id)
+                .ValueGeneratedOnAdd();                           
 
             modelBuilder.Entity<AgentTrigger>()
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
+
+            modelBuilder.Entity<AgentsSetting>();
 
             modelBuilder.Entity<Reference>()
                 .Property(i => i.Id)
@@ -109,9 +123,21 @@ namespace ReconNess.Data.Npgsql
                 .Property(i => i.Id)
                 .ValueGeneratedOnAdd();
 
-            modelBuilder.Entity<AgentRun>()
+            modelBuilder.Entity<AgentRunner>()
                 .HasOne(t => t.Agent)
-                .WithMany(r => r.AgentRuns)
+                .WithMany(r => r.AgentRunners)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AgentRunnerCommand>()
+                .HasOne(t => t.AgentRunner)
+                .WithMany(r => r.Commands)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<AgentRunnerCommandOutput>()
+                .HasOne(t => t.AgentRunnerCommand)
+                .WithMany(r => r.Outputs)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
 
@@ -190,6 +216,7 @@ namespace ReconNess.Data.Npgsql
         {
             LabelSeeding.Run(modelBuilder);
             IdentitySeeding.Run(modelBuilder);
+            AgentsSettingSeeding.Run(modelBuilder);
         }
 
         /// <inheritdoc/>
@@ -252,7 +279,7 @@ namespace ReconNess.Data.Npgsql
                 }
             }
 
-            this.transaction = this.Database.BeginTransaction();
+            transaction = Database.BeginTransaction();
         }
 
         /// <inheritdoc/>
@@ -262,15 +289,15 @@ namespace ReconNess.Data.Npgsql
 
             try
             {
-                this.BeginTransaction(cancellationToken);
-                var saveChanges = this.SaveChanges();
-                this.EndTransaction(cancellationToken);
+                BeginTransaction(cancellationToken);
+                var saveChanges = SaveChanges();
+                EndTransaction(cancellationToken);
 
                 return saveChanges;
             }
             catch (Exception)
             {
-                this.Rollback(cancellationToken);
+                Rollback(cancellationToken);
                 throw;
             }
             finally
@@ -286,15 +313,15 @@ namespace ReconNess.Data.Npgsql
 
             try
             {
-                this.BeginTransaction(cancellationToken);
-                var saveChangesAsync = await this.SaveChangesAsync(cancellationToken);
-                this.EndTransaction(cancellationToken);
+                BeginTransaction(cancellationToken);
+                var saveChangesAsync = await SaveChangesAsync(cancellationToken);
+                EndTransaction(cancellationToken);
 
                 return saveChangesAsync;
             }
             catch (Exception)
             {
-                this.Rollback(cancellationToken);
+                Rollback(cancellationToken);
                 throw;
             }
             finally
@@ -308,9 +335,9 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (this.transaction != null && this.transaction.GetDbTransaction().Connection != null)
+            if (transaction != null && transaction.GetDbTransaction().Connection != null)
             {
-                this.transaction.Rollback();
+                transaction.Rollback();
             }
         }
 
@@ -319,7 +346,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.transaction.Commit();
+            transaction.Commit();
         }
 
         /// <inheritdoc/>
@@ -327,7 +354,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.UpdateEntityState<TEntity>(entity, EntityState.Added, cancellationToken);
+            UpdateEntityState<TEntity>(entity, EntityState.Added, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -335,7 +362,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(entity => this.SetAsAdded<TEntity>(entity, cancellationToken));
+            entities.ForEach(entity => SetAsAdded<TEntity>(entity, cancellationToken));
         }
 
         /// <inheritdoc/>
@@ -343,7 +370,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.UpdateEntityState<TEntity>(entity, EntityState.Modified, cancellationToken);
+            UpdateEntityState<TEntity>(entity, EntityState.Modified, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -351,7 +378,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(entity => this.SetAsModified<TEntity>(entity, cancellationToken));
+            entities.ForEach(entity => SetAsModified<TEntity>(entity, cancellationToken));
         }
 
         /// <inheritdoc/>
@@ -359,7 +386,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            this.UpdateEntityState<TEntity>(entity, EntityState.Deleted, cancellationToken);
+            UpdateEntityState<TEntity>(entity, EntityState.Deleted, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -367,7 +394,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            entities.ForEach(entity => this.SetAsDeleted<TEntity>(entity, cancellationToken));
+            entities.ForEach(entity => SetAsDeleted<TEntity>(entity, cancellationToken));
         }
 
         /// <inheritdoc/>
@@ -375,7 +402,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().FindAsync(id, cancellationToken).AsTask();
+            return Set<TEntity>().FindAsync(id, cancellationToken).AsTask();
         }
 
         /// <inheritdoc/>
@@ -383,7 +410,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().Local.AsQueryable().FirstOrDefaultAsync(predicate, cancellationToken) ?? this.FirstOrDefaultAsync<TEntity>(predicate, cancellationToken);
+            return Set<TEntity>().Local.AsQueryable().FirstOrDefaultAsync(predicate, cancellationToken) ?? FirstOrDefaultAsync<TEntity>(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -391,7 +418,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
+            return Set<TEntity>().FirstOrDefaultAsync(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -399,7 +426,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().ToListAsync(cancellationToken);
+            return Set<TEntity>().ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -407,7 +434,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().Where(predicate).ToListAsync<TEntity>(cancellationToken);
+            return Set<TEntity>().Where(predicate).ToListAsync<TEntity>(cancellationToken);
         }
 
         /// <inheritdoc/>
@@ -415,19 +442,19 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            return this.Set<TEntity>().AnyAsync(predicate, cancellationToken);
+            return Set<TEntity>().AnyAsync(predicate, cancellationToken);
         }
 
         /// <inheritdoc/>
         public IQueryable<TEntity> ToQueryable<TEntity>() where TEntity : class
         {
-            return this.Set<TEntity>().AsQueryable();
+            return Set<TEntity>().AsQueryable();
         }
 
         /// <inheritdoc/>
         public IQueryable<TEntity> ToQueryableByCriteria<TEntity>(Expression<Func<TEntity, bool>> predicate) where TEntity : class
         {
-            return this.Set<TEntity>().Where(predicate).AsQueryable();
+            return Set<TEntity>().Where(predicate).AsQueryable();
         }
 
         /// <summary>
@@ -437,7 +464,7 @@ namespace ReconNess.Data.Npgsql
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var entityEntry = this.GetDbEntityEntrySafely<TEntity>(entity, cancellationToken);
+            var entityEntry = GetDbEntityEntrySafely<TEntity>(entity, cancellationToken);
             if (entityEntry.State == EntityState.Unchanged)
             {
                 entityEntry.State = entityState;
@@ -454,7 +481,7 @@ namespace ReconNess.Data.Npgsql
             var entityEntry = Entry<TEntity>(entity);
             if (entityEntry.State == EntityState.Detached)
             {
-                this.Set<TEntity>().Attach(entity);
+                Set<TEntity>().Attach(entity);
             }
 
             return entityEntry;

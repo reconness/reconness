@@ -27,6 +27,8 @@ namespace ReconNess.Entities
 
         public bool? HasBounty { get; set; }
 
+        public string ExtraFields { get; set; }
+
         public virtual ICollection<Label> Labels { get; set; }
 
         public virtual ICollection<Note> Notes { get; set; }

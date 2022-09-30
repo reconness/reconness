@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NLog.Web;
-using ReconNess.Worker;
 using System;
 
 namespace ReconNess.Web
@@ -36,7 +34,7 @@ namespace ReconNess.Web
             return WebHost.CreateDefaultBuilder(args)
                  .ConfigureServices((hostContext, services) =>
                  {
-                     services.AddHostedService<QueuedHostedService>();
+                     //services.AddHostedService<QueuedHostedService>();
                  })
                  .UseNLog()
                  .UseStartup<Startup>();

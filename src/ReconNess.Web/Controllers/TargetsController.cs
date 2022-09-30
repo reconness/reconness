@@ -65,9 +65,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetTargetsNotTrackingAsync(t => !t.Deleted, cancellationToken);
+            var targets = await targetService.GetTargetsNotTrackingAsync(t => !t.Deleted, cancellationToken);
 
-            return Ok(this.mapper.Map<List<Target>, List<TargetDto>>(targets));
+            return Ok(mapper.Map<List<Target>, List<TargetDto>>(targets));
         }
 
         /// <summary>
@@ -96,13 +96,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            return Ok(this.mapper.Map<Target, TargetDto>(target));
+            return Ok(mapper.Map<Target, TargetDto>(target));
         }
 
         /// <summary>
@@ -135,13 +135,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            var targetExist = await this.targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower(), cancellationToken);
+            var targetExist = await targetService.AnyAsync(t => t.Name.ToLower() == targetDto.Name.ToLower(), cancellationToken);
             if (targetExist)
             {
                 return BadRequest(ERROR_TARGET_EXIT);
             }
 
-            var target = this.mapper.Map<TargetDto, Target>(targetDto);
+            var target = mapper.Map<TargetDto, Target>(targetDto);
 
             var insertedTarget = await this.targetService.AddAsync(target, cancellationToken);
             var insertedTargetDto = this.mapper.Map<Target, TargetDto>(insertedTarget);
@@ -188,13 +188,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
         {
-            var target = await this.targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
+            var target = await targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            if (target.Name != targetDto.Name && await this.targetService.AnyAsync(t => t.Name == targetDto.Name, cancellationToken))
+            if (target.Name != targetDto.Name && await targetService.AnyAsync(t => t.Name == targetDto.Name, cancellationToken))
             {
                 return BadRequest(ERROR_TARGET_EXIT);
             }
@@ -207,9 +207,9 @@ namespace ReconNess.Web.Controllers
             target.PrimaryColor = targetDto.PrimaryColor;
             target.SecondaryColor = targetDto.SecondaryColor;
 
-            target.RootDomains = this.rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
+            target.RootDomains = rootDomainService.GetRootDomains(target.RootDomains, targetDto.RootDomains.Select(l => l.Name).ToList(), cancellationToken);
 
-            await this.targetService.UpdateAsync(target, cancellationToken);
+            await targetService.UpdateAsync(target, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -247,13 +247,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+            var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return NotFound();
             }
 
-            await this.targetService.DeleteAsync(target, cancellationToken);
+            await targetService.DeleteAsync(target, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -417,7 +417,7 @@ namespace ReconNess.Web.Controllers
 
             var targetDto = this.mapper.Map<Target, TargetDto>(target);
 
-            var download = Helpers.Helpers.ZipSerializedObject(targetDto);
+            var download = Helpers.ZipSerializedObject(targetDto);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {

@@ -1,11 +1,11 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using ReconNess.Data.Npgsql;
 using System;
 using System.IO;
 using System.Net;
@@ -44,10 +44,17 @@ namespace ReconNess.Web
                                                    .Replace("{{password}}", pgpassword);
             }
 
-            // Auth
-            this.ConfigureAuth(services, Env, connectionString);
+            services.AddDbContext<ReconNessContext>
+            (
+                options => options
+                    .UseNpgsql(connectionString)
+                    .LogTo(Console.WriteLine)
+            );
 
-            this.AddDependencyInjection(services);
+            // Auth
+            ConfigureAuth(services, Env, connectionString);
+
+            AddDependencyInjection(services);
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -118,7 +125,7 @@ namespace ReconNess.Web
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Reconness v1"));
 
-            app.UseRouting();            
+            app.UseRouting();
 
             // global cors policy
             app.UseCors(x => x

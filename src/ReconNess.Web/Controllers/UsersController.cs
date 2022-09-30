@@ -131,7 +131,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
         {
-            var user = await this.userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
+            var user = await userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
             if (user == null)
             {
                 return NotFound();
@@ -148,7 +148,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("You only can see your own user or member users.");
             }
 
-            return Ok(this.mapper.Map<User, UserDto>(user));
+            return Ok(mapper.Map<User, UserDto>(user));
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace ReconNess.Web.Controllers
         public async Task<IActionResult> Post([FromBody] UserDto userDto, CancellationToken cancellationToken)
         {
             // only the Owner and the Admin user can add new users
-            if (this.authProvider.AreYouMember())
+            if (authProvider.AreYouMember())
             {
                 return BadRequest("You can not add a new user.");
             }
@@ -207,7 +207,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("A user with that user name exist");
             }            
 
-            var user = this.mapper.Map<UserDto, User>(userDto);
+            var user = mapper.Map<UserDto, User>(userDto);
 
             var result = await userManager.CreateAsync(user);
             if (!result.Succeeded)
@@ -371,7 +371,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest("You only can remove Member users.");
             }            
 
-            await this.userManager.DeleteAsync(user);
+            await userManager.DeleteAsync(user);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -463,7 +463,7 @@ namespace ReconNess.Web.Controllers
             var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName() && u.Owner, cancellationToken);
             currentUser.Owner = false;
 
-            await this.userService.UpdateAsync(currentUser, cancellationToken);
+            await userService.UpdateAsync(currentUser, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {

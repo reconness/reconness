@@ -6,7 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
+using ReconNess.Entities.Enum;
 using ReconNess.Web.Dtos;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -22,6 +25,7 @@ namespace ReconNess.Web.Controllers
         private readonly INotificationService notificationService;
         private readonly IVersionProvider currentVersionProvider;
         private readonly ILogsProvider logsProvider;
+        private readonly IAgentsSettingService agentsSettingService;
         private readonly IEventTrackService eventTrackService;
 
         /// <summary>
@@ -31,17 +35,20 @@ namespace ReconNess.Web.Controllers
         /// <param name="notificationService"><see cref="INotificationService"/></param>
         /// <param name="currentVersionProvider"><see cref="IVersionProvider"/></param>
         /// <param name="logsProvider"><see cref="ILogsProvider"/></param>
+        /// <param name="agentsSettingService"><see cref="IAgentsSettingService"/></param>
         /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
         public AccountsController(IMapper mapper,
             INotificationService notificationService,
             IVersionProvider currentVersionProvider,
             ILogsProvider logsProvider,
+            IAgentsSettingService agentsSettingService,
             IEventTrackService eventTrackService)
         {
             this.mapper = mapper;
             this.notificationService = notificationService;
             this.currentVersionProvider = currentVersionProvider;
             this.logsProvider = logsProvider;
+            this.agentsSettingService = agentsSettingService;
             this.eventTrackService = eventTrackService;
         }
 
@@ -63,11 +70,11 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Notification(CancellationToken cancellationToken)
         {
-            var notification = await this.notificationService.GetAllQueryableByCriteria(n => !n.Deleted)
+            var notification = await notificationService.GetAllQueryableByCriteria(n => !n.Deleted)
                     .AsNoTracking()
                 .SingleOrDefaultAsync(cancellationToken);
 
-            var notificationDto = this.mapper.Map<Notification, NotificationDto>(notification);
+            var notificationDto = mapper.Map<Notification, NotificationDto>(notification);
 
             return Ok(notificationDto);
         }
@@ -106,9 +113,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> SaveNotification([FromBody] NotificationDto notificationDto, CancellationToken cancellationToken)
         {
-            var notification = this.mapper.Map<NotificationDto, Notification>(notificationDto);
+            var notification = mapper.Map<NotificationDto, Notification>(notificationDto);
 
-            await this.notificationService.SaveNotificationAsync(notification, cancellationToken);
+            await notificationService.SaveNotificationAsync(notification, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -136,7 +143,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> LatestVersion(CancellationToken cancellationToken)
         {
-            var latestVersion = await this.currentVersionProvider.GetLatestVersionAsync(cancellationToken);
+            var latestVersion = await currentVersionProvider.GetLatestVersionAsync(cancellationToken);
 
             return Ok(latestVersion);
         }
@@ -158,7 +165,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult CurrentVersion()
         {
-            var currentVersion = this.currentVersionProvider.GetCurrentVersion();
+            var currentVersion = currentVersionProvider.GetCurrentVersion();
 
             return Ok(currentVersion);
         }
@@ -181,7 +188,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public IActionResult Logfiles(CancellationToken cancellationToken)
         {
-            var logFiles = this.logsProvider.GetLogfiles(cancellationToken);
+            var logFiles = logsProvider.GetLogfiles(cancellationToken);
 
             return Ok(logFiles);
         }
@@ -210,7 +217,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var readLogFile = await this.logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken);
+            var readLogFile = await logsProvider.ReadLogfileAsync(logFileSelected, cancellationToken);
 
             return Ok(readLogFile);
         }
@@ -241,11 +248,79 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
+            await logsProvider.CleanLogfileAsync(accountLogFileDto.LogFileSelected, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Data = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
+            }, cancellationToken);
+
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Obtain Agents setting.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/accounts/agents-setting
+        ///
+        /// </remarks>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="200">The Agents setting</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpGet("agents-setting")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> AgentsSetting(CancellationToken cancellationToken)
+        {
+            var agentsSetting = (await this.agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
+
+            return Ok(agentsSetting);
+        }
+
+        /// <summary>
+        /// Update Agents setting.
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     PUT api/accounts/agents-setting
+        ///     {
+        ///         "AgentServerCount": 2,
+        ///         "Strategy": "ROUND_ROBIN|GREEDY"
+        ///     }
+        ///
+        /// </remarks>
+        /// <param name="agentsSettingDto">The agents setting</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <response code="204">No Content</response>
+        /// <response code="401">If the user is not authenticate</response>
+        [HttpPut("agents-setting")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateAgentsSetting([FromBody] AgentsSettingDto agentsSettingDto, CancellationToken cancellationToken)
+        {
+            if (agentsSettingDto.AgentServerCount <= 0)
+            {
+                return BadRequest("We need at least one agent server.");
+            }
+                        
+            if (!Enum.TryParse(agentsSettingDto.Strategy, out AgentRunnerStrategy strategy))
+            {
+                return BadRequest("The strategy is invalid.");
+            }
+
+            var agentsSetting = (await this.agentsSettingService.GetAllAsync(cancellationToken)).FirstOrDefault();
+            agentsSetting.AgentServerCount = agentsSettingDto.AgentServerCount;
+            agentsSetting.Strategy = strategy;
+
+            await this.agentsSettingService.UpdateAsync(agentsSetting, cancellationToken);
+
+            await this.eventTrackService.AddAsync(new EventTrack
+            {
+                Data = $"Agents setting updated"
             }, cancellationToken);
 
             return NoContent();

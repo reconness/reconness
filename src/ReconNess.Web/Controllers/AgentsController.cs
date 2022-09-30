@@ -2,7 +2,6 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using ReconNess.Core.Models;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
@@ -83,9 +82,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var agents = await this.agentService.GetAgentsNoTrackingAsync(cancellationToken);
+            var agents = await agentService.GetAgentsNoTrackingAsync(cancellationToken);
 
-            var agentsDto = this.mapper.Map<List<Agent>, List<AgentDto>>(agents);
+            var agentsDto = mapper.Map<List<Agent>, List<AgentDto>>(agents);
 
             return Ok(agentsDto);
         }
@@ -118,16 +117,16 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetAgentNoTrackingAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await agentService.GetAgentNoTrackingAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            var agentDto = this.mapper.Map<Agent, AgentDto>(agent);
+            var agentDto = mapper.Map<Agent, AgentDto>(agent);
             if (!string.IsNullOrEmpty(agentDto.ConfigurationFileName))
             {
-                agentDto.ConfigurationContent = await this.agentService.ReadConfigurationFileAsync(agentDto.ConfigurationFileName, cancellationToken);
+                agentDto.ConfigurationContent = await agentService.ReadConfigurationFileAsync(agentDto.ConfigurationFileName, cancellationToken);
                 agentDto.ConfigurationPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Content", "configurations");
             }
 
@@ -152,9 +151,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Marketplace(CancellationToken cancellationToken)
         {
-            var marketplaces = await this.agentService.GetMarketplaceAsync(cancellationToken);
+            var marketplaces = await agentService.GetMarketplaceAsync(cancellationToken);
 
-            var marketplaceDtos = this.mapper.Map<List<AgentMarketplace>, List<AgentMarketplaceDto>>(marketplaces);
+            var marketplaceDtos = mapper.Map<List<AgentMarketplace>, List<AgentMarketplaceDto>>(marketplaces);
 
             return Ok(marketplaceDtos);
         }
@@ -186,13 +185,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            var agentExist = await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
+            var agentExist = await agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
             }
 
-            var agent = this.mapper.Map<AgentDto, Agent>(agentDto);
+            var agent = mapper.Map<AgentDto, Agent>(agentDto);
             if (string.IsNullOrEmpty(agent.Script))
             {
                 agent.Script = "return new ReconNess.Core.Models.ScriptOutput();";
@@ -242,13 +241,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
         {
-            var agent = await this.agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
+            var agent = await agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            var agentExist = agent.Name != agentDto.Name && await this.agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
+            var agentExist = agent.Name != agentDto.Name && await agentService.AnyAsync(t => t.Name == agentDto.Name, cancellationToken);
             if (agentExist)
             {
                 return BadRequest(ERROR_AGENT_EXIT);
@@ -328,13 +327,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            await this.agentService.DeleteAsync(agent, cancellationToken);
+            await agentService.DeleteAsync(agent, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -423,9 +422,9 @@ namespace ReconNess.Web.Controllers
                 return BadRequest(ERROR_AGENT_MARKETPLACE_EXIT);
             }
 
-            var agent = this.mapper.Map<AgentMarketplaceDto, Agent>(agentDefaultDto);
+            var agent = mapper.Map<AgentMarketplaceDto, Agent>(agentDefaultDto);
 
-            agent.Script = await this.agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
+            agent.Script = await agentService.GetScriptAsync(agentDefaultDto.ScriptUrl, cancellationToken);
 
             var agentInstalled = await this.agentService.AddAsync(agent, cancellationToken);
 
@@ -465,7 +464,7 @@ namespace ReconNess.Web.Controllers
         {
             try
             {
-                var scriptOutput = await this.agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken);
+                var scriptOutput = await agentService.DebugAsync(agentDebugDto.Script, agentDebugDto.TerminalOutput, cancellationToken);
 
                 return Ok(scriptOutput);
             }
@@ -514,7 +513,7 @@ namespace ReconNess.Web.Controllers
             Target target = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
             {
-                target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+                target = await targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
                 if (target == null)
                 {
                     return BadRequest();
@@ -524,7 +523,7 @@ namespace ReconNess.Web.Controllers
             RootDomain rootDomain = default;
             if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
             {
-                rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == agentRunnerDto.RootDomain, cancellationToken);
+                rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == agentRunnerDto.RootDomain, cancellationToken);
                 if (rootDomain == null)
                 {
                     return NotFound();
@@ -534,16 +533,15 @@ namespace ReconNess.Web.Controllers
             Subdomain subdomain = default;
             if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
             {
-                subdomain = await this.subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+                subdomain = await subdomainService.GetSubdomainAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
                 if (subdomain == null)
                 {
                     return NotFound();
                 }
             }
 
-            await this.agentRunnerService.RunAgentAsync
-            (
-                new AgentRunner
+            await agentRunnerService.RunAgentAsync(
+                new AgentRunnerInfo
                 {
                     Agent = agent,
                     Target = target,
@@ -551,8 +549,7 @@ namespace ReconNess.Web.Controllers
                     Subdomain = subdomain,
                     ActivateNotification = agentRunnerDto.ActivateNotification,
                     Command = agentRunnerDto.Command
-                }, cancellationToken
-            );
+                }, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -592,129 +589,31 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
         {
-            var agent = await agentService.GetByCriteriaAsync(a => a.Name == agentRunnerDto.Agent, cancellationToken);
-            if (agent == null)
-            {
-                return BadRequest();
-            }
+            var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
-            Target target = default;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
-            {
-                target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
-                if (target == null)
-                {
-                    return BadRequest();
-                }
-            }
-
-            RootDomain rootDomain = default;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
-            {
-                rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(t => t.Name == agentRunnerDto.RootDomain && t.Target == target, cancellationToken);
-                if (rootDomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            Subdomain subdomain = default;
-            if (!string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
-            {
-                subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain)
-                        .AsNoTracking()
-                        .SingleOrDefaultAsync(cancellationToken);
-
-                if (subdomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            var agentRunner = new AgentRunner
-            {
-                Agent = agent,
-                Target = target,
-                RootDomain = rootDomain,
-                Subdomain = subdomain
-            };
-
-            await this.agentRunnerService.StopAgentAsync(agentRunner, cancellationToken);
-
-            await this.eventTrackService.AddAsync(new EventTrack
-            {
-                Agent = agent,
-                Data = $"Agent {agent.Name} stopped"
-            }, cancellationToken);
-
-            return NoContent();
+            return Ok(agentsRunning);
         }
 
         /// <summary>
-        /// Obtain if a specific agent is running.
+        /// Obtain the list of running agents.
         /// </summary>
         /// <remarks>
         /// Sample request:
         ///
-        ///     GET api/agents/running/{targetName}/{rootDomainName}/{subdomainName}
+        ///     GET api/agents/running
         ///
         /// </remarks>
-        /// <param name="targetName">The target name</param>
-        /// <param name="rootDomainName">The rootdomain</param>
-        /// <param name="subdomainName">The subdomain</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>If a specific agent is running</returns>
-        /// <response code="200">Returns if a specific agent is running</response>
-        /// <response code="400">Bad Request</response>
+        /// <returns>The list of running agents</returns>
+        /// <response code="200">Returns the list of running agents</response>
         /// <response code="401">If the user is not authenticate</response>
-        /// <response code="404">Not Found</response>
-        [HttpGet("running/{targetName}/{rootDomainName}/{subdomainName}")]
+        [HttpGet("running")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> RunningAgent([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromRoute] string subdomainName, CancellationToken cancellationToken)
         {
-            Target target = default;
-            if (!string.IsNullOrWhiteSpace(targetName))
-            {
-                target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
-                if (target == null)
-                {
-                    return BadRequest();
-                }
-            }
-
-            RootDomain rootDomain = default;
-            if (!string.IsNullOrWhiteSpace(rootDomainName) && !"undefined".Equals(rootDomainName))
-            {
-                rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == rootDomainName, cancellationToken);
-                if (rootDomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            Subdomain subdomain = default;
-            if (!string.IsNullOrWhiteSpace(subdomainName) && !"undefined".Equals(subdomainName))
-            {
-                subdomain = await this.subdomainService
-                        .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
-                        .AsNoTracking()
-                        .SingleOrDefaultAsync(cancellationToken);
-                if (subdomain == null)
-                {
-                    return NotFound();
-                }
-            }
-
-            var agentsRunning = await this.agentRunnerService.RunningAgentsAsync(new AgentRunner
-            {
-                Target = target,
-                RootDomain = rootDomain,
-                Subdomain = subdomain
-            }, cancellationToken);
+            var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
             return Ok(agentsRunning);
         }
@@ -748,7 +647,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -788,7 +687,7 @@ namespace ReconNess.Web.Controllers
             }
 
             agent.ConfigurationFileName = file.FileName;
-            await this.agentService.UpdateAsync(agent, cancellationToken);
+            await agentService.UpdateAsync(agent, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -825,7 +724,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
@@ -836,7 +735,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            await this.agentService.UpdateConfigurationFileAsync(agent, agentDto.ConfigurationContent, cancellationToken);
+            await agentService.UpdateConfigurationFileAsync(agent, agentDto.ConfigurationContent, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
@@ -872,13 +771,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var agent = await this.agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
+            var agent = await agentService.GetByCriteriaAsync(t => t.Name == agentName, cancellationToken);
             if (agent == null)
             {
                 return NotFound();
             }
 
-            await this.agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
+            await agentService.DeleteConfigurationFileAsync(agent, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
