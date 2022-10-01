@@ -119,7 +119,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Notification setting updated"
+                Description = $"Notification setting updated"
             }, cancellationToken);
 
             return NoContent();
@@ -252,7 +252,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
+                Description = $"Log file {accountLogFileDto.LogFileSelected} cleaned"
             }, cancellationToken);
 
             return NoContent();
@@ -320,7 +320,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Agents setting updated"
+                Description = $"Agents setting updated"
             }, cancellationToken);
 
             return NoContent();

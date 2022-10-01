@@ -117,7 +117,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Reference {referenceAdded.Url} Added"
+                Description = $"Reference {referenceAdded.Url} Added"
             }, cancellationToken);
 
             return Ok(this.mapper.Map<Reference, ReferenceDto>(referenceAdded));
@@ -153,7 +153,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Reference {reference.Url} Deleted"
+                Description = $"Reference {reference.Url} Deleted"
             }, cancellationToken);
 
             return NoContent();

@@ -202,7 +202,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = insertedAgent,
-                Data = $"Agent {agent.Name} Added"
+                Description = $"Agent {agent.Name} Added"
             }, cancellationToken);
 
             var insertedAgentDto = this.mapper.Map<Agent, AgentDto>(insertedAgent);
@@ -296,7 +296,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = agent,
-                Data = $"Agent {agent.Name} Updated"
+                Description = $"Agent {agent.Name} Updated"
             }, cancellationToken);
 
             return NoContent();
@@ -337,7 +337,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Agent {agent.Name} Deleted"
+                Description = $"Agent {agent.Name} Deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -386,7 +386,7 @@ namespace ReconNess.Web.Controllers
             {
                 await this.eventTrackService.AddAsync(new EventTrack
                 {
-                    Data = $"Agent {agent.Name} Deleted"
+                    Description = $"Agent {agent.Name} Deleted"
                 }, cancellationToken);
             }
 
@@ -431,7 +431,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = agentInstalled,
-                Data = $"Agent {agentInstalled.Name} Installed"
+                Description = $"Agent {agentInstalled.Name} Installed"
             }, cancellationToken);
 
             return Ok(this.mapper.Map<Agent, AgentDto>(agentInstalled));
@@ -554,7 +554,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = agent,
-                Data = $"Agent {agent.Name} Running"
+                Description = $"Agent {agent.Name} Running"
             }, cancellationToken);
 
             return NoContent();
@@ -692,7 +692,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = agent,
-                Data = $"Agent {agent.Name} configuration uploaded"
+                Description = $"Agent {agent.Name} configuration uploaded"
             }, cancellationToken);
 
             return NoContent();
@@ -740,7 +740,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = agent,
-                Data = $"Agent {agent.Name} configuration updated"
+                Description = $"Agent {agent.Name} configuration updated"
             }, cancellationToken);
 
             return NoContent();
@@ -782,7 +782,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Agent = agent,
-                Data = $"Agent {agent.Name} configuration deleted"
+                Description = $"Agent {agent.Name} configuration deleted"
             }, cancellationToken);
 
             return NoContent();

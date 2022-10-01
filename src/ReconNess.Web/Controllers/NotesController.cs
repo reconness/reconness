@@ -135,7 +135,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
-                Data = $"Note '{noteDto.Comment}' added"
+                Description = $"Note '{noteDto.Comment}' added"
             }, cancellationToken);
 
             var noteDtoResponse = this.mapper.Map<Note, NoteDto>(noteEntity);
@@ -187,7 +187,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,                
-                Data = $"Note '{note.Comment}' deleted"
+                Description = $"Note '{note.Comment}' deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -293,7 +293,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Note '{noteDto.Comment}' added"
+                Description = $"Note '{noteDto.Comment}' added"
             }, cancellationToken);
 
             var noteDtoResponse = this.mapper.Map<Note, NoteDto>(noteEntity);
@@ -352,7 +352,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Note '{note.Comment}' deleted"
+                Description = $"Note '{note.Comment}' deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -473,7 +473,7 @@ namespace ReconNess.Web.Controllers
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain,
-                Data = $"Note '{noteDto.Comment}' added"
+                Description = $"Note '{noteDto.Comment}' added"
             }, cancellationToken);
 
             return NoContent();
@@ -538,7 +538,7 @@ namespace ReconNess.Web.Controllers
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain,
-                Data = $"Note '{note.Comment}' deleted"
+                Description = $"Note '{note.Comment}' deleted"
             }, cancellationToken);
 
             return NoContent();

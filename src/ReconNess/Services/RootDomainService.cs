@@ -61,7 +61,7 @@ namespace ReconNess.Services
                         CreatedAt = rootDomain.CreatedAt,
                         EventTracks = rootDomain.EventTracks.Select(eventTrack => new EventTrack
                         {
-                            Data = eventTrack.Data,                            
+                            Description = eventTrack.Description,                            
                             Username = eventTrack.Username,
                             CreatedAt = eventTrack.CreatedAt,
                         }).ToList(),
@@ -86,7 +86,7 @@ namespace ReconNess.Services
                                 CreatedAt = subdomain.CreatedAt,
                                 EventTracks = subdomain.EventTracks.Select(eventTrack => new EventTrack
                                 {
-                                    Data = eventTrack.Data,
+                                    Description = eventTrack.Description,
                                     Username = eventTrack.Username,
                                     CreatedAt = eventTrack.CreatedAt,
                                 }).ToList(),

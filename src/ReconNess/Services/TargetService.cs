@@ -126,7 +126,7 @@ namespace ReconNess.Services
                         }).ToList(),
                         EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
                         {
-                            Data = eventTrack.Data,
+                            Description = eventTrack.Description,
                             Username = eventTrack.Username,
                             CreatedAt = eventTrack.CreatedAt,
                         }).ToList(),
@@ -139,7 +139,7 @@ namespace ReconNess.Services
                                 CreatedAt = rootDomain.CreatedAt,
                                 EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
                                 {
-                                    Data = eventTrack.Data,
+                                    Description = eventTrack.Description,
                                     Username = eventTrack.Username,
                                     CreatedAt = eventTrack.CreatedAt,
                                 }).ToList(),
@@ -170,7 +170,7 @@ namespace ReconNess.Services
                                         }).ToList(),
                                         EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
                                         {
-                                            Data = eventTrack.Data,
+                                            Description = eventTrack.Description,
                                             Username = eventTrack.Username,
                                             CreatedAt = eventTrack.CreatedAt,
                                         }).ToList(),
@@ -222,7 +222,7 @@ namespace ReconNess.Services
             dashboard.Interactions = groupByDayOfWeek.Select(d => new DashboardEventTrackInteraction { Day = d.Key, Count = d.Count() });
 
             dashboard.EventTracks = this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.Target.Name == targetName)
-                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Data, CreatedBy = l.Username }).Take(10);
+                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Description, CreatedBy = l.Username }).Take(10);
 
             return dashboard;
         }

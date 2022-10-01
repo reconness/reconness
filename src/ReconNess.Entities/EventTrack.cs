@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReconNess.Entities.Enum;
+using System;
 
 namespace ReconNess.Entities
 {
@@ -6,9 +7,13 @@ namespace ReconNess.Entities
     {
         public Guid Id { get; set; }
 
-        public string Data { get; set; }
+        public string Description { get; set; }
 
         public string Username { get; set; }
+
+        public EventTrackStatus Status { get; set; } = EventTrackStatus.SUCCESS;
+
+        public bool Read { get; set; }
 
         public virtual Agent Agent { get; set; }
 

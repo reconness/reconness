@@ -133,7 +133,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
-                Data = $"Rootdomain {rootDomain.Name} deleted"
+                Description = $"Rootdomain {rootDomain.Name} deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -185,7 +185,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Rootdomain {rootDomain.Name} deleted subdomains"
+                Description = $"Rootdomain {rootDomain.Name} deleted subdomains"
             }, cancellationToken);
 
             return NoContent();
@@ -267,7 +267,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = uploadedRootDomain,
-                Data = $"Rootdomain {uploadRootDomain.Name} imported"
+                Description = $"Rootdomain {uploadRootDomain.Name} imported"
             }, cancellationToken);
 
             var uploadRootDomainDto = this.mapper.Map<RootDomain, RootDomainDto>(uploadedRootDomain);
@@ -326,7 +326,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Rootdomain {rootDomain.Name} exported"
+                Description = $"Rootdomain {rootDomain.Name} exported"
             }, cancellationToken);
 
             return File(download, "application/json", $"rootdomain-{rootDomain.Name}.json");
@@ -391,7 +391,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Rootdomain {rootDomain.Name} uploaded {subdomains.Count} subdomains"
+                Description = $"Rootdomain {rootDomain.Name} uploaded {subdomains.Count} subdomains"
             }, cancellationToken);
 
             return NoContent();
@@ -446,7 +446,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Rootdomain {rootDomain.Name} downloaded {rootDomain.Subdomains.Count} subdomains"
+                Description = $"Rootdomain {rootDomain.Name} downloaded {rootDomain.Subdomains.Count} subdomains"
             }, cancellationToken);
 
             return File(download, "text/csv", "subdomains.csv");

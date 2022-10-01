@@ -186,7 +186,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Wordlist {type}/{filename} downloaded"
+                Description = $"Wordlist {type}/{filename} downloaded"
             }, cancellationToken);
 
             return PhysicalFile(path, "application/text");
@@ -246,7 +246,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Wordlist {type}/{filename} edited"
+                Description = $"Wordlist {type}/{filename} edited"
             }, cancellationToken);
 
             return NoContent();
@@ -302,7 +302,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Wordlist {type}/{filename} deleted"
+                Description = $"Wordlist {type}/{filename} deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -374,7 +374,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Wordlist {type}/{filename} uploaded"
+                Description = $"Wordlist {type}/{filename} uploaded"
             }, cancellationToken);
 
             return Ok(wordlistMetadata);

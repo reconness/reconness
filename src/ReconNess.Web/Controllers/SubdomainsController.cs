@@ -215,7 +215,7 @@ namespace ReconNess.Web.Controllers
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = newSubdoamin,
-                Data = $"Subdomain {newSubdoamin.Name} added"
+                Description = $"Subdomain {newSubdoamin.Name} added"
             }, cancellationToken);
 
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
@@ -294,7 +294,7 @@ namespace ReconNess.Web.Controllers
                     Target = target,
                     RootDomain = rootDomain,
                     Subdomain = newSubdomain,
-                    Data = $"Subdomain {newSubdomain.Name} added"
+                    Description = $"Subdomain {newSubdomain.Name} added"
                 }, cancellationToken);
 
                 newSubdomainDtos.Add(mapper.Map<Subdomain, SubdomainDto>(newSubdomain));
@@ -376,7 +376,7 @@ namespace ReconNess.Web.Controllers
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain,
-                Data = $"Subdomain {subdomain.Name} updated"
+                Description = $"Subdomain {subdomain.Name} updated"
             }, cancellationToken);
 
             return NoContent();
@@ -419,7 +419,7 @@ namespace ReconNess.Web.Controllers
                 Target = subdomain.RootDomain.Target,
                 RootDomain = subdomain.RootDomain,
                 Subdomain = subdomain,
-                Data = $"Subdomain {subdomain.Name} Label {subdomainLabelDto.Label} added"
+                Description = $"Subdomain {subdomain.Name} Label {subdomainLabelDto.Label} added"
             }, cancellationToken);
 
             return NoContent();
@@ -457,7 +457,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = subdomain.RootDomain.Target,
                 RootDomain = subdomain.RootDomain,
-                Data = $"Subdomain {subdomain.Name} deleted"
+                Description = $"Subdomain {subdomain.Name} deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -526,7 +526,7 @@ namespace ReconNess.Web.Controllers
                 {
                     Target = subdomain.RootDomain.Target,
                     RootDomain = subdomain.RootDomain,
-                    Data = $"Subdomain {subdomain.Name} deleted"
+                    Description = $"Subdomain {subdomain.Name} deleted"
                 }, cancellationToken);
                 
             }
@@ -599,7 +599,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Rootdomain {rootDomain.Name} downloaded {subdomainIds.Count} subdomains"
+                Description = $"Rootdomain {rootDomain.Name} downloaded {subdomainIds.Count} subdomains"
             }, cancellationToken);
 
             return File(download, "text/csv", "subdomains.csv");

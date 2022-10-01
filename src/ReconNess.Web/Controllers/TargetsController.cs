@@ -149,7 +149,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = insertedTarget,
-                Data = $"Target {insertedTarget.Name} added"
+                Description = $"Target {insertedTarget.Name} added"
             }, cancellationToken);
 
             return Ok(insertedTargetDto);
@@ -214,7 +214,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
-                Data = $"Target {target.Name} updated"
+                Description = $"Target {target.Name} updated"
             }, cancellationToken);
 
             return NoContent();
@@ -257,7 +257,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Target {target.Name} deleted"
+                Description = $"Target {target.Name} deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -306,7 +306,7 @@ namespace ReconNess.Web.Controllers
             {
                 await this.eventTrackService.AddAsync(new EventTrack
                 {
-                    Data = $"Target {target.Name} deleted"
+                    Description = $"Target {target.Name} deleted"
                 }, cancellationToken);
             }
 
@@ -375,7 +375,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
-                Data = $"Target {target.Name} imported"
+                Description = $"Target {target.Name} imported"
             }, cancellationToken);
 
             return Ok(uploadTarget.Name);
@@ -422,7 +422,7 @@ namespace ReconNess.Web.Controllers
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
-                Data = $"Target {target.Name} exported"
+                Description = $"Target {target.Name} exported"
             }, cancellationToken);
 
             return File(download, "application/json", $"target-{targetDto.Name}.json");

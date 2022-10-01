@@ -221,7 +221,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"User {user.Email} Added"
+                Description = $"User {user.Email} Added"
             }, cancellationToken);
 
             return Ok(user);
@@ -322,7 +322,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"User {user.Email} edited"
+                Description = $"User {user.Email} edited"
             }, cancellationToken);
 
             return NoContent();
@@ -375,7 +375,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"User {user.Email} deleted"
+                Description = $"User {user.Email} deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -467,7 +467,7 @@ namespace ReconNess.Web.Controllers
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"User {user.Email} assigned as new Owner"
+                Description = $"User {user.Email} assigned as new Owner"
             }, cancellationToken);
 
             return NoContent();
