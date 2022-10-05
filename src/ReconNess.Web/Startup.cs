@@ -65,10 +65,10 @@ namespace ReconNess.Web
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                c.SwaggerDoc("v2", new OpenApiInfo
                 {
                     Title = "Swagger Reconness",
-                    Version = "v1",
+                    Version = "v2",
                     Description = "ReconNess API, all the methods need authorization, for that use <b>/api/Auth/Login</b> method first to obtain the <b>Token</b>. \r\n\r\nAnd then use the <b>Authorize</b> button to insert the <b>Token</b>.",
                     TermsOfService = new Uri("https://www.reconness.com/terms"),
                 });
