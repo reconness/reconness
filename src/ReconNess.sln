@@ -1,6 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28714.193
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DAL", "DAL", "{DB7F1D17-BD43-47F0-8E17-F51180F5AEC6}"
 EndProject
@@ -28,8 +28,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Worker", "ReconNess.Worker\ReconNess.Worker.csproj", "{0D483CB0-3394-45BC-8387-A130F203EF30}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,10 +59,6 @@ Global
 		{4E85F0E6-969E-45C4-B8A8-C7352F5950F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E85F0E6-969E-45C4-B8A8-C7352F5950F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E85F0E6-969E-45C4-B8A8-C7352F5950F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0D483CB0-3394-45BC-8387-A130F203EF30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0D483CB0-3394-45BC-8387-A130F203EF30}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0D483CB0-3394-45BC-8387-A130F203EF30}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0D483CB0-3394-45BC-8387-A130F203EF30}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,11 +1,11 @@
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using ReconNess.Data.Npgsql;
 using System;
 using System.IO;
 using System.Net;
@@ -44,10 +44,17 @@ namespace ReconNess.Web
                                                    .Replace("{{password}}", pgpassword);
             }
 
-            // Auth
-            this.ConfigureAuth(services, Env, connectionString);
+            services.AddDbContext<ReconNessContext>
+            (
+                options => options
+                    .UseNpgsql(connectionString)
+                    .LogTo(Console.WriteLine)
+            );
 
-            this.AddDependencyInjection(services);
+            // Auth
+            ConfigureAuth(services, Env, connectionString);
+
+            AddDependencyInjection(services);
 
             services.AddAutoMapper(typeof(Startup));
 
@@ -58,10 +65,10 @@ namespace ReconNess.Web
 
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo
+                c.SwaggerDoc("v2", new OpenApiInfo
                 {
                     Title = "Swagger Reconness",
-                    Version = "v1",
+                    Version = "v2",
                     Description = "ReconNess API, all the methods need authorization, for that use <b>/api/Auth/Login</b> method first to obtain the <b>Token</b>. \r\n\r\nAnd then use the <b>Authorize</b> button to insert the <b>Token</b>.",
                     TermsOfService = new Uri("https://www.reconness.com/terms"),
                 });
@@ -116,9 +123,9 @@ namespace ReconNess.Web
             app.UseHttpsRedirection();
 
             app.UseSwagger();
-            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Swagger Reconness v1"));
+            app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v2/swagger.json", "Swagger Reconness v2"));
 
-            app.UseRouting();            
+            app.UseRouting();
 
             // global cors policy
             app.UseCors(x => x

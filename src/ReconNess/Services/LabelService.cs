@@ -77,7 +77,7 @@ namespace ReconNess.Services
         /// <returns>A Label</returns>
         private async ValueTask<Label> GetNewOrExistLabel(string newLabel, CancellationToken cancellationToken)
         {
-            var label = await this.GetByCriteriaAsync(c => c.Name == newLabel, cancellationToken);
+            var label = await GetByCriteriaAsync(c => c.Name == newLabel, cancellationToken);
             if (label == null)
             {
                 var random = new Random();
@@ -88,7 +88,7 @@ namespace ReconNess.Services
                     Color = string.Format("#{0:X6}", random.Next(0x1000000))
                 };
 
-                label = await this.AddAsync(label, cancellationToken);
+                label = await AddAsync(label, cancellationToken);
             }
 
             return label;

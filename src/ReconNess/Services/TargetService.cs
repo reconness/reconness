@@ -16,32 +16,23 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="ITargetService"/>
     /// </summary>
-    public class TargetService : Service<Target>, IService<Target>, ITargetService, ISaveTerminalOutputParseService<Target>
+    public class TargetService : Service<Target>, IService<Target>, ITargetService
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
-        private readonly IRootDomainService rootDomainService;
-        private readonly INotificationService notificationService;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ITargetService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
-        /// <param name="notificationService"><see cref="INotificationService"/></param>
-        public TargetService(IUnitOfWork unitOfWork,
-            IRootDomainService rootDomainService,
-            INotificationService notificationService)
+        public TargetService(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-            this.rootDomainService = rootDomainService;
-            this.notificationService = notificationService;
         }
 
         /// <inheritdoc/>
         public async Task<List<Target>> GetTargetsNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -66,7 +57,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Target> GetTargetNotTrackingAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                         .Select(target => new Target
                         {
                             Id = target.Id,
@@ -90,7 +81,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<Target> GetTargetAsync(Expression<Func<Target, bool>> predicate, CancellationToken cancellationToken)
         {
-            return await this.GetAllQueryableByCriteria(predicate)
+            return await GetAllQueryableByCriteria(predicate)
                         .Include(t => t.RootDomains)
                         .FirstOrDefaultAsync(cancellationToken);
         }
@@ -103,36 +94,12 @@ namespace ReconNess.Services
             if (string.IsNullOrWhiteSpace(target.AgentsRanBefore))
             {
                 target.AgentsRanBefore = agentName;
-                await this.UpdateAsync(target, cancellationToken);
+                await UpdateAsync(target, cancellationToken);
             }
             else if (!target.AgentsRanBefore.Contains(agentName))
             {
                 target.AgentsRanBefore = string.Join(", ", target.AgentsRanBefore, agentName);
                 await this.UpdateAsync(target, cancellationToken);
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task SaveTerminalOutputParseAsync(Target target, string agentName, bool activateNotification, ScriptOutput terminalOutputParse, CancellationToken cancellationToken = default)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            RootDomain rootDomain = default;
-            if (await this.NeedAddNewRootDomain(target, terminalOutputParse.RootDomain, cancellationToken))
-            {
-                rootDomain = await this.AddTargetNewRootDomainAsync(target, terminalOutputParse.RootDomain, cancellationToken);
-                if (activateNotification)
-                {
-                    await this.notificationService.SendAsync(NotificationType.SUBDOMAIN, new[]
-                    {
-                        ("{{rootDomain}}", rootDomain.Name)
-                    }, cancellationToken);
-                }
-            }
-
-            if (rootDomain != null)
-            {
-                await this.rootDomainService.SaveTerminalOutputParseAsync(rootDomain, agentName, activateNotification, terminalOutputParse, cancellationToken);
             }
         }
 
@@ -159,7 +126,7 @@ namespace ReconNess.Services
                         }).ToList(),
                         EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
                         {
-                            Data = eventTrack.Data,
+                            Description = eventTrack.Description,
                             Username = eventTrack.Username,
                             CreatedAt = eventTrack.CreatedAt,
                         }).ToList(),
@@ -172,7 +139,7 @@ namespace ReconNess.Services
                                 CreatedAt = rootDomain.CreatedAt,
                                 EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
                                 {
-                                    Data = eventTrack.Data,
+                                    Description = eventTrack.Description,
                                     Username = eventTrack.Username,
                                     CreatedAt = eventTrack.CreatedAt,
                                 }).ToList(),
@@ -203,7 +170,7 @@ namespace ReconNess.Services
                                         }).ToList(),
                                         EventTracks = target.EventTracks.Select(eventTrack => new EventTrack
                                         {
-                                            Data = eventTrack.Data,
+                                            Description = eventTrack.Description,
                                             Username = eventTrack.Username,
                                             CreatedAt = eventTrack.CreatedAt,
                                         }).ToList(),
@@ -255,45 +222,10 @@ namespace ReconNess.Services
             dashboard.Interactions = groupByDayOfWeek.Select(d => new DashboardEventTrackInteraction { Day = d.Key, Count = d.Count() });
 
             dashboard.EventTracks = this.UnitOfWork.Repository<EventTrack>().GetAllQueryableByCriteria(l => l.Target.Name == targetName)
-                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Data, CreatedBy = l.Username }).Take(10);
+                .Select(l => new DashboardEventTrack { Date = l.CreatedAt, Data = l.Description, CreatedBy = l.Username }).Take(10);
 
             return dashboard;
         }
 
-        /// <summary>
-        /// If we need to add a new RootDomain
-        /// </summary>
-        /// <param name="target">The Target</param>
-        /// <param name="rootDomain">The root domain</param>
-        /// <param name="cancellationToken">Cancellation Token</param>
-        /// <returns>If we need to add a new RootDomain</returns>
-        private async ValueTask<bool> NeedAddNewRootDomain(Target target, string rootDomain, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrEmpty(rootDomain))
-            {
-                return false;
-            }
-
-            var existRootDomain = await this.rootDomainService.AnyAsync(r => r.Target == target && r.Name == rootDomain, cancellationToken);
-            return !existRootDomain;
-        }
-
-        /// <summary>
-        /// Add a new root domain in the target
-        /// </summary>
-        /// <param name="target">The target to add the new root domain</param>
-        /// <param name="rootDomain">The new root domain</param>
-        /// <param name="cancellationToken">Cancellation Token</param>
-        /// <returns>The new root domain added</returns>
-        private Task<RootDomain> AddTargetNewRootDomainAsync(Target target, string rootDomain, CancellationToken cancellationToken)
-        {
-            var newRootDomain = new RootDomain
-            {
-                Name = rootDomain,
-                Target = target
-            };
-
-            return this.rootDomainService.AddAsync(newRootDomain, cancellationToken);
-        }
     }
 }

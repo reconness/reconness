@@ -29,7 +29,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<Reference>> GetReferencesAsync(CancellationToken cancellationToken)
         {
-            var references = await this.GetAllQueryable()
+            var references = await GetAllQueryable()
                     .OrderBy(r => r.Categories)
                     .AsNoTracking()
                 .ToListAsync(cancellationToken);
@@ -40,7 +40,7 @@ namespace ReconNess.Services
         /// <inheritdoc/>
         public async Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken)
         {
-            var entities = await this.GetAllQueryable()
+            var entities = await GetAllQueryable()
                 .Select(r => r.Categories)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

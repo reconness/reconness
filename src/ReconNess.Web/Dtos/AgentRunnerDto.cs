@@ -2,6 +2,8 @@
 {
     public class AgentRunnerDto
     {
+        public string RunnerId { get; set; }
+
         public string Agent { get; set; }
 
         public string Command { get; set; }

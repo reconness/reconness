@@ -48,12 +48,12 @@ namespace ReconNess.Web.Auth
 
         public bool AreYouMember()
         {
-            return this.Roles().Contains("Member");
+            return Roles().Contains("Member");
         }
 
         public bool AreYouAdmin()
         {
-            return this.Roles().Contains("Admin");
+            return Roles().Contains("Admin");
         }
 
         public bool AreYouOwner()

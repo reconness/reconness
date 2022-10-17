@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
-using ReconNess.Helpers;
 using ReconNess.Web.Dtos;
 using System;
 using System.Collections.Generic;
@@ -81,25 +80,25 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
             }
 
-            var subdomain = await this.subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+            var subdomain = await subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
             }
 
-            return Ok(this.mapper.Map<Subdomain, SubdomainDto>(subdomain));
+            return Ok(mapper.Map<Subdomain, SubdomainDto>(subdomain));
         }
 
         /// <summary>
@@ -137,29 +136,29 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+            var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
             }
 
-            var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+            var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
             if (rootDomain == null)
             {
                 return BadRequest();
             }
 
-            var subdomainResult = await this.subdomainService.GetPaginateAsync(rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
+            var subdomainResult = await subdomainService.GetPaginateAsync(rootDomain, subdomainQueryDto.Query, subdomainQueryDto.Page, subdomainQueryDto.Limit, cancellationToken);
 
-            var subdomains = this.mapper.Map<IList<Subdomain>, IList<SubdomainDto>>(subdomainResult.Results);
-            
+            var subdomains = mapper.Map<IList<Subdomain>, IList<SubdomainDto>>(subdomainResult.Results);
+
             foreach (var subdomain in subdomains)
             {
-                subdomain.Screenshot = SubdomainHelpers.GetBase64Image(targetName, rootDomainName, subdomain.Name);
+                subdomain.Screenshot = Helpers.GetBase64Image(targetName, rootDomainName, subdomain.Name);
             }
 
             return Ok(new { Count = subdomainResult.RowCount, Data = subdomains });
-        }       
+        }
 
         /// <summary>
         /// Save a new subdomain.
@@ -199,13 +198,13 @@ namespace ReconNess.Web.Controllers
                 return BadRequest();
             }
 
-            var subdomainExist = await this.subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name, cancellationToken);
+            var subdomainExist = await subdomainService.AnyAsync(s => s.RootDomain == rootDomain && s.Name == subdomainDto.Name, cancellationToken);
             if (subdomainExist)
             {
                 return BadRequest($"The subdomain {subdomainDto.Name} exist");
             }
 
-            var newSubdoamin = await this.subdomainService.AddAsync(new Subdomain
+            var newSubdoamin = await subdomainService.AddAsync(new Subdomain
             {
                 RootDomain = rootDomain,
                 Name = subdomainDto.Name
@@ -216,7 +215,7 @@ namespace ReconNess.Web.Controllers
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = newSubdoamin,
-                Data = $"Subdomain {newSubdoamin.Name} added"
+                Description = $"Subdomain {newSubdoamin.Name} added"
             }, cancellationToken);
 
             return Ok(mapper.Map<Subdomain, SubdomainDto>(newSubdoamin));
@@ -295,7 +294,7 @@ namespace ReconNess.Web.Controllers
                     Target = target,
                     RootDomain = rootDomain,
                     Subdomain = newSubdomain,
-                    Data = $"Subdomain {newSubdomain.Name} added"
+                    Description = $"Subdomain {newSubdomain.Name} added"
                 }, cancellationToken);
 
                 newSubdomainDtos.Add(mapper.Map<Subdomain, SubdomainDto>(newSubdomain));
@@ -364,20 +363,20 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            var editedSubdmain = this.mapper.Map<SubdomainDto, Subdomain>(subdomainDto);
+            var editedSubdmain = mapper.Map<SubdomainDto, Subdomain>(subdomainDto);
 
             subdomain.Name = editedSubdmain.Name;
             subdomain.IsMainPortal = editedSubdmain.IsMainPortal;
-            subdomain.Labels = await this.labelService.GetLabelsAsync(subdomain.Labels, subdomainDto.Labels.Select(l => l.Name).ToList(), cancellationToken);
+            subdomain.Labels = await labelService.GetLabelsAsync(subdomain.Labels, subdomainDto.Labels.Select(l => l.Name).ToList(), cancellationToken);
 
-            await this.subdomainService.UpdateAsync(subdomain, cancellationToken);
+            await subdomainService.UpdateAsync(subdomain, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
                 RootDomain = rootDomain,
                 Subdomain = subdomain,
-                Data = $"Subdomain {subdomain.Name} updated"
+                Description = $"Subdomain {subdomain.Name} updated"
             }, cancellationToken);
 
             return NoContent();
@@ -407,20 +406,20 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> AddLabel([FromRoute] Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
         {
-            var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
+            var subdomain = await subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
             }
 
-            await this.subdomainService.AddLabelAsync(subdomain, subdomainLabelDto.Label, cancellationToken);
+            await subdomainService.AddLabelAsync(subdomain, subdomainLabelDto.Label, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = subdomain.RootDomain.Target,
                 RootDomain = subdomain.RootDomain,
                 Subdomain = subdomain,
-                Data = $"Subdomain {subdomain.Name} Label {subdomainLabelDto.Label} added"
+                Description = $"Subdomain {subdomain.Name} Label {subdomainLabelDto.Label} added"
             }, cancellationToken);
 
             return NoContent();
@@ -452,13 +451,13 @@ namespace ReconNess.Web.Controllers
                 return NotFound();
             }
 
-            await this.subdomainService.DeleteAsync(subdomain, cancellationToken);
+            await subdomainService.DeleteAsync(subdomain, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = subdomain.RootDomain.Target,
                 RootDomain = subdomain.RootDomain,
-                Data = $"Subdomain {subdomain.Name} deleted"
+                Description = $"Subdomain {subdomain.Name} deleted"
             }, cancellationToken);
 
             return NoContent();
@@ -527,7 +526,7 @@ namespace ReconNess.Web.Controllers
                 {
                     Target = subdomain.RootDomain.Target,
                     RootDomain = subdomain.RootDomain,
-                    Data = $"Subdomain {subdomain.Name} deleted"
+                    Description = $"Subdomain {subdomain.Name} deleted"
                 }, cancellationToken);
                 
             }
@@ -600,7 +599,7 @@ namespace ReconNess.Web.Controllers
             {
                 Target = target,
                 RootDomain = rootDomain,
-                Data = $"Rootdomain {rootDomain.Name} downloaded {subdomainIds.Count} subdomains"
+                Description = $"Rootdomain {rootDomain.Name} downloaded {subdomainIds.Count} subdomains"
             }, cancellationToken);
 
             return File(download, "text/csv", "subdomains.csv");

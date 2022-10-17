@@ -56,9 +56,9 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var references = await this.referenceService.GetReferencesAsync(cancellationToken);
+            var references = await referenceService.GetReferencesAsync(cancellationToken);
 
-            var agentsDto = this.mapper.Map<List<Reference>, List<ReferenceDto>>(references);
+            var agentsDto = mapper.Map<List<Reference>, List<ReferenceDto>>(references);
 
             return Ok(agentsDto);
         }
@@ -81,7 +81,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetCategories(CancellationToken cancellationToken)
         {
-            var categories = await this.referenceService.GetAllCategoriesAsync(cancellationToken);
+            var categories = await referenceService.GetAllCategoriesAsync(cancellationToken);
 
             return Ok(categories);
         }
@@ -111,13 +111,13 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Post([FromBody] ReferenceDto referenceDto, CancellationToken cancellationToken)
         {
-            var reference = this.mapper.Map<ReferenceDto, Reference>(referenceDto);
+            var reference = mapper.Map<ReferenceDto, Reference>(referenceDto);
 
-            var referenceAdded = await this.referenceService.AddAsync(reference, cancellationToken);
+            var referenceAdded = await referenceService.AddAsync(reference, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Reference {referenceAdded.Url} Added"
+                Description = $"Reference {referenceAdded.Url} Added"
             }, cancellationToken);
 
             return Ok(this.mapper.Map<Reference, ReferenceDto>(referenceAdded));
@@ -143,17 +143,17 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
         {
-            var reference = await this.referenceService.GetByCriteriaAsync(t => t.Id == id, cancellationToken);
+            var reference = await referenceService.GetByCriteriaAsync(t => t.Id == id, cancellationToken);
             if (reference == null)
             {
                 return NotFound();
             }
 
-            await this.referenceService.DeleteAsync(reference, cancellationToken);
+            await referenceService.DeleteAsync(reference, cancellationToken);
 
             await this.eventTrackService.AddAsync(new EventTrack
             {
-                Data = $"Reference {reference.Url} Deleted"
+                Description = $"Reference {reference.Url} Deleted"
             }, cancellationToken);
 
             return NoContent();

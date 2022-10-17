@@ -1,10 +1,12 @@
-﻿using NLog;
+﻿using Microsoft.EntityFrameworkCore;
+using NLog;
 using ReconNess.Core;
+using ReconNess.Core.Managers;
 using ReconNess.Core.Models;
 using ReconNess.Core.Providers;
 using ReconNess.Core.Services;
 using ReconNess.Entities;
-using ReconNess.Helpers;
+using ReconNess.Entities.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,390 +18,343 @@ namespace ReconNess.Services
     /// <summary>
     /// This class implement <see cref="IAgentRunnerService"/>
     /// </summary>
-    public class AgentRunnerService : Service<Agent>, IAgentRunnerService, IService<Agent>
+    public class AgentRunnerService : Service<AgentRunner>, IAgentRunnerService, IService<AgentRunner>
     {
         protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
 
-        private readonly IAgentService agentService;
         private readonly ITargetService targetService;
         private readonly IRootDomainService rootDomainService;
         private readonly ISubdomainService subdomainService;
-        private readonly IAgentRunnerProvider agentRunnerProvider;
-        private readonly IAgentBackgroundService agentBackgroundService;
-        private readonly IAgentRunService agentRunService;
+        private readonly IAgentServerManager agentServerManager;
+        private readonly IQueueProvider<AgentRunnerQueue> queueProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentRunnerService" /> class
         /// </summary>
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-        /// <param name="agentService"><see cref="IAgentService"/></param>
         /// <param name="targetService"><see cref="ITargetService"/></param>
         /// <param name="rootDomainService"><see cref="IRootDomainService"/></param>
         /// <param name="subdomainService"><see cref="ISubdomainService"/></param>
-        /// <param name="agentRunnerProvider"><see cref="IAgentRunnerProvider"/></param>
-        /// <param name="agentBackgroundService"><see cref="IAgentBackgroundService"/></param>
-        /// <param name="agentRunService"><see cref="IAgentRunService"/></param>
+        /// <param name="queueProvider"><see cref="IQueueProvider{T}"/></param>
+        /// <param name="agentServerManager"><see cref="IAgentServerManager"/></param>
         public AgentRunnerService(IUnitOfWork unitOfWork,
-            IAgentService agentService,
             ITargetService targetService,
             IRootDomainService rootDomainService,
             ISubdomainService subdomainService,
-            IAgentRunnerProvider agentRunnerProvider,
-            IAgentBackgroundService agentBackgroundService,
-            IAgentRunService agentRunService) : base(unitOfWork)
+            IQueueProvider<AgentRunnerQueue> queueProvider,
+            IAgentServerManager agentServerManager) : base(unitOfWork)
         {
-            this.agentService = agentService;
             this.targetService = targetService;
             this.rootDomainService = rootDomainService;
             this.subdomainService = subdomainService;
-            this.agentRunnerProvider = agentRunnerProvider;
-            this.agentBackgroundService = agentBackgroundService;
-            this.agentRunService = agentRunService;
+            this.queueProvider = queueProvider;
+            this.agentServerManager = agentServerManager;
         }
 
         /// <inheritdoc/>
-        public async ValueTask<List<string>> RunningAgentsAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
-        {
-            if ((await this.agentRunnerProvider.RunningCountAsync) == 0)
-            {
-                return new List<string>();
-            }
-
-            var agentsRunning = new List<string>();
-
-            var channels = await this.agentRunnerProvider.RunningChannelsAsync;
-
-            var agents = await this.agentService.GetAllAsync(cancellationToken);
-            foreach (var agent in agents)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-
-                agentRunner.Agent = agent;
-                var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-
-                if (channels.Any(c => c.Contains(channel)))
-                {
-                    agentsRunning.Add(agent.Name);
-                }
-            }
-
-            return agentsRunning;
-        }
-
-        /// <inheritdoc/>
-        public async Task RunAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        public async Task RunAgentAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var channel = AgentRunnerHelpers.GetChannel(agentRunner);
-            await this.agentRunnerProvider.InitializesAsync(channel);
-
-            _logger.Info($"Start channel {channel}");
-
-            await this.agentRunService.StartOnScopeAsync(agentRunner, channel, cancellationToken);
-
-            var agentRunnerType = GetAgentRunnerType(agentRunner);
+            var agentRunnerType = GetAgentRunnerType(agentRunnerInfo);            
             if (agentRunnerType.StartsWith("Current"))
             {
-                await this.RunAgentAsync(agentRunner, channel, agentRunnerType, last: true, allowSkip: false);
+                await EnqueueAgentRunnerCurrentConceptAsync(agentRunnerInfo, cancellationToken);
             }
             else
             {
-                await this.RunAgenthInEachSubConceptAsync(agentRunner, channel, agentRunnerType, cancellationToken);
+                await EnqueueAgentRunnerForEachSubConceptAsync(agentRunnerInfo, agentRunnerType, cancellationToken);
             }
         }
 
         /// <inheritdoc/>
-        public async Task StopAgentAsync(AgentRunner agentRunner, CancellationToken cancellationToken = default)
+        public Task StopAgentAsync(string cnannel, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var channel = AgentRunnerHelpers.GetChannel(agentRunner);
+            return Task.CompletedTask;
+        }
 
-            await this.StopAgentAsync(channel, cancellationToken);
-            await this.agentRunService.DoneOnScopeAsync(agentRunner, channel, true, false, cancellationToken);
+        /// <inheritdoc/>
+        public Task<List<string>> RunningAgentsAsync(CancellationToken cancellationToken = default)
+        {
+            return Task.FromResult(new List<string>());
         }
 
         /// <summary>
-        /// Stop the agent if it is running
+        /// Enqueue current concept [target, rootdomain, subdomain]
         /// </summary>
-        /// <param name="channel">The channel</param>
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async ValueTask StopAgentAsync(string channel, CancellationToken cancellationToken = default)
+        private async Task EnqueueAgentRunnerCurrentConceptAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            try
+            var channel = await GetChannelAsync(agentRunnerInfo, cancellationToken);
+            await AddAsync(new AgentRunner
             {
-                if (!(await this.agentRunnerProvider.IsStoppedAsync(channel)))
-                {
-                    _logger.Info($"Stop channel {channel}");
+                Channel = channel,
+                Stage = AgentRunnerStage.ENQUEUE,
+                AllowSkip = false,
+                Total = 1,
+                ActivateNotification = agentRunnerInfo.ActivateNotification,
+                Agent = agentRunnerInfo.Agent
+            }, cancellationToken);
 
-                    await this.agentRunnerProvider.StopAsync(channel);
-                }
-            }
-            catch (Exception ex)
+            var command = GetCommand(agentRunnerInfo);
+            var agentRunnerQueue = new AgentRunnerQueue
             {
-                _logger.Error(ex, ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// If we need to run the Agent in each subdomain
-        /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
-        /// <returns>If we need to run the Agent in each subdomain</returns>
-        private static string GetAgentRunnerType(AgentRunner agentRunner)
-        {
-            var type = agentRunner.Agent.AgentType;
-            return type switch
-            {
-                AgentTypes.TARGET => agentRunner.Target == null ? AgentRunnerTypes.ALL_TARGETS : AgentRunnerTypes.CURRENT_TARGET,
-                AgentTypes.ROOTDOMAIN => agentRunner.RootDomain == null ? AgentRunnerTypes.ALL_ROOTDOMAINS : AgentRunnerTypes.CURRENT_ROOTDOMAIN,
-                AgentTypes.SUBDOMAIN => agentRunner.Subdomain == null ? AgentRunnerTypes.ALL_SUBDOMAINS : AgentRunnerTypes.CURRENT_SUBDOMAIN,
-                _ => throw new ArgumentException("The Agent need to have valid Type")
+                Channel = channel,
+                Command = command,
+                Number = 1
             };
+
+            await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
         }
 
         /// <summary>
-        /// Run bash for each sublevels
+        /// Enqueue for each sub concept [target, rootdomain, subdomain]
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
-        /// <param name="channel">The channel to send the menssage</param>
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        private async Task RunAgenthInEachSubConceptAsync(AgentRunner agentRunner, string channel, string agentRunnerType, CancellationToken cancellationToken)
+        private async Task EnqueueAgentRunnerForEachSubConceptAsync(AgentRunnerInfo agentRunnerInfo, string agentRunnerType, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
+            var channel = await GetChannelAsync(agentRunnerInfo, cancellationToken);
             if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunnerType))
             {
-                await this.RunAgenthInEachTargetsAsync(agentRunner, channel, cancellationToken);
+                await EnqueueRunAgenthForEachTargetsAsync(agentRunnerInfo, channel, cancellationToken);
             }
             else if (AgentRunnerTypes.ALL_ROOTDOMAINS.Equals(agentRunnerType))
             {
-                await this.RunAgentInEachRootDomainsAsync(agentRunner, channel, cancellationToken);
+                await EnqueueRunAgentForEachRootDomainsAsync(agentRunnerInfo, channel, cancellationToken);
             }
             else if (AgentRunnerTypes.ALL_SUBDOMAINS.Equals(agentRunnerType))
             {
-                await this.RunAgentInEachSubdomainsAsync(agentRunner, channel, cancellationToken);
+                await EnqueueRunAgentForEachSubdomainsAsync(agentRunnerInfo, channel, cancellationToken);
             }
         }
 
         /// <summary>
         /// Run bash for each Target
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        private async Task RunAgenthInEachTargetsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
+        private async Task EnqueueRunAgenthForEachTargetsAsync(AgentRunnerInfo agentRunnerInfo, string channel, CancellationToken cancellationToken)
         {
-            var targets = await this.targetService.GetAllAsync(cancellationToken);
-            if (!targets.Any())
-            {
-                await this.agentRunService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
-                return;
-            }
+            var targets = await targetService.GetAllAsync(cancellationToken);
+            var stage = targets.Any() ? AgentRunnerStage.ENQUEUE : AgentRunnerStage.SUCCESS;
 
-            var targetsCount = targets.Count;
+            await AddAsync(new AgentRunner
+            {
+                Channel = channel,
+                Stage = stage,
+                AllowSkip = true,
+                Total = targets.Count,
+                ActivateNotification = agentRunnerInfo.ActivateNotification,
+                Agent = agentRunnerInfo.Agent
+            }, cancellationToken);
+
+            var count = 1;
             foreach (var target in targets)
             {
-                var last = targetsCount == 1;
-                var newAgentRunner = new AgentRunner
+                agentRunnerInfo.Target = target;
+                var command = GetCommand(agentRunnerInfo);
+
+                var agentRunnerQueue = new AgentRunnerQueue
                 {
-                    Agent = agentRunner.Agent,
-                    Target = target,
-                    RootDomain = default,
-                    Subdomain = default,
-                    ActivateNotification = agentRunner.ActivateNotification,
-                    Command = agentRunner.Command
+                    Channel = channel,
+                    Payload = target.Name,
+                    Command = command,
+                    Number = count++,
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_TARGETS, last, allowSkip: true);
-
-                targetsCount--;
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
         }
 
         /// <summary>
         /// Run bash for each Rootdomain
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        private async Task RunAgentInEachRootDomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
+        private async Task EnqueueRunAgentForEachRootDomainsAsync(AgentRunnerInfo agentRunnerInfo, string channel, CancellationToken cancellationToken)
         {
-            var rootdomains = await this.rootDomainService.GetAllByCriteriaAsync(r => r.Target == agentRunner.Target, cancellationToken);
-            if (!rootdomains.Any())
-            {
-                await this.agentRunService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
-                return;
-            }
+            var rootdomains = await rootDomainService.GetAllByCriteriaAsync(r => r.Target == agentRunnerInfo.Target, cancellationToken);
+            var stage = rootdomains.Any() ? AgentRunnerStage.ENQUEUE : AgentRunnerStage.SUCCESS;
 
-            var rootdomainsCount = rootdomains.Count;
+            await AddAsync(new AgentRunner
+            {
+                Channel = channel,
+                Stage = stage,
+                AllowSkip = true,
+                Total = rootdomains.Count,
+                ActivateNotification = agentRunnerInfo.ActivateNotification,
+                Agent = agentRunnerInfo.Agent
+            }, cancellationToken);
+
+            var count = 1;
             foreach (var rootdomain in rootdomains)
             {
-                var last = rootdomainsCount == 1;
-                var newAgentRunner = new AgentRunner
+                agentRunnerInfo.RootDomain = rootdomain;
+                var command = GetCommand(agentRunnerInfo);
+
+                var agentRunnerQueue = new AgentRunnerQueue
                 {
-                    Agent = agentRunner.Agent,
-                    Target = agentRunner.Target,
-                    RootDomain = rootdomain,
-                    Subdomain = default,
-                    ActivateNotification = agentRunner.ActivateNotification,
-                    Command = agentRunner.Command
+                    Channel = channel,
+                    Payload = rootdomain.Name,
+                    Command = command,
+                    Number = count++
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_ROOTDOMAINS, last, allowSkip: true);
-
-                rootdomainsCount--;
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
         }
 
         /// <summary>
         /// Run bash for each Subdomain
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="channel">The channel to send the menssage</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        private async Task RunAgentInEachSubdomainsAsync(AgentRunner agentRunner, string channel, CancellationToken cancellationToken)
+        private async Task EnqueueRunAgentForEachSubdomainsAsync(AgentRunnerInfo agentRunnerInfo, string channel, CancellationToken cancellationToken)
         {
-            var subdomains = await this.subdomainService.GetSubdomainsNoTrackingAsync(s => s.RootDomain == agentRunner.RootDomain, cancellationToken);
-            if (!subdomains.Any())
-            {
-                await this.agentRunService.DoneOnScopeAsync(agentRunner, channel, false, false, cancellationToken);
-                return;
-            }
+            var subdomains = await this.subdomainService.GetSubdomainsNoTrackingAsync(s => s.RootDomain == agentRunnerInfo.RootDomain, cancellationToken);
+            var stage = subdomains.Any() ? AgentRunnerStage.ENQUEUE : AgentRunnerStage.SUCCESS;            
 
-            var subdomainsCount = subdomains.Count;
+            await AddAsync(new AgentRunner
+            {
+                Channel = channel,
+                Stage = stage,
+                AllowSkip = true,
+                Total = subdomains.Count,
+                ActivateNotification = agentRunnerInfo.ActivateNotification,
+                Agent = agentRunnerInfo.Agent
+            }, cancellationToken);
+
+            var count = 1;
             foreach (var subdomain in subdomains)
             {
-                var last = subdomainsCount == 1;
-                var newAgentRunner = new AgentRunner
+                agentRunnerInfo.Subdomain = subdomain;
+                var command = GetCommand(agentRunnerInfo);
+
+                var agentRunnerQueue = new AgentRunnerQueue
                 {
-                    Agent = agentRunner.Agent,
-                    Target = agentRunner.Target,
-                    RootDomain = agentRunner.RootDomain,
-                    Subdomain = subdomain,
-                    ActivateNotification = agentRunner.ActivateNotification,
-                    Command = agentRunner.Command
+                    Channel = channel,
+                    Payload = subdomain.Name,
+                    Command = command,
+                    Number = count++
                 };
 
-                await this.RunAgentAsync(newAgentRunner, channel, AgentRunnerTypes.ALL_SUBDOMAINS, last, allowSkip: true);
-
-                subdomainsCount--;
+                await EnqueueRunAgentAsync(agentRunnerQueue, cancellationToken);
             }
         }
 
         /// <summary>
         /// Run bash
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
-        /// <param name="channel">The channel to send the menssage</param>
-        /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
-        /// <param name="last">If is the last bash to run</param>
+        /// <param name="agentRunnerQueue">The agent runner queue information</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task RunAgentAsync(AgentRunner agentRunner, string channel, string agentRunnerType, bool last, bool allowSkip)
+        private async Task EnqueueRunAgentAsync(AgentRunnerQueue agentRunnerQueue, CancellationToken cancellationToken = default)
         {
-            if (await this.agentRunnerProvider.IsStoppedAsync(channel))
+            agentRunnerQueue.ServerNumber = await this.agentServerManager.GetAvailableServerAsync(agentRunnerQueue.Channel, 60, cancellationToken);
+
+            queueProvider.Enqueue(agentRunnerQueue);
+        }
+
+        /// <summary>
+        /// Obtain the channel.
+        /// 
+        /// Ex 
+        /// #20220319.1_nmap_yahoo_yahoo.com_www.yahoo.com
+        /// #20220318.2_nmap_yahoo_yahoo.com_www.yahoo.com
+        /// #20220318.1_nmap_yahoo_yahoo.com_www.yahoo.com
+        /// 
+        /// </summary>
+        /// <param name="agentRunnerInfo">The agent runner</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The agent runner channel</returns>
+        private async Task<string> GetChannelAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default)
+        {
+            string channel = string.Empty;
+            
+            if (agentRunnerInfo.RootDomain == null)
             {
-                return;
+                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_all";
+            }
+            else if (agentRunnerInfo.Subdomain == null)
+            {
+                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_{agentRunnerInfo.RootDomain.Name}_all";
+            }
+            else
+            {
+                channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_{agentRunnerInfo.RootDomain.Name}_{agentRunnerInfo.Subdomain.Name}";
             }
 
-            var command = AgentRunnerHelpers.GetCommand(agentRunner);
-            await this.agentRunnerProvider.RunAsync(new AgentRunnerProviderArgs
-            {
-                AgentRunner = agentRunner,
-                Channel = channel,
-                Command = command,
-                AgentRunnerType = agentRunnerType,
-                Last = last,
-                AllowSkip = allowSkip,
-                BeginHandlerAsync = BeginHandlerAsync,
-                SkipHandlerAsync = SkipHandlerAsync,
-                ParserOutputHandlerAsync = ParserOutputHandlerAsync,
-                EndHandlerAsync = EndHandlerAsync,
-                ExceptionHandlerAsync = ExceptionHandlerAsync
-            });
+            var prefix = DateTime.Now.ToString("yyyyMMdd");
+            var count = await GetAllQueryableByCriteria(r => r.Channel.EndsWith(channel) && r.Channel.StartsWith(prefix))
+                                .CountAsync(cancellationToken);
+
+            // Ex. #20220319.1_nmap_yahoo_yahho.com_www.yahoo.com
+            channel = $"#{prefix}.{++count}_{channel}";
+
+            return channel;
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerProvider.SkipHandlerAsync"/>
+        /// Obtain the command to run on bash
         /// </summary>
-        private async ValueTask<bool> SkipHandlerAsync(AgentRunnerProviderResult result)
+        /// <param name="agentRunnerInfo">The agent</param>
+        /// <returns>The command to run on bash</returns>
+        private static string GetCommand(AgentRunnerInfo agentRunnerInfo)
         {
-            if (AgentRunnerHelpers.NeedToSkipRun(result.AgentRunner, result.AgentRunnerType))
+            var command = agentRunnerInfo.Command;
+            if (string.IsNullOrWhiteSpace(command))
             {
-                await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"SKIP: {result.Command}", includeTime: true, result.CancellationToken);
-
-                return true;
+                command = agentRunnerInfo.Agent.Command;
             }
 
-            return false;
+            var envUserName = Environment.GetEnvironmentVariable("ReconnessUserName") ??
+                              Environment.GetEnvironmentVariable("ReconnessUserName", EnvironmentVariableTarget.User);
+
+            var envPassword = Environment.GetEnvironmentVariable("ReconnessPassword") ??
+                              Environment.GetEnvironmentVariable("ReconnessPassword", EnvironmentVariableTarget.User);
+
+            return command
+                .Replace("{{target}}", agentRunnerInfo.Target.Name)
+                .Replace("{{rootDomain}}", agentRunnerInfo.RootDomain.Name)
+                .Replace("{{rootdomain}}", agentRunnerInfo.RootDomain.Name)
+                .Replace("{{domain}}", agentRunnerInfo.Subdomain == null ? agentRunnerInfo.RootDomain.Name : agentRunnerInfo.Subdomain.Name)
+                .Replace("{{subdomain}}", agentRunnerInfo.Subdomain == null ? agentRunnerInfo.RootDomain.Name : agentRunnerInfo.Subdomain.Name)
+                .Replace("{{userName}}", envUserName)
+                .Replace("{{password}}", envPassword)
+                .Replace("\"", "\\\"");
         }
 
         /// <summary>
-        /// <see cref="IAgentRunnerProvider.BeginHandlerAsync"/>
+        /// If we need to run the Agent in each subdomain
         /// </summary>
-        private async Task BeginHandlerAsync(AgentRunnerProviderResult result)
+        /// <param name="agentRunnerInfo">The agent run parameters</param>
+        /// <returns>If we need to run the Agent in each subdomain</returns>
+        /// <exception cref="ArgumentException">If the Agent does not have a valid Type</exception>
+        private static string GetAgentRunnerType(AgentRunnerInfo agentRunnerInfo)
         {
-            _logger.Info($"Start command {result.Command}");
-
-            await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, $"RUN: {result.Command}", includeTime: true, result.CancellationToken);
-        }
-
-        /// <summary>
-        /// <see cref="IAgentRunnerProvider.ParserOutputHandlerAsync"/>
-        /// </summary>
-        private async Task ParserOutputHandlerAsync(AgentRunnerProviderResult result)
-        {
-            // Save the Terminal Output Parse 
-            await this.agentBackgroundService.SaveOutputParseOnScopeAsync
-            (
-                result.AgentRunner,
-                result.AgentRunnerType,
-                result.ScriptOutput,
-                result.CancellationToken
-            );
-
-            await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.TerminalLineOutput, includeTime: false, result.CancellationToken);
-        }
-
-        /// <summary>
-        /// <see cref="IAgentRunnerProvider.EndHandlerAsync"/>
-        /// </summary>
-        private async Task EndHandlerAsync(AgentRunnerProviderResult result)
-        {
-            _logger.Info($"End command {result.Command}");
-
-            await this.agentBackgroundService.UpdateAgentOnScopeAsync(result.AgentRunner, result.AgentRunnerType, result.CancellationToken);
-
-            if (result.Last)
+            var type = agentRunnerInfo.Agent.AgentType;
+            return type switch
             {
-                await this.StopAgentAsync(result.Channel, result.CancellationToken);
-                await this.agentRunService.DoneOnScopeAsync(result.AgentRunner, result.Channel, false, false, result.CancellationToken);
-            }
-        }
-
-        /// <summary>
-        /// <see cref="IAgentRunnerProvider.ExceptionHandlerAsync"/>
-        /// </summary>
-        private async Task ExceptionHandlerAsync(AgentRunnerProviderResult result)
-        {
-            _logger.Error(result.Exception, $"Exception running command {result.Command}");
-
-            await this.agentRunService.TerminalOutputScopeAsync(result.AgentRunner, result.Channel, result.Exception.Message, includeTime: true, result.CancellationToken);
-
-            if (result.Last)
-            {
-                await this.StopAgentAsync(result.Channel, result.CancellationToken);
-                await this.agentRunService.DoneOnScopeAsync(result.AgentRunner, result.Channel, false, true, result.CancellationToken);
-            }
-        }
+                AgentTypes.TARGET => agentRunnerInfo.Target == null ? AgentRunnerTypes.ALL_TARGETS : AgentRunnerTypes.CURRENT_TARGET,
+                AgentTypes.ROOTDOMAIN => agentRunnerInfo.RootDomain == null ? AgentRunnerTypes.ALL_ROOTDOMAINS : AgentRunnerTypes.CURRENT_ROOTDOMAIN,
+                AgentTypes.SUBDOMAIN => agentRunnerInfo.Subdomain == null ? AgentRunnerTypes.ALL_SUBDOMAINS : AgentRunnerTypes.CURRENT_SUBDOMAIN,
+                _ => throw new ArgumentException("The Agent does not have a valid Type")
+            };
+        }      
     }
 }

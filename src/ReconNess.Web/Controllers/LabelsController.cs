@@ -52,11 +52,11 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
-            var labels = await this.labelService.GetAllQueryable()
+            var labels = await labelService.GetAllQueryable()
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
 
-            return Ok(this.mapper.Map<List<Label>, List<LabelDto>>(labels));
+            return Ok(mapper.Map<List<Label>, List<LabelDto>>(labels));
         }
     }
 }

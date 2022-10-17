@@ -22,7 +22,7 @@ namespace ReconNess.UnitTests
         [TestInitialize]
         public void TestInitialize()
         {
-            this.labelIdOnDb = Guid.NewGuid();
+            labelIdOnDb = Guid.NewGuid();
             var LabelsOnDb = new List<Label>
             {
                 new Label
@@ -43,13 +43,13 @@ namespace ReconNess.UnitTests
             unitOfWorkMock.Setup(c => c.CommitAsync(It.IsAny<CancellationToken>()))
                 .Callback(() =>
                 {
-                    this.addWasCalled = true;
+                    addWasCalled = true;
                 });
 
             unitOfWorkMock.Setup(m => m.Repository<Label>(It.IsAny<CancellationToken>()))
                 .Returns(repositoryMock.Object);
 
-            this.unitOfWork = unitOfWorkMock.Object;
+            unitOfWork = unitOfWorkMock.Object;
         }
 
         [TestMethod]
@@ -62,19 +62,19 @@ namespace ReconNess.UnitTests
             {
                 new Label
                 {
-                    Id = this.labelIdOnDb,
+                    Id = labelIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
-            var labelService = new LabelService(this.unitOfWork);
+            var labelService = new LabelService(unitOfWork);
 
             // Act
             var labels = labelService.GetLabelsAsync(myLabelsOnDb, myNewLabels).Result;
 
             // Assert
             Assert.IsTrue(labels.Count == 1);
-            Assert.IsTrue(this.addWasCalled == false);
+            Assert.IsTrue(addWasCalled == false);
         }
 
         [TestMethod]
@@ -85,20 +85,20 @@ namespace ReconNess.UnitTests
             {
                 new Label
                 {
-                    Id = this.labelIdOnDb,
+                    Id = labelIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewLabels = new List<string>();
-            var labelService = new LabelService(this.unitOfWork);
+            var labelService = new LabelService(unitOfWork);
 
             // Act
             var labels = labelService.GetLabelsAsync(myLabelsOnDb, myNewLabels).Result;
 
             // Assert
             Assert.IsTrue(labels.Count == 0);
-            Assert.IsTrue(this.addWasCalled == false);
+            Assert.IsTrue(addWasCalled == false);
         }
 
         [TestMethod]
@@ -109,20 +109,20 @@ namespace ReconNess.UnitTests
             {
                 new Label
                 {
-                    Id = this.labelIdOnDb,
+                    Id = labelIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewLabels = new List<string> { "Brute Force", "New Label" };
-            var labelService = new LabelService(this.unitOfWork);
+            var labelService = new LabelService(unitOfWork);
 
             // Act
             var labels = labelService.GetLabelsAsync(myLabelsOnDb, myNewLabels).Result;
 
             // Assert
             Assert.IsTrue(labels.Count == 2);
-            Assert.IsTrue(this.addWasCalled == true);
+            Assert.IsTrue(addWasCalled == true);
         }
 
         [TestMethod]
@@ -133,20 +133,20 @@ namespace ReconNess.UnitTests
             {
                 new Label
                 {
-                    Id = this.labelIdOnDb,
+                    Id = labelIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewLabels = new List<string> { "New Label" };
-            var labelService = new LabelService(this.unitOfWork);
+            var labelService = new LabelService(unitOfWork);
 
             // Act
             var labels = labelService.GetLabelsAsync(myLabelsOnDb, myNewLabels).Result;
 
             // Assert
             Assert.IsTrue(labels.Count == 1);
-            Assert.IsTrue(this.addWasCalled == true);
+            Assert.IsTrue(addWasCalled == true);
         }
 
         [TestMethod]
@@ -157,20 +157,20 @@ namespace ReconNess.UnitTests
             {
                 new Label
                 {
-                    Id = this.labelIdOnDb,
+                    Id = labelIdOnDb,
                     Name = "Brute Force"
                 }
             };
 
             var myNewLabels = new List<string> { "New Label", "New Label" };
-            var labelService = new LabelService(this.unitOfWork);
+            var labelService = new LabelService(unitOfWork);
 
             // Act
             var labels = labelService.GetLabelsAsync(myLabelsOnDb, myNewLabels).Result;
 
             // Assert
             Assert.IsTrue(labels.Count == 1);
-            Assert.IsTrue(this.addWasCalled == true);
+            Assert.IsTrue(addWasCalled == true);
         }
     }
 }
