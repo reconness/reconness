@@ -394,7 +394,7 @@ namespace ReconNess.Web.Controllers
                 Description = $"Rootdomain {rootDomain.Name} uploaded {subdomains.Count} subdomains"
             }, cancellationToken);
 
-            return NoContent();
+            return Ok(mapper.Map<ICollection<Subdomain>, List<SubdomainDto>>(rootDomain.Subdomains));
         }
 
         /// <summary>
