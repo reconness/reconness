@@ -611,7 +611,7 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> RunningAgent([FromRoute] string targetName, [FromRoute] string rootDomainName, [FromRoute] string subdomainName, CancellationToken cancellationToken)
+        public async Task<ActionResult> RunningAgent(CancellationToken cancellationToken)
         {
             var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
