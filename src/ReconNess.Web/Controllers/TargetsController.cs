@@ -324,8 +324,8 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="file">the rootdomain json with all the subdomains too</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>The rootdomain name imported</returns>
-        /// <response code="200">Returns the rootdomain name imported</response>
+        /// <returns>The target imported</returns>
+        /// <response code="200">Returns the target imported</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
@@ -363,7 +363,7 @@ namespace ReconNess.Web.Controllers
                 return BadRequest($"The target name can not be empty");
             }
 
-            if (await this.targetService.AnyAsync(r => targetDto.Name.Equals(r.Name, StringComparison.OrdinalIgnoreCase)))
+            if (await this.targetService.AnyAsync(r => targetDto.Name.Equals(r.Name)))
             {
                 return BadRequest($"The target: {targetDto.Name} exist.");
             }
@@ -372,13 +372,15 @@ namespace ReconNess.Web.Controllers
 
             var target = await this.targetService.AddAsync(uploadTarget, cancellationToken);
 
+            var importedTargetDto = this.mapper.Map<Target, TargetDto>(target);
+
             await this.eventTrackService.AddAsync(new EventTrack
             {
                 Target = target,
                 Description = $"Target {target.Name} imported"
             }, cancellationToken);
 
-            return Ok(uploadTarget.Name);
+            return Ok(importedTargetDto);
         }
 
         /// <summary>
