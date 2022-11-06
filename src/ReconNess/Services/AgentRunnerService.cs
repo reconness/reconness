@@ -103,7 +103,7 @@ namespace ReconNess.Services
             {
                 foreach (var command in agentRunner.Commands.OrderBy(c => c.CreatedAt))
                 {
-                    result.AddRange(command.Outputs.OrderByDescending(o => o.CreatedAt).Select(o => o.Output));
+                    result.AddRange(command.Outputs.OrderBy(o => o.CreatedAt).Select(o => o.Output));
                 }
             }
 
