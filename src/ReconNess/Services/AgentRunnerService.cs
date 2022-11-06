@@ -328,12 +328,12 @@ namespace ReconNess.Services
                 channel = $"{agentRunnerInfo.Agent.Name}_{agentRunnerInfo.Target.Name}_{agentRunnerInfo.RootDomain.Name}_{agentRunnerInfo.Subdomain.Name}";
             }
 
-            var prefix = DateTime.Now.ToString("yyyyMMdd");
+            var prefix = $"#{DateTime.Now:yyyyMMdd}";
             var count = await GetAllQueryableByCriteria(r => r.Channel.EndsWith(channel) && r.Channel.StartsWith(prefix))
                                 .CountAsync(cancellationToken);
 
             // Ex. #20220319.1_nmap_yahoo_yahho.com_www.yahoo.com
-            channel = $"#{prefix}.{++count}_{channel}";
+            channel = $"{prefix}.{++count}_{channel}";
 
             return channel;
         }
