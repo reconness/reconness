@@ -101,9 +101,9 @@ namespace ReconNess.Services
 
             if (agentRunner != null)
             {
-                foreach (var command in agentRunner.Commands)
+                foreach (var command in agentRunner.Commands.OrderBy(c => c.CreatedAt))
                 {
-                    result.AddRange(command.Outputs.Select(o => o.Output));
+                    result.AddRange(command.Outputs.OrderByDescending(o => o.CreatedAt).Select(o => o.Output));
                 }
             }
 
