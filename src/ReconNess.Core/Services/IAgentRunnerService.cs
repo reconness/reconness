@@ -16,8 +16,8 @@ namespace ReconNess.Core.Services
         /// </summary>
         /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A task</returns>
-        Task RunAgentAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default);
+        /// <returns>A Channel</returns>
+        Task<string> RunAgentAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Stop the agent if it is running
@@ -28,11 +28,18 @@ namespace ReconNess.Core.Services
         Task StopAgentAsync(string channel, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// Obtain a list of agents name that still are running
+        /// Obtain a list of channels that still are running
         /// </summary>
-        /// <param name="agentRunner">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <returns>A list of agents name that still are running</returns>        
-        Task<List<string>> RunningAgentsAsync(CancellationToken cancellationToken = default);
+        /// <returns>A list of channels that still are running</returns>        
+        Task<IEnumerable<string>> RunningAgentsAsync(CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Obtain the terminal output from a channel
+        /// </summary>
+        /// <param name="channel">The channel</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled<</param>
+        /// <returns>The terminal output from a channel</returns>
+        Task<IEnumerable<string>> TerminalOutputAsync(string channel, CancellationToken cancellationToken = default);
     }
 }

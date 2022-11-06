@@ -52,44 +52,73 @@ namespace ReconNess.Services
         }
 
         /// <inheritdoc/>
-        public async Task RunAgentAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default)
+        public async Task<string> RunAgentAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var agentRunnerType = GetAgentRunnerType(agentRunnerInfo);            
+            var agentRunnerType = GetAgentRunnerType(agentRunnerInfo);
+            var channel = await GetChannelAsync(agentRunnerInfo, cancellationToken);
             if (agentRunnerType.StartsWith("Current"))
             {
-                await EnqueueAgentRunnerCurrentConceptAsync(agentRunnerInfo, cancellationToken);
+                await EnqueueAgentRunnerCurrentConceptAsync(channel, agentRunnerInfo, cancellationToken);
             }
             else
             {
-                await EnqueueAgentRunnerForEachSubConceptAsync(agentRunnerInfo, agentRunnerType, cancellationToken);
+                await EnqueueAgentRunnerForEachSubConceptAsync(channel, agentRunnerInfo, agentRunnerType, cancellationToken);
+            }
+
+            return channel;
+        }
+
+        /// <inheritdoc/>
+        public async Task StopAgentAsync(string channel, CancellationToken cancellationToken = default)
+        {
+            var agentRunner = await this.GetByCriteriaAsync(a => a.Channel == channel, cancellationToken);
+            if (agentRunner != null && (agentRunner.Stage == AgentRunnerStage.ENQUEUE || agentRunner.Stage == AgentRunnerStage.RUNNING))
+            {
+                agentRunner.Stage = AgentRunnerStage.STOPPED;
+                await this.UpdateAsync(agentRunner, cancellationToken);
             }
         }
 
         /// <inheritdoc/>
-        public Task StopAgentAsync(string cnannel, CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<string>> RunningAgentsAsync(CancellationToken cancellationToken = default)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-
-            return Task.CompletedTask;
+            return await this.GetAllQueryableByCriteria(a => a.Stage == AgentRunnerStage.ENQUEUE || a.Stage == AgentRunnerStage.RUNNING)
+                .Select(a => a.Channel)
+                .ToListAsync(cancellationToken);
         }
 
         /// <inheritdoc/>
-        public Task<List<string>> RunningAgentsAsync(CancellationToken cancellationToken = default)
+        public async Task<IEnumerable<string>> TerminalOutputAsync(string channel, CancellationToken cancellationToken = default)
         {
-            return Task.FromResult(new List<string>());
+            var agentRunner = await this.GetAllQueryableByCriteria(a => a.Channel == channel)
+                .Include(a => a.Commands)
+                .ThenInclude(c => c.Outputs)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            var result = new List<string>();
+
+            if (agentRunner != null)
+            {
+                foreach (var command in agentRunner.Commands)
+                {
+                    result.AddRange(command.Outputs.Select(o => o.Output));
+                }
+            }
+
+            return result;
         }
 
         /// <summary>
         /// Enqueue current concept [target, rootdomain, subdomain]
         /// </summary>
+        /// <param name="channel">The channel</param>
         /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A task</returns>
-        private async Task EnqueueAgentRunnerCurrentConceptAsync(AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken)
-        {
-            var channel = await GetChannelAsync(agentRunnerInfo, cancellationToken);
+        private async Task EnqueueAgentRunnerCurrentConceptAsync(string channel, AgentRunnerInfo agentRunnerInfo, CancellationToken cancellationToken)
+        {            
             await AddAsync(new AgentRunner
             {
                 Channel = channel,
@@ -114,15 +143,15 @@ namespace ReconNess.Services
         /// <summary>
         /// Enqueue for each sub concept [target, rootdomain, subdomain]
         /// </summary>
+        /// <param name="channel">The channel</param>
         /// <param name="agentRunnerInfo">The agent run parameters</param>
         /// <param name="agentRunnerType">The sublevel <see cref="AgentRunnerTypes"/></param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>A Task</returns>
-        private async Task EnqueueAgentRunnerForEachSubConceptAsync(AgentRunnerInfo agentRunnerInfo, string agentRunnerType, CancellationToken cancellationToken)
+        private async Task EnqueueAgentRunnerForEachSubConceptAsync(string channel, AgentRunnerInfo agentRunnerInfo, string agentRunnerType, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var channel = await GetChannelAsync(agentRunnerInfo, cancellationToken);
             if (AgentRunnerTypes.ALL_TARGETS.Equals(agentRunnerType))
             {
                 await EnqueueRunAgenthForEachTargetsAsync(agentRunnerInfo, channel, cancellationToken);
@@ -355,6 +384,6 @@ namespace ReconNess.Services
                 AgentTypes.SUBDOMAIN => agentRunnerInfo.Subdomain == null ? AgentRunnerTypes.ALL_SUBDOMAINS : AgentRunnerTypes.CURRENT_SUBDOMAIN,
                 _ => throw new ArgumentException("The Agent does not have a valid Type")
             };
-        }      
+        }
     }
 }
