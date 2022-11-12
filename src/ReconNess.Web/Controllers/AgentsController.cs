@@ -493,12 +493,12 @@ namespace ReconNess.Web.Controllers
         /// </remarks>
         /// <param name="agentRunnerDto">The agent dto to run</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
-        /// <response code="204">No Content</response>
+        /// <response code="200">The channel</response>
         /// <response code="400">Bad Request</response>
         /// <response code="401">If the user is not authenticate</response>
         /// <response code="404">Not Found</response>
         [HttpPost("run")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -540,7 +540,7 @@ namespace ReconNess.Web.Controllers
                 }
             }
 
-            await agentRunnerService.RunAgentAsync(
+            var channel = await agentRunnerService.RunAgentAsync(
                 new AgentRunnerInfo
                 {
                     Agent = agent,
@@ -557,7 +557,7 @@ namespace ReconNess.Web.Controllers
                 Description = $"Agent {agent.Name} Running"
             }, cancellationToken);
 
-            return NoContent();
+            return Ok(channel);
         }
 
         /// <summary>
@@ -568,14 +568,11 @@ namespace ReconNess.Web.Controllers
         ///
         ///     POST api/agents/stop
         ///     {
-        ///         "agent": "myagent",
-        ///         "target": "mytarget",
-        ///         "rootdomain": "myrootdomain.com"
-        ///         "subdomain": "www.mysubdomain.com"
+        ///         "channel": "the_channel"
         ///     }
         ///
         /// </remarks>
-        /// <param name="agentRunnerDto">The agent dto to stop</param>
+        /// <param name="channel">The channel</param>
         /// <param name="cancellationToken">Notification that operations should be canceled</param>
         /// <returns>The notifications configuration</returns>
         /// <response code="204">No Content</response>
@@ -587,11 +584,11 @@ namespace ReconNess.Web.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> StopAgent([FromBody] AgentRunnerDto agentRunnerDto, CancellationToken cancellationToken)
+        public async Task<ActionResult> StopAgent([FromBody] string channel, CancellationToken cancellationToken)
         {
-            var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
+            await agentRunnerService.StopAgentAsync(channel, cancellationToken);
 
-            return Ok(agentsRunning);
+            return NoContent();
         }
 
         /// <summary>
@@ -616,6 +613,34 @@ namespace ReconNess.Web.Controllers
             var agentsRunning = await agentRunnerService.RunningAgentsAsync(cancellationToken);
 
             return Ok(agentsRunning);
+        }
+
+        /// <summary>
+        /// Obtain the terminal output
+        /// </summary>
+        /// <remarks>
+        /// Sample request:
+        ///
+        ///     GET api/agents/terminal
+        ///
+        /// </remarks>
+        /// <param name="channel">The channel</param>
+        /// <param name="cancellationToken">Notification that operations should be canceled</param>
+        /// <returns>The notifications configuration</returns>
+        /// <response code="200">Terminal Output</response>
+        /// <response code="400">Bad Request</response>
+        /// <response code="401">If the user is not authenticate</response>
+        /// <response code="404">Not Found</response>
+        [HttpGet("terminal/{channel}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> TerminalAgent(string channel, CancellationToken cancellationToken)
+        {
+            var result = await agentRunnerService.TerminalOutputAsync(channel, cancellationToken);
+
+            return Ok(result);
         }
 
         /// <summary>
