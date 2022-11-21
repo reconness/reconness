@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\ReconNess.Domain\ReconNess.Domain.csproj" />
     <ProjectReference Include="..\..\Infrastructure\Data\ReconNess.Infrastructure.Data.EF.Npgsql\ReconNess.Infrastructure.Data.EF.Npgsql.csproj" />
     <ProjectReference Include="..\ReconNess.Application\ReconNess.Application.csproj" />
   </ItemGroup>

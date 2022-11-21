@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\ReconNess.Domain\ReconNess.Domain.csproj" />
   </ItemGroup>
 
 </Project>

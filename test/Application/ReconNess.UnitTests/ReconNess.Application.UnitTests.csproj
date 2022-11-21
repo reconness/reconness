@@ -20,7 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src\Application\ReconNess.Application.Services\ReconNess.Application.Services.csproj" />
-    <ProjectReference Include="..\..\..\src\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
+    <ProjectReference Include="..\..\..\src\Domain\ReconNess.Domain\ReconNess.Domain.csproj" />
   </ItemGroup>
 
 </Project>

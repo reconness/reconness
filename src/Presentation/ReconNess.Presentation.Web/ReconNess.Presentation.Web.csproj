@@ -38,7 +38,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Application\ReconNess.Application.Services\ReconNess.Application.Services.csproj" />
     <ProjectReference Include="..\..\Application\ReconNess.Application\ReconNess.Application.csproj" />
-    <ProjectReference Include="..\..\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
+    <ProjectReference Include="..\..\Domain\ReconNess.Domain\ReconNess.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>
