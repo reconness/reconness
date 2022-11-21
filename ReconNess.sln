@@ -1,0 +1,86 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{493C9949-BAA6-4D9C-829E-2BC9F8D2CD9E}"
+	ProjectSection(SolutionItems) = preProject
+		aspnetapp.pfx = aspnetapp.pfx
+		..\azure-pipelines.yml = ..\azure-pipelines.yml
+		..\CHANGELOG.md = ..\CHANGELOG.md
+		..\CODE_OF_CONDUCT.md = ..\CODE_OF_CONDUCT.md
+		..\CONTRIBUTING.md = ..\CONTRIBUTING.md
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
+		..\LICENSE = ..\LICENSE
+		..\README.md = ..\README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{DDA93D8C-DAFB-4CB2-8292-34FC777B301B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{0CC3FD3F-9DC2-41EA-803A-FC560C7A4877}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{7DA435D9-E4C0-4B1B-8633-0060FFABD19E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{799C0B1D-6115-424C-9ED1-E645F53998D6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Presentation.Web", "src\Presentation\ReconNess.Web\ReconNess.Presentation.Web.csproj", "{F537CC9A-1027-4020-B795-D25C80061B80}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{58898FD5-C65A-45C5-B426-365B47838AF7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Domain", "src\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj", "{CDF5F8E3-6F46-4CE3-B420-6347CDFD0AB7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Application", "src\Application\ReconNess.Application\ReconNess.Application.csproj", "{8D1333AE-4210-4C5F-AE75-58134353C7CD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Application.Services", "src\Application\ReconNess.Application.Services\ReconNess.Application.Services.csproj", "{54878A5B-09D1-4011-8744-465E8906EA4A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Application.UnitTests", "test\Application\ReconNess.UnitTests\ReconNess.Application.UnitTests.csproj", "{BF97C4E8-11BD-4ADF-87BB-7A8EBDBCD808}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Infrastructure.Data.EF.Npgsql", "src\Infrastructure\Data\ReconNess.Infrastructure.Data.EF.Npgsql\ReconNess.Infrastructure.Data.EF.Npgsql.csproj", "{CBB50B38-DF9D-44FF-AB76-9F1A0F7E0912}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F537CC9A-1027-4020-B795-D25C80061B80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F537CC9A-1027-4020-B795-D25C80061B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F537CC9A-1027-4020-B795-D25C80061B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F537CC9A-1027-4020-B795-D25C80061B80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CDF5F8E3-6F46-4CE3-B420-6347CDFD0AB7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDF5F8E3-6F46-4CE3-B420-6347CDFD0AB7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDF5F8E3-6F46-4CE3-B420-6347CDFD0AB7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDF5F8E3-6F46-4CE3-B420-6347CDFD0AB7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D1333AE-4210-4C5F-AE75-58134353C7CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D1333AE-4210-4C5F-AE75-58134353C7CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D1333AE-4210-4C5F-AE75-58134353C7CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D1333AE-4210-4C5F-AE75-58134353C7CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54878A5B-09D1-4011-8744-465E8906EA4A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54878A5B-09D1-4011-8744-465E8906EA4A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54878A5B-09D1-4011-8744-465E8906EA4A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54878A5B-09D1-4011-8744-465E8906EA4A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF97C4E8-11BD-4ADF-87BB-7A8EBDBCD808}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF97C4E8-11BD-4ADF-87BB-7A8EBDBCD808}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF97C4E8-11BD-4ADF-87BB-7A8EBDBCD808}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF97C4E8-11BD-4ADF-87BB-7A8EBDBCD808}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBB50B38-DF9D-44FF-AB76-9F1A0F7E0912}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB50B38-DF9D-44FF-AB76-9F1A0F7E0912}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB50B38-DF9D-44FF-AB76-9F1A0F7E0912}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBB50B38-DF9D-44FF-AB76-9F1A0F7E0912}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F537CC9A-1027-4020-B795-D25C80061B80} = {799C0B1D-6115-424C-9ED1-E645F53998D6}
+		{58898FD5-C65A-45C5-B426-365B47838AF7} = {7DA435D9-E4C0-4B1B-8633-0060FFABD19E}
+		{CDF5F8E3-6F46-4CE3-B420-6347CDFD0AB7} = {0CC3FD3F-9DC2-41EA-803A-FC560C7A4877}
+		{8D1333AE-4210-4C5F-AE75-58134353C7CD} = {DDA93D8C-DAFB-4CB2-8292-34FC777B301B}
+		{54878A5B-09D1-4011-8744-465E8906EA4A} = {DDA93D8C-DAFB-4CB2-8292-34FC777B301B}
+		{BF97C4E8-11BD-4ADF-87BB-7A8EBDBCD808} = {DDA93D8C-DAFB-4CB2-8292-34FC777B301B}
+		{CBB50B38-DF9D-44FF-AB76-9F1A0F7E0912} = {58898FD5-C65A-45C5-B426-365B47838AF7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {865EFE75-B3F3-4F16-90A8-F76207B878B1}
+	EndGlobalSection
+EndGlobal

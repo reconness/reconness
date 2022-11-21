@@ -35,12 +35,10 @@
     <PackageReference Include="VueCliMiddleware" Version="6.0.0" />
   </ItemGroup>
 
-
   <ItemGroup>
-    <ProjectReference Include="..\DAL\ReconNess.Data.Npgsql\ReconNess.Data.Npgsql.csproj" />
-    <ProjectReference Include="..\ReconNess.Core\ReconNess.Core.csproj" />
-    <ProjectReference Include="..\ReconNess.Entities\ReconNess.Entities.csproj" />
-    <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
+    <ProjectReference Include="..\..\Application\ReconNess.Application.Services\ReconNess.Application.Services.csproj" />
+    <ProjectReference Include="..\..\Application\ReconNess.Application\ReconNess.Application.csproj" />
+    <ProjectReference Include="..\..\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
   </ItemGroup>
 
   <ItemGroup>

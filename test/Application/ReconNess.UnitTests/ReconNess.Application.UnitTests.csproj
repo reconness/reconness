@@ -19,8 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReconNess.Entities\ReconNess.Entities.csproj" />
-    <ProjectReference Include="..\ReconNess\ReconNess.csproj" />
+    <ProjectReference Include="..\..\..\src\Application\ReconNess.Application.Services\ReconNess.Application.Services.csproj" />
+    <ProjectReference Include="..\..\..\src\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
   </ItemGroup>
 
 </Project>

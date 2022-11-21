@@ -34,8 +34,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\ReconNess.Core\ReconNess.Core.csproj" />
-    <ProjectReference Include="..\..\ReconNess.Entities\ReconNess.Entities.csproj" />
+    <ProjectReference Include="..\..\..\Application\ReconNess.Application\ReconNess.Application.csproj" />
+    <ProjectReference Include="..\..\..\Domain\ReconNess.Domain.Core\ReconNess.Domain.csproj" />
   </ItemGroup>
 
 </Project>
