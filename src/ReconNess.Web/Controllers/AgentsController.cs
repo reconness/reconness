@@ -621,7 +621,7 @@ namespace ReconNess.Web.Controllers
         /// <remarks>
         /// Sample request:
         ///
-        ///     GET api/agents/terminal
+        ///     GET api/agents/terminal/{channel}
         ///
         /// </remarks>
         /// <param name="channel">The channel</param>
