@@ -104,6 +104,7 @@ namespace ReconNess.Services
                 queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
                     .Select(subdomain => new Subdomain
                     {
+                        Id = subdomain.Id,
                         Name = subdomain.Name,
                         CreatedAt = subdomain.CreatedAt,
                         IpAddress = subdomain.IpAddress,
