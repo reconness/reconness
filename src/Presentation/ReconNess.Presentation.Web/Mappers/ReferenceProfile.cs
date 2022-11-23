@@ -1,14 +1,13 @@
 using AutoMapper;
-using ReconNess.Entities;
+using ReconNess.Domain.Entities;
 using ReconNess.Web.Dtos;
 
-namespace ReconNess.Web.Mappers
+namespace ReconNess.Web.Mappers;
+
+public class ReferenceProfile : Profile
 {
-    public class ReferenceProfile : Profile
+    public ReferenceProfile()
     {
-        public ReferenceProfile()
-        {
-            CreateMap<ReferenceDto, Reference>().ReverseMap();
-        }
+        CreateMap<ReferenceDto, Reference>().ReverseMap();
     }
 }

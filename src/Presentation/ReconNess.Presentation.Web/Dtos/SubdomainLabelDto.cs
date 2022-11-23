@@ -1,7 +1,6 @@
-﻿namespace ReconNess.Web.Dtos
+﻿namespace ReconNess.Web.Dtos;
+
+public class SubdomainLabelDto
 {
-    public class SubdomainLabelDto
-    {
-        public string Label { get; set; }
-    }
+    public string Label { get; set; }
 }

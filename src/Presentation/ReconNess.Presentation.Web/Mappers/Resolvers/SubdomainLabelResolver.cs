@@ -1,43 +1,42 @@
 ﻿using AutoMapper;
-using ReconNess.Core.Services;
-using ReconNess.Entities;
+using ReconNess.Application.Services;
+using ReconNess.Domain.Entities;
 using ReconNess.Web.Dtos;
 using System.Collections.Generic;
 
-namespace ReconNess.Web.Mappers.Resolvers
+namespace ReconNess.Web.Mappers.Resolvers;
+
+internal class SubdomainLabelResolver : IValueResolver<SubdomainDto, Subdomain, ICollection<Label>>
 {
-    internal class SubdomainLabelResolver : IValueResolver<SubdomainDto, Subdomain, ICollection<Label>>
+    private readonly ILabelService labelService;
+
+    public SubdomainLabelResolver(ILabelService labelService)
     {
-        private readonly ILabelService labelService;
+        this.labelService = labelService;
+    }
 
-        public SubdomainLabelResolver(ILabelService labelService)
+    public ICollection<Label> Resolve(SubdomainDto source, Subdomain destination, ICollection<Label> member, ResolutionContext context)
+    {
+        var labels = new List<Label>();
+        if (source.Labels != null)
         {
-            this.labelService = labelService;
-        }
-
-        public ICollection<Label> Resolve(SubdomainDto source, Subdomain destination, ICollection<Label> member, ResolutionContext context)
-        {
-            var labels = new List<Label>();
-            if (source.Labels != null)
+            source.Labels.ForEach(l =>
             {
-                source.Labels.ForEach(l =>
+                var label = labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
+                if (label != null)
                 {
-                    var label = labelService.GetByCriteriaAsync(c => c.Name == l.Name).Result;
-                    if (label != null)
+                    labels.Add(label);
+                }
+                else
+                {
+                    labels.Add(new Label
                     {
-                        labels.Add(label);
-                    }
-                    else
-                    {
-                        labels.Add(new Label
-                        {
-                            Name = label.Name
-                        });
-                    }
-                });
-            }
-
-            return labels;
+                        Name = label.Name
+                    });
+                }
+            });
         }
+
+        return labels;
     }
 }

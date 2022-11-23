@@ -1,7 +1,6 @@
-﻿namespace ReconNess.Web.Dtos
+﻿namespace ReconNess.Web.Dtos;
+
+public class WordlistInputDto
 {
-    public class WordlistInputDto
-    {
-        public string Data { get; set; }
-    }
+    public string Data { get; set; }
 }

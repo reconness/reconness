@@ -1,11 +1,10 @@
-using ReconNess.Entities;
+using ReconNess.Domain.Entities;
 
-namespace ReconNess.Core.Services
+namespace ReconNess.Application.Services;
+
+/// <summary>
+/// The interface IUserService
+/// </summary>
+public interface IUserService : IService<User>
 {
-    /// <summary>
-    /// The interface IUserService
-    /// </summary>
-    public interface IUserService : IService<User>
-    {
-    }
 }

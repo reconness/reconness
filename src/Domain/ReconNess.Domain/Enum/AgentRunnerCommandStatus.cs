@@ -1,11 +1,10 @@
-﻿namespace ReconNess.Entities.Enum
+﻿namespace ReconNess.Domain.Enum;
+
+public enum AgentRunnerCommandStatus
 {
-    public enum AgentRunnerCommandStatus
-    {
-        RUNNING,
-        SKIPPED,
-        SUCCESS,
-        STOPPED,
-        FAILED
-    }
+    RUNNING,
+    SKIPPED,
+    SUCCESS,
+    STOPPED,
+    FAILED
 }

@@ -1,48 +1,47 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ReconNess.UnitTests
+namespace ReconNess.Application.Services.UnitTests;
+
+[TestClass]
+public class TargetServiceTests
 {
-    [TestClass]
-    public class TargetServiceTests
+    [TestMethod]
+    public void TestSaveScriptOutputAsyncMethod()
     {
-        [TestMethod]
-        public void TestSaveScriptOutputAsyncMethod()
-        {
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestDeleteTargetAsyncMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestDeleteTargetAsyncMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestDeleteSubdomainsAsyncMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestDeleteSubdomainsAsyncMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestUploadSubdomainsAsyncMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestUploadSubdomainsAsyncMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
     }
 }

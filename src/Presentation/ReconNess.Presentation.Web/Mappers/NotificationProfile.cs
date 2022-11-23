@@ -1,15 +1,14 @@
 using AutoMapper;
-using ReconNess.Entities;
+using ReconNess.Domain.Entities;
 using ReconNess.Web.Dtos;
 
-namespace ReconNess.Web.Mappers
+namespace ReconNess.Web.Mappers;
+
+public class NotificationProfile : Profile
 {
-    public class NotificationProfile : Profile
+    public NotificationProfile()
     {
-        public NotificationProfile()
-        {
-            CreateMap<Notification, NotificationDto>()
-                .ReverseMap();
-        }
+        CreateMap<Notification, NotificationDto>()
+            .ReverseMap();
     }
 }

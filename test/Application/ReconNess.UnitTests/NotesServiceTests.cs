@@ -1,28 +1,27 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ReconNess.UnitTests
+namespace ReconNess.Application.Services.UnitTests;
+
+[TestClass]
+public class NotesServiceTests
 {
-    [TestClass]
-    public class NotesServiceTests
+    [TestMethod]
+    public void TestSaveTargetNotesAsyncMethod()
     {
-        [TestMethod]
-        public void TestSaveTargetNotesAsyncMethod()
-        {
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestSaveSubdomainNotesAsyncMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestSaveSubdomainNotesAsyncMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
     }
 }

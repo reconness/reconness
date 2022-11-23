@@ -1,9 +1,8 @@
-﻿namespace ReconNess.Web.Dtos
-{
-    public class SearchDto
-    {
-        public string Name { get; set; }
+﻿namespace ReconNess.Web.Dtos;
 
-        public string RelativeUrl { get; set; }
-    }
+public class SearchDto
+{
+    public string Name { get; set; }
+
+    public string RelativeUrl { get; set; }
 }

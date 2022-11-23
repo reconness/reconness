@@ -1,8 +1,7 @@
-﻿namespace ReconNess.Entities.Enum
+﻿namespace ReconNess.Domain.Enum;
+
+public enum EventTrackStatus
 {
-    public enum EventTrackStatus
-    {
-        SUCCESS,
-        FAILED
-    }
+    SUCCESS,
+    FAILED
 }

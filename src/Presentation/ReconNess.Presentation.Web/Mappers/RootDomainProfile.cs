@@ -1,14 +1,13 @@
 using AutoMapper;
-using ReconNess.Entities;
+using ReconNess.Domain.Entities;
 using ReconNess.Web.Dtos;
 
-namespace ReconNess.Web.Mappers
+namespace ReconNess.Web.Mappers;
+
+public class RootDomainProfile : Profile
 {
-    public class RootDomainProfile : Profile
+    public RootDomainProfile()
     {
-        public RootDomainProfile()
-        {
-            CreateMap<RootDomain, RootDomainDto>().ReverseMap();
-        }
+        CreateMap<RootDomain, RootDomainDto>().ReverseMap();
     }
 }

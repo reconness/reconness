@@ -1,7 +1,6 @@
-﻿namespace ReconNess.Web.Dtos
+﻿namespace ReconNess.Web.Dtos;
+
+public class CategoryDto
 {
-    public class CategoryDto
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

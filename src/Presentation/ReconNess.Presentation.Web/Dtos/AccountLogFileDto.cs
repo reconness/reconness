@@ -1,7 +1,6 @@
-﻿namespace ReconNess.Web.Dtos
+﻿namespace ReconNess.Web.Dtos;
+
+public class AccountLogFileDto
 {
-    public class AccountLogFileDto
-    {
-        public string LogFileSelected { get; set; }
-    }
+    public string LogFileSelected { get; set; }
 }

@@ -1,9 +1,8 @@
-﻿namespace ReconNess.Web.Dtos
-{
-    public class AgentDebugDto
-    {
-        public string Script { get; set; }
+﻿namespace ReconNess.Web.Dtos;
 
-        public string TerminalOutput { get; set; }
-    }
+public class AgentDebugDto
+{
+    public string Script { get; set; }
+
+    public string TerminalOutput { get; set; }
 }

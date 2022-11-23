@@ -1,15 +1,14 @@
 using AutoMapper;
-using ReconNess.Entities;
+using ReconNess.Domain.Entities;
 using ReconNess.Web.Dtos;
 
-namespace ReconNess.Web.Mappers
+namespace ReconNess.Web.Mappers;
+
+public class CategoryProfile : Profile
 {
-    public class CategoryProfile : Profile
+    public CategoryProfile()
     {
-        public CategoryProfile()
-        {
-            CreateMap<Category, CategoryDto>()
-                .ReverseMap();
-        }
+        CreateMap<Category, CategoryDto>()
+            .ReverseMap();
     }
 }

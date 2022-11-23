@@ -1,18 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ReconNess.UnitTests
+namespace ReconNess.Application.Services.UnitTests;
+
+[TestClass]
+public class ServiceServiceTests
 {
-    [TestClass]
-    public class ServiceServiceTests
+    [TestMethod]
+    public void TestIsAssignedToSubdomainAsyncMethod()
     {
-        [TestMethod]
-        public void TestIsAssignedToSubdomainAsyncMethod()
-        {
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
     }
 }

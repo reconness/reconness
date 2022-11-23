@@ -1,11 +1,10 @@
-using ReconNess.Entities;
+using ReconNess.Domain.Entities;
 
-namespace ReconNess.Core.Services
+namespace ReconNess.Application.Services;
+
+/// <summary>
+/// The interface IAgentsSettingService
+/// </summary>
+public interface IAgentsSettingService : IService<AgentsSetting>
 {
-    /// <summary>
-    /// The interface IAgentsSettingService
-    /// </summary>
-    public interface IAgentsSettingService : IService<AgentsSetting>
-    {
-    }
 }

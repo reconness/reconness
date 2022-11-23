@@ -1,13 +1,10 @@
-using ReconNess.Entities;
-using System.Threading;
-using System.Threading.Tasks;
+using ReconNess.Domain.Entities;
 
-namespace ReconNess.Core.Services
+namespace ReconNess.Application.Services;
+
+/// <summary>
+/// The interface ILogService
+/// </summary>
+public interface IEventTrackService : IService<EventTrack>
 {
-    /// <summary>
-    /// The interface ILogService
-    /// </summary>
-    public interface IEventTrackService : IService<EventTrack>
-    {
-    }
 }

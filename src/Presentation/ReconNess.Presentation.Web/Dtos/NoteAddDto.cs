@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace ReconNess.Web.Dtos
+namespace ReconNess.Web.Dtos;
+
+public class NoteAddDto
 {
-    public class NoteAddDto
-    {
-        public string Comment { get; set; }
-    }
+    public string Comment { get; set; }
 }

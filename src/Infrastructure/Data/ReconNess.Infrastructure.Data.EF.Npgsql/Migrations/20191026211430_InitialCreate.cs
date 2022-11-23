@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 using System;
 
-namespace ReconNess.Data.Npgsql.Migrations
+namespace ReconNess.Infrastructure.Data.EF.Npgsql.Migrations
 {
     public partial class InitialCreate : Migration
     {

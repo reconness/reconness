@@ -1,38 +1,37 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ReconNess.UnitTests
+namespace ReconNess.Application.Services.UnitTests;
+
+[TestClass]
+public class AgentServiceTests
 {
-    [TestClass]
-    public class AgentServiceTests
+    [TestMethod]
+    public void TestRunAsyncMethod()
     {
-        [TestMethod]
-        public void TestRunAsyncMethod()
-        {
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestStopAsyncMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestStopAsyncMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestDebugAsyncMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestDebugAsyncMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
     }
 }

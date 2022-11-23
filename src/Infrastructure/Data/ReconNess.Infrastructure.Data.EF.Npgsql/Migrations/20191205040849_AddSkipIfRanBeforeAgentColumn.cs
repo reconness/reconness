@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace ReconNess.Data.Npgsql.Migrations
+namespace ReconNess.Infrastructure.Data.EF.Npgsql.Migrations
 {
     public partial class AddSkipIfRanBeforeAgentColumn : Migration
     {

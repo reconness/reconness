@@ -1,11 +1,10 @@
-﻿namespace ReconNess.Entities.Enum
+﻿namespace ReconNess.Domain.Enum;
+
+public enum AgentRunnerStage
 {
-    public enum AgentRunnerStage
-    {
-        ENQUEUE,
-        RUNNING,
-        SUCCESS,
-        STOPPED,
-        FAILED
-    }
+    ENQUEUE,
+    RUNNING,
+    SUCCESS,
+    STOPPED,
+    FAILED
 }

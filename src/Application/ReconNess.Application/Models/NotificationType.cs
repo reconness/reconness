@@ -1,17 +1,16 @@
-﻿namespace ReconNess.Core.Models
+﻿namespace ReconNess.Application.Models;
+
+public enum NotificationType
 {
-    public enum NotificationType
-    {
-        ROOTDOMAIN,
-        SUBDOMAIN,
-        IP,
-        IS_ALIVE,
-        HAS_HTTP_OPEN,
-        TAKEOVER,
-        DIRECTORY,
-        SERVICE,
-        NOTE,
-        SCREENSHOT,
-        TECHNOLOGY
-    }
+    ROOTDOMAIN,
+    SUBDOMAIN,
+    IP,
+    IS_ALIVE,
+    HAS_HTTP_OPEN,
+    TAKEOVER,
+    DIRECTORY,
+    SERVICE,
+    NOTE,
+    SCREENSHOT,
+    TECHNOLOGY
 }

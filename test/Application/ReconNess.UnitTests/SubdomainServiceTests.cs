@@ -1,28 +1,27 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ReconNess.UnitTests
+namespace ReconNess.Application.Services.UnitTests;
+
+[TestClass]
+public class SubdomainServiceTests
 {
-    [TestClass]
-    public class SubdomainServiceTests
+    [TestMethod]
+    public void TestUpdateSubdomainAsyncMethod()
     {
-        [TestMethod]
-        public void TestUpdateSubdomainAsyncMethod()
-        {
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
+    }
 
-        [TestMethod]
-        public void TestDeleteSubdomainsMethod()
-        {
-            // Arrange
+    [TestMethod]
+    public void TestDeleteSubdomainsMethod()
+    {
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
     }
 }

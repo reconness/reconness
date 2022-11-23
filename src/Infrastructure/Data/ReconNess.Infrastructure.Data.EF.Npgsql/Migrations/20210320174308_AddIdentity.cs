@@ -2,7 +2,7 @@
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using System;
 
-namespace ReconNess.Data.Npgsql.Migrations
+namespace ReconNess.Infrastructure.Data.EF.Npgsql.Migrations
 {
     public partial class AddIdentity : Migration
     {

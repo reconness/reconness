@@ -1,40 +1,39 @@
 ﻿using AutoMapper;
-using ReconNess.Core.Services;
-using ReconNess.Entities;
+using ReconNess.Application.Services;
+using ReconNess.Domain.Entities;
 using ReconNess.Web.Dtos;
 using System.Collections.Generic;
 
-namespace ReconNess.Web.Mappers.Resolvers
+namespace ReconNess.Web.Mappers.Resolvers;
+
+internal class AgentCategoryResolver : IValueResolver<AgentDto, Agent, ICollection<Category>>
 {
-    internal class AgentCategoryResolver : IValueResolver<AgentDto, Agent, ICollection<Category>>
+    private readonly IAgentCategoryService categoryService;
+
+    public AgentCategoryResolver(IAgentCategoryService categoryService)
     {
-        private readonly IAgentCategoryService categoryService;
+        this.categoryService = categoryService;
+    }
 
-        public AgentCategoryResolver(IAgentCategoryService categoryService)
+    public ICollection<Category> Resolve(AgentDto source, Agent destination, ICollection<Category> member, ResolutionContext context)
+    {
+        var agentCategories = new List<Category>();
+        source.Categories.ForEach(cat =>
         {
-            this.categoryService = categoryService;
-        }
-
-        public ICollection<Category> Resolve(AgentDto source, Agent destination, ICollection<Category> member, ResolutionContext context)
-        {
-            var agentCategories = new List<Category>();
-            source.Categories.ForEach(cat =>
+            var category = categoryService.GetByCriteriaAsync(c => c.Name == cat).Result;
+            if (category != null)
             {
-                var category = categoryService.GetByCriteriaAsync(c => c.Name == cat).Result;
-                if (category != null)
+                agentCategories.Add(category);
+            }
+            else
+            {
+                agentCategories.Add(new Category
                 {
-                    agentCategories.Add(category);
-                }
-                else
-                {
-                    agentCategories.Add(new Category
-                    {
-                        Name = cat
-                    });
-                }
-            });
+                    Name = cat
+                });
+            }
+        });
 
-            return agentCategories;
-        }
+        return agentCategories;
     }
 }

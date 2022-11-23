@@ -1,18 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace ReconNess.UnitTests
+namespace ReconNess.Application.Services.UnitTests;
+
+[TestClass]
+public class ReferenceServiceTests
 {
-    [TestClass]
-    public class ReferenceServiceTests
+    [TestMethod]
+    public void TestGetAllCategoriesAsyncMethod()
     {
-        [TestMethod]
-        public void TestGetAllCategoriesAsyncMethod()
-        {
-            // Arrange
+        // Arrange
 
-            // Act
+        // Act
 
-            // Assert
-        }
+        // Assert
     }
 }

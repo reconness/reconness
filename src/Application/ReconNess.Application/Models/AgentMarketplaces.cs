@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace ReconNess.Core.Models
+namespace ReconNess.Application.Models;
+
+public class AgentMarketplaces
 {
-    public class AgentMarketplaces
-    {
-        public List<AgentMarketplace> Agents { get; set; }
-    }
+    public List<AgentMarketplace> Agents { get; set; }
 }

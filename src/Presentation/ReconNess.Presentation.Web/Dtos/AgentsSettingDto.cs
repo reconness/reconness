@@ -1,9 +1,8 @@
-﻿namespace ReconNess.Web.Dtos
-{
-    public class AgentsSettingDto
-    {
-        public string Strategy { get; set; } = "ROUND_ROBIN";
+﻿namespace ReconNess.Web.Dtos;
 
-        public int AgentServerCount { get; set; } = 1;
-    }
+public class AgentsSettingDto
+{
+    public string Strategy { get; set; } = "ROUND_ROBIN";
+
+    public int AgentServerCount { get; set; } = 1;
 }

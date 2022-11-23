@@ -1,13 +1,12 @@
-﻿namespace ReconNess.Core.Models
+﻿namespace ReconNess.Application.Models;
+
+public class Wordlist
 {
-    public class Wordlist
-    {
-        public string Filename { get; set; }
+    public string Filename { get; set; }
 
-        public int Count { get; set; }
+    public int Count { get; set; }
 
-        public string Size { get; set; }
+    public string Size { get; set; }
 
-        public string Path { get; set; }
-    }
+    public string Path { get; set; }
 }

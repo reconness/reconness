@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace ReconNess.Data.Npgsql.Migrations
+namespace ReconNess.Infrastructure.Data.EF.Npgsql.Migrations
 {
     public partial class SetNullEventTrack : Migration
     {

@@ -1,40 +1,39 @@
 ﻿
 
-namespace ReconNess.Web.Mappers.Resolvers
+namespace ReconNess.Web.Mappers.Resolvers;
+
+using AutoMapper;
+using Microsoft.AspNetCore.Identity;
+using ReconNess.Domain.Entities;
+using ReconNess.Web.Dtos;
+using System.Linq;
+
+/// <summary>
+/// 
+/// </summary>
+public class UserProfileResolver : IValueResolver<User, UserDto, string>
 {
-    using AutoMapper;
-    using Microsoft.AspNetCore.Identity;
-    using ReconNess.Entities;
-    using ReconNess.Web.Dtos;
-    using System.Linq;
+    private readonly UserManager<User> userManager;
 
     /// <summary>
     /// 
     /// </summary>
-    public class UserProfileResolver : IValueResolver<User, UserDto, string>
+    /// <param name="userManager"></param>
+    public UserProfileResolver(UserManager<User> userManager)
     {
-        private readonly UserManager<User> userManager;
+        this.userManager = userManager;
+    }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="userManager"></param>
-        public UserProfileResolver(UserManager<User> userManager)
-        {
-            this.userManager = userManager;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="user"></param>
-        /// <param name="userDto"></param>
-        /// <param name="destMember"></param>
-        /// <param name="context"></param>
-        /// <returns></returns>
-        public string Resolve(User user, UserDto userDto, string destMember, ResolutionContext context)
-        {
-            return userManager.GetRolesAsync(user).Result.FirstOrDefault();
-        }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="user"></param>
+    /// <param name="userDto"></param>
+    /// <param name="destMember"></param>
+    /// <param name="context"></param>
+    /// <returns></returns>
+    public string Resolve(User user, UserDto userDto, string destMember, ResolutionContext context)
+    {
+        return userManager.GetRolesAsync(user).Result.FirstOrDefault();
     }
 }

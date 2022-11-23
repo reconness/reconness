@@ -3,7 +3,7 @@ using System;
 
 #nullable disable
 
-namespace ReconNess.Data.Npgsql.Migrations
+namespace ReconNess.Infrastructure.Data.EF.Npgsql.Migrations
 {
     public partial class UpdateDateTime : Migration
     {

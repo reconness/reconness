@@ -1,19 +1,15 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿namespace ReconNess.Application.Providers;
 
-namespace ReconNess.Core.Providers
+/// <summary>
+/// The interface IAgentRunnerProvider
+/// </summary>
+public interface IQueueProvider<T>
 {
     /// <summary>
-    /// The interface IAgentRunnerProvider
+    /// Run the Agent
     /// </summary>
-    public interface IQueueProvider<T>
-    {
-        /// <summary>
-        /// Run the Agent
-        /// </summary>
-        /// <param name="args">The Agent params</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>A task</returns>
-        void Enqueue(T args);
-    }
+    /// <param name="args">The Agent params</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns>A task</returns>
+    void Enqueue(T args);
 }
