@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
 using ReconNess.Domain.Entities;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 
-namespace ReconNess.Web.Mappers.Resolvers;
+namespace ReconNess.Presentation.Api.Mappers.Resolvers;
 
 internal class AgentTriggerResolver : IValueResolver<AgentDto, Agent, AgentTrigger>
 {

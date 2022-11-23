@@ -3,13 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using ReconNess.Domain.Entities;
-using ReconNess.Web.Auth;
-using ReconNess.Web.Models;
+using ReconNess.Presentation.Api.Auth;
+using ReconNess.Presentation.Api.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ReconNess.Web.Controllers;
+namespace ReconNess.Presentation.Api.Controllers;
 
 [Produces("application/json")]
 [Route("api/[controller]")]

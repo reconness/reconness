@@ -1,8 +1,8 @@
 using AutoMapper;
 using ReconNess.Domain.Entities;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 
-namespace ReconNess.Web.Mappers;
+namespace ReconNess.Presentation.Api.Mappers;
 
 public class LabelProfile : Profile
 {

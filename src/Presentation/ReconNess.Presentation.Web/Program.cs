@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using NLog.Web;
 using System;
 
-namespace ReconNess.Web;
+namespace ReconNess.Presentation.Api;
 
 public class Program
 {

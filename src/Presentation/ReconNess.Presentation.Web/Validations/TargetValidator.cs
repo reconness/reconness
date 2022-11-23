@@ -1,9 +1,9 @@
 using FluentValidation;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 using System;
 using System.Collections.Generic;
 
-namespace ReconNess.Web.Validations;
+namespace ReconNess.Presentation.Api.Validations;
 
 public class TargetValidator : AbstractValidator<TargetDto>
 {

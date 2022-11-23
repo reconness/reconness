@@ -1,7 +1,7 @@
 ﻿using ReconNess.Application.Models;
 using System.Collections.Generic;
 
-namespace ReconNess.Web.Dtos;
+namespace ReconNess.Presentation.Api.Dtos;
 
 public class WordlistsDto
 {

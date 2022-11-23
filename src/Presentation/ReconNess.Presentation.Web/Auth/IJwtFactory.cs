@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
 
-namespace ReconNess.Web.Auth;
+namespace ReconNess.Presentation.Api.Auth;
 
 /// <summary>
 /// 

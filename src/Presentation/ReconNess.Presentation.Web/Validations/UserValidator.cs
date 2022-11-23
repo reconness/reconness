@@ -1,7 +1,7 @@
 using FluentValidation;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 
-namespace ReconNess.Web.Validations;
+namespace ReconNess.Presentation.Api.Validations;
 
 public class UserValidator : AbstractValidator<UserDto>
 {

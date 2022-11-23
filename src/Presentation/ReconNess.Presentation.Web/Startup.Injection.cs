@@ -7,9 +7,9 @@ using ReconNess.Application.Services;
 using ReconNess.Infrastructure.Data.EF.Npgsql;
 using ReconNess.Infrastructure.Managers;
 using ReconNess.Infrastructure.Providers;
-using ReconNess.Web.Auth;
+using ReconNess.Presentation.Api.Auth;
 
-namespace ReconNess.Web;
+namespace ReconNess.Presentation.Api;
 
 public partial class Startup
 {

@@ -3,7 +3,7 @@ using ReconNess.Application.Providers;
 using System.Linq;
 using System.Security.Claims;
 
-namespace ReconNess.Web.Auth;
+namespace ReconNess.Presentation.Api.Auth;
 
 /// <summary>
 /// 

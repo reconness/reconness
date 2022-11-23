@@ -1,5 +1,5 @@
 ﻿
-namespace ReconNess.Web;
+namespace ReconNess.Presentation.Api;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Hosting;
@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using ReconNess.Domain.Entities;
 using ReconNess.Infrastructure.Data.EF.Npgsql;
-using ReconNess.Web.Auth;
+using ReconNess.Presentation.Api.Auth;
 using System;
 using System.Text;
 

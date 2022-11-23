@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using ReconNess.Application.Models;
 using ReconNess.Application.Services;
 using ReconNess.Domain.Entities;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,7 +13,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ReconNess.Web.Controllers;
+namespace ReconNess.Presentation.Api.Controllers;
 
 [Authorize]
 [Produces("application/json")]

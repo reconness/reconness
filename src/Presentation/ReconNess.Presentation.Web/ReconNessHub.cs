@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 
-namespace ReconNess.Web;
+namespace ReconNess.Presentation.Api;
 
 /// <summary>
 /// 

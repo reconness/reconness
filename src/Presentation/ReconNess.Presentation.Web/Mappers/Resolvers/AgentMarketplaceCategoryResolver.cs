@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
 using ReconNess.Application.Services;
 using ReconNess.Domain.Entities;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 using System.Collections.Generic;
 
-namespace ReconNess.Web.Mappers.Resolvers;
+namespace ReconNess.Presentation.Api.Mappers.Resolvers;
 
 internal class AgentMarketplaceCategoryResolver : IValueResolver<AgentMarketplaceDto, Agent, ICollection<Category>>
 {

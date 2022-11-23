@@ -5,7 +5,7 @@ using NLog;
 using ReconNess.Infrastructure.Data.EF.Npgsql;
 using System;
 
-namespace ReconNess.Web;
+namespace ReconNess.Presentation.Api;
 
 /// <summary>
 /// 

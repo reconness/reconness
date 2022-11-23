@@ -1,7 +1,7 @@
 using FluentValidation;
-using ReconNess.Web.Models;
+using ReconNess.Presentation.Api.Models;
 
-namespace ReconNess.Web.Validations;
+namespace ReconNess.Presentation.Api.Validations;
 
 public class LoginValidator : AbstractValidator<CredentialsViewModel>
 {

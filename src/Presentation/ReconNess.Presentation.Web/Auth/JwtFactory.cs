@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 
-namespace ReconNess.Web.Auth;
+namespace ReconNess.Presentation.Api.Auth;
 
 public class JwtFactory : IJwtFactory
 {

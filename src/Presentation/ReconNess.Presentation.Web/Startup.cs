@@ -11,7 +11,7 @@ using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace ReconNess.Web;
+namespace ReconNess.Presentation.Api;
 
 public partial class Startup
 {

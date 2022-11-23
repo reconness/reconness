@@ -1,4 +1,4 @@
-﻿namespace ReconNess.Web.Models;
+﻿namespace ReconNess.Presentation.Api.Models;
 
 public class CredentialsViewModel
 {

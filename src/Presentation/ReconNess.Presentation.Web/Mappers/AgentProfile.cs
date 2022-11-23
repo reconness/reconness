@@ -1,10 +1,10 @@
 using AutoMapper;
 using ReconNess.Domain.Entities;
-using ReconNess.Web.Dtos;
-using ReconNess.Web.Mappers.Resolvers;
+using ReconNess.Presentation.Api.Dtos;
+using ReconNess.Presentation.Api.Mappers.Resolvers;
 using System.Linq;
 
-namespace ReconNess.Web.Mappers;
+namespace ReconNess.Presentation.Api.Mappers;
 
 public class AgentProfile : Profile
 {

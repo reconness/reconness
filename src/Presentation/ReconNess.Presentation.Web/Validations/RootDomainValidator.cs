@@ -1,8 +1,8 @@
 using FluentValidation;
-using ReconNess.Web.Dtos;
+using ReconNess.Presentation.Api.Dtos;
 using System;
 
-namespace ReconNess.Web.Validations;
+namespace ReconNess.Presentation.Api.Validations;
 
 public class RootDomainValidator : AbstractValidator<RootDomainDto>
 {

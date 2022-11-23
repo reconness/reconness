@@ -1,4 +1,4 @@
-﻿namespace ReconNess.Web.Dtos;
+﻿namespace ReconNess.Presentation.Api.Dtos;
 
 public class AccountLogFileDto
 {

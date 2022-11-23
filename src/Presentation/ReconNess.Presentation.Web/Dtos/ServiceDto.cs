@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ReconNess.Web.Dtos;
+namespace ReconNess.Presentation.Api.Dtos;
 
 public class ServiceDto
 {
