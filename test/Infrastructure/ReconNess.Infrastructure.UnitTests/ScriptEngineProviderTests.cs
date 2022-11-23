@@ -1,12 +1,9 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-
 namespace ReconNess.Application.Services.UnitTests;
 
-[TestClass]
 public class ScriptEngineProviderTests
 {
-    /*
-    [TestMethod]
+
+    [Fact]
     public void TestFierceOneParseInputAsyncMethod()
     {
         // Arrange
@@ -22,17 +19,17 @@ public class ScriptEngineProviderTests
                     return new ReconNess.Core.Models.ScriptOutput();";
 
 
-        var scriptEngineService = new ScriptEngineService();
+        var scriptEngineService = new ScriptEngineProvider();
 
         // Act
         var result = scriptEngineService.TerminalOutputParseAsync(script, "Found: pl.opera.com. (3.15.119.208)", 0).Result;
 
         // Assert
-        Assert.IsTrue(result.Subdomain == "pl.opera.com");
-        Assert.IsTrue(result.Ip == "3.15.119.208");
+        Assert.True(result.Subdomain == "pl.opera.com");
+        Assert.True(result.Ip == "3.15.119.208");
     }
 
-    [TestMethod]
+    [Fact]
     public void TestFierceTwoParseInputAsyncMethod()
     {
         // Arrange
@@ -47,17 +44,17 @@ public class ScriptEngineProviderTests
                     return new ReconNess.Core.Models.ScriptOutput();";
 
 
-        var scriptEngineService = new ScriptEngineService();
+        var scriptEngineService = new ScriptEngineProvider();
 
         // Act
         var result = scriptEngineService.TerminalOutputParseAsync(script, "SOA: nic1.opera.com. (185.26.183.160)", 0).Result;
 
         // Assert
-        Assert.IsTrue(result.Subdomain == "nic1.opera.com");
-        Assert.IsTrue(result.Ip == "185.26.183.160");
+        Assert.True(result.Subdomain == "nic1.opera.com");
+        Assert.True(result.Ip == "185.26.183.160");
     }
 
-    [TestMethod]
+    [Fact]
     public void TestGoBusterOneParseInputAsyncMethod()
     {
         // Arrange
@@ -82,16 +79,16 @@ public class ScriptEngineProviderTests
 
                     return new ReconNess.Core.Models.ScriptOutput(); ";
 
-        var scriptEngineService = new ScriptEngineService();
+        var scriptEngineService = new ScriptEngineProvider();
 
         // Act
         var result = scriptEngineService.TerminalOutputParseAsync(script, "Found: acme5.opera.com", 20).Result;
 
         // Assert
-        Assert.IsTrue(result.Subdomain == "acme5.opera.com");
+        Assert.True(result.Subdomain == "acme5.opera.com");
     }
 
-    [TestMethod]
+    [Fact]
     public void TestNmapParseInputAsyncMethod()
     {
         // Arrange
@@ -104,14 +101,13 @@ public class ScriptEngineProviderTests
 
                     return new ReconNess.Core.Models.ScriptOutput();";
 
-        var scriptEngineService = new ScriptEngineService();
+        var scriptEngineService = new ScriptEngineProvider();
 
         // Act
         var result = scriptEngineService.TerminalOutputParseAsync(script, "22/tcp  open  ssh", 0).Result;
 
         // Assert
-        Assert.IsTrue(result.Service == "ssh");
-        Assert.IsTrue(result.Port == 22);
-    }
-    */
+        Assert.True(result.Service == "ssh");
+        Assert.True(result.Port == 22);
+    }    
 }

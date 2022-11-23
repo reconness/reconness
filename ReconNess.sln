@@ -39,6 +39,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReconNess.Domain", "src\Dom
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconNess.Infrastructure", "src\Infrastructure\ReconNess.Infrastructure\ReconNess.Infrastructure.csproj", "{823CAF8B-949F-46CD-ADF7-DDA4DCC6FDB2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconNess.Infrastructure.UnitTests", "test\Infrastructure\ReconNess.Infrastructure.UnitTests\ReconNess.Infrastructure.UnitTests.csproj", "{888CA454-6746-43D1-9E2C-D0035582A819}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{823CAF8B-949F-46CD-ADF7-DDA4DCC6FDB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{823CAF8B-949F-46CD-ADF7-DDA4DCC6FDB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{823CAF8B-949F-46CD-ADF7-DDA4DCC6FDB2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{888CA454-6746-43D1-9E2C-D0035582A819}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{888CA454-6746-43D1-9E2C-D0035582A819}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{888CA454-6746-43D1-9E2C-D0035582A819}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{888CA454-6746-43D1-9E2C-D0035582A819}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -86,6 +92,7 @@ Global
 		{973C20ED-ED83-4EFB-8ACB-FECFA769CA92} = {799C0B1D-6115-424C-9ED1-E645F53998D6}
 		{7D00432D-0031-47F1-959D-9C64CC61182D} = {0CC3FD3F-9DC2-41EA-803A-FC560C7A4877}
 		{823CAF8B-949F-46CD-ADF7-DDA4DCC6FDB2} = {7DA435D9-E4C0-4B1B-8633-0060FFABD19E}
+		{888CA454-6746-43D1-9E2C-D0035582A819} = {7DA435D9-E4C0-4B1B-8633-0060FFABD19E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {865EFE75-B3F3-4F16-90A8-F76207B878B1}
