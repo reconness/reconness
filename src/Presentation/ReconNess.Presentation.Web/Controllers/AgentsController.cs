@@ -82,7 +82,7 @@ public class AgentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var agents = await agentService.GetAgentsNoTrackingAsync(cancellationToken);
+        var agents = await agentService.GetAgentsAsync(cancellationToken);
 
         var agentsDto = mapper.Map<List<Agent>, List<AgentDto>>(agents);
 
@@ -117,7 +117,7 @@ public class AgentsController : ControllerBase
             return BadRequest();
         }
 
-        var agent = await agentService.GetAgentNoTrackingAsync(t => t.Name == agentName, cancellationToken);
+        var agent = await agentService.GetAgentAsync(t => t.Name == agentName, cancellationToken);
         if (agent == null)
         {
             return NotFound();
@@ -241,7 +241,7 @@ public class AgentsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] AgentDto agentDto, CancellationToken cancellationToken)
     {
-        var agent = await agentService.GetAgentAsync(t => t.Id == id, cancellationToken);
+        var agent = await agentService.GetAgentWithCategoriesTriggerAndEventsAsync(t => t.Id == id, cancellationToken);
         if (agent == null)
         {
             return NotFound();
@@ -513,7 +513,7 @@ public class AgentsController : ControllerBase
         Target target = default;
         if (!string.IsNullOrWhiteSpace(agentRunnerDto.Target))
         {
-            target = await targetService.GetTargetNotTrackingAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
+            target = await targetService.GetTargetAsync(t => t.Name == agentRunnerDto.Target, cancellationToken);
             if (target == null)
             {
                 return BadRequest();
@@ -523,7 +523,7 @@ public class AgentsController : ControllerBase
         RootDomain rootDomain = default;
         if (!string.IsNullOrWhiteSpace(agentRunnerDto.RootDomain))
         {
-            rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(t => t.Target == target && t.Name == agentRunnerDto.RootDomain, cancellationToken);
+            rootDomain = await rootDomainService.GetRootDomainAsync(t => t.Target == target && t.Name == agentRunnerDto.RootDomain, cancellationToken);
             if (rootDomain == null)
             {
                 return NotFound();
@@ -533,7 +533,7 @@ public class AgentsController : ControllerBase
         Subdomain subdomain = default;
         if (rootDomain != null && !string.IsNullOrWhiteSpace(agentRunnerDto.Subdomain))
         {
-            subdomain = await subdomainService.GetSubdomainAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
+            subdomain = await subdomainService.GetSubdomainWithRootDomainAndTargetAsync(s => s.RootDomain == rootDomain && s.Name == agentRunnerDto.Subdomain, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();

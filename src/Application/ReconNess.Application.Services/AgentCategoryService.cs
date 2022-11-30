@@ -1,4 +1,3 @@
-using NLog;
 using ReconNess.Application.DataAccess;
 using ReconNess.Domain.Entities;
 using System.Collections.Generic;
@@ -13,8 +12,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class AgentCategoryService : Service<Category>, IService<Category>, IAgentCategoryService
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="IAgentCategoryService" /> class
     /// </summary>

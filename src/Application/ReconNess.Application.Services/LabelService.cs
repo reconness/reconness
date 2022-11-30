@@ -1,4 +1,3 @@
-using NLog;
 using ReconNess.Application.DataAccess;
 using ReconNess.Domain.Entities;
 using System;
@@ -14,8 +13,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class LabelService : Service<Label>, IService<Label>, ILabelService
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="ILabelService" /> class
     /// </summary>

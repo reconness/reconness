@@ -65,23 +65,11 @@ public class Service<TEntity> : IService<TEntity> where TEntity : class
     }
 
     /// <inheritdoc/>
-    public IQueryable<TEntity> GetAllQueryable()
-    {
-        return repository.GetAllQueryable();
-    }
-
-    /// <inheritdoc/>
     public Task<List<TEntity>> GetAllByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
         return repository.GetAllByCriteriaAsync(predicate, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate)
-    {
-        return repository.GetAllQueryableByCriteria(predicate);
     }
 
     /// <inheritdoc/>

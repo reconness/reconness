@@ -11,9 +11,17 @@ public interface IUnitOfWork
     /// <summary>
     /// Obtain a generic repository
     /// </summary>
-    /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>A generic repository</returns>
-    IRepository<TEntity> Repository<TEntity>(CancellationToken cancellationToken = default) where TEntity : class;
+    IRepository<TEntity> Repository<TEntity>() where TEntity : class;
+
+    /// <summary>
+    /// Obtain a custom respository
+    /// </summary>
+    /// <typeparam name="TCustomRepo">The custom repository</typeparam>
+    /// <typeparam name="TEntity">The entity that repository implement</typeparam>
+    /// <returns>A custom respository</returns>
+    TCustomRepo Repository<TCustomRepo, TEntity>() where TCustomRepo : IRepository<TEntity>
+                                                   where TEntity : class;
 
     /// <summary>
     /// Begin a context transaction

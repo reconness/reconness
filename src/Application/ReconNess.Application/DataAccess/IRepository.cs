@@ -21,12 +21,6 @@ public interface IRepository<TEntity> where TEntity : class
     Task<List<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Obtain the async queryable of generic Entities
-    /// </summary>
-    /// <returns>The async queryable of generic Entities</returns>
-    IQueryable<TEntity> GetAllQueryable();
-
-    /// <summary>
     /// Obtain the async list of Entities
     /// </summary>
     /// <param name="predicate">The criteria</param>
@@ -41,13 +35,6 @@ public interface IRepository<TEntity> where TEntity : class
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>If exist some data on BD using that predicate</returns>
     Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Obtain the async queryable of generic Entities by criteria
-    /// </summary>
-    /// <param name="predicate">The criteria</param>
-    /// <returns>The async queryable of generic Entities by criteria</returns>
-    IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     /// Obtain the async list of Entities by criteria
@@ -72,6 +59,19 @@ public interface IRepository<TEntity> where TEntity : class
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>An Entity</returns>
     Task<TEntity> FindByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Obtain an IQueryable entity
+    /// </summary>
+    /// <returns>An IQueryable entity</returns>
+    IQueryable<TEntity> GetAllQueryable();
+
+    /// <summary>
+    /// Obtain an IQueryable entity after apply a criteria
+    /// </summary>
+    /// <param name="predicate">A criterial</param>
+    /// <returns>An IQueryable entity </returns>
+    IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     /// Add a new Entity into the context

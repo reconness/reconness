@@ -1,4 +1,3 @@
-using NLog;
 using ReconNess.Application.DataAccess;
 using ReconNess.Application.Providers;
 using ReconNess.Domain.Entities;
@@ -12,7 +11,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class NotesService : Service<Note>, IService<Note>, INotesService
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
     private readonly IAuthProvider authProvider;
 
     /// <summary>

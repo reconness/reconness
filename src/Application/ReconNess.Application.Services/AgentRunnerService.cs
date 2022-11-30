@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NLog;
-using ReconNess.Application.DataAccess;
+﻿using ReconNess.Application.DataAccess;
+using ReconNess.Application.DataAccess.Repositories;
 using ReconNess.Application.Managers;
 using ReconNess.Application.Models;
 using ReconNess.Application.Providers;
@@ -10,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Channels;
 using System.Threading.Tasks;
 
 namespace ReconNess.Application.Services;
@@ -19,8 +19,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class AgentRunnerService : Service<AgentRunner>, IAgentRunnerService, IService<AgentRunner>
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
     private readonly ITargetService targetService;
     private readonly IRootDomainService rootDomainService;
     private readonly ISubdomainService subdomainService;
@@ -81,23 +79,15 @@ public class AgentRunnerService : Service<AgentRunner>, IAgentRunnerService, ISe
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<string>> RunningAgentsAsync(CancellationToken cancellationToken = default)
-    {
-        return await this.GetAllQueryableByCriteria(a => a.Stage == AgentRunnerStage.ENQUEUE || a.Stage == AgentRunnerStage.RUNNING)
-            .Select(a => a.Channel)
-            .ToListAsync(cancellationToken);
-    }
+    public async Task<IEnumerable<string>> RunningAgentsAsync(CancellationToken cancellationToken = default) => 
+        await UnitOfWork.Repository<IAgentRunnerRepository, AgentRunner>().RunningAgentsAsync(cancellationToken);
 
     /// <inheritdoc/>
     public async Task<IEnumerable<string>> TerminalOutputAsync(string channel, CancellationToken cancellationToken = default)
     {
-        var agentRunner = await GetAllQueryableByCriteria(a => a.Channel == channel)
-            .Include(a => a.Commands)
-            .ThenInclude(c => c.Outputs)
-            .FirstOrDefaultAsync(cancellationToken);
-
         var result = new List<string>();
 
+        var agentRunner = await UnitOfWork.Repository<IAgentRunnerRepository, AgentRunner>().GetAgentRunnerAsync(channel, cancellationToken);
         if (agentRunner != null)
         {
             foreach (var command in agentRunner.Commands.OrderBy(c => c.CreatedAt))
@@ -254,7 +244,7 @@ public class AgentRunnerService : Service<AgentRunner>, IAgentRunnerService, ISe
     /// <returns>A Task</returns>
     private async Task EnqueueRunAgentForEachSubdomainsAsync(AgentRunnerInfo agentRunnerInfo, string channel, CancellationToken cancellationToken)
     {
-        var subdomains = await subdomainService.GetSubdomainsNoTrackingAsync(s => s.RootDomain == agentRunnerInfo.RootDomain, cancellationToken);
+        var subdomains = await subdomainService.GetSubdomainsAsync(s => s.RootDomain == agentRunnerInfo.RootDomain, cancellationToken);
         var stage = subdomains.Any() ? AgentRunnerStage.ENQUEUE : AgentRunnerStage.SUCCESS;
 
         await AddAsync(new AgentRunner
@@ -328,8 +318,8 @@ public class AgentRunnerService : Service<AgentRunner>, IAgentRunnerService, ISe
         }
 
         var prefix = $"#{DateTime.Now:yyyyMMdd}";
-        var count = await GetAllQueryableByCriteria(r => r.Channel.EndsWith(channel) && r.Channel.StartsWith(prefix))
-                            .CountAsync(cancellationToken);
+        var count = await UnitOfWork.Repository<IAgentRunnerRepository, AgentRunner>()
+            .GetChannelCountAsync(r => r.Channel.EndsWith(channel) && r.Channel.StartsWith(prefix), cancellationToken);            
 
         // Ex. #20220319.1_nmap_yahoo_yahho.com_www.yahoo.com
         channel = $"{prefix}.{++count}_{channel}";

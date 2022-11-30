@@ -74,13 +74,13 @@ public class RootDomainsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+        var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return NotFound();
         }
 
-        var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+        var rootDomain = await rootDomainService.GetRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
         if (rootDomain == null)
         {
             return NotFound();
@@ -226,7 +226,7 @@ public class RootDomainsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+        var target = await this.targetService.GetTargetWithRootdomainsAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return NotFound();

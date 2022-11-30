@@ -19,7 +19,7 @@ namespace ReconNess.Presentation.Api.Controllers;
 public class CategoriesController : ControllerBase
 {
     private readonly IMapper mapper;
-    private readonly IAgentCategoryService categoryService;
+    private readonly IAgentCategoryService agentCategoryService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CategoriesController" /> class
@@ -31,7 +31,7 @@ public class CategoriesController : ControllerBase
         IAgentCategoryService categoryService)
     {
         this.mapper = mapper;
-        this.categoryService = categoryService;
+        this.agentCategoryService = categoryService;
     }
 
     /// <summary>
@@ -52,10 +52,7 @@ public class CategoriesController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var categories = await categoryService
-                    .GetAllQueryable()
-                    .AsNoTracking()
-                    .ToListAsync(cancellationToken);
+        var categories = await agentCategoryService.GetAllAsync(cancellationToken);
 
         return Ok(mapper.Map<List<Category>, List<CategoryDto>>(categories));
     }

@@ -1,4 +1,3 @@
-using NLog;
 using ReconNess.Application.DataAccess;
 using ReconNess.Domain.Entities;
 
@@ -9,8 +8,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class RoleService : Service<Role>, IService<Role>, IRoleService
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="IRoleService" /> class
     /// </summary>

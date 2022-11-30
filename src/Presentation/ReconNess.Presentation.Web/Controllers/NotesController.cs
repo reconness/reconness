@@ -76,10 +76,7 @@ public class NotesController : ControllerBase
             return BadRequest();
         }
 
-        var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName)
-                .Include(t => t.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
-
+        var target = await this.targetService.GetTargetWithNotesAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return NotFound();
@@ -121,10 +118,7 @@ public class NotesController : ControllerBase
             return BadRequest();
         }
 
-        var target = await this.targetService.GetAllQueryableByCriteria(t => t.Name == targetName)
-                .Include(t => t.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
-
+        var target = await this.targetService.GetTargetWithNotesAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return NotFound();
@@ -225,9 +219,7 @@ public class NotesController : ControllerBase
         }
 
         var rootDomain = await this.rootDomainService
-            .GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName)
-                .Include(t => t.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
+            .GetRootDomainWithNotesAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
 
         if (rootDomain == null)
         {
@@ -278,9 +270,7 @@ public class NotesController : ControllerBase
         }
 
         var rootDomain = await this.rootDomainService
-            .GetAllQueryableByCriteria(r => r.Target == target && r.Name == rootDomainName)
-                .Include(t => t.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
+            .GetRootDomainWithNotesAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
 
         if (rootDomain == null)
         {
@@ -397,9 +387,7 @@ public class NotesController : ControllerBase
         }
 
         var subdomain = await this.subdomainService
-            .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
-                .Include(s => s.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
+            .GetSubdomainWithNotesAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
 
         if (subdomain == null)
         {
@@ -457,10 +445,7 @@ public class NotesController : ControllerBase
         }
 
         var subdomain = await this.subdomainService
-            .GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name == subdomainName)
-                .Include(s => s.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
-
+            .GetSubdomainWithNotesAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
         if (subdomain == null)
         {
             return NotFound();

@@ -45,7 +45,7 @@ public class CategoryServiceTests
                 addWasCalled = true;
             });
 
-        unitOfWorkMock.Setup(m => m.Repository<Category>(It.IsAny<CancellationToken>()))
+        unitOfWorkMock.Setup(m => m.Repository<Category>())
             .Returns(repositoryMock.Object);
 
         unitOfWork = unitOfWorkMock.Object;

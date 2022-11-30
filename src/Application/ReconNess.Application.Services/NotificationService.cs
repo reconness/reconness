@@ -1,10 +1,7 @@
-﻿using Newtonsoft.Json;
-using NLog;
-using ReconNess.Application.DataAccess;
+﻿using ReconNess.Application.DataAccess;
 using ReconNess.Application.Models;
+using ReconNess.Application.Providers;
 using ReconNess.Domain.Entities;
-using RestSharp;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,15 +12,16 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class NotificationService : Service<Notification>, IService<Notification>, INotificationService
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
+    private readonly INotificationProvider notificationProvider;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="INotificationService" /> class
     /// </summary>
     /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
-    public NotificationService(IUnitOfWork unitOfWork)
+    public NotificationService(IUnitOfWork unitOfWork, INotificationProvider notificationProvider)
         : base(unitOfWork)
     {
+        this.notificationProvider = notificationProvider;
     }
 
     /// <inheritdoc/>
@@ -55,7 +53,7 @@ public class NotificationService : Service<Notification>, IService<Notification>
     }
 
     /// <inheritdoc/>
-    public async Task SendAsync(string agentPayload, CancellationToken cancellationToken)
+    public async Task SendAsync(string payload, CancellationToken cancellationToken)
     {
         var notification = await GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
         if (notification == null)
@@ -63,21 +61,7 @@ public class NotificationService : Service<Notification>, IService<Notification>
             return;
         }
 
-        try
-        {
-            var client = new RestClient(notification.Url);
-            var request = new RestRequest();
-
-            var payload = notification.Payload.Replace("{{notification}}", agentPayload);
-            request.AddJsonBody(JsonConvert.DeserializeObject(payload));
-
-            var method = "POST".Equals(notification.Method) ? Method.Post : Method.Get;
-            var response = await client.ExecuteAsync(request, method, cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.Error(ex, ex.Message);
-        }
+        await notificationProvider.SendNotificationAsync(notification, payload, cancellationToken);
     }
 
     /// <inheritdoc/>

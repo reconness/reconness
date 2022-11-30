@@ -1,15 +1,11 @@
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
-using NLog;
 using ReconNess.Application.DataAccess;
+using ReconNess.Application.DataAccess.Repositories;
 using ReconNess.Application.Models;
 using ReconNess.Application.Providers;
 using ReconNess.Domain.Entities;
-using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading;
@@ -22,9 +18,8 @@ namespace ReconNess.Application.Services
     /// </summary>
     public class AgentService : Service<Agent>, IService<Agent>, IAgentService
     {
-        protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
         private readonly IScriptEngineProvider scriptEngineService;
+        private readonly IMarketplaceProvider marketplaceProvider;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AgentService" /> class
@@ -32,96 +27,38 @@ namespace ReconNess.Application.Services
         /// <param name="unitOfWork"><see cref="IUnitOfWork"/></param>
         /// <param name="scriptEngineService"><see cref="IScriptEngineProvider"/></param>
         public AgentService(IUnitOfWork unitOfWork,
-            IScriptEngineProvider scriptEngineService)
+            IScriptEngineProvider scriptEngineService,
+            IMarketplaceProvider marketplaceProvider)
             : base(unitOfWork)
         {
             this.scriptEngineService = scriptEngineService;
+            this.marketplaceProvider = marketplaceProvider;
         }
 
         /// <inheritdoc/>
-        public async Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default)
-        {
-            var result = GetAllQueryable()
-                    .Select(agent => new Agent
-                    {
-                        Id = agent.Id,
-                        Name = agent.Name,
-                        LastRun = agent.LastRun,
-                        Command = agent.Command,
-                        AgentType = agent.AgentType,
-                        CreatedBy = agent.CreatedBy,
-                        PrimaryColor = agent.PrimaryColor,
-                        SecondaryColor = agent.SecondaryColor,
-                        Repository = agent.Repository,
-                        AgentTrigger = agent.AgentTrigger,
-                        Script = agent.Script,
-                        Target = agent.Target,
-                        Image = agent.Image,
-                        ConfigurationFileName = agent.ConfigurationFileName,
-                        Categories = agent.Categories.Select(category => new Category
-                        {
-                            Name = category.Name
-                        })
-                        .ToList()
-                    })
-                    .AsNoTracking();
-
-            return await result
-                    .OrderBy(a => a.Categories.Single().Name)
-                    .ToListAsync(cancellationToken);
-        }
+        public async Task<List<Agent>> GetAgentsAsync(CancellationToken cancellationToken = default) => 
+            await UnitOfWork.Repository<IAgentRepository, Agent>().GetAgentsAsync(cancellationToken);
 
         /// <inheritdoc/>
-        public async Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
-        {
-            return await GetAllQueryableByCriteria(criteria)
-                    .Select(agent => new Agent
-                    {
-                        Id = agent.Id,
-                        Name = agent.Name,
-                        Repository = agent.Repository,
-                        Script = agent.Script,
-                        Command = agent.Command,
-                        AgentType = agent.AgentType,
-                        AgentTrigger = agent.AgentTrigger,
-                        ConfigurationFileName = agent.ConfigurationFileName,
-                        Categories = agent.Categories.Select(category => new Category
-                        {
-                            Name = category.Name
-                        })
-                        .ToList()
-                    })
-                    .AsNoTracking()
-                    .SingleOrDefaultAsync(cancellationToken);
-        }
+        public async Task<Agent?> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default) => 
+            await UnitOfWork.Repository<IAgentRepository, Agent>().GetAgentAsync(criteria, cancellationToken);
 
         /// <inheritdoc/>
-        public async Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
-        {
-            return await GetAllQueryableByCriteria(criteria)
-                    .Include(a => a.Categories)
-                    .Include(a => a.AgentTrigger)
-                    .Include(a => a.EventTracks)
-                .SingleOrDefaultAsync(cancellationToken);
-        }
+        public async Task<Agent?> GetAgentWithCategoriesTriggerAndEventsAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default) => 
+            await UnitOfWork.Repository<IAgentRepository, Agent>().GetAgentWithCategoriesTriggerAndEventsAsync(criteria, cancellationToken);
 
         /// <inheritdoc/>
-        public async Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default)
-        {
-            return await GetAllQueryableByCriteria(criteria)
-                    .Include(a => a.Categories)
-                    .Include(a => a.AgentTrigger)
-                .SingleOrDefaultAsync(cancellationToken);
-        }
+        public async Task<Agent?> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default) =>
+            await UnitOfWork.Repository<IAgentRepository, Agent>().GetAgentToRunAsync(criteria, cancellationToken);
 
         /// <inheritdoc/>
         public async Task<List<AgentMarketplace>> GetMarketplaceAsync(CancellationToken cancellationToken = default)
         {
-            var client = new RestClient("https://raw.githubusercontent.com/");
-            var request = new RestRequest("/reconness/reconness-agents/master/default-agents2.json");
-
-            var response = await client.ExecuteGetAsync(request, cancellationToken);
-            var agentMarketplaces = JsonConvert.DeserializeObject<AgentMarketplaces>(response.Content);
+            var agentMarketplaces = await this.marketplaceProvider.GetAgentMarketplacesAsync(cancellationToken);
+            if (agentMarketplaces == null)
+            {
+                return new List<AgentMarketplace>();
+            }
 
             return agentMarketplaces.Agents;
         }
@@ -129,21 +66,7 @@ namespace ReconNess.Application.Services
         /// <inheritdoc/>
         public async Task<string> GetScriptAsync(string scriptUrl, CancellationToken cancellationToken)
         {
-            try
-            {
-                var client = new RestClient(scriptUrl);
-                var request = new RestRequest();
-
-                var response = await client.ExecuteGetAsync(request, cancellationToken);
-
-                return response.Content;
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex);
-            }
-
-            return string.Empty;
+            return await this.marketplaceProvider.GetScriptAsync(scriptUrl, cancellationToken);            
         }
 
         /// <inheritdoc/>
@@ -171,11 +94,7 @@ namespace ReconNess.Application.Services
 
                 return await sr.ReadToEndAsync();
             }
-            else
-            {
-                _logger.Warn($"Invalid file path {path}");
-            }
-
+            
             return string.Empty;
         }
 

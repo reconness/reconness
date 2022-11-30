@@ -52,9 +52,7 @@ public class LabelsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var labels = await labelService.GetAllQueryable()
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var labels = await labelService.GetAllAsync(cancellationToken);
 
         return Ok(mapper.Map<List<Label>, List<LabelDto>>(labels));
     }

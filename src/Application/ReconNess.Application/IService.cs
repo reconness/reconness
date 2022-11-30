@@ -53,25 +53,12 @@ public interface IService<TEntity>
     Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Obtain the async queryable of generic Entities
-    /// </summary>
-    /// <returns>The async queryable of generic Entities</returns>
-    IQueryable<TEntity> GetAllQueryable();
-
-    /// <summary>
     ///  Obtain the async list of generic Entities by criteria
     /// </summary>
     /// <param name="predicate">The criteria</param>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>The async list of generic Entities by criteria</returns>
     Task<List<TEntity>> GetAllByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    ///  Obtain the async queryable of generic Entities by criteria
-    /// </summary>
-    /// <param name="predicate">The criteria</param>
-    /// <returns>The async queryable of generic Entities by criteria</returns>
-    IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate);
 
     /// <summary>
     /// Add a new Entity into the repository and do a commit

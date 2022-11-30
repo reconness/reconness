@@ -1,6 +1,8 @@
 ﻿namespace ReconNess.Infrastructure.Data.EF.Npgsql;
 
 using ReconNess.Application.DataAccess;
+using ReconNess.Application.DataAccess.Repositories;
+using ReconNess.Infrastructure.Data.EF.Npgsql.Repositories;
 using System;
 using System.Collections;
 using System.Threading;
@@ -19,7 +21,7 @@ public class UnitOfWork : IUnitOfWork
     /// <summary>
     /// A hash of repositories
     /// </summary>
-    private Hashtable repositories;
+    private Hashtable? repositories;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UnitOfWork" /> class
@@ -31,11 +33,9 @@ public class UnitOfWork : IUnitOfWork
     }
 
     /// <inheritdoc/>
-    public IRepository<TEntity> Repository<TEntity>(CancellationToken cancellationToken = default)
+    public IRepository<TEntity> Repository<TEntity>()
         where TEntity : class
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         if (repositories == null)
         {
             repositories = new Hashtable();
@@ -45,14 +45,37 @@ public class UnitOfWork : IUnitOfWork
 
         if (repositories.ContainsKey(type))
         {
-            return (IRepository<TEntity>)repositories[type];
+            return (IRepository<TEntity>)repositories[type]!;
         }
 
         var repositoryType = typeof(Repository<TEntity>);
 
         repositories.Add(type, Activator.CreateInstance(repositoryType, context));
 
-        return (IRepository<TEntity>)repositories[type];
+        return (IRepository<TEntity>)repositories[type]!;
+    }
+
+    /// <inheritdoc/>
+    public TCustomRepo Repository<TCustomRepo, TEntity>()
+        where TCustomRepo : IRepository<TEntity>
+        where TEntity : class
+    {
+        if (repositories == null)
+        {
+            repositories = new Hashtable();
+        }
+
+        var type = typeof(TCustomRepo).Name;
+
+        if (repositories.ContainsKey(type))
+        {
+            return (TCustomRepo)repositories[type]!;
+        }
+
+        var repositoryType = GetCustomRepository(type);
+        repositories.Add(type, Activator.CreateInstance(repositoryType, context));
+
+        return (TCustomRepo)repositories[type]!;
     }
 
     /// <inheritdoc/>
@@ -86,4 +109,22 @@ public class UnitOfWork : IUnitOfWork
 
         context.Rollback(cancellationToken);
     }
+
+    /// <summary>
+    /// Obtain the customer repository base in the <see cref="TCustomRepo"/>
+    /// </summary>
+    /// <param name="type">The custom repository type</param>
+    /// <returns>The customer repository base in the <see cref="type"/></returns>
+    /// <exception cref="InvalidOperationException">If invalid repository</exception>
+    private static Type GetCustomRepository(string type) => type switch
+    {
+        nameof(IAgentRepository) => typeof(AgentRepository),
+        nameof(IAgentRunnerRepository) => typeof(AgentRunnerRepository),
+        nameof(IReferenceRepository) => typeof(ReferenceRepository),
+        nameof(IRootDomainRepository) => typeof(RootDomainRepository),
+        nameof(ISubdomainRepository) => typeof(SubdomainRepository),
+        nameof(ITargetRepository) => typeof(TargetRepository),
+        nameof(IDirectoryRepository) => typeof(DirectoryRepository),        
+        _ => throw new InvalidOperationException($"Invalid repository {type}")
+    };    
 }

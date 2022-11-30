@@ -1,17 +1,17 @@
-﻿using ReconNess.Application.Models;
-using ReconNess.Domain.Entities;
-using System;
+﻿using ReconNess.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Threading;
+using System;
+using ReconNess.Application.Models;
 
-namespace ReconNess.Application.Services;
+namespace ReconNess.Application.DataAccess.Repositories;
 
 /// <summary>
-/// The interface ISubdomainService
+/// This interface is a custom subdomain repository
 /// </summary>
-public interface ISubdomainService : IService<Subdomain>
+public interface ISubdomainRepository : IRepository<Subdomain>
 {
     /// <summary>
     /// Obtain the list of subdomains
@@ -51,7 +51,7 @@ public interface ISubdomainService : IService<Subdomain>
     /// <param name="predicate">The predicate</param>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns></returns>
-    Task<Subdomain?> GetSubdomainWithServicesNotesDirectoriesAndLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
+    Task<Subdomain?> GetSubdomainWithServicesNotesDirAndLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Obtain the Subdomains paged and filtered
@@ -71,13 +71,4 @@ public interface ISubdomainService : IService<Subdomain>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns></returns>
     Task<Subdomain?> GetSubdomainWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// Add a new Label to the subdomain
-    /// </summary>
-    /// <param name="subdomain">The subdomian</param>
-    /// <param name="newLabel">The new label to add</param>
-    /// <param name="cancellationToken">Notification that operations should be canceled</param>
-    /// <returns>A Task</returns>
-    Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default);
 }

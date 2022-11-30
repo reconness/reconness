@@ -55,11 +55,7 @@ public class EventTrackController : ControllerBase
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
         var date = DateTime.UtcNow.AddDays(-7).Date;
-        var eventTracks = await eventTrackService
-                    .GetAllQueryable()
-                    .Where(e => e.CreatedAt >= date)
-                    .AsNoTracking()
-                    .ToListAsync(cancellationToken);
+        var eventTracks = await eventTrackService.GetAllByCriteriaAsync(e => e.CreatedAt >= date, cancellationToken);
 
         return Ok(mapper.Map<List<EventTrack>, List<EventTrackDto>>(eventTracks));
     }
@@ -83,11 +79,7 @@ public class EventTrackController : ControllerBase
     public async Task<IActionResult> GetYesterdayAndTodayUnread(CancellationToken cancellationToken)
     {
         var date = DateTime.UtcNow.AddDays(-2).Date;
-        var eventTracks = await eventTrackService
-                    .GetAllQueryable()
-                    .Where(e => e.CreatedAt >= date && !e.Read)
-                    .AsNoTracking()
-                    .ToListAsync(cancellationToken);
+        var eventTracks = await eventTrackService.GetAllByCriteriaAsync(e => e.CreatedAt >= date && !e.Read, cancellationToken);
 
         return Ok(mapper.Map<List<EventTrack>, List<EventTrackDto>>(eventTracks));
     }
@@ -111,10 +103,7 @@ public class EventTrackController : ControllerBase
     public async Task<IActionResult> Between([FromRoute] DateTime before, [FromRoute] DateTime after, CancellationToken cancellationToken)
     {
         var eventTracks = await eventTrackService
-                    .GetAllQueryable()
-                    .Where(e => e.CreatedAt > before.ToUniversalTime().Date && e.CreatedAt < after.ToUniversalTime().Date)
-                    .AsNoTracking()
-                    .ToListAsync(cancellationToken);
+                    .GetAllByCriteriaAsync(e => e.CreatedAt > before.ToUniversalTime().Date && e.CreatedAt < after.ToUniversalTime().Date, cancellationToken);
 
         return Ok(mapper.Map<List<EventTrack>, List<EventTrackDto>>(eventTracks));
     }

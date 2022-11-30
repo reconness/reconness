@@ -1,6 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NLog;
-using ReconNess.Application.DataAccess;
+﻿using ReconNess.Application.DataAccess;
+using ReconNess.Application.DataAccess.Repositories;
 using ReconNess.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +13,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class ReferenceService : Service<Reference>, IReferenceService, IService<Reference>
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
     /// <summary>
     /// Initializes a new instance of the <see cref="IReferenceService" /> class
     /// </summary>
@@ -28,10 +25,8 @@ public class ReferenceService : Service<Reference>, IReferenceService, IService<
     /// <inheritdoc/>
     public async Task<List<Reference>> GetReferencesAsync(CancellationToken cancellationToken)
     {
-        var references = await GetAllQueryable()
-                .OrderBy(r => r.Categories)
-                .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var references = await UnitOfWork.Repository<IReferenceRepository, Reference>()
+            .GetReferencesOrderByCategoriesAsync(cancellationToken);
 
         return references;
     }
@@ -39,10 +34,8 @@ public class ReferenceService : Service<Reference>, IReferenceService, IService<
     /// <inheritdoc/>
     public async Task<List<string>> GetAllCategoriesAsync(CancellationToken cancellationToken)
     {
-        var entities = await GetAllQueryable()
-            .Select(r => r.Categories)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var entities = await UnitOfWork.Repository<IReferenceRepository, Reference>()
+            .GetAllCategoriesAsync(cancellationToken);
 
         var categories = new List<string>();
         entities.ForEach(c => c.Split(',')

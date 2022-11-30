@@ -37,12 +37,6 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
     }
 
     /// <inheritdoc/>
-    public IQueryable<TEntity> GetAllQueryable()
-    {
-        return context.ToQueryable<TEntity>();
-    }
-
-    /// <inheritdoc/>
     public Task<List<TEntity>> GetAllByCriteriaAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -56,12 +50,6 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         cancellationToken.ThrowIfCancellationRequested();
 
         return context.AnyAsync<TEntity>(predicate, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate)
-    {
-        return context.ToQueryableByCriteria<TEntity>(predicate);
     }
 
     /// <inheritdoc/>
@@ -86,6 +74,18 @@ public class Repository<TEntity> : IRepository<TEntity> where TEntity : class
         cancellationToken.ThrowIfCancellationRequested();
 
         return context.FindAsync<TEntity>(id, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public IQueryable<TEntity> GetAllQueryable()
+    {
+        return context.ToQueryable<TEntity>();
+    }
+
+    /// <inheritdoc/>
+    public IQueryable<TEntity> GetAllQueryableByCriteria(Expression<Func<TEntity, bool>> predicate)
+    {
+        return context.ToQueryableByCriteria<TEntity>(predicate);
     }
 
     /// <inheritdoc/>

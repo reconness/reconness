@@ -22,7 +22,7 @@ public interface IAgentRunnerService : IService<AgentRunner>
     /// <summary>
     /// Stop the agent if it is running
     /// </summary>
-    /// <param name="agentRunner">The agent run parameters</param>
+    /// <param name="channel">The channel</param>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>A task</returns>
     Task StopAgentAsync(string channel, CancellationToken cancellationToken = default);

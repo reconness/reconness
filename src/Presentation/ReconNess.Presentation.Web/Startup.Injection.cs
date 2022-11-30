@@ -45,7 +45,9 @@ public partial class Startup
 
         services.AddSingleton<IVersionProvider, VersionProvider>();
         services.AddSingleton<ILogsProvider, LogsProvider>();
-
+        services.AddSingleton<INotificationProvider, NotificationProvider>();
+        services.AddSingleton<IMarketplaceProvider, MarketplaceProvider>();
+        
         services.AddSingleton<IScriptEngineProvider, ScriptEngineProvider>();
         services.AddSingleton<IQueueProvider<AgentRunnerQueue>, AgentRunnerQueueProvider>();
     }

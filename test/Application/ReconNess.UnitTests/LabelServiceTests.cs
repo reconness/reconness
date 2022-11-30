@@ -45,7 +45,7 @@ public class LabelServiceTests
                 addWasCalled = true;
             });
 
-        unitOfWorkMock.Setup(m => m.Repository<Label>(It.IsAny<CancellationToken>()))
+        unitOfWorkMock.Setup(m => m.Repository<Label>())
             .Returns(repositoryMock.Object);
 
         unitOfWork = unitOfWorkMock.Object;

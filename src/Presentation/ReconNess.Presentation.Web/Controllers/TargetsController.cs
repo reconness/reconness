@@ -66,7 +66,7 @@ public class TargetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(CancellationToken cancellationToken)
     {
-        var targets = await targetService.GetTargetsNotTrackingAsync(t => !t.Deleted, cancellationToken);
+        var targets = await targetService.GetTargetsAsync(t => !t.Deleted, cancellationToken);
 
         return Ok(mapper.Map<List<Target>, List<TargetDto>>(targets));
     }
@@ -97,7 +97,7 @@ public class TargetsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+        var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return NotFound();
@@ -189,7 +189,7 @@ public class TargetsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromRoute] Guid id, [FromBody] TargetDto targetDto, CancellationToken cancellationToken)
     {
-        var target = await targetService.GetTargetAsync(t => t.Id == id, cancellationToken);
+        var target = await targetService.GetTargetWithRootdomainsAsync(t => t.Id == id, cancellationToken);
         if (target == null)
         {
             return NotFound();
@@ -248,7 +248,7 @@ public class TargetsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
+        var target = await targetService.GetTargetWithRootdomainsAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return NotFound();

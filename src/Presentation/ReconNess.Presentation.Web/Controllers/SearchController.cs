@@ -59,15 +59,12 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SearchInSubdomain([FromRoute] string words, CancellationToken cancellationToken)
     {
-        var result = await this.subdomainService.GetAllQueryableByCriteria(s => s.Name.Contains(words))
-            .Include(s => s.RootDomain)
-            .ThenInclude(s => s.Target)
+        var result = (await this.subdomainService.GetSubdomainsWithRootDomainAndTargetAsync(s => s.Name.Contains(words), cancellationToken))
             .Select(s => new SearchDto
             {
                 Name = s.Name,
                 RelativeUrl = $"{s.RootDomain.Target.Name}/{s.RootDomain.Name}/{s.Name}"
-            })
-            .ToListAsync(cancellationToken);
+            });
 
         return Ok(result);
     }
@@ -92,14 +89,12 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SearchInRootdomain([FromRoute] string words, CancellationToken cancellationToken)
     {
-        var result = await this.rootDomainService.GetAllQueryableByCriteria(s => s.Name.Contains(words))
-            .Include(s => s.Target)
+        var result = (await this.rootDomainService.GetRootDomainsWithTargetsAsync(s => s.Name.Contains(words), cancellationToken))
             .Select(s => new SearchDto
             {
                 Name = s.Name,
                 RelativeUrl = $"{s.Target.Name}/{s.Name}"
-            })
-            .ToListAsync(cancellationToken);
+            });
 
         return Ok(result);
     }
@@ -123,13 +118,12 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SearchInTarget([FromRoute] string words, CancellationToken cancellationToken)
     {
-        var result = await this.targetService.GetAllQueryableByCriteria(s => s.Name.Contains(words))
+        var result = (await this.targetService.GetAllByCriteriaAsync(s => s.Name.Contains(words), cancellationToken))
             .Select(s => new SearchDto
             {
                 Name = s.Name,
                 RelativeUrl = $"{s.Name}"
-            })
-            .ToListAsync(cancellationToken);
+            });
 
         return Ok(result);
     }
@@ -153,13 +147,12 @@ public class SearchController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> SearchInAgent([FromRoute] string words, CancellationToken cancellationToken)
     {
-        var result = await this.agentService.GetAllQueryableByCriteria(s => s.Name.Contains(words))
+        var result = (await this.agentService.GetAllByCriteriaAsync(s => s.Name.Contains(words), cancellationToken))
             .Select(s => new SearchDto
             {
                 Name = s.Name,
                 RelativeUrl = $"agents/{s.Name}"
-            })
-            .ToListAsync(cancellationToken);
+            });
 
         return Ok(result);
     }

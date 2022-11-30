@@ -70,9 +70,7 @@ public class AccountsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Notification(CancellationToken cancellationToken)
     {
-        var notification = await notificationService.GetAllQueryableByCriteria(n => !n.Deleted)
-                .AsNoTracking()
-            .SingleOrDefaultAsync(cancellationToken);
+        var notification = await notificationService.GetByCriteriaAsync(n => !n.Deleted, cancellationToken);
 
         var notificationDto = mapper.Map<Notification, NotificationDto>(notification);
 

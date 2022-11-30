@@ -81,19 +81,19 @@ public class SubdomainsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+        var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return BadRequest();
         }
 
-        var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+        var rootDomain = await rootDomainService.GetRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
         if (rootDomain == null)
         {
             return BadRequest();
         }
 
-        var subdomain = await subdomainService.GetSubdomainNoTrackingAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
+        var subdomain = await subdomainService.GetSubdomainWithServicesNotesDirectoriesAndLabelsAsync(s => s.RootDomain == rootDomain && s.Name == subdomainName, cancellationToken);
         if (subdomain == null)
         {
             return NotFound();
@@ -137,13 +137,13 @@ public class SubdomainsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+        var target = await targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return BadRequest();
         }
 
-        var rootDomain = await rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+        var rootDomain = await rootDomainService.GetRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
         if (rootDomain == null)
         {
             return BadRequest();
@@ -358,7 +358,7 @@ public class SubdomainsController : ControllerBase
             return BadRequest();
         }
 
-        var subdomain = await this.subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
+        var subdomain = await this.subdomainService.GetSubdomainWithLabelsAsync(a => a.Id == id, cancellationToken);
         if (subdomain == null)
         {
             return NotFound();
@@ -407,7 +407,7 @@ public class SubdomainsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddLabel([FromRoute] Guid id, [FromBody] SubdomainLabelDto subdomainLabelDto, CancellationToken cancellationToken)
     {
-        var subdomain = await subdomainService.GetWithLabelsAsync(a => a.Id == id, cancellationToken);
+        var subdomain = await subdomainService.GetSubdomainWithLabelsAsync(a => a.Id == id, cancellationToken);
         if (subdomain == null)
         {
             return NotFound();
@@ -446,7 +446,7 @@ public class SubdomainsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] Guid id, CancellationToken cancellationToken)
     {
-        var subdomain = await this.subdomainService.GetSubdomainAsync(a => a.Id == id, cancellationToken);
+        var subdomain = await this.subdomainService.GetSubdomainWithRootDomainAndTargetAsync(a => a.Id == id, cancellationToken);
         if (subdomain == null)
         {
             return NotFound();
@@ -496,13 +496,13 @@ public class SubdomainsController : ControllerBase
             return BadRequest();
         }
 
-        var target = await this.targetService.GetTargetNotTrackingAsync(t => t.Name == targetName, cancellationToken);
+        var target = await this.targetService.GetTargetAsync(t => t.Name == targetName, cancellationToken);
         if (target == null)
         {
             return BadRequest();
         }
 
-        var rootDomain = await this.rootDomainService.GetRootDomainNoTrackingAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
+        var rootDomain = await this.rootDomainService.GetRootDomainAsync(r => r.Target == target && r.Name == rootDomainName, cancellationToken);
         if (rootDomain == null)
         {
             return BadRequest();
@@ -515,7 +515,7 @@ public class SubdomainsController : ControllerBase
 
         foreach (var subdomainId in subdomainIds)
         {
-            var subdomain = await this.subdomainService.GetSubdomainAsync(s => s.Id == subdomainId && s.RootDomain == rootDomain && s.RootDomain.Target == target, cancellationToken);
+            var subdomain = await this.subdomainService.GetSubdomainWithRootDomainAndTargetAsync(s => s.Id == subdomainId && s.RootDomain == rootDomain && s.RootDomain.Target == target, cancellationToken);
             if (subdomain == null)
             {
                 return NotFound();
@@ -585,7 +585,7 @@ public class SubdomainsController : ControllerBase
         var data = string.Empty;
         foreach (var subdomainId in subdomainIds)
         {
-            var subdomain = await this.subdomainService.GetSubdomainAsync(s => s.Id == subdomainId && s.RootDomain == rootDomain && s.RootDomain.Target == target, cancellationToken);
+            var subdomain = await this.subdomainService.GetSubdomainWithRootDomainAndTargetAsync(s => s.Id == subdomainId && s.RootDomain == rootDomain && s.RootDomain.Target == target, cancellationToken);
             if (subdomain != null)
             {
                 data += $"{subdomain.Name},";

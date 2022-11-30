@@ -18,7 +18,7 @@ public interface IAgentService : IService<Agent>
     /// </summary>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>List of Agents with categories or null</returns>
-    Task<List<Agent>> GetAgentsNoTrackingAsync(CancellationToken cancellationToken = default);
+    Task<List<Agent>> GetAgentsAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Obtain an Agent with not tracking
@@ -26,7 +26,7 @@ public interface IAgentService : IService<Agent>
     /// <param name="criteria"></param>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>A Agent or null</returns>
-    Task<Agent> GetAgentNoTrackingAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+    Task<Agent?> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Obtain an Agent
@@ -34,7 +34,7 @@ public interface IAgentService : IService<Agent>
     /// <param name="criteria"></param>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>A Agent or null</returns>
-    Task<Agent> GetAgentAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+    Task<Agent?> GetAgentWithCategoriesTriggerAndEventsAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Obtain an Agent to Run
@@ -42,7 +42,7 @@ public interface IAgentService : IService<Agent>
     /// <param name="criteria"></param>
     /// <param name="cancellationToken">Notification that operations should be canceled</param>
     /// <returns>A Agent or null</returns>
-    Task<Agent> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
+    Task<Agent?> GetAgentToRunAsync(Expression<Func<Agent, bool>> criteria, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Obtain default Agents to install

@@ -77,26 +77,18 @@ public class UsersController : ControllerBase
         if (this.authProvider.AreYouOwner())
         {
             // get all users
-            users = await this.userService
-                        .GetAllQueryable()
-                        .AsNoTracking()
-                        .ToListAsync(cancellationToken);
+            users = await this.userService.GetAllAsync(cancellationToken);
         }
         else if (this.authProvider.AreYouMember())
         {
             // get yourself only
             users.Add(await this.userService
-                    .GetAllQueryableByCriteria(u => u.UserName == this.authProvider.UserName())
-                    .AsNoTracking()
-                    .FirstOrDefaultAsync(cancellationToken));
+                    .GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName(), cancellationToken));
         }
         else if (this.authProvider.AreYouAdmin())
         {
             // get yourself and member users only
-            var allUsers = await this.userService
-                        .GetAllQueryable()
-                        .AsNoTracking()
-                        .ToListAsync(cancellationToken);
+            var allUsers = await this.userService.GetAllAsync(cancellationToken);
 
             foreach (var user in allUsers)
             {
@@ -399,11 +391,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
     {
-        var roles = await this.roleService
-                    .GetAllQueryable()
-                    .AsNoTracking()
-                    .Select(r => r.Name)
-                    .ToListAsync(cancellationToken);
+        var roles = (await this.roleService.GetAllAsync(cancellationToken)).Select(r => r.Name);
 
         return Ok(roles);
     }

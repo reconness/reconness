@@ -1,9 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NLog;
-using ReconNess.Application.DataAccess;
+﻿using ReconNess.Application.DataAccess;
+using ReconNess.Application.DataAccess.Repositories;
 using ReconNess.Application.Models;
 using ReconNess.Domain.Entities;
-using ReconNess.Infrastructure.Data.EF.Npgsql.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +16,6 @@ namespace ReconNess.Application.Services;
 /// </summary>
 public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdomainService
 {
-    protected static readonly ILogger _logger = LogManager.GetCurrentClassLogger();
-
     private readonly ILabelService labelService;
 
     /// <summary>
@@ -36,110 +32,32 @@ public class SubdomainService : Service<Subdomain>, IService<Subdomain>, ISubdom
     }
 
     /// <inheritdoc/>
-    public async Task<List<Subdomain>> GetSubdomainsNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return await GetAllQueryableByCriteria(predicate)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
-    }
+    public async Task<List<Subdomain>> GetSubdomainsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default) => 
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetSubdomainsAsync(predicate, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<Subdomain> GetSubdomainAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return await GetAllQueryableByCriteria(predicate)
-                .Include(t => t.RootDomain)
-                    .ThenInclude(r => r.Target)
-            .SingleAsync(cancellationToken);
-    }
+    public async Task<Subdomain?> GetSubdomainWithRootDomainAndTargetAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetSubdomainWithRootDomainAndTargetAsync(predicate, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<Subdomain> GetSubdomainNoTrackingAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return await GetAllQueryableByCriteria(predicate)
-                .Include(t => t.Services)
-                .Include(t => t.Notes)
-                .Include(t => t.Directories)
-                .Include(t => t.Labels)
-                .AsNoTracking()
-            .SingleAsync(cancellationToken);
-    }
+    public async Task<IEnumerable<Subdomain>> GetSubdomainsWithRootDomainAndTargetAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetSubdomainsWithRootDomainAndTargetAsync(predicate, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<PagedResult<Subdomain>> GetPaginateAsync(RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default)
-    {
-        IQueryable<Subdomain> queryable = default;
-        if (string.IsNullOrEmpty(query))
-        {
-            queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain)
-                    .Select(subdomain => new Subdomain
-                    {
-                        Id = subdomain.Id,
-                        Name = subdomain.Name,
-                        CreatedAt = subdomain.CreatedAt,
-                        IpAddress = subdomain.IpAddress,
-                        AgentsRanBefore = subdomain.AgentsRanBefore,
-                        HasHttpOpen = subdomain.HasHttpOpen,
-                        IsAlive = subdomain.IsAlive,
-                        IsMainPortal = subdomain.IsMainPortal,
-                        Takeover = subdomain.Takeover,
-                        Labels = subdomain.Labels
-                                .Select(label => new Label
-                                {
-                                    Name = label.Name,
-                                    Color = label.Color
-                                })
-                                .ToList(),
-                        Services = subdomain.Services
-                                .Select(service => new Service
-                                {
-                                    Name = service.Name
-                                }).ToList()
-                    })
-                .OrderByDescending(s => s.CreatedAt)
-                .AsNoTracking();
-        }
-        else
-        {
-            queryable = GetAllQueryableByCriteria(s => s.RootDomain == rootDomain && s.Name.Contains(query))
-                .Select(subdomain => new Subdomain
-                {
-                    Name = subdomain.Name,
-                    CreatedAt = subdomain.CreatedAt,
-                    IpAddress = subdomain.IpAddress,
-                    AgentsRanBefore = subdomain.AgentsRanBefore,
-                    HasHttpOpen = subdomain.HasHttpOpen,
-                    IsAlive = subdomain.IsAlive,
-                    IsMainPortal = subdomain.IsMainPortal,
-                    Takeover = subdomain.Takeover,
-                    Labels = subdomain.Labels
-                                .Select(label => new Label
-                                {
-                                    Name = label.Name,
-                                    Color = label.Color
-                                })
-                                .ToList(),
-                    Services = subdomain.Services
-                                .Select(service => new Service
-                                {
-                                    Name = service.Name
-                                }).ToList()
-                })
-                .OrderByDescending(s => s.CreatedAt)
-                .AsNoTracking();
-        }
-
-        return await queryable.GetPageAsync<Subdomain>(page, limit, cancellationToken);
-    }
+    public async Task<Subdomain?> GetSubdomainWithNotesAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetSubdomainWithNotesAsync(predicate, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<Subdomain> GetWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default)
-    {
-        return await GetAllQueryableByCriteria(predicate)
-                .Include(t => t.Labels)
-                .Include(t => t.RootDomain)
-                    .ThenInclude(r => r.Target)
-            .SingleAsync(cancellationToken);
-    }
+    public async Task<Subdomain?> GetSubdomainWithServicesNotesDirectoriesAndLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetSubdomainWithServicesNotesDirAndLabelsAsync(predicate, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<PagedResult<Subdomain>> GetPaginateAsync(RootDomain rootDomain, string query, int page, int limit, CancellationToken cancellationToken = default) =>
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetPaginateAsync(rootDomain, query, page, limit, cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<Subdomain?> GetSubdomainWithLabelsAsync(Expression<Func<Subdomain, bool>> predicate, CancellationToken cancellationToken = default) =>
+        await UnitOfWork.Repository<ISubdomainRepository, Subdomain>().GetSubdomainWithLabelsAsync(predicate, cancellationToken);
 
     /// <inheritdoc/>
     public async Task AddLabelAsync(Subdomain subdomain, string newLabel, CancellationToken cancellationToken = default)
