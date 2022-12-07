@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using ReconNess.Infrastructure.Data.EF.Npgsql;
+using ReconNess.Infrastructure.DataAccess;
 using System;
 using System.IO;
 using System.Reflection;

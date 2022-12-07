@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ReconNess.Application.Providers;
 using ReconNess.Application.Services;
 using ReconNess.Domain.Entities;
+using ReconNess.Infrastructure.Identity.Entities;
 using ReconNess.Presentation.Api.Dtos;
 using System;
 using System.Collections.Generic;
@@ -24,33 +25,29 @@ namespace ReconNess.Presentation.Api.Controllers;
 public class UsersController : ControllerBase
 {
     private readonly IMapper mapper;
-    private readonly IUserService userService;
-    private readonly IRoleService roleService;
     private readonly IAuthProvider authProvider;
     private readonly UserManager<User> userManager;
+    private readonly RoleManager<Role> roleManager;
     private readonly IEventTrackService eventTrackService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UsersController" /> class
     /// </summary>
     /// <param name="mapper"><see cref="IMapper"/></param>
-    /// <param name="userService"><see cref="IUserService"/></param>
-    /// <param name="roleService"><see cref="IRoleService"/></param>
     /// <param name="authProvider"><see cref="IAuthProvider"/></param>
     /// <param name="userManager"><see cref="UserManager{TUser}"/></param>
+    /// <param name="roleManager"><see cref="RoleManager{TRole}"/></param>
     /// <param name="eventTrackService"><see cref="IEventTrackService"/></param>
     public UsersController(IMapper mapper,
-        IUserService userService,
-        IRoleService roleService,
         IAuthProvider authProvider,
         UserManager<User> userManager,
+        RoleManager<Role> roleManager,
         IEventTrackService eventTrackService)
     {
         this.mapper = mapper;
-        this.userService = userService;
-        this.roleService = roleService;
         this.authProvider = authProvider;
         this.userManager = userManager;
+        this.roleManager = roleManager;
         this.eventTrackService = eventTrackService;
     }
 
@@ -77,18 +74,21 @@ public class UsersController : ControllerBase
         if (this.authProvider.AreYouOwner())
         {
             // get all users
-            users = await this.userService.GetAllAsync(cancellationToken);
+            users = await this.userManager.Users.ToListAsync(cancellationToken);
         }
         else if (this.authProvider.AreYouMember())
         {
             // get yourself only
-            users.Add(await this.userService
-                    .GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName(), cancellationToken));
+            var user = await this.userManager.Users.Where(u => u.UserName == this.authProvider.UserName()).FirstOrDefaultAsync(cancellationToken);
+            if (user != null)
+            {
+                users.Add(user);
+            }            
         }
         else if (this.authProvider.AreYouAdmin())
         {
             // get yourself and member users only
-            var allUsers = await this.userService.GetAllAsync(cancellationToken);
+            var allUsers = await this.userManager.Users.ToListAsync(cancellationToken);
 
             foreach (var user in allUsers)
             {
@@ -123,7 +123,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
     {
-        var user = await userService.GetByCriteriaAsync(u => u.Id == id, cancellationToken);
+        var user = await this.userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync(cancellationToken);
         if (user == null)
         {
             return NotFound();
@@ -193,8 +193,8 @@ public class UsersController : ControllerBase
             return BadRequest("You can not add an invalid Role.");
         }
 
-        var userExist = await this.userService.AnyAsync(t => t.UserName.ToLower() == userDto.UserName.ToLower(), cancellationToken);
-        if (userExist)
+        var userExist = await this.userManager.Users.Where(t => t.UserName.ToLower() == userDto.UserName.ToLower()).FirstOrDefaultAsync(cancellationToken);
+        if (userExist != null)
         {
             return BadRequest("A user with that user name exist");
         }            
@@ -274,7 +274,8 @@ public class UsersController : ControllerBase
             return BadRequest("You only can edit yourself or a Member users.");
         }
 
-        if (user.UserName != userDto.UserName && await this.userService.AnyAsync(t => t.UserName == userDto.UserName, cancellationToken))
+        var userExist = await this.userManager.Users.Where(t => t.UserName == userDto.UserName).FirstOrDefaultAsync(cancellationToken);
+        if (user.UserName != userDto.UserName && userExist != null)
         {
             return BadRequest("A user with that user name exist");
         }
@@ -391,7 +392,7 @@ public class UsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
     {
-        var roles = (await this.roleService.GetAllAsync(cancellationToken)).Select(r => r.Name);
+        var roles = await this.roleManager.Roles.Select(r => r.Name).ToListAsync(cancellationToken);
 
         return Ok(roles);
     }
@@ -448,10 +449,13 @@ public class UsersController : ControllerBase
             return StatusCode(StatusCodes.Status409Conflict);
         }
 
-        var currentUser = await this.userService.GetByCriteriaAsync(u => u.UserName == this.authProvider.UserName() && u.Owner, cancellationToken);
-        currentUser.Owner = false;
+        var currentUser = await this.userManager.Users.Where(u => u.UserName == this.authProvider.UserName() && u.Owner).FirstOrDefaultAsync();
+        if (currentUser != null)
+        {
+            currentUser.Owner = false;
 
-        await userService.UpdateAsync(currentUser, cancellationToken);
+            await this.userManager.UpdateAsync(currentUser);
+        }
 
         await this.eventTrackService.AddAsync(new EventTrack
         {

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NLog;
-using ReconNess.Infrastructure.Data.EF.Npgsql;
+using ReconNess.Infrastructure.DataAccess;
 using System;
 
 namespace ReconNess.Presentation.Api;

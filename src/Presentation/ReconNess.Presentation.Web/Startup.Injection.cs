@@ -4,10 +4,10 @@ using ReconNess.Application.Managers;
 using ReconNess.Application.Models;
 using ReconNess.Application.Providers;
 using ReconNess.Application.Services;
-using ReconNess.Infrastructure.Data.EF.Npgsql;
+using ReconNess.Infrastructure.DataAccess;
+using ReconNess.Infrastructure.Identity.Auth;
 using ReconNess.Infrastructure.Managers;
 using ReconNess.Infrastructure.Providers;
-using ReconNess.Presentation.Api.Auth;
 
 namespace ReconNess.Presentation.Api;
 
@@ -37,8 +37,6 @@ public partial class Startup
         services.AddScoped<IReferenceService, ReferenceService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IAuthProvider, AuthProvider>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IRoleService, RoleService>();
 
         services.AddSingleton<IAgentServerManager, AgentServerManager>();
         services.AddSingleton<IAgentsSettingServerManager, AgentsSettingServerManager>();

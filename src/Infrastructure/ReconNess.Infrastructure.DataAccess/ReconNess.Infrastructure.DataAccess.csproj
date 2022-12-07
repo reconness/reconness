@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Migrations\20200529213346_AddRootDomain.cs" />
+    <Compile Remove="Migrations\20200529213346_AddRootDomain.Designer.cs" />
+    <Compile Remove="Migrations\20200606172050_AddSeeding.cs" />
+    <Compile Remove="Migrations\20200606172050_AddSeeding.Designer.cs" />
+    <Compile Remove="Migrations\20200606172247_AddSeeding.cs" />
+    <Compile Remove="Migrations\20200606172247_AddSeeding.Designer.cs" />
+    <Compile Remove="Migrations\20200702171229_ChangeAgentNotification.cs" />
+    <Compile Remove="Migrations\20200702171229_ChangeAgentNotification.Designer.cs" />
+    <Compile Remove="Migrations\20201001172733_FixAgentTypeRelation.cs" />
+    <Compile Remove="Migrations\20201001172733_FixAgentTypeRelation.Designer.cs" />
+    <Compile Remove="Migrations\20201001173145_FixAgentTypeRelation.cs" />
+    <Compile Remove="Migrations\20201001173145_FixAgentTypeRelation.Designer.cs" />
+    <Compile Remove="Migrations\20201001173231_FixAgentTypeRelation.cs" />
+    <Compile Remove="Migrations\20201001173231_FixAgentTypeRelation.Designer.cs" />
+    <Compile Remove="Migrations\20201015205141_AddDeleteCascade.cs" />
+    <Compile Remove="Migrations\20201015205141_AddDeleteCascade.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.11">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Application\ReconNess.Application\ReconNess.Application.csproj" />
+    <ProjectReference Include="..\..\Domain\ReconNess.Domain\ReconNess.Domain.csproj" />
+    <ProjectReference Include="..\ReconNess.Infrastructure.Identity\ReconNess.Infrastructure.Identity.csproj" />
+  </ItemGroup>
+
+</Project>

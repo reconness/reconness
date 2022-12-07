@@ -8,9 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
-using ReconNess.Domain.Entities;
-using ReconNess.Infrastructure.Data.EF.Npgsql;
-using ReconNess.Presentation.Api.Auth;
+using ReconNess.Infrastructure.DataAccess;
+using ReconNess.Infrastructure.Identity.Auth;
+using ReconNess.Infrastructure.Identity.Entities;
 using System;
 using System.Text;
 

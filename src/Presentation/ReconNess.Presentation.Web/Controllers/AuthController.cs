@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ReconNess.Domain.Entities;
-using ReconNess.Presentation.Api.Auth;
+using ReconNess.Infrastructure.Identity.Auth;
+using ReconNess.Infrastructure.Identity.Entities;
 using ReconNess.Presentation.Api.Models;
 using System;
 using System.Linq;

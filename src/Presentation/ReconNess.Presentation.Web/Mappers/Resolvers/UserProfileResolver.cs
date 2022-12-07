@@ -1,10 +1,8 @@
-﻿
-
-namespace ReconNess.Presentation.Api.Mappers.Resolvers;
+﻿namespace ReconNess.Presentation.Api.Mappers.Resolvers;
 
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using ReconNess.Domain.Entities;
+using ReconNess.Infrastructure.Identity.Entities;
 using ReconNess.Presentation.Api.Dtos;
 using System.Linq;
 

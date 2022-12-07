@@ -1,5 +1,5 @@
 using AutoMapper;
-using ReconNess.Domain.Entities;
+using ReconNess.Infrastructure.Identity.Entities;
 using ReconNess.Presentation.Api.Dtos;
 using ReconNess.Presentation.Api.Mappers.Resolvers;
 

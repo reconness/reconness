@@ -39,7 +39,8 @@
     <ProjectReference Include="..\..\Application\ReconNess.Application.Services\ReconNess.Application.Services.csproj" />
     <ProjectReference Include="..\..\Application\ReconNess.Application\ReconNess.Application.csproj" />
     <ProjectReference Include="..\..\Domain\ReconNess.Domain\ReconNess.Domain.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\Data\ReconNess.Infrastructure.Data.EF.Npgsql\ReconNess.Infrastructure.Data.EF.Npgsql.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ReconNess.Infrastructure.DataAccess\ReconNess.Infrastructure.DataAccess.csproj" />
+    <ProjectReference Include="..\..\Infrastructure\ReconNess.Infrastructure.Identity\ReconNess.Infrastructure.Identity.csproj" />
     <ProjectReference Include="..\..\Infrastructure\ReconNess.Infrastructure\ReconNess.Infrastructure.csproj" />
   </ItemGroup>
 
