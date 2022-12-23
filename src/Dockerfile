@@ -3,6 +3,7 @@ WORKDIR /app
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
 RUN apt-get install -y nodejs
+RUN apt-get install -y npm
 RUN npm install -g @vue/cli
 
 # copy csproj and restore as distinct layers
