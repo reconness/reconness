@@ -1,23 +1,29 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0.100-bullseye-slim AS build
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
 WORKDIR /app
 
+FROM mcr.microsoft.com/dotnet/sdk:6.0.100-bullseye-slim AS build
+
 # copy csproj and restore as distinct layers
-COPY *.sln .
-COPY ["src/Application/ReconNess.Application/ReconNess.Application.csproj", "Application/ReconNess.Application/"]
-COPY ["src/Application/ReconNess.Application.Services/ReconNess.Application.Services.csproj", "Application/ReconNess.Application.Services/"]
-COPY ["src/Domain/ReconNess.Domain/ReconNess.Domain.csproj", "Domain/ReconNess.Domain/"]
-COPY ["src/Infrastructure/ReconNess.Infrastructure/ReconNess.Infrastructure.csproj", "/Infrastructure/ReconNess.Infrastructure/"]
-COPY ["src/Infrastructure/ReconNess.Infrastructure.DataAccess/ReconNess.Infrastructure.DataAccess.csproj", "/Infrastructure/ReconNess.Infrastructure.DataAccess/"]
-COPY ["src/Infrastructure/ReconNess.Infrastructure.Identity/ReconNess.Infrastructure.Identity.csproj", "/Infrastructure/ReconNess.Infrastructure.Identity/"]
-COPY ["src/Presentation/ReconNess.Presentation.Api/ReconNess.Presentation.Api.csproj", "Presentation/ReconNess.Presentation.Api/"]
-RUN dotnet restore "Presentation/ReconNess.Presentation.Api/ReconNess.Presentation.Api.csproj"
+COPY ["/src/Application/ReconNess.Application/ReconNess.Application.csproj", "/src/Application/ReconNess.Application/"]
+COPY ["/src/Application/ReconNess.Application.Services/ReconNess.Application.Services.csproj", "/src/Application/ReconNess.Application.Services/"]
+COPY ["/src/Domain/ReconNess.Domain/ReconNess.Domain.csproj", "/src/Domain/ReconNess.Domain/"]
+COPY ["/src/Infrastructure/ReconNess.Infrastructure/ReconNess.Infrastructure.csproj", "/src/Infrastructure/ReconNess.Infrastructure/"]
+COPY ["/src/Infrastructure/ReconNess.Infrastructure.DataAccess/ReconNess.Infrastructure.DataAccess.csproj", "/src/Infrastructure/ReconNess.Infrastructure.DataAccess/"]
+COPY ["/src/Infrastructure/ReconNess.Infrastructure.Identity/ReconNess.Infrastructure.Identity.csproj", "/src/Infrastructure/ReconNess.Infrastructure.Identity/"]
+COPY ["/src/Presentation/ReconNess.Presentation.Api/ReconNess.Presentation.Api.csproj", "/src/Presentation/ReconNess.Presentation.Api/"]
+RUN dotnet restore "/src/Presentation/ReconNess.Presentation.Api/ReconNess.Presentation.Api.csproj"
 
 # copy everything else and build app
-COPY . ./
-WORKDIR /app/Presentation/ReconNess.Presentation.Api
-RUN dotnet publish -c Release -o /dist
+COPY . .
+WORKDIR /src/Presentation/ReconNess.Presentation.Api
+RUN dotnet build "ReconNess.Presentation.Api.csproj" -c Release -o /app/build
 
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
+FROM build AS publish
+RUN dotnet publish "ReconNess.Presentation.Api.csproj" -c Release -o /app/publish
+
+FROM base AS final
 WORKDIR /app
 
 #####################################################################################################################
@@ -40,6 +46,6 @@ ENV ASPNETCORE_Kestrel__Certificates__Default__Path="aspnetapp.pfx"
 EXPOSE 5000
 EXPOSE 5001
 
-COPY --from=build /dist ./
+COPY --from=publish /app/publish .
 
-ENTRYPOINT ["dotnet", "ReconNess.Presentation.Api.dll"]
+ENTRYPOINT ["dotnet", "Presentation/ReconNess.Presentation.Api.dll"]
