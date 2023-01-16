@@ -60,28 +60,28 @@ services:
       - RabbitMQPassword=reconness                # rabbitmq password
       - SecurityKey=mysecuritykeypleasechangethis # securityKey for the JWT, minimum length is 16 characters
       
-  #frontend:
-  #  container_name: 'reconness-frontend'
-  #  image: 'reconness-frontend'
-  #  build:
-  #    context: ../../reconness-frontend/.
-  #    dockerfile: Dockerfile
-  #    args:
-  #     VUE_APP_API_RECONNES_HOST: localhost:5001
-  #  ports:
-  #    - '80:80'
-  #  depends_on:
-  #    - 'backend'
-  #  volumes:
-  #    - shared-folder-volume:/app/Content
-  #  networks:
-  #    - reconness-network 
+  frontend:
+    container_name: 'reconness-frontend'
+    image: 'reconness-frontend'
+    build:
+      context: ../reconness-frontend/.
+      dockerfile: Dockerfile
+      args:
+       VUE_APP_API_RECONNES_HOST: localhost:5001
+    ports:
+      - '80:80'
+    depends_on:
+      - 'backend'
+    volumes:
+      - shared-folder-volume:/app/Content
+    networks:
+      - reconness-network 
       
   agent1:
     container_name: 'reconness-agent-1'
     image: 'reconness-agent'
     build:
-      context: ../../reconness-c-sharp-runtime-agents/.
+      context: ../reconness-c-sharp-runtime-agents/.
       dockerfile: Dockerfile
     depends_on:
       - 'postgres'
@@ -103,7 +103,7 @@ services:
     container_name: 'reconness-agent-2'
     image: 'reconness-agent'
     build:
-      context: ../../reconness-c-sharp-runtime-agents/.
+      context: ../reconness-c-sharp-runtime-agents/.
       dockerfile: Dockerfile
     depends_on:
       - 'postgres'

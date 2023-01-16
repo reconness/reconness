@@ -3,16 +3,18 @@ WORKDIR /app
 
 # copy csproj and restore as distinct layers
 COPY *.sln .
-COPY ["DAL/ReconNess.Data.Npgsql/ReconNess.Data.Npgsql.csproj", "DAL/ReconNess.Data.Npgsql/"]
-COPY ["ReconNess.Web/ReconNess.Web.csproj", "ReconNess.Web/"]
-COPY ["ReconNess.Entities/ReconNess.Entities.csproj", "ReconNess.Entities/"]
-COPY ["ReconNess.Core/ReconNess.Core.csproj", "ReconNess.Core/"]
-COPY ["ReconNess/ReconNess.csproj", "ReconNess/"]
-RUN dotnet restore "ReconNess.Web/ReconNess.Web.csproj"
+COPY ["src/Application/ReconNess.Application/ReconNess.Application.csproj", "Application/ReconNess.Application/"]
+COPY ["src/Application/ReconNess.Application.Services/ReconNess.Application.Services.csproj", "Application/ReconNess.Application.Services/"]
+COPY ["src/Domain/ReconNess.Domain/ReconNess.Domain.csproj", "Domain/ReconNess.Domain/"]
+COPY ["src/Infrastructure/ReconNess.Infrastructure/ReconNess.Infrastructure.csproj", "/Infrastructure/ReconNess.Infrastructure/"]
+COPY ["src/Infrastructure/ReconNess.Infrastructure.DataAccess/ReconNess.Infrastructure.DataAccess.csproj", "/Infrastructure/ReconNess.Infrastructure.DataAccess/"]
+COPY ["src/Infrastructure/ReconNess.Infrastructure.Identity/ReconNess.Infrastructure.Identity.csproj", "/Infrastructure/ReconNess.Infrastructure.Identity/"]
+COPY ["src/Presentation/ReconNess.Presentation.Api/ReconNess.Presentation.Api.csproj", "Presentation/ReconNess.Presentation.Api/"]
+RUN dotnet restore "Presentation/ReconNess.Presentation.Api/ReconNess.Presentation.Api.csproj"
 
 # copy everything else and build app
 COPY . ./
-WORKDIR /app/ReconNess.Web
+WORKDIR /app/Presentation/ReconNess.Presentation.Api
 RUN dotnet publish -c Release -o /dist
 
 FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS runtime
@@ -40,8 +42,4 @@ EXPOSE 5001
 
 COPY --from=build /dist ./
 
-# -------- Agents dependencies -------- 
-
-# -------- End Agents dependencies -------- 
-
-ENTRYPOINT ["dotnet", "ReconNess.Web.dll"]
+ENTRYPOINT ["dotnet", "ReconNess.Presentation.Api.dll"]

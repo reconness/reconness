@@ -26,7 +26,7 @@ public class AuthProvider : IAuthProvider
     /// <returns></returns>
     public string UserName()
     {
-        return httpContextAccessor.HttpContext.User.Identity.Name;
+        return httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? string.Empty;
     }
 
     /// <summary>
@@ -35,7 +35,7 @@ public class AuthProvider : IAuthProvider
     /// <returns></returns>
     public string[] Roles()
     {
-        var roles = httpContextAccessor.HttpContext.User.Claims.Where(c => c.Type == ClaimsIdentity.DefaultRoleClaimType).FirstOrDefault().Value ?? string.Empty;
+        var roles = httpContextAccessor?.HttpContext?.User?.Claims?.Where(c => c.Type == ClaimsIdentity.DefaultRoleClaimType)?.FirstOrDefault()?.Value ?? string.Empty;
 
         if (roles.Contains(","))
         {
@@ -57,7 +57,7 @@ public class AuthProvider : IAuthProvider
 
     public bool AreYouOwner()
     {
-        var onwer = httpContextAccessor.HttpContext.User.Claims.Where(c => c.Type == "Owner")?.FirstOrDefault().Value ?? "false";
+        var onwer = httpContextAccessor?.HttpContext?.User.Claims.Where(c => c.Type == "Owner")?.FirstOrDefault()?.Value ?? "false";
         return !string.IsNullOrEmpty(onwer) && bool.Parse(onwer);
     }
 }
