@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0.100-bullseye-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0.408-bullseye-slim AS build
 WORKDIR /app
 
 RUN curl -sL https://deb.nodesource.com/setup_10.x |  bash -
